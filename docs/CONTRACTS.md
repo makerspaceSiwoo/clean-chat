@@ -1,6 +1,6 @@
 # 통신 포맷 (계약)
 
-> 코드 기준: `src/lolguard/core/schemas.py` · 예시 기준: `fixtures/<stage>/*.jsonl`
+> 코드 기준: `src/clean_chat/core/schemas.py` · 예시 기준: `fixtures/<stage>/*.jsonl`
 > 이 문서와 코드가 다르면 **코드가 맞습니다**.
 
 ## 1. 규칙
@@ -60,10 +60,10 @@ Player       { name, champion?, team?, position?, is_me }
 
 ## 5. 모듈 개별 테스트 방법
 ```bash
-uv run python -m lolguard.parse --impl mock --check   # 형식 확인 (항상 통과)
-uv run python -m lolguard.parse                       # 내 실제 구현으로 fixtures 실행
-uv run python -m lolguard.parse --check               # 기대값과 몇 개 일치하는지
-uv run python -m lolguard.parse --in my_cases.jsonl --out result.jsonl
-uv run lolguard run --real parse,normalize            # 내 모듈만 실제로, 나머지 mock으로 전체 흐름
+uv run python -m clean_chat.parse --impl mock --check   # 형식 확인 (항상 통과)
+uv run python -m clean_chat.parse                       # 내 실제 구현으로 fixtures 실행
+uv run python -m clean_chat.parse --check               # 기대값과 몇 개 일치하는지
+uv run python -m clean_chat.parse --in my_cases.jsonl --out result.jsonl
+uv run clean-chat run --real parse,normalize            # 내 모듈만 실제로, 나머지 mock으로 전체 흐름
 uv run pytest -q                                      # 구현된 모듈만 자동 검사 (미구현은 skip)
 ```

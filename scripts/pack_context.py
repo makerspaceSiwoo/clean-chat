@@ -9,6 +9,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):  # Windows 콘솔에서 한글·이모지 출력 깨짐 방지
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parents[1]
 COMMON = [
     "AGENTS.md",
@@ -16,8 +19,8 @@ COMMON = [
     "docs/ARCHITECTURE.md",
     "docs/MODULES.md",
     "docs/CONTRACTS.md",
-    "src/lolguard/core/schemas.py",
-    "src/lolguard/core/stage.py",
+    "src/clean_chat/core/schemas.py",
+    "src/clean_chat/core/stage.py",
 ]
 STAGES_OF = {"capture": ["ocr"], "report": ["report", "complaint"]}
 
@@ -26,12 +29,12 @@ def main() -> None:
     if len(sys.argv) < 2:
         sys.exit("사용법: pack_context.py <모듈명>")
     mod = sys.argv[1]
-    mod_dir = ROOT / "src" / "lolguard" / mod
+    mod_dir = ROOT / "src" / "clean_chat" / mod
     files = [ROOT / p for p in COMMON] + sorted(p for p in mod_dir.rglob("*") if p.suffix in {".py", ".md"})
     for st in STAGES_OF.get(mod, [mod]):
         files += sorted((ROOT / "fixtures" / st).glob("*.jsonl"))
     parts = [
-        f"# 컨텍스트 묶음: {mod} 모듈\n\n나는 `{mod}` 모듈 담당이다. `src/lolguard/{mod}/` 밖은 수정하지 않는다.\n"
+        f"# 컨텍스트 묶음: {mod} 모듈\n\n나는 `{mod}` 모듈 담당이다. `src/clean_chat/{mod}/` 밖은 수정하지 않는다.\n"
     ]
     for f in files:
         lang = {".py": "python", ".md": "markdown", ".jsonl": "json"}.get(f.suffix, "")

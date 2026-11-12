@@ -5,12 +5,12 @@
 > 웹 채팅으로 작업할 때는 `uv run python scripts/pack_context.py <모듈>`로 묶음 파일을 만들어 첨부하세요.
 
 ## 1. 프로젝트 요약
-LoL Guard는 **리그 오브 레전드 게임 중 악성 채팅을 감지하고 필터링하는 Windows 데스크톱 앱(2주 데모)** 입니다.
+Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고 필터링하는 Windows 데스크톱 앱(2주 데모)** 입니다.
 화면 OCR로 채팅창을 읽고 → 분류하고 → 등급에 따라 숨김, 피드백만 표시, 신고, 고소장 초안 작성을 합니다. 내가 쓰는 채팅도 같은 필터를 거칩니다.
 - 무엇을, 왜: `docs/SPEC.md`
 - 왜 이렇게 만들었나: `docs/DECISIONS.md` (새 결정은 여기에 추가)
 - 구조: `docs/ARCHITECTURE.md`
-- 모듈 사이 데이터 형식: `docs/CONTRACTS.md`, 코드 기준은 `src/lolguard/core/schemas.py`
+- 모듈 사이 데이터 형식: `docs/CONTRACTS.md`, 코드 기준은 `src/clean_chat/core/schemas.py`
 - 모듈별 역할(명세)과 작업 패키지: `docs/MODULES.md`
 - 아직 정해지지 않은 것: `docs/OPEN_QUESTIONS.md`
 
@@ -19,13 +19,13 @@ LoL Guard는 **리그 오브 레전드 게임 중 악성 채팅을 감지하고 
 [🪟 ScreenGrabber] ─Frame→ ocr ─OcrResult→ parse ─ParseResult→ normalize ─NormalizedMessage→ classify ─Classification→
    (L2 이상 & 피드백) rewrite ─Rewrite→ policy ─Decision→ Incident → ui(클라이언트·오버레이) / report·complaint
 ```
-- 모든 처리 모듈 = **Stage**: `stage.py`(인터페이스, 수정 금지) + `impl.py`(실제 구현, 담당자가 작성) + `python -m lolguard.<모듈>`(단독 실행)
+- 모든 처리 모듈 = **Stage**: `stage.py`(인터페이스, 수정 금지) + `impl.py`(실제 구현, 담당자가 작성) + `python -m clean_chat.<모듈>`(단독 실행)
 - 통신 포맷 = `core/schemas.py`의 pydantic 모델, 예시 = `fixtures/<stage>/input.jsonl → expected.jsonl` (**이 예시가 명세**)
 - **분류(classify)는 "얼마나 나쁜가"만 판단하고, 처리(숨김·신고 등)는 policy가 결정합니다.** 섞지 마세요.
 - 실제 앱은 Windows, 개발은 Mac. Windows 전용 코드는 `capture/grabber.py`, `ui/win32.py`에만 둡니다.
 
 ## 3. 반드시 지킬 규칙
-1. **자기 모듈 폴더(`src/lolguard/<모듈>/`) 밖은 수정하지 않습니다.** CI가 검사합니다(`scripts/check_module_boundary.py`).
+1. **자기 모듈 폴더(`src/clean_chat/<모듈>/`) 밖은 수정하지 않습니다.** CI가 검사합니다(`scripts/check_module_boundary.py`).
 2. **`core/schemas.py`와 각 모듈의 공개 함수 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다.
 3. **새 패키지를 추가하기 전에 사용자에게 먼저 물어봅니다.** 추가할 때는 `pyproject.toml`의 해당 모듈 extra에 넣습니다(`uv add --optional <모듈> <패키지>`).
 4. 판단 로직은 해당 모듈에만 둡니다. UI에 분류나 정책 로직을 넣지 않습니다.
@@ -40,12 +40,12 @@ LoL Guard는 **리그 오브 레전드 게임 중 악성 채팅을 감지하고 
 ## 5. 명령어
 ```bash
 uv sync                                       # 설치 (UI 작업: uv sync --extra ui)
-uv run lolguard modules                       # 모듈 목록과 단독 실행 명령
-uv run python -m lolguard.<모듈> --impl mock --check   # 통신 포맷 확인
-uv run python -m lolguard.<모듈> --check      # 내 실제 구현(impl.py)을 fixtures로 실행·비교
-uv run lolguard run --real <모듈>             # 내 모듈만 실제, 나머지 mock으로 전체 흐름
-uv run lolguard app --source demo             # UI 앱 (Mac 가능)
-uv run lolguard app --source screen           # 실제 데모 (Windows)
+uv run clean-chat modules                       # 모듈 목록과 단독 실행 명령
+uv run python -m clean_chat.<모듈> --impl mock --check   # 통신 포맷 확인
+uv run python -m clean_chat.<모듈> --check      # 내 실제 구현(impl.py)을 fixtures로 실행·비교
+uv run clean-chat run --real <모듈>             # 내 모듈만 실제, 나머지 mock으로 전체 흐름
+uv run clean-chat app --source demo             # UI 앱 (Mac 가능)
+uv run clean-chat app --source screen           # 실제 데모 (Windows)
 
 # 확인 명령 (PR 전에 모두 통과해야 함)
 uv run ruff check . --fix && uv run ruff format .
@@ -62,7 +62,7 @@ uv run pytest -q
 - Windows 전용 라이브러리는 **함수 안에서 import**, `pyproject.toml`에는 `; sys_platform == 'win32'` 마커를 붙입니다. 테스트에는 `@pytest.mark.windows`를 붙입니다(Mac에서 설치와 테스트가 깨지지 않게).
 
 ## 7. 작업 방식
-- 작업 시작 전에 내 모듈의 `README.md`(`src/lolguard/<모듈>/README.md`)를 읽습니다.
+- 작업 시작 전에 내 모듈의 `README.md`(`src/clean_chat/<모듈>/README.md`)를 읽습니다.
 - 큰 작업은 먼저 계획을 사용자에게 보여 주고 확인을 받은 뒤 진행합니다.
 - 결정한 것이 있으면 `docs/DECISIONS.md`에 ADR로 추가하자고 사용자에게 제안합니다.
 - 브랜치와 PR 규칙은 `CONTRIBUTING.md`를 따릅니다.

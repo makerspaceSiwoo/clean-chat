@@ -2,10 +2,10 @@
 
 import pytest
 
-from lolguard.core import registry
-from lolguard.core.config import FIXTURES, STAGE_NAMES
-from lolguard.core.schemas import Incident, RawLine
-from lolguard.core.stage import read_jsonl
+from clean_chat.core import registry
+from clean_chat.core.config import FIXTURES, STAGE_NAMES
+from clean_chat.core.schemas import Incident, RawLine
+from clean_chat.core.stage import read_jsonl
 
 
 @pytest.mark.parametrize("name", STAGE_NAMES)

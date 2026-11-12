@@ -30,13 +30,13 @@
 | 인터페이스 | `<모듈>/stage.py` | 리드 | `name`, `input_model`, `output_model`, `mock_default()` |
 | 실제 구현 | `<모듈>/impl.py` (+ 내부 파일 자유) | 모듈 담당 | `setup()`, `run(입력) -> 출력`, `close()` |
 | 가짜 구현 | `core/stage.py: MockStage` | 자동 | `fixtures/<name>/input.jsonl` → `expected.jsonl` 그대로 응답 |
-| 단독 실행 | `<모듈>/__main__.py` | 자동 | `python -m lolguard.<모듈>` |
+| 단독 실행 | `<모듈>/__main__.py` | 자동 | `python -m clean_chat.<모듈>` |
 | 등록 | `core/registry.py` | 리드 | 이름 → 인터페이스·구현 연결 |
 
 **웹 비유**: Stage = 요청·응답 스키마가 고정된 API 엔드포인트, MockStage = MSW 같은 목 서버, fixtures = API 문서의 요청·응답 예시입니다.
 
 ### 왜 이 구조인가 (ADR-0011)
-- **모듈마다 real과 mock을 골라 끼울 수 있습니다.** `lolguard run --real parse` → parse만 실제, 나머지는 mock. 다른 사람의 작업이 끝나지 않아도 내 모듈을 전체 흐름 안에서 시험할 수 있습니다.
+- **모듈마다 real과 mock을 골라 끼울 수 있습니다.** `clean-chat run --real parse` → parse만 실제, 나머지는 mock. 다른 사람의 작업이 끝나지 않아도 내 모듈을 전체 흐름 안에서 시험할 수 있습니다.
 - **구현하는 순간 테스트가 켜집니다.** `tests/test_real_impls.py`는 `NotImplementedError`이면 skip하고, 구현되면 자동으로 형식과 기대값을 검사합니다.
 - fixtures의 `expected.jsonl`이 곧 **명세**입니다. "이 입력에는 이 출력"을 예시로 못 박아 둡니다.
 
@@ -44,11 +44,11 @@
 
 | 명령 | 소스 | Mac | Windows | 용도 |
 |---|---|---|---|---|
-| `python -m lolguard.<모듈>` | fixtures | ✅ | ✅ | 모듈 단독 개발·테스트 |
-| `lolguard run --source demo` | 시나리오 JSONL | ✅ | ✅ | 콘솔로 전체 흐름 확인 |
-| `lolguard run --source screenshots` | PNG 폴더 | ✅ | ✅ | OCR 포함 흐름 확인 |
-| `lolguard app --source demo` | 시나리오 | ✅ | ✅ | UI 개발 (게임 없이) |
-| `lolguard app --source screen` | 실제 화면 캡처 | ❌ | ✅ | **실제 데모** |
+| `python -m clean_chat.<모듈>` | fixtures | ✅ | ✅ | 모듈 단독 개발·테스트 |
+| `clean-chat run --source demo` | 시나리오 JSONL | ✅ | ✅ | 콘솔로 전체 흐름 확인 |
+| `clean-chat run --source screenshots` | PNG 폴더 | ✅ | ✅ | OCR 포함 흐름 확인 |
+| `clean-chat app --source demo` | 시나리오 | ✅ | ✅ | UI 개발 (게임 없이) |
+| `clean-chat app --source screen` | 실제 화면 캡처 | ❌ | ✅ | **실제 데모** |
 
 - Windows 전용 코드는 딱 2곳입니다: `capture/grabber.py`(화면 캡처), `ui/win32.py`(오버레이 캡처 제외). 둘 다 `core/platform.py`의 `require_windows()` / `IS_WINDOWS`로 막습니다.
 - Windows 전용 라이브러리는 **함수 안에서 import**하고, `pyproject.toml`에 `; sys_platform == 'win32'` 마커를 붙입니다. 그래야 Mac에서 `uv sync`가 깨지지 않습니다.
@@ -64,7 +64,7 @@
 
 ## 5. 폴더 구조
 ```
-src/lolguard/
+src/clean_chat/
 ├─ __main__.py         CLI (run / app / modules)
 ├─ core/               [WP1] 계약·실행 기반
 │  ├─ schemas.py         통신 포맷 (모든 모델)

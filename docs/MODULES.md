@@ -35,7 +35,7 @@
 공통 규칙
 - 실제 구현은 `<모듈>/impl.py`의 클래스 하나입니다. 무거운 준비는 `setup()`에서 1번, 처리는 `run()`, 정리는 `close()`에서 합니다.
 - 실패해도 **예외로 앱을 멈추지 않습니다.** 안전한 기본값을 돌려주고 로그를 남깁니다(예외: 미구현 상태의 `NotImplementedError`).
-- 단독 실행: `uv run python -m lolguard.<모듈> [--impl mock|real] [--check] [--in 파일] [--out 파일]`
+- 단독 실행: `uv run python -m clean_chat.<모듈> [--impl mock|real] [--check] [--in 파일] [--out 파일]`
 
 ### `ocr` — capture/ (WP2) · AI 지점 A1
 | 항목 | 내용 |
@@ -45,7 +45,7 @@
 | 책임 아님 | 채널·화자 분리(parse), 맞춤법 보정(normalize) |
 | 별도 클래스 | `grabber.py: ScreenGrabber` (🪟 Windows 전용, Frame 스트림 생성, 오버레이 캡처 제외 확인) |
 | 성능 | 프레임당 0.5초 이내 |
-| Mac 테스트 | `fixtures/ocr/images/*.png` + `lolguard run --source screenshots` |
+| Mac 테스트 | `fixtures/ocr/images/*.png` + `clean-chat run --source screenshots` |
 | 결정 필요 | OPEN-02(캡처 제외), OPEN-03(OCR 엔진), OPEN-06(채팅 색 설정) |
 
 ### `parse` — parse/ (WP3)
@@ -110,5 +110,5 @@
 ## 주말 통합 기준 (모듈 공통)
 | 주말 | 기준 |
 |---|---|
-| #2 | 내 Stage가 `--impl real`로 fixtures를 통과(형식 OK, STRICT면 일치) + `lolguard run --real <내 stage>`가 끝까지 돌아감 |
-| #3 | 전체 real로 Windows에서 `lolguard app --source screen` 시연. 새 기능 금지, 버그 수정과 발표만 |
+| #2 | 내 Stage가 `--impl real`로 fixtures를 통과(형식 OK, STRICT면 일치) + `clean-chat run --real <내 stage>`가 끝까지 돌아감 |
+| #3 | 전체 real로 Windows에서 `clean-chat app --source screen` 시연. 새 기능 금지, 버그 수정과 발표만 |

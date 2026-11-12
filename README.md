@@ -1,4 +1,4 @@
-# LoL Guard 🛡️
+# Clean Chat 🛡️
 
 리그 오브 레전드 게임 중 **악성 채팅을 감지해 숨기고, 피드백만 남기고, 신고·고소장 초안까지 만들어 주는** Windows 데스크톱 앱 (해커톤형 데모).
 
@@ -9,13 +9,13 @@
 ## 빠른 시작 (Mac / Windows 공통)
 ```bash
 uv sync
-uv run lolguard run --source demo          # 전체 흐름 (지금은 전부 mock = fixtures 응답)
-uv run lolguard modules                    # 모듈별 단독 실행 명령
-uv run python -m lolguard.parse --impl mock --check
+uv run clean-chat run --source demo          # 전체 흐름 (지금은 전부 mock = fixtures 응답)
+uv run clean-chat modules                    # 모듈별 단독 실행 명령
+uv run python -m clean_chat.parse --impl mock --check
 uv run pytest -q                           # 미구현 모듈은 skip
-uv sync --extra ui && uv run lolguard app --source demo   # UI
+uv sync --extra ui && uv run clean-chat app --source demo   # UI
 ```
-실제 데모(Windows): `scriptsun_windows.bat` 또는 `uv run lolguard app --source screen`
+실제 데모(Windows): `scriptsun_windows.bat` 또는 `uv run clean-chat app --source screen`
 
 > 이 스타터에는 **실제 구현이 없습니다.** 모든 `impl.py`는 비어 있고(`NotImplementedError`), 실행 결과는 `fixtures/`의 예시 데이터입니다.
 

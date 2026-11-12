@@ -14,10 +14,10 @@
 | 우회어 사전 | 누구나 | `data/lexicon/bypass.csv` | ✅ |
 | 데모 시나리오 | 발표 대본에 맞춰 작성 | `data/demo/*.jsonl` | ✅ |
 | 외부 공개 데이터셋 | 다운로드 | `data/raw/` (로컬) | ❌ |
-| OCR 샘플 스크린샷·녹화 | **팀원끼리 한 사용자 설정 게임**에서 캡처 | 구글 드라이브 `LoLGuard/ocr_samples/` → `data/ocr_samples/` | ❌ |
+| OCR 샘플 스크린샷·녹화 | **팀원끼리 한 사용자 설정 게임**에서 캡처 | 구글 드라이브 `CleanChat/ocr_samples/` → `data/ocr_samples/` | ❌ |
 | 학습된 분류 모델 | Colab에서 학습 | **Hugging Face 비공개 저장소** → `models/` | ❌ |
 | 로컬 LLM | Ollama 등 | 각자 PC에서 내려받기 (OPEN-04) | ❌ |
-| 처리 내역, 고소장 PDF | 앱 실행 중 생성 | 사용자 PC `.lolguard/` | ❌ (절대 금지) |
+| 처리 내역, 고소장 PDF | 앱 실행 중 생성 | 사용자 PC `.clean-chat/` | ❌ (절대 금지) |
 
 ## 라벨링 흐름 (비개발자 포함 전원)
 1. 구글 시트 탭 하나를 1인 1탭으로 씁니다. 열 규칙은 `docs/LABELING_GUIDE.md`를 따릅니다.
@@ -38,10 +38,10 @@
 ```bash
 # 올리기 (classify 담당)
 huggingface-cli login
-huggingface-cli upload <팀계정>/lolguard-classifier ./models/classifier --private
+huggingface-cli upload <팀계정>/clean-chat-classifier ./models/classifier --private
 
 # 받기 (모두) — scripts/download_models.py 로 자동화 예정
-huggingface-cli download <팀계정>/lolguard-classifier --local-dir models/classifier
+huggingface-cli download <팀계정>/clean-chat-classifier --local-dir models/classifier
 ```
 - 팀원은 Hugging Face 조직(Organization)에 초대해서 비공개 저장소를 같이 씁니다.
 - 모델을 바꾸면 `classify/__init__.py`의 `MODEL_VERSION`을 올립니다.

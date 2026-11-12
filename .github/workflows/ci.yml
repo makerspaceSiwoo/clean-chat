@@ -1,10 +1,10 @@
-# 모든 PR과 dev/main 푸시에 실행.
+# 모든 PR과 develop/main 푸시에 실행.
 # Mac(개발 환경)과 Windows(실제 실행 환경) 양쪽에서 설치·테스트가 되는지 매번 확인한다.
 name: ci
 on:
   pull_request:
   push:
-    branches: [main, dev]
+    branches: [main, develop]
 
 jobs:
   check:
@@ -13,6 +13,8 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: "1"  # Windows 콘솔 기본 인코딩(cp1252)에서 한글 출력이 깨지지 않게
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -27,4 +29,4 @@ jobs:
       - name: 테스트 (미구현 모듈은 skip)
         run: uv run pytest -q
       - name: 모듈 단독 실행 (mock)
-        run: uv run python -m lolguard.policy --impl mock --check
+        run: uv run python -m clean_chat.policy --impl mock --check

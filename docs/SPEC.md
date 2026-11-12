@@ -1,4 +1,4 @@
-# LoL Guard — 제품 명세 (SPEC)
+# Clean Chat — 제품 명세 (SPEC)
 
 > 이 문서는 "무엇을, 왜" 만드는지에 대한 **유일한 기준**입니다.
 > 바꾸려면 리드에게 PR을 올리고, 바뀐 이유는 `docs/DECISIONS.md`에 기록합니다.

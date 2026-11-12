@@ -118,6 +118,7 @@
 - WP1의 policy는 incoming과 outgoing 두 개가 됩니다.
 
 ### 5-5. 이름 변경 (리드가 확정하면)
+> ✅ 적용됨 (2026-11-12): 레포·패키지·명령 `clean-chat`, import·폴더 `clean_chat` (`src/clean_chat/`), 저장 폴더 `.clean-chat/`. 같은 때 통합 브랜치를 `dev` → `develop`으로 바꿨습니다. 이 문서의 나머지 `lolguard` 표기는 작성 당시 이름입니다.
 - `lolguard` → `tiltguard`(또는 확정된 이름): 패키지 폴더, `pyproject.toml`(name, scripts), import, 문서, CLI 명령, `.lolguard/` 저장 폴더, CODEOWNERS, `scripts/repo_rules.py`
 
 ## 6. 스텁(뼈대) 작성 규칙 — "로직 없이 주석으로 함수만"
