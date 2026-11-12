@@ -88,15 +88,20 @@ class SentLog:
 
     def remember(self, text: str, ts: float) -> None:
         with self._lock:
+            self._prune(ts)
             self._sent.append((ts, text.strip()))
 
     def is_echo(self, message: ChatMessage) -> bool:
         if not message.is_me:
             return False
         with self._lock:
-            while self._sent and message.ts - self._sent[0][0] > self.window_sec:
-                self._sent.popleft()
+            self._prune(message.ts)
             return any(text == message.text.strip() for _, text in self._sent)
+
+    def _prune(self, now: float) -> None:
+        """window_sec 보다 오래된 문장은 잊는다 (계속 쌓이지 않게)."""
+        while self._sent and now - self._sent[0][0] > self.window_sec:
+            self._sent.popleft()
 
 
 class IncomingPipeline:

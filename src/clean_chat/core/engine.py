@@ -42,6 +42,8 @@ class Engine:
         self._result_listeners: list[ResultListener] = []
         self._stop = threading.Event()
         self._capture_stop = threading.Event()
+        self._batch_running = threading.Event()  # 게임 종료 배치 중에는 결과 화면을 닫을 수 없음
+        self._players_ready = False  # 플레이어 명단을 받았는지 (게임 로딩 중에는 빈 목록이라 다시 물어봄)
         self._thread: threading.Thread | None = None
         self._capture_thread: threading.Thread | None = None
 
@@ -75,10 +77,17 @@ class Engine:
         self._capture_stop.set()
         self.detector.stop()
 
-    def dismiss_result(self) -> None:
-        """사용자가 '이번 게임 결과' 화면을 닫음 → 대기(IDLE)"""
+    def dismiss_result(self) -> bool:
+        """사용자가 '이번 게임 결과' 화면을 닫음 → 대기(IDLE).
+
+        신고 문구·고소장을 만드는 중이면 닫지 않고 False (결과가 대기 화면에 늦게 도착하는 것을 막음).
+        """
+        if self._batch_running.is_set():
+            return False
         if self.machine.dismiss():
             self._emit_phase(GamePhase.IDLE, None)
+            return True
+        return False
 
     # ── 내부 ──
     def _loop(self) -> None:
@@ -87,7 +96,11 @@ class Engine:
             for event in self.detector.events():
                 if self._stop.is_set():
                     break
-                self._on_phase_event(event)
+                try:
+                    self._on_phase_event(event)
+                except Exception:  # 한 번의 실패로 단계 감지 전체가 멈추지 않게
+                    print(f"⚠️ 단계 처리 실패 ({event.phase}):", file=sys.stderr)
+                    traceback.print_exc()
         finally:
             self._stop_capture(drain=False)
             self.pipelines.close()
@@ -103,19 +116,48 @@ class Engine:
         if phase is None:
             return
         if phase == GamePhase.IN_GAME:
-            players = self.detector.players()
-            self.pipelines.set_players(players)
-            self.machine.set_players(players)
+            self._players_ready = False
+            self._refresh_players()
             self._emit_phase(phase, self.machine.session)
             self._start_capture()
         elif phase == GamePhase.POST_GAME:
             session = self.machine.session
-            self._emit_phase(phase, session)
-            if session is not None:
-                self.repository.save(session)
-                result = self.batch.run(session)
-                for fn in self._result_listeners:
-                    fn(result)
+            self._batch_running.set()
+            try:
+                self._emit_phase(phase, session)
+                if session is not None:
+                    self._finish_game(session)
+            finally:
+                self._batch_running.clear()
+
+    def _finish_game(self, session: GameSession) -> None:
+        """세션 저장 → 배치 처리 → 결과 발행. 실패해도 빈 결과를 발행해서 UI 가 결과 화면에 멈추지 않게 한다."""
+        try:
+            self.repository.save(session)
+        except Exception:
+            print("⚠️ 세션 저장 실패:", file=sys.stderr)
+            traceback.print_exc()
+        try:
+            result = self.batch.run(session)
+        except Exception:
+            print("⚠️ 신고 문구·고소장 생성 실패:", file=sys.stderr)
+            traceback.print_exc()
+            result = PostGameResult(session_id=session.id)
+        for fn in self._result_listeners:
+            fn(result)
+
+    def _refresh_players(self) -> None:
+        """플레이어 명단 갱신. 게임 로딩 중에는 Live Client Data API 가 빈 목록이라, 받을 때까지 캡처 주기마다 다시 묻는다."""
+        if self._players_ready:
+            return
+        try:
+            players = self.detector.players()
+        except Exception:
+            players = []
+        if players:
+            self._players_ready = True
+            self.pipelines.set_players(players)
+            self.machine.set_players(players)
 
     def _start_capture(self) -> None:
         self._capture_stop.clear()
@@ -143,12 +185,14 @@ class Engine:
             for frame in self.source.frames():
                 if self._capture_stop.is_set():
                     return
+                self._refresh_players()
                 for inc in incoming.process_frame(frame):
                     self._emit_incident(inc)
         else:
             for line in self.source.lines():
                 if self._capture_stop.is_set():
                     return
+                self._refresh_players()
                 if inc := incoming.process_line(line):
                     self._emit_incident(inc)
 

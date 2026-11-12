@@ -31,7 +31,8 @@ jobs:
       - name: 모듈 단독 실행 (모든 Stage, mock)
         shell: bash
         run: |
-          uv run clean-chat modules | while read -r stage cmd; do
+          # Windows 에서는 출력 줄 끝에 CR(\r)이 붙어 마지막 인자가 깨지므로 지운다
+          uv run clean-chat modules | tr -d '\r' | while read -r stage cmd; do
             echo "▶ $stage"
             $cmd < /dev/null > /dev/null
           done
