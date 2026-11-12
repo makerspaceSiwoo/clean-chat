@@ -39,8 +39,10 @@ Rewrite      { msg_id, feedback_spans[], rewritten?, backend }
 PolicyRequest { message, classification, rewrite?, players: Player[] }
 Decision     { msg_id, is_me, action, display_text?, target?, report, complaint_candidate, reason }
 Incident     { msg, classification, decision, rewrite? }     ← UI·저장·신고가 쓰는 최종 기록
-ReportRequest { incidents[], speaker }        → ReportDraft { speaker, text, incident_ids[] }
-ComplaintRequest { incidents[], speaker, complainant, output_dir } → ComplaintDraft { speaker, summary, incident_ids[], pdf_path? }
+PhaseEvent   { ts, phase: idle|in_game|post_game, raw? }   ← 단계 감지기 출력 (raw = LCU 원본 값)
+GameSession  { id, started_at, ended_at?, players: Player[], incidents: Incident[] }   ← 게임 1판 기록
+ReportRequest { session: GameSession, speaker }   → ReportDraft { speaker, text, incident_ids[] }
+ComplaintRequest { session: GameSession, speaker, complainant, output_dir } → ComplaintDraft { speaker, summary, incident_ids[], pdf_path? }
 Player       { name, champion?, team?, position?, is_me }
 ```
 
@@ -49,6 +51,11 @@ Player       { name, champion?, team?, position?, is_me }
 - `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질
 - `action` (타 유저): `show` · `show_masked` · `show_rewritten` · `hide`
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
+- `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료 (HANDOFF 5-2). report/complaint 는 `post_game` 에서만 실행
+
+### 게임 세션
+- `GameSession.incidents` 에는 **다른 유저 채팅(흐름 A)만** 기록합니다. 내 채팅(흐름 B)은 복사/차단으로 끝납니다.
+- 저장 위치: `.clean-chat/sessions/<id>.jsonl` (로컬 전용, git 제외)
 
 ## 4. 예시 (fixtures/parse 1줄)
 ```json

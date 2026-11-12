@@ -5,7 +5,11 @@
 
 흐름 (모든 단계는 "입력 모델 1개 → 출력 모델 1개", 통신 포맷은 JSON 한 줄 = 모델 1개):
   [Win] ScreenGrabber ─Frame→ ocr ─OcrResult(RawLine[])→ parse ─ParseResult→ normalize ─NormalizedMessage→
-  classify ─Classification→ rewrite(RewriteRequest) ─Rewrite→ policy(PolicyRequest) ─Decision→ Incident → ui / report
+  classify ─Classification→ rewrite(RewriteRequest) ─Rewrite→ policy(PolicyRequest) ─Decision→ Incident → ui
+
+게임 단계 (HANDOFF 5-2):
+  단계 감지기 ─PhaseEvent→ 앱 상태(GamePhase): IDLE → IN_GAME(Incident를 GameSession에 기록) → POST_GAME
+  POST_GAME: GameSession ─ReportRequest→ report ─ReportDraft / ─ComplaintRequest→ complaint ─ComplaintDraft
 """
 
 from __future__ import annotations
@@ -14,7 +18,7 @@ from enum import IntEnum, StrEnum
 
 from pydantic import BaseModel, Field
 
-SCHEMA_VERSION = "0.3.0"
+SCHEMA_VERSION = "0.4.0"  # 0.4.0: GamePhase·PhaseEvent·GameSession 추가, report/complaint 입력을 세션 기반으로
 
 
 # ── 공통 열거형 ─────────────────────────────────────────────
@@ -58,6 +62,14 @@ class Action(StrEnum):
     COPY_MASKED = "copy_masked"
     COPY_REWRITTEN = "copy_rewritten"
     BLOCK = "block"
+
+
+class GamePhase(StrEnum):
+    """앱이 보는 게임 단계. 실제 LCU 단계 이름은 PhaseEvent.raw 에 남기고, 여기서는 3개로만 나눈다."""
+
+    IDLE = "idle"  # 대기: 클라이언트 창만 (지난 처리 내역, 설정)
+    IN_GAME = "in_game"  # 게임 중: 오버레이 표시, 흐름 A·B 실행, GameSession 에 기록
+    POST_GAME = "post_game"  # 게임 종료: 오버레이 숨김, 세션 배치 처리 → 신고 문구·고소장 초안
 
 
 # ── 게임 정보 ──────────────────────────────────────────────
@@ -184,9 +196,36 @@ class Incident(BaseModel):
     rewrite: Rewrite | None = None
 
 
-# ── 7. report ─────────────────────────────────────────────
+# ── 6-1. 게임 단계와 세션 (session 모듈) ─────────────────────
+class PhaseEvent(BaseModel):
+    """단계 감지기가 내보내는 단계 변화 1건.
+
+    Windows: LCU /lol-gameflow/v1/gameflow-phase 값을 GamePhase 로 바꿈 (단계 이름은 실측 필요).
+    Mac: 시나리오 JSONL 의 {"phase": ...} 이벤트를 그대로 읽음 (가짜 감지기).
+    """
+
+    ts: float
+    phase: GamePhase
+    raw: str | None = None  # 원본 단계 값 (예: LCU "InProgress"). 가짜 감지기는 None 가능
+
+
+class GameSession(BaseModel):
+    """게임 1판의 기록. IN_GAME 동안 쌓고, POST_GAME 에서 report/complaint 의 입력이 된다.
+
+    로컬 저장만 허용: .clean-chat/sessions/<id>.jsonl (git 제외).
+    incidents 에는 다른 유저 채팅(흐름 A)만 들어간다. 내 채팅(흐름 B)은 복사/차단으로 끝나고 기록하지 않는다.
+    """
+
+    id: str  # 예: "20251112-125820" (시작 시각)
+    started_at: float
+    ended_at: float | None = None  # 게임 중이면 None
+    players: list[Player] = Field(default_factory=list)  # Live Client Data API 명단 (없으면 빈 목록)
+    incidents: list[Incident] = Field(default_factory=list)
+
+
+# ── 7. report (POST_GAME 에서만 실행) ───────────────────────
 class ReportRequest(BaseModel):
-    incidents: list[Incident]
+    session: GameSession  # 이번 게임 기록 전체. 대상 화자의 report=True 기록만 골라 쓴다
     speaker: str  # 신고 대상 닉네임
 
 
@@ -197,7 +236,7 @@ class ReportDraft(BaseModel):
 
 
 class ComplaintRequest(BaseModel):
-    incidents: list[Incident]
+    session: GameSession  # 대상 화자의 complaint_candidate=True 기록만 골라 쓴다
     speaker: str
     complainant: str  # 고소인 (사용자) 이름
     output_dir: str  # PDF 저장 폴더

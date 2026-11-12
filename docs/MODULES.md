@@ -91,8 +91,9 @@
 ### `report` / `complaint` — report/ (WP6) · AI 지점 A4
 | 항목 | 내용 |
 |---|---|
-| report | `ReportRequest`(처리 내역 + 대상) → `ReportDraft`(복사용 신고 문구). 자동 신고 금지 (ADR-0007) |
-| complaint | `ComplaintRequest` → `ComplaintDraft` + **한글 PDF 파일**. 고정 양식에 사실을 채우고 '사건 경위'만 LLM 사용 (ADR-0008) |
+| report | `ReportRequest`(**이번 게임 세션** + 대상) → `ReportDraft`(복사용 신고 문구). 자동 신고 금지 (ADR-0007) |
+| complaint | `ComplaintRequest`(세션 + 대상 + 고소인) → `ComplaintDraft` + **한글 PDF 파일**. 고정 양식에 사실을 채우고 '사건 경위'만 LLM 사용 (ADR-0008) |
+| 실행 시점 | **게임 종료(POST_GAME)에서만.** 이번 게임 세션 전체를 한 번에 처리합니다(배치) |
 | 필수 | "법률 자문이 아님" 고지, 원문(`raw`)과 시각 그대로 인용 |
 
 ### UI — ui/ (WP7) · Stage 아님
