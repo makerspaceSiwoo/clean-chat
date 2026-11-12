@@ -1,0 +1,30 @@
+# 모든 PR과 dev/main 푸시에 실행.
+# Mac(개발 환경)과 Windows(실제 실행 환경) 양쪽에서 설치·테스트가 되는지 매번 확인한다.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: 설치 (기본 + UI)
+        run: uv sync --locked --extra ui
+      - name: 린트
+        run: uv run ruff check .
+      - name: 포맷 검사
+        run: uv run ruff format --check .
+      - name: 테스트 (미구현 모듈은 skip)
+        run: uv run pytest -q
+      - name: 모듈 단독 실행 (mock)
+        run: uv run python -m lolguard.policy --impl mock --check

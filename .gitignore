@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+*.log
+
+# 비밀값 — 앱은 각자 PC의 .env 를 읽습니다. GitHub Secrets 는 CI(Actions)에서만 쓰입니다.
+.env
+.env.*
+!.env.example
+
+# 로컬 실행 기록 (처리 내역, 증거, 고소장 PDF) — 절대 커밋 금지
+.lolguard/
+*.pdf
+
+# 큰 파일 / 외부 데이터 (docs/DATA.md 참고)
+models/*
+!models/README.md
+data/raw/*
+!data/raw/README.md
+data/ocr_samples/*
+!data/ocr_samples/README.md
+# 모델 가중치는 어느 폴더에 있든 올리지 않음 (Hugging Face 비공개 저장소 사용)
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.ckpt
+.ipynb_checkpoints/
+
+# 웹 채팅용 컨텍스트 묶음
+context_*.md
+
+# AI 도구 개인 설정 (공용 설정은 CLAUDE.md / AGENTS.md / .gemini/settings.json)
+.claude/settings.local.json
+.claude/worktrees/
+
+# OS / 에디터 (공용 VS Code 설정 2개만 공유)
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

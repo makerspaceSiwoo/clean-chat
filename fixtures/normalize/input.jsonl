@@ -1,0 +1,8 @@
+{"id":"L0","ts":1762920000.0,"source":"ocr","channel":"team","speaker":"탑솔장인","champion":"가렌","text":"다들 화이팅","is_me":false,"raw":"[팀] 탑솔장인 (가렌): 다들 화이팅"}
+{"id":"L1","ts":1762920001.0,"source":"ocr","channel":"ping","speaker":null,"champion":null,"text":"정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다","is_me":false,"raw":"정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다"}
+{"id":"L2","ts":1762920002.0,"source":"ocr","channel":"team","speaker":"미드킹","champion":"제드","text":"아 ㅅㅂ 내가 실수함","is_me":false,"raw":"[팀] 미드킹 (제드): 아 ㅅㅂ 내가 실수함"}
+{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","is_me":false,"raw":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}
+{"id":"L4","ts":1762920004.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"미드 시1발 개못하네","is_me":false,"raw":"[팀] 원딜러 (징크스): 미드 시1발 개못하네"}
+{"id":"L5","ts":1762920005.0,"source":"ocr","channel":"all","speaker":"상대탑","champion":"다리우스","text":"탑 니애미 tlqkf","is_me":false,"raw":"[전체] 상대탑 (다리우스): 탑 니애미 tlqkf"}
+{"id":"L7","ts":1762920007.0,"source":"self_input","channel":"team","speaker":"나","champion":null,"text":"아 정글 ㅂㅅ 왜 안 와","is_me":true,"raw":"아 정글 ㅂㅅ 왜 안 와"}
+{"id":"L8","ts":1762920008.0,"source":"self_input","channel":"team","speaker":"나","champion":null,"text":"정글 개새끼","is_me":true,"raw":"정글 개새끼"}

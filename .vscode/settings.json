@@ -1,0 +1,10 @@
+{
+  "python.defaultInterpreterPath": ".venv",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": { "source.organizeImports": "explicit" }
+  },
+  "python.testing.pytestEnabled": true,
+  "files.encoding": "utf8"
+}

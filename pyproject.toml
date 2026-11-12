@@ -1,0 +1,61 @@
+[project]
+name = "lolguard"
+version = "0.1.0"
+description = "LoL 악성 채팅 감지·필터 데스크톱 앱 (데모)"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "pydantic>=2.7",
+]
+
+[project.scripts]
+lolguard = "lolguard.__main__:main"
+
+# 모듈별 추가 의존성. 필요한 사람만 설치:  uv sync --extra ui
+# 원칙: 모든 extra 는 Mac 에서도 설치가 성공해야 한다. Windows 전용 패키지는 반드시 마커를 붙인다.
+#   예) "dxcam>=0.0.5; sys_platform == 'win32'"
+# 새 패키지 추가는 PR에 이유를 적고 리드 승인 후 (AGENTS.md 규칙)
+[project.optional-dependencies]
+ui = ["pyside6>=6.7"]
+capture = [
+    "pillow>=10.0",
+    "numpy>=1.26",
+    "mss>=9.0",            # 화면 캡처 (Mac에서도 설치 가능, 실제 사용은 Windows)
+    # OCR 엔진 · Windows 캡처 라이브러리는 OPEN-02/03 실측 후 추가 (win32 마커 필수)
+]
+ml = [
+    "torch>=2.3",
+    "transformers>=4.44",
+    "scikit-learn>=1.5",
+]
+report = ["reportlab>=4.2"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+    "pytest>=8.0",
+    "pre-commit>=3.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lolguard"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+# E/W: 기본 스타일, F: 버그 가능성, I: import 정렬, B: 흔한 실수, UP: 최신 문법, SIM: 단순화
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+ignore = ["E501"]  # 줄 길이는 formatter에 맡김
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["windows: Windows에서만 도는 테스트 (OCR/오버레이)"]

@@ -1,0 +1,39 @@
+# PR 규칙 검사: 브랜치 이름, PR 제목, 모듈 경계 (ADR-0009)
+name: pr-rules
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 브랜치 이름 검사
+        working-directory: scripts
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: python check_branch_name.py "$HEAD_REF"
+      - name: PR 제목 검사
+        working-directory: scripts
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: python check_pr_title.py "$TITLE"
+      - name: main 으로는 dev 브랜치만 병합 가능
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        run: |
+          echo "❌ main 에는 dev → main PR만 허용됩니다 (주말 통합 후 리드가 진행)"
+          exit 1
+      - name: 모듈 경계 검사
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'cross-module') }}
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          FILES=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          cd scripts && python check_module_boundary.py "$HEAD_REF" $FILES
