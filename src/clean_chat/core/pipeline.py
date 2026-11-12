@@ -47,12 +47,23 @@ class StageSet:
         return self._stages[name]
 
     def setup(self) -> None:
-        for s in self._stages.values():
-            s.setup()
+        """모든 Stage 준비. 실패하면 어느 Stage 인지 이름을 붙여 StageSetupError 로 알린다."""
+        for name, stage in self._stages.items():
+            try:
+                stage.setup()
+            except Exception as e:
+                raise StageSetupError(name, self.impl.get(name, "mock"), e) from e
 
     def close(self) -> None:
         for s in self._stages.values():
             s.close()
+
+
+class StageSetupError(RuntimeError):
+    def __init__(self, stage: str, impl: str, cause: Exception) -> None:
+        hint = " → 아직 구현 전이면 --real 에서 빼세요" if isinstance(cause, NotImplementedError) else ""
+        super().__init__(f"Stage '{stage}'({impl}) 준비 실패: {cause}{hint}")
+        self.stage = stage
 
 
 class MessageFilters:
@@ -104,12 +115,18 @@ class SentLog:
             self._sent.popleft()
 
 
+class Roster:
+    """이번 게임 플레이어 명단 1곳 (두 흐름이 같은 명단을 본다). 단계 감지기가 채운다 (Live Client Data API)."""
+
+    def __init__(self) -> None:
+        self.players: list[Player] = []
+
+
 class IncomingPipeline:
     """흐름 A: 다른 유저 채팅 (캡처 주기마다 자동, 백그라운드 스트림)."""
 
-    def __init__(self, stages: StageSet, filters: MessageFilters, sent_log: SentLog) -> None:
-        self.st, self.filters, self.sent_log = stages, filters, sent_log
-        self.players: list[Player] = []  # 단계 감지기가 게임 시작 때 채움 (Live Client Data API)
+    def __init__(self, stages: StageSet, filters: MessageFilters, sent_log: SentLog, roster: Roster) -> None:
+        self.st, self.filters, self.sent_log, self.roster = stages, filters, sent_log, roster
 
     def process_frame(self, frame: Frame) -> list[Incident]:
         """[Windows 실제 앱] 캡처 이미지 1장 → 새 채팅 줄들 처리"""
@@ -122,7 +139,7 @@ class IncomingPipeline:
         if parsed.message is None or self.sent_log.is_echo(parsed.message):
             return None
         msg, cls, rw = self.filters.run(parsed.message)
-        req = PolicyRequest(message=msg, classification=cls, rewrite=rw, players=self.players)
+        req = PolicyRequest(message=msg, classification=cls, rewrite=rw, players=self.roster.players)
         dec = self.st["incoming_policy"].run(req)
         return Incident(msg=msg, classification=cls, decision=dec, rewrite=rw)
 
@@ -130,16 +147,15 @@ class IncomingPipeline:
 class OutgoingPipeline:
     """흐름 B: 내 입력 (오버레이 입력칸 Enter → 결과 1개를 바로 돌려줌, 동기 요청-응답)."""
 
-    def __init__(self, stages: StageSet, filters: MessageFilters, sent_log: SentLog) -> None:
-        self.st, self.filters, self.sent_log = stages, filters, sent_log
-        self.players: list[Player] = []
+    def __init__(self, stages: StageSet, filters: MessageFilters, sent_log: SentLog, roster: Roster) -> None:
+        self.st, self.filters, self.sent_log, self.roster = stages, filters, sent_log, roster
 
     def submit(self, text: str, *, msg_id: str | None = None, ts: float | None = None) -> Incident:
         """내 문장 1개 → Incident. decision.action 이 copy* 면 display_text 를 클립보드로, block 이면 차단 안내."""
         item = OutgoingText(id=msg_id or f"self-{uuid.uuid4().hex[:8]}", ts=ts or time.time(), text=text.strip())
         message = self.st["compose"].run(item)
         msg, cls, rw = self.filters.run(message)
-        req = PolicyRequest(message=msg, classification=cls, rewrite=rw, players=self.players)
+        req = PolicyRequest(message=msg, classification=cls, rewrite=rw, players=self.roster.players)
         dec = self.st["outgoing_policy"].run(req)
         if dec.action != Action.BLOCK and dec.display_text:
             self.sent_log.remember(dec.display_text, item.ts)
@@ -153,12 +169,12 @@ class Pipelines:
         self.stages = StageSet(overrides)
         filters = MessageFilters(self.stages)
         self.sent_log = SentLog()
-        self.incoming = IncomingPipeline(self.stages, filters, self.sent_log)
-        self.outgoing = OutgoingPipeline(self.stages, filters, self.sent_log)
+        self.roster = Roster()
+        self.incoming = IncomingPipeline(self.stages, filters, self.sent_log, self.roster)
+        self.outgoing = OutgoingPipeline(self.stages, filters, self.sent_log, self.roster)
 
     def set_players(self, players: list[Player]) -> None:
-        self.incoming.players = players
-        self.outgoing.players = players
+        self.roster.players = list(players)
 
     def setup(self) -> None:
         self.stages.setup()

@@ -16,12 +16,14 @@ class EngineBridge(QObject):
     incident = Signal(object)  # Incident (흐름 A 결과 1건)
     phase = Signal(object, object)  # GamePhase, GameSession | None
     result = Signal(object)  # PostGameResult (게임 종료 배치 처리 결과)
+    error = Signal(str)  # 엔진이 시작하지 못함 (Stage 준비 실패 등)
 
     def __init__(self, engine: Engine) -> None:
         super().__init__()
         engine.subscribe(self.incident.emit)  # 백그라운드 스레드에서 호출됨 → Qt가 메인 스레드로 전달
         engine.on_phase(self.phase.emit)
         engine.on_result(self.result.emit)
+        engine.on_error(self.error.emit)
 
 
 class OutgoingRunner(QObject):

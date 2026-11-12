@@ -258,7 +258,7 @@ class ComplaintRequest(BaseModel):
     session: GameSession  # 대상 화자의 complaint_candidate=True 기록만 골라 쓴다
     speaker: str
     complainant: str  # 고소인 (사용자) 이름
-    output_dir: str  # PDF 저장 폴더
+    output_dir: str  # PDF 저장 폴더. 상대 경로면 레포 루트 기준 (core.config.resolve_repo_path)
 
 
 class ComplaintDraft(BaseModel):

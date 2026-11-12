@@ -69,5 +69,9 @@ class ComplaintWriter(ComplaintStage):
         raise NotImplementedError
 
     def _render_pdf(self, document: str, output_dir: str, speaker: str) -> str:
-        """채운 문서 → 한글 폰트 PDF 파일. 저장한 경로를 돌려준다. (reportlab, uv sync --extra report)"""
+        """채운 문서 → 한글 폰트 PDF 파일. 저장한 경로를 돌려준다. (reportlab, uv sync --extra report)
+
+        주의: output_dir 은 core.config.resolve_repo_path 로 풀어서 저장한다(실행 폴더와 상관없이 레포 아래 .clean-chat/).
+              돌려주는 pdf_path 는 입력과 같은 형식(상대 경로면 상대 경로)으로.
+        """
         raise NotImplementedError

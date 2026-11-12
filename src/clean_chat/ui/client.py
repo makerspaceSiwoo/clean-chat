@@ -94,6 +94,10 @@ class ClientWindow(QMainWindow):
         """선택한 고소장 PDF 를 기본 프로그램으로 열기 (또는 저장 위치 선택)."""
         raise NotImplementedError("ui 담당: open_selected_complaint")
 
+    def show_engine_error(self, message: str) -> None:
+        """엔진이 시작하지 못했다는 안내 (예: "Stage 'parse'(real) 준비 실패 ..."). 대기 화면 위쪽에 눈에 띄게."""
+        raise NotImplementedError("ui 담당: show_engine_error")
+
     def load_history(self, session_ids: list[str]) -> None:
         """대기 화면에 지난 게임 목록 표시 (세션 저장소 list_ids)."""
         raise NotImplementedError("ui 담당: load_history")

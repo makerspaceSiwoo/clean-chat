@@ -30,12 +30,25 @@ def test_invalid_transitions_are_ignored():
     assert m.phase == GamePhase.IDLE
 
 
-def test_game_dropped_to_idle_ends_session():
-    """게임 중 바로 대기로 돌아가도(튕김 등) 기록을 잃지 않게 게임 종료로 처리"""
-    m = GameStateMachine()
+def test_game_dropped_to_idle_ends_session_after_grace():
+    """게임 중 대기 보고가 유예 시간 이상 계속되면(튕김 등) 기록을 잃지 않게 게임 종료로 처리"""
+    m = GameStateMachine(idle_grace_sec=10)
     m.handle(ev("in_game"))
-    assert m.handle(ev("idle", 1762920500.0)) == GamePhase.POST_GAME
-    assert m.session is not None and m.session.ended_at == 1762920500.0
+    assert m.handle(ev("idle", 1762920500.0)) is None  # 처음 대기 보고 → 유예 시작
+    assert m.handle(ev("idle", 1762920505.0)) is None  # 아직 유예 중
+    assert m.handle(ev("idle", 1762920510.0)) == GamePhase.POST_GAME
+    assert m.session is not None and m.session.ended_at == 1762920500.0  # 종료 시각 = 대기가 시작된 때
+
+
+def test_short_idle_during_game_does_not_split_session():
+    """재접속처럼 잠깐 대기로 보고됐다가 돌아오면 같은 게임으로 이어진다"""
+    m = GameStateMachine(idle_grace_sec=10)
+    m.handle(ev("in_game"))
+    first = m.session
+    assert m.handle(ev("idle", 1762920500.0)) is None
+    assert m.handle(ev("in_game", 1762920503.0)) is None
+    assert m.handle(ev("idle", 1762920600.0)) is None  # 유예는 처음부터 다시 잰다
+    assert (m.phase, m.session) == (GamePhase.IN_GAME, first)
 
 
 def test_record_only_in_game():

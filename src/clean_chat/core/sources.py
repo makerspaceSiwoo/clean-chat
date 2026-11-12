@@ -39,7 +39,8 @@ class PhaseDetector(Protocol):
     """게임 단계 감지기 (포트). 단계가 바뀔 때마다 PhaseEvent 를 내보낸다."""
 
     def events(self) -> Iterator[PhaseEvent]:
-        """단계 이벤트 스트림. 실제 감지기는 끝나지 않고, stop() 이 불리면 멈춘다."""
+        """단계 이벤트 스트림. 확인할 때마다 지금 단계를 보낸다(같은 단계 반복 가능 — 상태 기계가 걸러냄).
+        실제 감지기는 끝나지 않고, stop() 이 불리면 멈춘다."""
         ...
 
     def players(self) -> list[Player]:

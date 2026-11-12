@@ -69,7 +69,7 @@ stateDiagram-v2
     [*] --> IDLE
     IDLE --> IN_GAME: 감지기 in_game (LCU InProgress)
     IN_GAME --> POST_GAME: 감지기 post_game (EndOfGame)
-    IN_GAME --> POST_GAME: 감지기 idle (튕김 등, 기록 보존)
+    IN_GAME --> POST_GAME: 감지기 idle 이 10초 이상 계속 (튕김 등, 기록 보존)
     POST_GAME --> IDLE: 사용자가 결과 화면 닫음
     POST_GAME --> IN_GAME: 결과를 안 닫고 다음 게임 시작
     IDLE: 대기 · 클라이언트 창만 · 지난 처리 내역, 설정
@@ -77,6 +77,7 @@ stateDiagram-v2
     POST_GAME: 게임 종료 · 오버레이 숨김 · 캡처 중지 → 세션 저장 → 신고 문구·고소장 초안 배치 생성
 ```
 - 표에 없는 전환(예: 대기 중 `post_game`, 같은 단계 반복 보고)은 무시합니다. 전환표: `core/game.py: TRANSITIONS`.
+- 감지기는 확인할 때마다 지금 단계를 보냅니다. 게임 중 `idle` 보고는 `settings.idle_grace_sec`(10초) 동안 계속될 때만 게임 종료로 봅니다. 재접속처럼 잠깐 대기로 바뀌어도 게임이 둘로 쪼개지지 않습니다.
 - 게임 종료 신호가 오면 **캡처를 먼저 끝내고** 단계를 바꿉니다. 재생 소스(`finite=True`)는 남은 줄을 끝까지 처리해 세션에 넣습니다.
 - 신고 문구·고소장을 만드는 동안에는 결과 화면을 닫을 수 없습니다(`Engine.dismiss_result()`가 False). 만들다 실패해도 빈 결과를 보내 화면이 멈추지 않게 합니다.
 - 플레이어 명단은 게임 로딩 중에는 비어 있으므로, 받을 때까지 캡처 주기마다 다시 묻습니다.

@@ -62,6 +62,7 @@ class App:
         self.bridge.incident.connect(guard(overlay.show_incident))
         self.bridge.incident.connect(guard(client.add_incident))
         self.bridge.result.connect(guard(client.show_result))
+        self.bridge.error.connect(guard(client.show_engine_error))
         overlay.input.returnPressed.connect(guard(overlay.submit_input))
         self.outgoing.done.connect(guard(overlay.apply_outgoing))
         self.outgoing.failed.connect(guard(overlay.show_error))

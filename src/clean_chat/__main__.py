@@ -15,7 +15,7 @@ from __future__ import annotations
 import argparse
 
 from clean_chat.core.config import FIXTURES, STAGE_COMMANDS, STAGE_NAMES
-from clean_chat.core.pipeline import Pipelines
+from clean_chat.core.pipeline import Pipelines, StageSetupError
 from clean_chat.core.platform import IS_WINDOWS, use_utf8_console
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, OutgoingText, Player, PostGameResult, Region
 from clean_chat.core.sources import DemoLineSource, ScreenshotSource
@@ -52,7 +52,7 @@ def _detector(kind: str, delay: float):
 def _print_phase(phase: GamePhase, session: GameSession | None) -> None:
     sid = f" · 세션 {session.id}" if session else ""
     names = f" · 플레이어 {len(session.players)}명" if session and phase == GamePhase.IN_GAME else ""
-    print(f"── 게임 단계: {phase.name}{sid}{names}")
+    print(f"── 게임 단계: {phase.name}{sid}{names}", flush=True)
 
 
 def _print_result(result: PostGameResult) -> None:
@@ -72,6 +72,24 @@ def _print(inc: Incident) -> None:
     )
 
 
+# 예전 이름 → 지금 Stage 이름 (이름이 바뀐 뒤 습관대로 입력해도 안내)
+RENAMED_STAGES = {"policy": "incoming_policy,outgoing_policy"}
+
+
+def _real_overrides(ap: argparse.ArgumentParser, value: str) -> dict[str, str]:
+    """--real 값 → {Stage: "real"}. 모르는 이름이면 조용히 무시하지 않고 멈춘다 (mock 결과를 내 구현으로 착각하지 않게)."""
+    names = [n.strip() for n in value.split(",") if n.strip()]
+    unknown = [n for n in names if n not in STAGE_NAMES]
+    if unknown:
+        hints = [f"{n} → {RENAMED_STAGES[n]}" for n in unknown if n in RENAMED_STAGES]
+        ap.error(
+            f"--real 에 모르는 Stage 이름: {', '.join(unknown)}"
+            + (f" (이름이 바뀜: {'; '.join(hints)})" if hints else "")
+            + f"\n   쓸 수 있는 이름: {', '.join(STAGE_NAMES)}"
+        )
+    return dict.fromkeys(names, "real")
+
+
 def _scenario_item(text: str) -> OutgoingText | None:
     """시나리오에 있는 문장이면 그 id·ts 를 그대로 쓴다 → mock 이 fixtures 응답을 돌려줄 수 있게."""
     return next((o for o in read_jsonl(SCENARIO_OUTGOING, OutgoingText) if o.text == text.strip()), None)
@@ -81,9 +99,14 @@ def _say(pipelines: Pipelines, text: str) -> None:
     """데모 게임 중이라고 보고 처리 (플레이어 명단 = 시나리오 명단)"""
     known = _scenario_item(text)
     pipelines.set_players(read_jsonl(SCENARIO_PLAYERS, Player))
-    pipelines.setup()
+    try:
+        pipelines.setup()
+    except StageSetupError as e:
+        raise SystemExit(f"❌ {e}") from None
     try:
         inc = pipelines.outgoing.submit(text, msg_id=known.id if known else None, ts=known.ts if known else None)
+    except NotImplementedError as e:
+        raise SystemExit(f"⏳ 실제 구현이 아직 없습니다: {e} → --real 에서 빼세요") from None
     finally:
         pipelines.close()
     d = inc.decision
@@ -113,8 +136,7 @@ def main() -> None:
             print(f"  {n:<16} uv run python -m clean_chat.{STAGE_COMMANDS[n]} --impl mock --check")
         return
 
-    overrides = {n: "real" for n in a.real.split(",") if n}
-    pipelines = Pipelines(overrides)
+    pipelines = Pipelines(_real_overrides(ap, a.real))
     if a.cmd == "say":
         _say(pipelines, a.text)
         return
@@ -135,6 +157,8 @@ def main() -> None:
     eng.on_result(_print_result)
     _print_phase(eng.phase, None)  # 시작 단계(IDLE)
     eng.start(block=True)
+    if eng.setup_error is not None:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

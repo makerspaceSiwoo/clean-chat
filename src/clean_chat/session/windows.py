@@ -20,12 +20,14 @@ class LcuPhaseDetector:
         self.poll_sec = poll_sec
 
     def events(self) -> Iterator[PhaseEvent]:
-        """poll_sec 마다 LCU 단계를 읽고, 바뀌었을 때만 PhaseEvent 를 내보낸다. stop() 까지 계속.
+        """poll_sec 마다 LCU 단계를 읽어 지금 단계를 PhaseEvent 로 내보낸다(바뀌지 않아도 매번). stop() 까지 계속.
 
         입력: 없음 (LCU 로컬 API) → 출력: PhaseEvent 스트림
         예) LCU "Lobby" → "InProgress" 로 바뀜 → PhaseEvent(ts=..., phase=in_game, raw="InProgress")
-        순서: require_windows → _read_lockfile → (반복) _get_gameflow_phase → _to_game_phase → 바뀌었으면 yield
-        주의: 클라이언트가 꺼져 있으면(lockfile 없음) 예외 대신 IDLE 로 보고 기다린다. 같은 단계는 다시 보내지 않는다.
+        순서: require_windows → _read_lockfile → (반복) _get_gameflow_phase → _to_game_phase → yield
+        주의: 클라이언트가 꺼져 있으면(lockfile 없음) 예외 대신 IDLE 로 보고 기다린다. 매번 보내야 상태 기계가
+              '게임 중 대기'가 얼마나 계속되는지 잴 수 있다(settings.idle_grace_sec, 재접속으로 게임이 쪼개지지 않게).
+              _to_game_phase 가 None(모르는 단계)이면 보내지 않는다.
         관련: OPEN-12
         """
         raise NotImplementedError("session 담당: events")
@@ -61,11 +63,12 @@ class LcuPhaseDetector:
         """
         raise NotImplementedError
 
-    def _to_game_phase(self, raw: str | None) -> GamePhase:
-        """LCU 단계 문자열 → GamePhase.
+    def _to_game_phase(self, raw: str | None) -> GamePhase | None:
+        """LCU 단계 문자열 → GamePhase. 모르는 단계면 None (보내지 않음 — 대기로 오인해 게임을 끝내지 않게).
 
-        예) "InProgress" → IN_GAME, "EndOfGame" → POST_GAME, "Lobby"/"None"/None → IDLE
-        주의: "Reconnect", "WaitingForStats", "PreEndOfGame" 등 경계 단계는 실측해서 표를 채운다(OPEN-12).
+        예) "InProgress"/"Reconnect" → IN_GAME, "WaitingForStats"/"PreEndOfGame"/"EndOfGame" → POST_GAME,
+            "Lobby"/"Matchmaking"/"ChampSelect"/"None"/None → IDLE
+        주의: 위 표는 가정이다. 실제 단계 이름과 순서를 실측해서 고친다(OPEN-12).
         """
         raise NotImplementedError
 

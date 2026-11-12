@@ -16,7 +16,7 @@ import traceback
 from collections.abc import Callable
 
 from clean_chat.core.game import GameStateMachine, MemorySessionRepository, PostGameBatch, SessionRepository
-from clean_chat.core.pipeline import Pipelines
+from clean_chat.core.pipeline import Pipelines, StageSetupError
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, PhaseEvent, PostGameResult
 from clean_chat.core.sources import FrameSource, LineSource, PhaseDetector
 
@@ -40,6 +40,8 @@ class Engine:
         self._incident_listeners: list[IncidentListener] = []
         self._phase_listeners: list[PhaseListener] = []
         self._result_listeners: list[ResultListener] = []
+        self._error_listeners: list[Callable[[str], None]] = []
+        self.setup_error: StageSetupError | None = None
         self._stop = threading.Event()
         self._capture_stop = threading.Event()
         self._batch_running = threading.Event()  # 게임 종료 배치 중에는 결과 화면을 닫을 수 없음
@@ -60,6 +62,10 @@ class Engine:
         """게임 종료 배치 처리가 끝나면 호출 (엔진 스레드)"""
         self._result_listeners.append(fn)
 
+    def on_error(self, fn: Callable[[str], None]) -> None:
+        """엔진이 시작하지 못했을 때 (Stage 준비 실패 등) 사람이 읽을 안내 문장으로 호출"""
+        self._error_listeners.append(fn)
+
     @property
     def phase(self) -> GamePhase:
         return self.machine.phase
@@ -75,7 +81,11 @@ class Engine:
     def stop(self) -> None:
         self._stop.set()
         self._capture_stop.set()
-        self.detector.stop()
+        try:
+            self.detector.stop()
+        except Exception:  # 감지기 정리 실패가 앱 종료를 막지 않게 (예: 미구현 LCU 감지기)
+            print("⚠️ 단계 감지기 정리 실패:", file=sys.stderr)
+            traceback.print_exc()
 
     def dismiss_result(self) -> bool:
         """사용자가 '이번 게임 결과' 화면을 닫음 → 대기(IDLE).
@@ -91,7 +101,16 @@ class Engine:
 
     # ── 내부 ──
     def _loop(self) -> None:
-        self.pipelines.setup()
+        try:
+            self.pipelines.setup()
+        except StageSetupError as e:
+            # 엔진 스레드가 조용히 죽지 않게 원인을 알리고 끝낸다 (CLI 는 종료 코드, 앱은 화면 안내로 이어 받음)
+            print(f"❌ {e}", file=sys.stderr)
+            self.setup_error = e
+            for fn in self._error_listeners:
+                fn(str(e))
+            self.pipelines.close()
+            return
         try:
             for event in self.detector.events():
                 if self._stop.is_set():
@@ -107,12 +126,16 @@ class Engine:
 
     def _on_phase_event(self, event: PhaseEvent) -> None:
         target = self.machine.peek(event)
-        if target is None:
-            return
         if target == GamePhase.POST_GAME:
-            # 단계를 바꾸기 전에 캡처를 끝낸다 → 남은 줄까지 이번 세션에 기록됨 (재생 소스는 끝까지 처리)
+            # 단계를 바꾸기 전에: 결과 화면 닫기를 막고(배치가 끝날 때까지), 캡처를 끝낸다
+            # → 남은 줄까지 이번 세션에 기록됨 (재생 소스는 끝까지 처리)
+            self._batch_running.set()
             self._stop_capture(drain=bool(getattr(self.source, "finite", False)))
-        phase = self.machine.handle(event)
+        try:
+            phase = self.machine.handle(event)  # 유예 시간 계산 때문에 target 이 없어도 항상 적용
+        finally:
+            if self.machine.phase != GamePhase.POST_GAME:
+                self._batch_running.clear()
         if phase is None:
             return
         if phase == GamePhase.IN_GAME:
@@ -122,7 +145,6 @@ class Engine:
             self._start_capture()
         elif phase == GamePhase.POST_GAME:
             session = self.machine.session
-            self._batch_running.set()
             try:
                 self._emit_phase(phase, session)
                 if session is not None:
