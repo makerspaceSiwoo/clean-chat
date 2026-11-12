@@ -78,7 +78,7 @@ class MessageFilters:
 class SentLog:
     """흐름 B 에서 내가 보낸(복사한) 문장을 잠시 기억했다가, 흐름 A 의 OCR 이 다시 읽으면 건너뛰게 한다.
 
-    중복 판단 기준은 아직 미정(OPEN-11). 지금은 "내 채팅(is_me)이고, window_sec 안에 보낸 문장과 본문이 같으면" 중복.
+    중복 판단 기준은 아직 미정(OPEN-13). 지금은 "내 채팅(is_me)이고, window_sec 안에 보낸 문장과 본문이 같으면" 중복.
     """
 
     def __init__(self, window_sec: float = 60.0) -> None:

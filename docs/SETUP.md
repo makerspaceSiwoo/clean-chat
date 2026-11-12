@@ -26,7 +26,8 @@ git clone https://github.com/<팀>/clean-chat.git
 cd clean-chat
 uv sync                      # 기본 + 개발 도구 설치 (= npm install)
 uv run pre-commit install    # 커밋할 때 자동 검사 켜기
-uv run clean-chat run --source demo   # ✅ 8줄이 처리 결과와 함께 나오면 성공 (지금은 mock 응답)
+uv run clean-chat run --source demo   # ✅ 게임 단계 IN_GAME → 채팅 6줄 → POST_GAME → 신고 2건·고소장 1건이 나오면 성공 (mock)
+uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"   # ✅ copy_rewritten | 정글 합류 부탁해요
 uv run pytest -q                    # ✅ passed + skipped(미구현) 이면 정상
 ```
 
@@ -37,6 +38,9 @@ uv run pytest -q                    # ✅ passed + skipped(미구현) 이면 정
 | 모듈 단독 실행 `python -m clean_chat.<모듈>` | ✅ | ✅ |
 | 전체 흐름 `clean-chat run --source demo/screenshots` | ✅ | ✅ |
 | UI 화면 개발 `clean-chat app --source demo` | ✅ | ✅ |
+| 내 채팅 1문장 `clean-chat say "..."` | ✅ | ✅ |
+| 게임 단계 감지기 `python -m clean_chat.session` (가짜) | ✅ | ✅ |
+| **실제 게임 단계 감지** `python -m clean_chat.session --real` | ❌ | ✅ |
 | **실제 게임 캡처 + 오버레이 데모** `clean-chat app --source screen` | ❌ | ✅ |
 
 ## 2. 내 모듈에 필요한 것 추가 설치

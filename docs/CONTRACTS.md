@@ -14,15 +14,28 @@
 
 | Stage | 입력 | 출력 | fixtures |
 |---|---|---|---|
-| ocr | `Frame` | `OcrResult` | `fixtures/ocr/` |
-| parse | `RawLine` | `ParseResult` | `fixtures/parse/` |
-| normalize | `ChatMessage` | `NormalizedMessage` | `fixtures/normalize/` |
-| classify | `NormalizedMessage` | `Classification` | `fixtures/classify/` |
-| rewrite | `RewriteRequest` | `Rewrite` | `fixtures/rewrite/` |
-| policy | `PolicyRequest` | `Decision` | `fixtures/policy/` |
-| report | `ReportRequest` | `ReportDraft` | `fixtures/report/` |
-| complaint | `ComplaintRequest` | `ComplaintDraft` | `fixtures/complaint/` |
-| (전체) | `RawLine` 시나리오 | `Incident` | `fixtures/scenario/` |
+| Stage | 흐름 | 입력 | 출력 | fixtures |
+|---|---|---|---|---|
+| ocr | A | `Frame` | `OcrResult` | `fixtures/ocr/` |
+| parse | A | `RawLine` | `ParseResult` | `fixtures/parse/` |
+| compose | B | `OutgoingText` | `ChatMessage` | `fixtures/compose/` |
+| normalize | 공통 | `ChatMessage` | `NormalizedMessage` | `fixtures/normalize/` |
+| classify | 공통 | `NormalizedMessage` | `Classification` | `fixtures/classify/` |
+| rewrite | 공통 | `RewriteRequest` | `Rewrite` | `fixtures/rewrite/` |
+| incoming_policy | A | `PolicyRequest` | `Decision` | `fixtures/incoming_policy/` |
+| outgoing_policy | B | `PolicyRequest` | `Decision` | `fixtures/outgoing_policy/` |
+| report | 게임 종료 | `ReportRequest` | `ReportDraft` | `fixtures/report/` |
+| complaint | 게임 종료 | `ComplaintRequest` | `ComplaintDraft` | `fixtures/complaint/` |
+
+전체 흐름 예시 (`fixtures/scenario/`)
+| 파일 | 내용 |
+|---|---|
+| `lines.jsonl` → `expected_incidents.jsonl` | 흐름 A: 다른 유저 채팅 `RawLine` → `Incident` |
+| `outgoing.jsonl` → `expected_outgoing.jsonl` | 흐름 B: 내 입력 `OutgoingText` → `Incident` |
+| `phases.jsonl` | 가짜 단계 감지기가 재생하는 `PhaseEvent` (idle → in_game → post_game) |
+| `players.jsonl` | 게임 참가자 `Player` (가짜 감지기의 명단) |
+
+> 주의: 게임 중에는 `PolicyRequest.players`에 명단이 들어갑니다. 정책 fixtures 입력에도 같은 명단이 있어야 mock이 응답합니다.
 
 ## 3. 모델 요약
 
@@ -30,6 +43,7 @@
 Frame        { id, ts, image_path, region{x,y,w,h} }
 OcrResult    { frame_id, lines: RawLine[] }
 RawLine      { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
+OutgoingText { id, ts, text }                                  ← 흐름 B 입구 (오버레이 입력칸)
 ParseResult  { line_id, message: ChatMessage | null }
 ChatMessage  { id, ts, source, channel: team|all|system|ping|unknown, speaker?, champion?, text, is_me, raw }
 NormalizedMessage = ChatMessage + { text_norm, hints[] }
@@ -43,6 +57,7 @@ PhaseEvent   { ts, phase: idle|in_game|post_game, raw? }   ← 단계 감지기 
 GameSession  { id, started_at, ended_at?, players: Player[], incidents: Incident[] }   ← 게임 1판 기록
 ReportRequest { session: GameSession, speaker }   → ReportDraft { speaker, text, incident_ids[] }
 ComplaintRequest { session: GameSession, speaker, complainant, output_dir } → ComplaintDraft { speaker, summary, incident_ids[], pdf_path? }
+PostGameResult { session_id, reports: ReportDraft[], complaints: ComplaintDraft[] }   ← 게임 종료 배치 결과 (UI용)
 Player       { name, champion?, team?, position?, is_me }
 ```
 
@@ -72,5 +87,6 @@ uv run python -m clean_chat.parse                       # 내 실제 구현으�
 uv run python -m clean_chat.parse --check               # 기대값과 몇 개 일치하는지
 uv run python -m clean_chat.parse --in my_cases.jsonl --out result.jsonl
 uv run clean-chat run --real parse,normalize            # 내 모듈만 실제로, 나머지 mock으로 전체 흐름
+uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와" --real compose   # 흐름 B 1문장
 uv run pytest -q                                      # 구현된 모듈만 자동 검사 (미구현은 skip)
 ```

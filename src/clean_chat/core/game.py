@@ -33,7 +33,7 @@ KST = timezone(timedelta(hours=9))  # 세션 id 는 한국 시간 기준 (한국
 TRANSITIONS: dict[tuple[GamePhase, GamePhase], GamePhase] = {
     (GamePhase.IDLE, GamePhase.IN_GAME): GamePhase.IN_GAME,
     (GamePhase.IN_GAME, GamePhase.POST_GAME): GamePhase.POST_GAME,
-    # 게임 중 바로 대기로 돌아감(튕김·다시하기 등): 기록을 잃지 않도록 게임 종료로 처리 (OPEN-10 실측 후 조정)
+    # 게임 중 바로 대기로 돌아감(튕김·다시하기 등): 기록을 잃지 않도록 게임 종료로 처리 (OPEN-12 실측 후 조정)
     (GamePhase.IN_GAME, GamePhase.IDLE): GamePhase.POST_GAME,
     # 게임 종료 화면은 사용자가 닫을 때까지 유지 → (POST_GAME, IDLE) 은 감지기 이벤트로는 넘어가지 않음
     (GamePhase.POST_GAME, GamePhase.IN_GAME): GamePhase.IN_GAME,  # 결과 화면을 안 닫고 다음 게임 시작

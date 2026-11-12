@@ -34,6 +34,7 @@
     - 참고: Overwolf 개발 문서에는 LoL용 `chat` 이벤트(GEP 224.0 이후)가 소개되어 있다. 단, **실시간 용도로만 쓰고 기록하면 안 된다**는 조건이 있어 신고·고소 증거 보관 기능과 충돌한다. 핑 정보는 제공하지 않는다. → **OCR이 막힐 경우의 대안으로만** 남긴다(OPEN-01).
 - **버린 대안**: 위 세 가지.
 - **영향**: 게임을 **테두리 없는 창 모드**로 실행해야 한다. OCR 오인식(예: `ㅂ`↔`ㅃ`)을 전처리에서 보정해야 한다. 같은 줄이 여러 프레임에 반복 등장하므로 **중복 제거**가 필수다.
+- **보충 (2026-11-12)**: 여기서 버린 것은 **LCU로 채팅을 읽는 것**이다. 게임 진행 단계(`gameflow-phase`)를 **읽기만** 하는 것은 ADR-0014에서 허용했다.
 
 ## ADR-0003: 오버레이는 화면 캡처에서 제외한다
 - 2026-11-12 / 제안 (실측 필요, OPEN-02) / 리드
@@ -116,3 +117,29 @@
   - CI는 macOS와 Windows 두 곳에서 설치, 린트, 테스트를 모두 돌린다.
   - 발표 PC는 `scripts/run_windows.bat`로 실행한다(패키징 exe는 시간이 남으면).
 - **영향**: OCR, UI 화면, 모델은 Mac에서도 개발할 수 있다. 실제 캡처와 오버레이 캡처 제외만 Windows 담당자가 실측한다.
+- **변경 (2026-11-12)**: ADR-0014로 Windows 전용 코드가 한 곳 늘었다 → `session/windows.py`(LCU 단계 감지). 가짜 감지기 `session/fake.py`가 Mac 대체 수단이다.
+
+## ADR-0013: 기능을 두 흐름(수신 A / 송신 B)으로 나눈다
+- 2026-11-12 / 확정 / 리드
+- **배경**: 처음 구조는 파이프라인 하나가 모든 줄을 처리했다. 내 입력도 `RawLine(source=self_input)`으로 만들어 `parse`를 거쳤고, `policy` 하나가 `is_me`로 두 정책표를 오갔다. 계기(자동 캡처 / Enter), 실행 방식(스트림 / 요청-응답), 출구(오버레이·세션 / 클립보드)가 모두 달라 한곳에 섞이면 조건문이 늘고 테스트가 어렵다.
+- **결정**:
+  - 흐름 A(다른 유저 채팅): `IncomingPipeline` — Frame → `ocr` → `parse` → 공통 필터 → `incoming_policy` → 오버레이 + 세션 기록. 백그라운드 스트림.
+  - 흐름 B(내 입력): `OutgoingPipeline.submit(text)` — `compose`(OutgoingText → ChatMessage) → 공통 필터 → `outgoing_policy` → 클립보드/차단. 동기 요청-응답(실행은 작업 스레드).
+  - 공통 필터(`normalize` → `classify` → 조건부 `rewrite`)는 `MessageFilters` 하나를 두 흐름이 같이 쓴다. Stage 인스턴스도 `StageSet` 하나로 공유한다(모델 중복 로딩 방지).
+  - 흐름 B에서 보낸 문장은 `SentLog`에 잠시 기억하고, 흐름 A의 OCR이 다시 읽으면 건너뛴다(기준: OPEN-13).
+  - `compose`는 parse 모듈(WP3), 정책 Stage 2개는 policy 모듈(WP1)에 둔다.
+- **이유**: 정책표가 SPEC 5-1, 5-2로 이미 나뉘어 있고, 흐름별로 fixtures와 테스트를 따로 만들 수 있다. 분류(classify)는 두 흐름에 같은 기준을 쓴다는 원칙도 그대로 지킨다.
+- **버린 대안**: (a) 파이프라인 하나 + `is_me` 분기 — 분기가 Stage마다 퍼진다. (b) `compose`를 별도 모듈로 — 담당자와 경계 규칙만 늘고 하는 일은 parse와 비슷하다.
+- **영향**: Stage가 8개에서 10개가 됐다. fixtures `policy/`가 `incoming_policy/`, `outgoing_policy/`로 나뉘고 `compose/`가 생겼다. CLI에 `clean-chat say "<문장>"`이 생겼다.
+
+## ADR-0014: 게임 단계(상태 기계)와 세션 단위로 처리한다
+- 2026-11-12 / 확정 / 리드
+- **배경**: 신고 문구와 고소장은 게임 1판의 기록을 묶어서 만들어야 한다. 게임 밖에서는 오버레이와 캡처가 필요 없다. 언제 게임이 시작되고 끝나는지 알아야 한다.
+- **결정**:
+  - 앱 상태를 `IDLE`(대기) → `IN_GAME`(게임 중) → `POST_GAME`(게임 종료) → 사용자가 닫으면 `IDLE`로 둔다(`core/game.py: GameStateMachine`). 표에 없는 전환은 무시한다.
+  - 게임 중에만 캡처(흐름 A)하고, 결과를 `GameSession`(id, 시작·종료 시각, 플레이어 명단, Incident 목록)에 기록한다. 세션에는 흐름 A만 넣는다.
+  - 게임 종료 시 캡처를 멈추고 세션을 저장한 뒤(`SessionRepository`, `.clean-chat/sessions/<id>.jsonl`), 세션 전체를 한 번에 `report`/`complaint`로 처리한다(`PostGameBatch`). report·complaint 입력은 `GameSession` 기반이다.
+  - 단계 감지: Windows는 LCU `/lol-gameflow/v1/gameflow-phase`를 1~2초마다 **읽기 전용 GET**으로 확인하고, 플레이어 명단은 Live Client Data API(`127.0.0.1:2999`)에서 받는다. Mac은 시나리오 JSONL을 재생하는 가짜 감지기를 쓴다.
+- **이유**: 롤 클라이언트가 이미 단계를 알려 주므로 화면 인식보다 정확하다. 읽기 전용 로컬 API는 메모리 읽기·드라이버와 달리 Vanguard 위험이 낮고, 많은 공개 도구가 같은 방식을 쓴다. 채팅은 여전히 LCU로 읽지 않는다(ADR-0002).
+- **버린 대안**: (a) 화면 인식으로 게임 시작·종료 판단 — 부정확하고 OCR 부담이 커진다. (b) 단계 없이 항상 캡처 — 게임 밖 화면을 읽고, 신고 묶음 단위가 없다.
+- **영향**: 새 모듈 `session/`(WP8)과 Windows 전용 코드 1곳(`session/windows.py`)이 생겼다. LCU 단계 이름과 전환 시점은 실측이 필요하다(OPEN-12). 세션 파일에는 실제 채팅 원문이 들어가므로 git에 올리지 않는다.
