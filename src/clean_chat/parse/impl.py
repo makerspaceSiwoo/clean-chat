@@ -9,8 +9,8 @@
   6. OCR 오인식(콜론·괄호 깨짐)에 강하게
 """
 
-from clean_chat.core.schemas import ParseResult, RawLine
-from clean_chat.parse.stage import ParseStage
+from clean_chat.core.schemas import ChatMessage, OutgoingText, ParseResult, RawLine
+from clean_chat.parse.stage import ComposeStage, ParseStage
 
 
 class Parser(ParseStage):
@@ -19,3 +19,8 @@ class Parser(ParseStage):
 
     def run(self, item: RawLine) -> ParseResult:
         raise NotImplementedError("parse 담당: 구현 필요")
+
+
+class Composer(ComposeStage):
+    def run(self, item: OutgoingText) -> ChatMessage:
+        raise NotImplementedError("parse 담당: compose 구현")

@@ -17,7 +17,7 @@ from clean_chat.core.schemas import Incident, Region
 
 
 class OverlayWindow(QWidget):
-    def __init__(self, on_self_input: Callable[[str], Incident | None]) -> None:
+    def __init__(self, on_self_input: Callable[[str], Incident]) -> None:
         super().__init__()
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)

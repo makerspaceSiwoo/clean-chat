@@ -10,7 +10,31 @@ ROOT = Path(__file__).resolve().parents[3]
 DATA = ROOT / "data"
 FIXTURES = ROOT / "fixtures"
 
-STAGE_NAMES = ("ocr", "parse", "normalize", "classify", "rewrite", "policy", "report", "complaint")
+STAGE_NAMES = (
+    "ocr",
+    "parse",
+    "compose",
+    "normalize",
+    "classify",
+    "rewrite",
+    "incoming_policy",
+    "outgoing_policy",
+    "report",
+    "complaint",
+)
+# Stage → 단독 실행 명령 (`uv run python -m clean_chat.<값>`). 한 모듈 폴더에 Stage 가 2개면 뒤에 하위 이름
+STAGE_COMMANDS = {
+    "ocr": "capture",
+    "parse": "parse",
+    "compose": "parse compose",
+    "normalize": "normalize",
+    "classify": "classify",
+    "rewrite": "rewrite",
+    "incoming_policy": "policy",
+    "outgoing_policy": "policy outgoing",
+    "report": "report",
+    "complaint": "report complaint",
+}
 
 
 class Settings(BaseModel):

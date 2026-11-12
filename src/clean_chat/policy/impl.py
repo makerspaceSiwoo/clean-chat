@@ -8,12 +8,14 @@
 """
 
 from clean_chat.core.schemas import Decision, PolicyRequest
-from clean_chat.policy.stage import PolicyStage
+from clean_chat.policy.stage import IncomingPolicyStage, OutgoingPolicyStage
 
 
-class PolicyEngine(PolicyStage):
-    def setup(self) -> None:
-        pass  # 무거운 준비(모델·사전 로딩)는 여기서 1번만
-
+class IncomingPolicy(IncomingPolicyStage):
     def run(self, item: PolicyRequest) -> Decision:
-        raise NotImplementedError("policy 담당: 구현 필요")
+        raise NotImplementedError("policy 담당: incoming_policy 구현")
+
+
+class OutgoingPolicy(OutgoingPolicyStage):
+    def run(self, item: PolicyRequest) -> Decision:
+        raise NotImplementedError("policy 담당: outgoing_policy 구현")

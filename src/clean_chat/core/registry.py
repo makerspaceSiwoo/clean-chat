@@ -10,10 +10,12 @@ from clean_chat.core.stage import MockStage, Stage
 REGISTRY: dict[str, tuple[str, str]] = {
     "ocr": ("clean_chat.capture.stage:OcrStage", "clean_chat.capture.impl:OcrEngine"),
     "parse": ("clean_chat.parse.stage:ParseStage", "clean_chat.parse.impl:Parser"),
+    "compose": ("clean_chat.parse.stage:ComposeStage", "clean_chat.parse.impl:Composer"),
     "normalize": ("clean_chat.normalize.stage:NormalizeStage", "clean_chat.normalize.impl:Normalizer"),
     "classify": ("clean_chat.classify.stage:ClassifyStage", "clean_chat.classify.impl:Classifier"),
     "rewrite": ("clean_chat.rewrite.stage:RewriteStage", "clean_chat.rewrite.impl:Rewriter"),
-    "policy": ("clean_chat.policy.stage:PolicyStage", "clean_chat.policy.impl:PolicyEngine"),
+    "incoming_policy": ("clean_chat.policy.stage:IncomingPolicyStage", "clean_chat.policy.impl:IncomingPolicy"),
+    "outgoing_policy": ("clean_chat.policy.stage:OutgoingPolicyStage", "clean_chat.policy.impl:OutgoingPolicy"),
     "report": ("clean_chat.report.stage:ReportStage", "clean_chat.report.impl:ReportWriter"),
     "complaint": ("clean_chat.report.stage:ComplaintStage", "clean_chat.report.impl:ComplaintWriter"),
 }

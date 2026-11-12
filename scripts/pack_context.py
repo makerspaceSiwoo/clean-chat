@@ -22,7 +22,12 @@ COMMON = [
     "src/clean_chat/core/schemas.py",
     "src/clean_chat/core/stage.py",
 ]
-STAGES_OF = {"capture": ["ocr"], "report": ["report", "complaint"]}
+STAGES_OF = {
+    "capture": ["ocr"],
+    "parse": ["parse", "compose"],
+    "policy": ["incoming_policy", "outgoing_policy"],
+    "report": ["report", "complaint"],
+}
 
 
 def main() -> None:

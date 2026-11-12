@@ -4,5 +4,3 @@
 {"msg_id":"L3","is_me":false,"action":"show_rewritten","display_text":"용 먼저 치자","target":"정글","report":true,"complaint_candidate":false,"reason":"L2 + 피드백 → 피드백만 표시, 원문 신고"}
 {"msg_id":"L4","is_me":false,"action":"hide","display_text":null,"target":"미드","report":true,"complaint_candidate":false,"reason":"L2 → 숨김 + 신고"}
 {"msg_id":"L5","is_me":false,"action":"hide","display_text":null,"target":"탑","report":true,"complaint_candidate":true,"reason":"L3 → 숨김 + 신고 + 고소 후보"}
-{"msg_id":"L7","is_me":true,"action":"copy_rewritten","display_text":"정글 합류 부탁해요","target":"정글","report":false,"complaint_candidate":false,"reason":"내 채팅 L2 + 피드백 → 피드백만 전송"}
-{"msg_id":"L8","is_me":true,"action":"block","display_text":null,"target":"정글","report":false,"complaint_candidate":false,"reason":"내 채팅 L2 → 전송 차단"}

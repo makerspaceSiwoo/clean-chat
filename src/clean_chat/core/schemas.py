@@ -3,9 +3,14 @@
 ⚠️ 이 파일은 리드만 수정합니다(CODEOWNERS). 바꿔야 하면 이슈를 올려 주세요.
 사람이 읽기 쉬운 설명은 docs/CONTRACTS.md 에 있습니다.
 
-흐름 (모든 단계는 "입력 모델 1개 → 출력 모델 1개", 통신 포맷은 JSON 한 줄 = 모델 1개):
-  [Win] ScreenGrabber ─Frame→ ocr ─OcrResult(RawLine[])→ parse ─ParseResult→ normalize ─NormalizedMessage→
-  classify ─Classification→ rewrite(RewriteRequest) ─Rewrite→ policy(PolicyRequest) ─Decision→ Incident → ui
+모든 단계는 "입력 모델 1개 → 출력 모델 1개", 통신 포맷은 JSON 한 줄 = 모델 1개.
+
+흐름 A · 다른 유저 채팅 (수신, 캡처 주기마다 자동, 백그라운드 스트림):
+  [Win] ScreenGrabber ─Frame→ ocr ─OcrResult(RawLine[])→ parse ─ParseResult(ChatMessage)→ [공통 필터]
+  → incoming_policy(PolicyRequest) ─Decision→ Incident → 오버레이 표시 + GameSession 기록
+흐름 B · 내 입력 (송신, 오버레이 입력칸 Enter, 동기 요청-응답):
+  OutgoingText → compose ─ChatMessage→ [공통 필터] → outgoing_policy(PolicyRequest) ─Decision→ Incident → 클립보드/차단
+공통 필터: normalize ─NormalizedMessage→ classify ─Classification→ (L2 이상 & 피드백일 때만) rewrite ─Rewrite→
 
 게임 단계 (HANDOFF 5-2):
   단계 감지기 ─PhaseEvent→ 앱 상태(GamePhase): IDLE → IN_GAME(Incident를 GameSession에 기록) → POST_GAME
@@ -18,14 +23,16 @@ from enum import IntEnum, StrEnum
 
 from pydantic import BaseModel, Field
 
-SCHEMA_VERSION = "0.4.0"  # 0.4.0: GamePhase·PhaseEvent·GameSession 추가, report/complaint 입력을 세션 기반으로
+SCHEMA_VERSION = "0.5.0"
+# 0.5.0: 흐름 A/B 분리 — OutgoingText 추가(compose 입력), policy → incoming_policy / outgoing_policy
+# 0.4.0: GamePhase·PhaseEvent·GameSession 추가, report/complaint 입력을 세션 기반으로
 
 
 # ── 공통 열거형 ─────────────────────────────────────────────
 class Source(StrEnum):
     OCR = "ocr"  # 실제 게임 화면에서 읽음
     DEMO = "demo"  # 시나리오 JSONL 재생 (fixtures/scenario, data/demo)
-    SELF_INPUT = "self_input"  # 오버레이 입력칸에 내가 쓴 문장
+    SELF_INPUT = "self_input"  # 오버레이 입력칸에 내가 쓴 문장 (흐름 B, compose 가 붙임)
 
 
 class Channel(StrEnum):
@@ -118,6 +125,15 @@ class OcrResult(BaseModel):
     lines: list[RawLine]
 
 
+# ── 1-1. 흐름 B 입구: 내 입력 → compose ───────────────────────
+class OutgoingText(BaseModel):
+    """오버레이 입력칸에서 Enter 한 내 문장 1개. OCR·parse 를 거치지 않고 compose 가 ChatMessage 로 만든다."""
+
+    id: str  # 예: "self-1a2b3c4d"
+    ts: float
+    text: str  # 입력한 그대로 (앞뒤 공백만 정리된 상태)
+
+
 # ── 2. parse → normalize ──────────────────────────────────
 class ChatMessage(BaseModel):
     id: str
@@ -170,6 +186,8 @@ class Rewrite(BaseModel):
 
 # ── 6. policy → ui / report ───────────────────────────────
 class PolicyRequest(BaseModel):
+    """두 정책 Stage 의 공통 입력. 흐름 A 는 incoming_policy, 흐름 B 는 outgoing_policy 로 보낸다."""
+
     message: NormalizedMessage
     classification: Classification
     rewrite: Rewrite | None = None

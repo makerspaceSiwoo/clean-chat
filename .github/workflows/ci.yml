@@ -28,5 +28,12 @@ jobs:
         run: uv run ruff format --check .
       - name: 테스트 (미구현 모듈은 skip)
         run: uv run pytest -q
-      - name: 모듈 단독 실행 (mock)
-        run: uv run python -m clean_chat.policy --impl mock --check
+      - name: 모듈 단독 실행 (모든 Stage, mock)
+        shell: bash
+        run: |
+          uv run clean-chat modules | while read -r stage cmd; do
+            echo "▶ $stage"
+            $cmd < /dev/null > /dev/null
+          done
+      - name: 흐름 B 단독 실행 (mock)
+        run: uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"

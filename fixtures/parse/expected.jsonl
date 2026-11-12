@@ -5,5 +5,4 @@
 {"line_id":"L4","message":{"id":"L4","ts":1762920004.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"미드 시1발 개못하네","is_me":false,"raw":"[팀] 원딜러 (징크스): 미드 시1발 개못하네"}}
 {"line_id":"L5","message":{"id":"L5","ts":1762920005.0,"source":"ocr","channel":"all","speaker":"상대탑","champion":"다리우스","text":"탑 니애미 tlqkf","is_me":false,"raw":"[전체] 상대탑 (다리우스): 탑 니애미 tlqkf"}}
 {"line_id":"L6","message":null}
-{"line_id":"L7","message":{"id":"L7","ts":1762920007.0,"source":"self_input","channel":"team","speaker":"나","champion":null,"text":"아 정글 ㅂㅅ 왜 안 와","is_me":true,"raw":"아 정글 ㅂㅅ 왜 안 와"}}
-{"line_id":"L8","message":{"id":"L8","ts":1762920008.0,"source":"self_input","channel":"team","speaker":"나","champion":null,"text":"정글 개새끼","is_me":true,"raw":"정글 개새끼"}}
+{"line_id":"L9","message":{"id":"L9","ts":1762920009.0,"source":"ocr","channel":"team","speaker":"나","champion":"쓰레쉬","text":"정글 합류 부탁해요","is_me":true,"raw":"[팀] 나 (쓰레쉬): 정글 합류 부탁해요"}}

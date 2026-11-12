@@ -26,7 +26,12 @@ PR_TITLE_RE = re.compile(rf"^(feat|fix|docs|chore|refactor|test|data)\(({'|'.joi
 # 모듈 브랜치가 수정해도 되는 경로 (앞부분 일치)
 SHARED_OK = ("data/labeled/", "data/lexicon/", "data/demo/", "docs/modules/", "uv.lock")
 # 모듈 → 담당 fixtures 폴더 (Stage 이름 기준)
-STAGES_OF = {"capture": ("ocr",), "report": ("report", "complaint")}
+STAGES_OF = {
+    "capture": ("ocr",),
+    "parse": ("parse", "compose"),
+    "policy": ("incoming_policy", "outgoing_policy"),
+    "report": ("report", "complaint"),
+}
 MODULE_PATHS: dict[str, tuple[str, ...]] = {
     m: (f"src/clean_chat/{m}/", f"tests/{m}/", f"tests/test_{m}.py")
     + tuple(f"fixtures/{st}/" for st in STAGES_OF.get(m, (m,)))

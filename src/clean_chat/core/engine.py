@@ -10,7 +10,7 @@ from __future__ import annotations
 import threading
 from collections.abc import Callable
 
-from clean_chat.core.pipeline import Pipeline
+from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.schemas import Incident
 from clean_chat.core.sources import FrameSource, LineSource
 
@@ -18,8 +18,8 @@ Listener = Callable[[Incident], None]
 
 
 class Engine:
-    def __init__(self, pipeline: Pipeline, source: LineSource | FrameSource) -> None:
-        self.pipeline, self.source = pipeline, source
+    def __init__(self, pipelines: Pipelines, source: LineSource | FrameSource) -> None:
+        self.pipelines, self.source = pipelines, source
         self._listeners: list[Listener] = []
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -32,22 +32,22 @@ class Engine:
             fn(inc)
 
     def _loop(self) -> None:
-        self.pipeline.setup()
+        self.pipelines.setup()
         try:
             if hasattr(self.source, "frames"):
                 for frame in self.source.frames():
                     if self._stop.is_set():
                         break
-                    for inc in self.pipeline.process_frame(frame):
+                    for inc in self.pipelines.incoming.process_frame(frame):
                         self._emit(inc)
             else:
                 for line in self.source.lines():
                     if self._stop.is_set():
                         break
-                    if inc := self.pipeline.process_line(line):
+                    if inc := self.pipelines.incoming.process_line(line):
                         self._emit(inc)
         finally:
-            self.pipeline.close()
+            self.pipelines.close()
 
     def start(self, block: bool = False) -> None:
         if block:

@@ -12,7 +12,7 @@ from clean_chat.core.config import FIXTURES, STAGE_NAMES
 from clean_chat.core.platform import PlatformNotSupported
 from clean_chat.core.stage import read_jsonl
 
-STRICT = {"parse", "policy"}
+STRICT = {"parse", "compose", "incoming_policy", "outgoing_policy"}
 SKIP_FIXTURE_MISSING = {"ocr"}  # 이미지 파일이 들어오기 전까지
 
 

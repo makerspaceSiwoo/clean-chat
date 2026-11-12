@@ -5,8 +5,8 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from clean_chat.core.engine import Engine
-from clean_chat.core.pipeline import Pipeline
-from clean_chat.core.schemas import Incident, RawLine, Source
+from clean_chat.core.pipeline import Pipelines
+from clean_chat.core.schemas import Incident
 from clean_chat.core.sources import FrameSource, LineSource
 from clean_chat.ui import win32
 from clean_chat.ui.bridge import EngineBridge
@@ -14,18 +14,14 @@ from clean_chat.ui.client import ClientWindow
 from clean_chat.ui.overlay import OverlayWindow
 
 
-def run_app(pipeline: Pipeline, source: LineSource | FrameSource) -> int:
+def run_app(pipelines: Pipelines, source: LineSource | FrameSource) -> int:
     qt = QApplication(sys.argv)
-    engine = Engine(pipeline, source)
+    engine = Engine(pipelines, source)
     bridge = EngineBridge(engine)
     client = ClientWindow()
 
-    def on_self_input(text: str) -> Incident | None:
-        import time
-        import uuid
-
-        line = RawLine(id=f"self-{uuid.uuid4().hex[:8]}", ts=time.time(), text=text, source=Source.SELF_INPUT)
-        return pipeline.process_line(line)
+    def on_self_input(text: str) -> Incident:
+        return pipelines.outgoing.submit(text)  # 흐름 B (동기 요청-응답)
 
     overlay = OverlayWindow(on_self_input)
     bridge.incident.connect(client.add_incident)
