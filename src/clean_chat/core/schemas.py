@@ -23,7 +23,8 @@ from enum import IntEnum, StrEnum
 
 from pydantic import BaseModel, Field
 
-SCHEMA_VERSION = "0.5.0"
+SCHEMA_VERSION = "0.6.0"
+# 0.6.0: PostGameResult 추가 (게임 종료 배치 처리 결과)
 # 0.5.0: 흐름 A/B 분리 — OutgoingText 추가(compose 입력), policy → incoming_policy / outgoing_policy
 # 0.4.0: GamePhase·PhaseEvent·GameSession 추가, report/complaint 입력을 세션 기반으로
 
@@ -265,3 +266,12 @@ class ComplaintDraft(BaseModel):
     summary: str  # 사건 경위 (LLM 또는 규칙)
     incident_ids: list[str]
     pdf_path: str | None = None
+
+
+# ── 8. 게임 종료 결과 (POST_GAME 배치 처리 → "이번 게임 결과" 화면) ──
+class PostGameResult(BaseModel):
+    """게임 1판이 끝난 뒤 세션 전체를 한 번에 처리한 결과. UI 는 보여 주기만 한다."""
+
+    session_id: str
+    reports: list[ReportDraft] = Field(default_factory=list)  # report=True 기록이 있는 화자마다 1개
+    complaints: list[ComplaintDraft] = Field(default_factory=list)  # complaint_candidate=True 기록이 있는 화자마다 1개

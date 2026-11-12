@@ -1,6 +1,6 @@
 """실행 진입점.
 
-uv run clean-chat run   --source demo                 # 흐름 A를 콘솔로 실행 (모든 OS)
+uv run clean-chat run   --source demo                 # 게임 단계 전환 + 흐름 A + 신고 생성을 콘솔로 (모든 OS)
 uv run clean-chat run   --source demo --real parse    # parse 만 실제 구현, 나머지 mock
 uv run clean-chat say   "아 정글 ㅂㅅ 왜 안 와"          # 흐름 B(내 입력) 1문장 처리 결과
 uv run clean-chat app   --source demo                 # UI 앱 (모든 OS, mock 데이터)
@@ -17,12 +17,14 @@ import argparse
 from clean_chat.core.config import FIXTURES, STAGE_COMMANDS, STAGE_NAMES
 from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.platform import IS_WINDOWS, use_utf8_console
-from clean_chat.core.schemas import Incident, OutgoingText, Region
+from clean_chat.core.schemas import GamePhase, GameSession, Incident, OutgoingText, Player, PostGameResult, Region
 from clean_chat.core.sources import DemoLineSource, ScreenshotSource
 from clean_chat.core.stage import read_jsonl
 
 SCENARIO = FIXTURES / "scenario" / "lines.jsonl"
 SCENARIO_OUTGOING = FIXTURES / "scenario" / "outgoing.jsonl"
+SCENARIO_PHASES = FIXTURES / "scenario" / "phases.jsonl"
+SCENARIO_PLAYERS = FIXTURES / "scenario" / "players.jsonl"
 DEFAULT_REGION = Region(x=0, y=600, w=500, h=250)  # TODO: 오버레이 보정값에서 읽기
 
 
@@ -34,6 +36,33 @@ def _source(kind: str, delay: float, shots: str | None):
     from clean_chat.capture.grabber import ScreenGrabber  # Windows 전용
 
     return ScreenGrabber(DEFAULT_REGION)
+
+
+def _detector(kind: str, delay: float):
+    if kind == "screen":
+        from clean_chat.core.config import settings
+        from clean_chat.session.windows import LcuPhaseDetector  # Windows 전용
+
+        return LcuPhaseDetector(settings.phase_poll_sec)
+    from clean_chat.session.fake import FakePhaseDetector
+
+    return FakePhaseDetector(SCENARIO_PHASES, SCENARIO_PLAYERS, delay_sec=delay)
+
+
+def _print_phase(phase: GamePhase, session: GameSession | None) -> None:
+    sid = f" · 세션 {session.id}" if session else ""
+    names = f" · 플레이어 {len(session.players)}명" if session and phase == GamePhase.IN_GAME else ""
+    print(f"── 게임 단계: {phase.name}{sid}{names}")
+
+
+def _print_result(result: PostGameResult) -> None:
+    print(
+        f"── 이번 게임 결과 (세션 {result.session_id}): 신고 {len(result.reports)}건, 고소장 초안 {len(result.complaints)}건"
+    )
+    for r in result.reports:
+        print(f"[신고 문구 · {r.speaker}]\n{r.text}")
+    for c in result.complaints:
+        print(f"[고소장 초안 · {c.speaker}] {c.summary} (PDF: {c.pdf_path or '-'})")
 
 
 def _print(inc: Incident) -> None:
@@ -49,7 +78,9 @@ def _scenario_item(text: str) -> OutgoingText | None:
 
 
 def _say(pipelines: Pipelines, text: str) -> None:
+    """데모 게임 중이라고 보고 처리 (플레이어 명단 = 시나리오 명단)"""
     known = _scenario_item(text)
+    pipelines.set_players(read_jsonl(SCENARIO_PLAYERS, Player))
     pipelines.setup()
     try:
         inc = pipelines.outgoing.submit(text, msg_id=known.id if known else None, ts=known.ts if known else None)
@@ -94,12 +125,14 @@ def main() -> None:
     if a.cmd == "app":
         from clean_chat.ui.app import run_app  # PySide6 필요: uv sync --extra ui
 
-        raise SystemExit(run_app(pipelines, src))
+        raise SystemExit(run_app(pipelines, src, _detector(a.source, a.delay)))
 
     from clean_chat.core.engine import Engine
 
-    eng = Engine(pipelines, src)
+    eng = Engine(pipelines, src, _detector(a.source, a.delay))
+    eng.on_phase(_print_phase)
     eng.subscribe(_print)
+    eng.on_result(_print_result)
     eng.start(block=True)
 
 

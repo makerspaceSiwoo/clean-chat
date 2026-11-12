@@ -13,7 +13,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-MODULES = ("capture", "parse", "normalize", "classify", "rewrite", "policy", "report", "ui", "core")
+MODULES = ("capture", "parse", "normalize", "classify", "rewrite", "policy", "report", "session", "ui", "core")
 
 # 브랜치 이름 규칙
 BRANCH_RE = re.compile(

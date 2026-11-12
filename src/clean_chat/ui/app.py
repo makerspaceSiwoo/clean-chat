@@ -7,16 +7,16 @@ from PySide6.QtWidgets import QApplication
 from clean_chat.core.engine import Engine
 from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.schemas import Incident
-from clean_chat.core.sources import FrameSource, LineSource
+from clean_chat.core.sources import FrameSource, LineSource, PhaseDetector
 from clean_chat.ui import win32
 from clean_chat.ui.bridge import EngineBridge
 from clean_chat.ui.client import ClientWindow
 from clean_chat.ui.overlay import OverlayWindow
 
 
-def run_app(pipelines: Pipelines, source: LineSource | FrameSource) -> int:
+def run_app(pipelines: Pipelines, source: LineSource | FrameSource, detector: PhaseDetector) -> int:
     qt = QApplication(sys.argv)
-    engine = Engine(pipelines, source)
+    engine = Engine(pipelines, source, detector)
     bridge = EngineBridge(engine)
     client = ClientWindow()
 

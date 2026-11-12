@@ -43,6 +43,9 @@ class Settings(BaseModel):
     impl: dict[str, str] = Field(default_factory=lambda: dict.fromkeys(STAGE_NAMES, "mock"))
     llm_backend: str = "none"  # rewrite/complaint 용: "local" | "api" (OPEN-04)
     store_dir: Path = ROOT / ".clean-chat"  # 처리 내역 로컬 저장 (git 제외)
+    sessions_dir: Path = ROOT / ".clean-chat" / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
+    complaint_output_dir: str = ".clean-chat/complaints"  # 고소장 PDF 저장 폴더 (레포 루트 기준 상대 경로)
+    phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     capture_interval_sec: float = 0.4
 
 
