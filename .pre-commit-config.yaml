@@ -10,8 +10,8 @@ repos:
       - id: check-added-large-files   # 500KB 넘는 파일 차단 (모델·영상은 git에 올리지 않음)
         args: [--maxkb=500]
       - id: detect-private-key
-      - id: no-commit-to-branch       # main/dev 에 직접 커밋 금지
-        args: [--branch, main, --branch, dev]
+      - id: no-commit-to-branch       # main 에 직접 커밋 금지 (develop 은 허용)
+        args: [--branch, main]
   - repo: local   # ruff는 uv.lock 버전을 그대로 써서 CI와 결과가 같게 함
     hooks:
       - id: ruff

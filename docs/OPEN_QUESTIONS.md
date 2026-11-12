@@ -15,3 +15,5 @@
 | OPEN-09 | "핑"은 어디까지 다루나 | 채팅창에 **글자로** 찍히는 핑과 스펠 체크만 (지도 위 핑은 범위 밖) | parse | 주말 #2 |
 | OPEN-10 | 발표용 PC에서 롤 + 분류 모델 + LLM을 동시에 돌릴 수 있나 | 사양 확인 후 OPEN-04 결정에 반영 | 리드 | 주말 #2 |
 | OPEN-11 | 대상 추정에 쓸 플레이어 명단 | Live Client Data API `playerlist` (게임 중에만, 로컬) | 리드 | 주말 #2 |
+| OPEN-12 | LCU 게임 진행 단계 이름과 전환 시점 | `InProgress`/`EndOfGame` 외 `Reconnect`, `WaitingForStats`, `PreEndOfGame` 등이 언제 오는지 실측 → `session/windows.py: _to_game_phase` 표, 튕김 시 처리(지금 가정: 게임 중 대기가 10초 이상 계속되면 게임 종료, `settings.idle_grace_sec`) | session(WP8) | 주말 #2 전 |
+| OPEN-13 | 내가 보낸 채팅이 OCR로 다시 읽혔다는 판단 기준 | 지금 가정: 내 채팅이고 60초 안에 보낸 문장과 본문이 같으면 건너뜀(`core/pipeline.py: SentLog`). OCR 오타·잘림을 고려해 유사도로 바꿀지 | 리드 + capture | 주말 #2 |

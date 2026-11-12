@@ -24,10 +24,10 @@ jobs:
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: python check_pr_title.py "$TITLE"
-      - name: main 으로는 dev 브랜치만 병합 가능
-        if: github.base_ref == 'main' && github.head_ref != 'dev'
+      - name: main 으로는 develop 브랜치만 병합 가능
+        if: github.base_ref == 'main' && github.head_ref != 'develop'
         run: |
-          echo "❌ main 에는 dev → main PR만 허용됩니다 (주말 통합 후 리드가 진행)"
+          echo "❌ main 에는 develop → main PR만 허용됩니다 (주말 통합 후 리드가 진행)"
           exit 1
       - name: 모듈 경계 검사
         if: ${{ !contains(github.event.pull_request.labels.*.name, 'cross-module') }}

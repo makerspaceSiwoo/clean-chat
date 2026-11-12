@@ -118,6 +118,7 @@
 - WP1의 policy는 incoming과 outgoing 두 개가 됩니다.
 
 ### 5-5. 이름 변경 (리드가 확정하면)
+> ✅ 적용됨 (2026-11-12): 레포·패키지·명령 `clean-chat`, import·폴더 `clean_chat` (`src/clean_chat/`), 저장 폴더 `.clean-chat/`. 같은 때 통합 브랜치를 `dev` → `develop`으로 바꿨습니다. 이 문서의 나머지 `lolguard` 표기는 작성 당시 이름입니다.
 - `lolguard` → `tiltguard`(또는 확정된 이름): 패키지 폴더, `pyproject.toml`(name, scripts), import, 문서, CLI 명령, `.lolguard/` 저장 폴더, CODEOWNERS, `scripts/repo_rules.py`
 
 ## 6. 스텁(뼈대) 작성 규칙 — "로직 없이 주석으로 함수만"
@@ -185,3 +186,10 @@ class Parser(ParseStage):
 7. **UI 뼈대 갱신**: 단계에 따른 오버레이 표시/숨김, "이번 게임 결과" 화면 자리.
 8. **문서 갱신**(7장 목록) + mermaid 그림.
 9. **검증**(7장 체크리스트) 후 변경 요약을 보고합니다.
+
+## 10. 진행 상황 (Claude Code, 2026-11-12)
+9장 1~8단계를 `develop`에 반영했습니다. 9단계(검증) 결과와 남은 일은 커밋 기록과 아래를 봅니다.
+- 이름: `clean-chat`(레포·패키지·명령), `clean_chat`(import), `.clean-chat/`(저장). 통합 브랜치 `develop`, `main`만 보호(`docs/GITHUB_SETTINGS.md`)
+- 두 흐름(ADR-0013), 게임 단계·세션(ADR-0014), 모든 `impl.py` 스텁(6장 규칙), UI 단계별 화면 뼈대
+- 새 미결정: OPEN-12(LCU 단계 이름 실측), OPEN-13(내 채팅 중복 기준)
+- 남은 일: CODEOWNERS 아이디, WP 배정, OPEN 항목 실측, 실제 Windows 실행 확인

@@ -18,7 +18,7 @@ build/
 !.env.example
 
 # 로컬 실행 기록 (처리 내역, 증거, 고소장 PDF) — 절대 커밋 금지
-.lolguard/
+.clean-chat/
 *.pdf
 
 # 큰 파일 / 외부 데이터 (docs/DATA.md 참고)

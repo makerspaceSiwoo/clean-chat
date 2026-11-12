@@ -2,10 +2,18 @@
 
 import pytest
 
-from lolguard.core import registry
-from lolguard.core.config import FIXTURES, STAGE_NAMES
-from lolguard.core.schemas import Incident, RawLine
-from lolguard.core.stage import read_jsonl
+from clean_chat.core import registry
+from clean_chat.core.config import FIXTURES, STAGE_NAMES
+from clean_chat.core.schemas import (
+    ComplaintRequest,
+    GamePhase,
+    GameSession,
+    Incident,
+    PhaseEvent,
+    RawLine,
+    ReportRequest,
+)
+from clean_chat.core.stage import read_jsonl
 
 
 @pytest.mark.parametrize("name", STAGE_NAMES)
@@ -28,3 +36,25 @@ def test_mock_default_is_valid(name):
     item = read_jsonl(FIXTURES / name / "input.jsonl", iface.input_model)[0]
     out = iface.mock_default(item)
     assert isinstance(out, iface.output_model)
+
+
+@pytest.mark.parametrize(("name", "model"), [("report", ReportRequest), ("complaint", ComplaintRequest)])
+def test_report_inputs_are_game_sessions(name, model):
+    """신고·고소장 입력은 게임 세션 기반이고, 세션에는 다른 유저 채팅(흐름 A)만 기록된다 (HANDOFF 5-1, 5-2)."""
+    for req in read_jsonl(FIXTURES / name / "input.jsonl", model):
+        assert isinstance(req.session, GameSession)
+        assert req.session.ended_at is not None  # POST_GAME 에서만 실행 → 끝난 게임
+        assert req.session.incidents
+        assert not any(inc.msg.is_me for inc in req.session.incidents)
+
+
+def test_session_round_trip_jsonl():
+    """세션 저장소(.clean-chat/sessions/<id>.jsonl)가 쓰는 JSON 한 줄 직렬화가 손실 없이 돌아오는지"""
+    session = read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session
+    assert GameSession.model_validate_json(session.model_dump_json()) == session
+
+
+def test_phase_event_values():
+    assert [p.value for p in GamePhase] == ["idle", "in_game", "post_game"]
+    ev = PhaseEvent.model_validate_json('{"ts": 1.0, "phase": "in_game", "raw": "InProgress"}')
+    assert ev.phase is GamePhase.IN_GAME

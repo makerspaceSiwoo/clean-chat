@@ -1,7 +1,7 @@
 import pytest
 
-from lolguard.core.config import STAGE_NAMES
-from lolguard.core.runner import run_module
+from clean_chat.core.config import STAGE_NAMES
+from clean_chat.core.runner import run_module
 
 
 @pytest.mark.parametrize("name", STAGE_NAMES)

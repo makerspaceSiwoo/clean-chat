@@ -1,5 +1,5 @@
 [project]
-name = "lolguard"
+name = "clean-chat"
 version = "0.1.0"
 description = "LoL 악성 채팅 감지·필터 데스크톱 앱 (데모)"
 requires-python = ">=3.11,<3.13"
@@ -8,7 +8,7 @@ dependencies = [
 ]
 
 [project.scripts]
-lolguard = "lolguard.__main__:main"
+clean-chat = "clean_chat.__main__:main"
 
 # 모듈별 추가 의존성. 필요한 사람만 설치:  uv sync --extra ui
 # 원칙: 모든 extra 는 Mac 에서도 설치가 성공해야 한다. Windows 전용 패키지는 반드시 마커를 붙인다.
@@ -41,7 +41,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lolguard"]
+packages = ["src/clean_chat"]
 
 [tool.ruff]
 line-length = 120
