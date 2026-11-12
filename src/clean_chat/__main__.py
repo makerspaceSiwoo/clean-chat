@@ -133,6 +133,7 @@ def main() -> None:
     eng.on_phase(_print_phase)
     eng.subscribe(_print)
     eng.on_result(_print_result)
+    _print_phase(eng.phase, None)  # 시작 단계(IDLE)
     eng.start(block=True)
 
 
