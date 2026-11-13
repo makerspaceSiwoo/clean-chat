@@ -51,3 +51,12 @@ desktop.ini
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# 시뮬레이션 웹앱 (simulator/)
+simulator/node_modules/
+simulator/.next/
+simulator/out/
+simulator/coverage/
+simulator/next-env.d.ts
+simulator/src/mocks/generated/
+simulator/*.tsbuildinfo
