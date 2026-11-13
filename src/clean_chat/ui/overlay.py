@@ -63,6 +63,9 @@ class OverlayWindow(QWidget):
         raise NotImplementedError("ui 담당: start_calibration")
 
     def region(self) -> Region:
-        """지금 오버레이 위치·크기 → Region (캡처 영역으로 씀)."""
-        g = self.geometry()
-        return Region(x=g.x(), y=g.y(), w=g.width(), h=g.height())
+        """지금 오버레이 위치·크기 → Region. 보정 모드가 끝나면 설정에 저장하고 캡처 영역으로 쓴다.
+
+        예) 화면 (0, 600)에 420×260 → Region(x=0, y=600, w=420, h=260)
+        주의: 화면 배율(DPI)이 100% 가 아니면 Qt 좌표와 캡처 좌표가 다를 수 있다 (Windows 실측, OPEN-02).
+        """
+        raise NotImplementedError("ui 담당: region")

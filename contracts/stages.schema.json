@@ -1,0 +1,884 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Clean Chat Stage contracts",
+  "description": "자동 생성 파일 — 직접 고치지 말고 scripts/export_contracts.py 로 다시 만드세요.",
+  "schema_version": "0.6.0",
+  "stages": {
+    "ocr": {
+      "input": {
+        "$ref": "#/$defs/Frame"
+      },
+      "output": {
+        "$ref": "#/$defs/OcrResult"
+      }
+    },
+    "parse": {
+      "input": {
+        "$ref": "#/$defs/RawLine"
+      },
+      "output": {
+        "$ref": "#/$defs/ParseResult"
+      }
+    },
+    "compose": {
+      "input": {
+        "$ref": "#/$defs/OutgoingText"
+      },
+      "output": {
+        "$ref": "#/$defs/ChatMessage"
+      }
+    },
+    "normalize": {
+      "input": {
+        "$ref": "#/$defs/ChatMessage"
+      },
+      "output": {
+        "$ref": "#/$defs/NormalizedMessage"
+      }
+    },
+    "classify": {
+      "input": {
+        "$ref": "#/$defs/NormalizedMessage"
+      },
+      "output": {
+        "$ref": "#/$defs/Classification"
+      }
+    },
+    "rewrite": {
+      "input": {
+        "$ref": "#/$defs/RewriteRequest"
+      },
+      "output": {
+        "$ref": "#/$defs/Rewrite"
+      }
+    },
+    "incoming_policy": {
+      "input": {
+        "$ref": "#/$defs/PolicyRequest"
+      },
+      "output": {
+        "$ref": "#/$defs/Decision"
+      }
+    },
+    "outgoing_policy": {
+      "input": {
+        "$ref": "#/$defs/PolicyRequest"
+      },
+      "output": {
+        "$ref": "#/$defs/Decision"
+      }
+    },
+    "report": {
+      "input": {
+        "$ref": "#/$defs/ReportRequest"
+      },
+      "output": {
+        "$ref": "#/$defs/ReportDraft"
+      }
+    },
+    "complaint": {
+      "input": {
+        "$ref": "#/$defs/ComplaintRequest"
+      },
+      "output": {
+        "$ref": "#/$defs/ComplaintDraft"
+      }
+    }
+  },
+  "$defs": {
+    "Action": {
+      "enum": [
+        "show",
+        "show_masked",
+        "show_rewritten",
+        "hide",
+        "copy",
+        "copy_masked",
+        "copy_rewritten",
+        "block"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "Channel": {
+      "enum": [
+        "team",
+        "all",
+        "system",
+        "ping",
+        "unknown"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "ChatMessage": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "number"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "channel": {
+          "$ref": "#/$defs/Channel"
+        },
+        "speaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Speaker"
+        },
+        "champion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Champion"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "is_me": {
+          "default": false,
+          "title": "Is Me",
+          "type": "boolean"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "source",
+        "channel",
+        "speaker",
+        "text",
+        "raw"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    },
+    "Classification": {
+      "description": "분류만 한다. 처리(숨김/신고 등)는 policy가 결정.",
+      "properties": {
+        "msg_id": {
+          "title": "Msg Id",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/Level"
+        },
+        "harm_types": {
+          "items": {
+            "$ref": "#/$defs/HarmType"
+          },
+          "title": "Harm Types",
+          "type": "array"
+        },
+        "has_feedback": {
+          "default": false,
+          "title": "Has Feedback",
+          "type": "boolean"
+        },
+        "scores": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Scores",
+          "type": "object"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "msg_id",
+        "level",
+        "model_version"
+      ],
+      "title": "Classification",
+      "type": "object"
+    },
+    "ComplaintDraft": {
+      "properties": {
+        "speaker": {
+          "title": "Speaker",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "incident_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Incident Ids",
+          "type": "array"
+        },
+        "pdf_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pdf Path"
+        }
+      },
+      "required": [
+        "speaker",
+        "summary",
+        "incident_ids"
+      ],
+      "title": "ComplaintDraft",
+      "type": "object"
+    },
+    "ComplaintRequest": {
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/GameSession"
+        },
+        "speaker": {
+          "title": "Speaker",
+          "type": "string"
+        },
+        "complainant": {
+          "title": "Complainant",
+          "type": "string"
+        },
+        "output_dir": {
+          "title": "Output Dir",
+          "type": "string"
+        }
+      },
+      "required": [
+        "session",
+        "speaker",
+        "complainant",
+        "output_dir"
+      ],
+      "title": "ComplaintRequest",
+      "type": "object"
+    },
+    "Decision": {
+      "properties": {
+        "msg_id": {
+          "title": "Msg Id",
+          "type": "string"
+        },
+        "is_me": {
+          "title": "Is Me",
+          "type": "boolean"
+        },
+        "action": {
+          "$ref": "#/$defs/Action"
+        },
+        "display_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Display Text"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "report": {
+          "default": false,
+          "title": "Report",
+          "type": "boolean"
+        },
+        "complaint_candidate": {
+          "default": false,
+          "title": "Complaint Candidate",
+          "type": "boolean"
+        },
+        "reason": {
+          "default": "",
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "msg_id",
+        "is_me",
+        "action",
+        "display_text"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "Frame": {
+      "description": "캡처한 채팅창 이미지 1장. Mac에서는 저장된 스크린샷 파일로 대체해서 테스트.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "number"
+        },
+        "image_path": {
+          "title": "Image Path",
+          "type": "string"
+        },
+        "region": {
+          "$ref": "#/$defs/Region"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "image_path",
+        "region"
+      ],
+      "title": "Frame",
+      "type": "object"
+    },
+    "GameSession": {
+      "description": "게임 1판의 기록. IN_GAME 동안 쌓고, POST_GAME 에서 report/complaint 의 입력이 된다.\n\n로컬 저장만 허용: .clean-chat/sessions/<id>.jsonl (git 제외).\nincidents 에는 다른 유저 채팅(흐름 A)만 들어간다. 내 채팅(흐름 B)은 복사/차단으로 끝나고 기록하지 않는다.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "started_at": {
+          "title": "Started At",
+          "type": "number"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "players": {
+          "items": {
+            "$ref": "#/$defs/Player"
+          },
+          "title": "Players",
+          "type": "array"
+        },
+        "incidents": {
+          "items": {
+            "$ref": "#/$defs/Incident"
+          },
+          "title": "Incidents",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "started_at"
+      ],
+      "title": "GameSession",
+      "type": "object"
+    },
+    "HarmType": {
+      "enum": [
+        "profanity",
+        "family_insult",
+        "sexual_harassment",
+        "blame",
+        "instigation"
+      ],
+      "title": "HarmType",
+      "type": "string"
+    },
+    "Incident": {
+      "description": "클라이언트 '처리 내역'에 보이는 기록 한 건. 로컬 저장만 허용.",
+      "properties": {
+        "msg": {
+          "$ref": "#/$defs/NormalizedMessage"
+        },
+        "classification": {
+          "$ref": "#/$defs/Classification"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "rewrite": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Rewrite"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "msg",
+        "classification",
+        "decision"
+      ],
+      "title": "Incident",
+      "type": "object"
+    },
+    "Level": {
+      "enum": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "title": "Level",
+      "type": "integer"
+    },
+    "NormalizedMessage": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "number"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "channel": {
+          "$ref": "#/$defs/Channel"
+        },
+        "speaker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Speaker"
+        },
+        "champion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Champion"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "is_me": {
+          "default": false,
+          "title": "Is Me",
+          "type": "boolean"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "string"
+        },
+        "text_norm": {
+          "title": "Text Norm",
+          "type": "string"
+        },
+        "hints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Hints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "source",
+        "channel",
+        "speaker",
+        "text",
+        "raw",
+        "text_norm"
+      ],
+      "title": "NormalizedMessage",
+      "type": "object"
+    },
+    "OcrResult": {
+      "description": "Frame 1장에서 읽은 '새로운' 줄들 (이전 프레임과 중복된 줄은 제외).",
+      "properties": {
+        "frame_id": {
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/RawLine"
+          },
+          "title": "Lines",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frame_id",
+        "lines"
+      ],
+      "title": "OcrResult",
+      "type": "object"
+    },
+    "OutgoingText": {
+      "description": "오버레이 입력칸에서 Enter 한 내 문장 1개. OCR·parse 를 거치지 않고 compose 가 ChatMessage 로 만든다.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "number"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "text"
+      ],
+      "title": "OutgoingText",
+      "type": "object"
+    },
+    "ParseResult": {
+      "properties": {
+        "line_id": {
+          "title": "Line Id",
+          "type": "string"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChatMessage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "line_id",
+        "message"
+      ],
+      "title": "ParseResult",
+      "type": "object"
+    },
+    "Player": {
+      "description": "게임 참가자. 로컬 Live Client Data API(127.0.0.1:2999) 또는 설정값에서 얻음.",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "champion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Champion"
+        },
+        "team": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Team"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "is_me": {
+          "default": false,
+          "title": "Is Me",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Player",
+      "type": "object"
+    },
+    "PolicyRequest": {
+      "description": "두 정책 Stage 의 공통 입력. 흐름 A 는 incoming_policy, 흐름 B 는 outgoing_policy 로 보낸다.",
+      "properties": {
+        "message": {
+          "$ref": "#/$defs/NormalizedMessage"
+        },
+        "classification": {
+          "$ref": "#/$defs/Classification"
+        },
+        "rewrite": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Rewrite"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "players": {
+          "items": {
+            "$ref": "#/$defs/Player"
+          },
+          "title": "Players",
+          "type": "array"
+        }
+      },
+      "required": [
+        "message",
+        "classification"
+      ],
+      "title": "PolicyRequest",
+      "type": "object"
+    },
+    "RawLine": {
+      "description": "OCR이 읽은 채팅 한 줄(가공 전). 중복 제거는 capture 책임.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "title": "Ts",
+          "type": "number"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "ocr_confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ocr Confidence"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "text",
+        "source"
+      ],
+      "title": "RawLine",
+      "type": "object"
+    },
+    "Region": {
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "title": "Y",
+          "type": "integer"
+        },
+        "w": {
+          "title": "W",
+          "type": "integer"
+        },
+        "h": {
+          "title": "H",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "title": "Region",
+      "type": "object"
+    },
+    "ReportDraft": {
+      "properties": {
+        "speaker": {
+          "title": "Speaker",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "incident_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Incident Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "speaker",
+        "text",
+        "incident_ids"
+      ],
+      "title": "ReportDraft",
+      "type": "object"
+    },
+    "ReportRequest": {
+      "properties": {
+        "session": {
+          "$ref": "#/$defs/GameSession"
+        },
+        "speaker": {
+          "title": "Speaker",
+          "type": "string"
+        }
+      },
+      "required": [
+        "session",
+        "speaker"
+      ],
+      "title": "ReportRequest",
+      "type": "object"
+    },
+    "Rewrite": {
+      "properties": {
+        "msg_id": {
+          "title": "Msg Id",
+          "type": "string"
+        },
+        "feedback_spans": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Feedback Spans",
+          "type": "array"
+        },
+        "rewritten": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rewritten"
+        },
+        "backend": {
+          "title": "Backend",
+          "type": "string"
+        }
+      },
+      "required": [
+        "msg_id",
+        "rewritten",
+        "backend"
+      ],
+      "title": "Rewrite",
+      "type": "object"
+    },
+    "RewriteRequest": {
+      "properties": {
+        "message": {
+          "$ref": "#/$defs/NormalizedMessage"
+        },
+        "classification": {
+          "$ref": "#/$defs/Classification"
+        }
+      },
+      "required": [
+        "message",
+        "classification"
+      ],
+      "title": "RewriteRequest",
+      "type": "object"
+    },
+    "Source": {
+      "enum": [
+        "ocr",
+        "demo",
+        "self_input"
+      ],
+      "title": "Source",
+      "type": "string"
+    }
+  }
+}

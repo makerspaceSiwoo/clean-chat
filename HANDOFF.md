@@ -193,3 +193,4 @@ class Parser(ParseStage):
 - 두 흐름(ADR-0013), 게임 단계·세션(ADR-0014), 모든 `impl.py` 스텁(6장 규칙), UI 단계별 화면 뼈대
 - 새 미결정: OPEN-12(LCU 단계 이름 실측), OPEN-13(내 채팅 중복 기준)
 - 남은 일: CODEOWNERS 아이디, WP 배정, OPEN 항목 실측, 실제 Windows 실행 확인
+- (2026-11-14) 웹 시뮬레이터 `simulator/` 추가(PR #2), 공통 계약 `contracts/` + Vercel 배포(PR #3, ADR-0015). Vercel 프로젝트 `clean-chat-simulator`, develop 주소는 `simulator/README.md`
