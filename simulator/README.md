@@ -24,8 +24,8 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 
 | 브랜치 | Vercel 환경 | 주소 | `NEXT_PUBLIC_APP_ENV` |
 |---|---|---|---|
-| `main` | Production | https://clean-chat-simulator.vercel.app | `main` |
-| `develop` | Preview (브랜치 고정 주소) | https://clean-chat-simulator-git-develop-seeyouspace0-5824s-projects.vercel.app | `develop` |
+| `main` | Production | https://cleanchat-simul.vercel.app | `main` |
+| `develop` | Preview (브랜치 고정 주소) | https://develop-cleanchat-simul.vercel.app | `develop` |
 | PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글·`vercel ls` 에 표시 | `local` |
 
 - **Vercel 프로젝트**: `clean-chat-simulator` (팀 `siwoojung's team`). GitHub `makerspaceSiwoo/clean-chat` 연결, Production Branch `main`.
