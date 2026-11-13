@@ -29,7 +29,7 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 | PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글·`vercel ls` 에 표시 | `local` |
 
 - **Vercel 프로젝트**: `clean-chat-simulator` (팀 `siwoojung's team`). GitHub `makerspaceSiwoo/clean-chat` 연결, Production Branch `main`.
-- **볼 수 있는 사람**: develop·PR 미리보기 주소는 **Vercel 에 로그인한 팀 멤버만** 볼 수 있습니다(기본 보호). **main(Production) 주소는 공개**입니다 — Hobby 요금제의 기본 보호는 Production 주소를 막지 않습니다. 내용은 팀이 쓴 가상 fixtures 뿐이고 secret 이 없으며, 검색 엔진 수집은 막아 두었습니다(`robots: noindex`). 막아야 하면 Pro 요금제의 전체 보호나 Password Protection 이 필요합니다.
+- **볼 수 있는 사람**: **모든 주소(main·develop·PR 미리보기)가 공개**입니다. 팀원이 Vercel 팀 계정(유료) 없이 볼 수 있도록 Deployment Protection 을 껐습니다. 내용은 팀이 쓴 가상 fixtures 뿐이고 secret 이 없으며, 검색 엔진 수집은 막아 두었습니다(`robots: noindex`). 실제 채팅·닉네임·secret 은 이 앱에 넣지 않습니다.
 - **자동 배포**: GitHub push 마다. 단, `simulator/`·`fixtures/`·`contracts/` 가 바뀐 커밋만 빌드합니다(`vercel.json` 의 `ignoreCommand`). 파이썬만 고친 커밋은 건너뜁니다.
 - **프로젝트 설정**: Root Directory `simulator`, Framework Next.js, Node 22(`package.json` engines), "Root Directory 밖 파일 포함" 켜짐(공통 `../fixtures`, `../contracts` 를 읽음).
 - **환경 변수 위치**: Vercel 프로젝트 → Settings → Environment Variables. Production(`APP_ENV=main`), Preview·develop 브랜치(`develop`), Preview 그 밖(`local`), 셋 다 `API_MODE=mock`. **secret 은 없습니다.** 바꾸려면 `npx vercel@65.8.0 env ls` / `env add --force`.
