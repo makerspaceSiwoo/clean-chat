@@ -22,6 +22,14 @@ uv sync --extra ui && uv run clean-chat app --source demo   # UI
 
 > 이 스타터에는 **실제 구현이 없습니다.** 모든 `impl.py`는 함수 시그니처와 설명만 있고(`NotImplementedError`), 실행 결과는 `fixtures/`의 예시 데이터입니다.
 
+## 레포 구조 (앱 2개 + 공통 2개, ADR-0015)
+| 폴더 | 무엇 | 도구 | 배포 |
+|---|---|---|---|
+| `src/clean_chat/`, `tests/`, `pyproject.toml` | **데스크톱 앱** (Python, Windows 실행) | uv · CI `ci.yml` | 없음 |
+| `simulator/` | **웹 시뮬레이터** (모듈별 Mock 실행·QA) | npm · CI `simulator.yml` | Vercel |
+| `contracts/` | **공통 계약** — Stage 입출력 JSON Schema (`schemas.py` 에서 자동 생성) | `scripts/export_contracts.py` | – |
+| `fixtures/` | **공통 예시 데이터** — Stage 별 입력 → 기대값 | 손으로 작성 | – |
+
 ## 문서 지도
 | 문서 | 내용 |
 |---|---|

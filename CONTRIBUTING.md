@@ -25,7 +25,7 @@ main       ← 발표용. 항상 데모가 돌아가는 상태. develop → main
 | `data/<주제>` | 데이터 추가 | `data/label-batch2` |
 | `chore/<주제>` | 설정 등 잡일 | `chore/ci-cache` |
 
-- 모듈 이름: `capture parse normalize classify rewrite policy report session ui core`
+- 모듈 이름: `capture parse normalize classify rewrite policy report session ui simulator core` (`simulator` = 웹 시뮬레이터, `simulator/` 폴더만)
 - 영어 소문자, 숫자, `-`만 사용합니다.
 
 ## 2. 커밋과 PR 제목

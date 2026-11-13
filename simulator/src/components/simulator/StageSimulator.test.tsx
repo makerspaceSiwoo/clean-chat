@@ -27,7 +27,9 @@ describe("StageSimulator (Mock 클라이언트 주입)", () => {
     expect(within(result).getByText("용 먼저 치자")).toBeInTheDocument();
     expect(screen.getByTestId("check-status-200")).toHaveAttribute("data-status", "pass");
     expect(screen.getByTestId("check-expected")).toHaveAttribute("data-status", "pass");
-    expect(screen.getByTestId("checklist-summary")).toHaveTextContent("자동 5/5 통과");
+    // 실제 공통 계약(Decision 필드 8개) 기준: 코드 + 출력 + 필드 8개 + 기대값 = 11개 모두 통과
+    expect(screen.getByTestId("checklist-summary")).toHaveTextContent("자동 11/11 통과");
+    expect(screen.getByTestId("check-field-complaint_candidate")).toHaveAttribute("data-status", "pass");
   });
 
   it("케이스를 바꾸면 입력이 바뀌고 이전 결과가 지워진다", async () => {

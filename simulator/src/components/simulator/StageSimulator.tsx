@@ -10,6 +10,7 @@ import { evaluateChecklist } from "@/lib/checklist";
 import { deepEqual, prettyJson, safeParseJson } from "@/lib/json";
 import type { FixtureCase } from "@/mocks/fixtures";
 import type { ModuleMeta } from "@/modules/registry";
+import { getContract } from "@/shared/contracts";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { Checklist } from "./Checklist";
 import { CUSTOM_CASE, InputPanel } from "./InputPanel";
@@ -23,6 +24,7 @@ interface Props {
 
 export function StageSimulator({ meta, cases }: Props) {
   const { client, config, mockScenario, setMockScenario } = useApi();
+  const contract = getContract(meta.stageId);
   const first = cases[0];
   const [caseId, setCaseId] = useState<string>(first?.caseId ?? CUSTOM_CASE);
   const [text, setText] = useState<string>(first ? prettyJson(first.input) : "{}");
@@ -55,12 +57,12 @@ export function StageSimulator({ meta, cases }: Props) {
   };
 
   const response = state.phase === "success" || state.phase === "error" ? state.response : undefined;
-  const checklist = response ? evaluateChecklist({ meta, response, expected: ranExpected, apiMode: config.apiMode }) : null;
+  const checklist = response ? evaluateChecklist({ meta, contract, response, expected: ranExpected, apiMode: config.apiMode }) : null;
 
   return (
     <div className="grid grid-cols-[420px_minmax(0,1fr)_340px] gap-5">
       <InputPanel
-        inputType={meta.inputType}
+        inputType={contract.input}
         cases={cases}
         selectedCaseId={caseId}
         onSelectCase={selectCase}
@@ -88,7 +90,7 @@ export function StageSimulator({ meta, cases }: Props) {
           </p>
         </div>
         <ErrorBoundary name="결과" resetKey={runNo}>
-          <ResultPanel state={state} outputType={meta.outputType} summaryFields={meta.summaryFields} expected={ranExpected} />
+          <ResultPanel state={state} outputType={contract.output} summaryFields={meta.summaryFields} expected={ranExpected} />
         </ErrorBoundary>
       </section>
 

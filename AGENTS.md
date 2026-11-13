@@ -30,10 +30,11 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
 - **분류(classify)는 "얼마나 나쁜가"만 판단하고, 처리(숨김·신고 등)는 policy(`incoming_policy`/`outgoing_policy`)가 결정합니다.** 섞지 마세요.
 - 게임 단계 전환과 세션 기록은 `core/game.py`(상태 기계, 리드)가 합니다. 단계 감지기(`session/`)는 단계를 보고만 합니다.
 - 실제 앱은 Windows, 개발은 Mac. Windows 전용 코드는 `capture/grabber.py`, `ui/win32.py`, `session/windows.py`에만 둡니다.
+- 웹 시뮬레이터(`simulator/`, Next.js)는 **별도 앱**입니다. 파이썬 코드를 import 하지 않고 `contracts/`와 `fixtures/`만 읽습니다. 작업 규칙은 `simulator/README.md`.
 
 ## 3. 반드시 지킬 규칙
 1. **자기 모듈 폴더(`src/clean_chat/<모듈>/`) 밖은 수정하지 않습니다.** CI가 검사합니다(`scripts/check_module_boundary.py`).
-2. **`core/schemas.py`와 각 모듈의 공개 함수 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다.
+2. **`core/schemas.py`와 각 모듈의 공개 함수 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다. (리드가 `schemas.py`를 바꾸면 `uv run python scripts/export_contracts.py`로 `contracts/`를 다시 만들어 함께 커밋합니다 — 웹 시뮬레이터가 이 파일을 씁니다.)
 3. **새 패키지를 추가하기 전에 사용자에게 먼저 물어봅니다.** 추가할 때는 `pyproject.toml`의 해당 모듈 extra에 넣습니다(`uv add --optional <모듈> <패키지>`).
 4. 판단 로직은 해당 모듈에만 둡니다. UI에 분류나 정책 로직을 넣지 않습니다.
 5. 실제 유저 채팅 원문, 닉네임, 스크린샷, 모델 가중치, `.env`는 커밋하지 않습니다.

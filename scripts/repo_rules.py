@@ -13,7 +13,19 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-MODULES = ("capture", "parse", "normalize", "classify", "rewrite", "policy", "report", "session", "ui", "core")
+MODULES = (
+    "capture",
+    "parse",
+    "normalize",
+    "classify",
+    "rewrite",
+    "policy",
+    "report",
+    "session",
+    "ui",
+    "simulator",
+    "core",
+)
 
 # 브랜치 이름 규칙
 BRANCH_RE = re.compile(
@@ -38,9 +50,12 @@ MODULE_PATHS: dict[str, tuple[str, ...]] = {
     for m in MODULES
 }
 MODULE_PATHS["classify"] += ("training/",)
+# 웹 시뮬레이터는 자기 폴더만 (공통 계약·fixtures 는 core = 리드, ADR-0015)
+MODULE_PATHS["simulator"] = ("simulator/",)
 MODULE_PATHS["core"] += (
     "src/clean_chat/__main__.py",
     "fixtures/",
+    "contracts/",
     "scripts/",
     "tests/",
     "docs/",
