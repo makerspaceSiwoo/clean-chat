@@ -5,7 +5,7 @@
  * - 테스트: <ApiProvider client={가짜}> 로 바꿔 끼움
  * mock 모드의 장애 흉내(mockScenario)도 여기서 관리한다.
  */
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { appConfig, type AppConfig } from "@/config/env";
 import { allFixtureCases } from "@/mocks/fixtures";
 import { createHttpClient } from "./httpClient";
@@ -27,11 +27,15 @@ export function createDefaultClient(config: AppConfig, scenario: () => MockScena
 }
 
 export function ApiProvider({ children, client, config = appConfig }: { children: ReactNode; client?: StageApiClient; config?: AppConfig }) {
-  const [mockScenario, setMockScenario] = useState<MockScenario>("normal");
-  const scenarioRef = useRef(mockScenario);
-  scenarioRef.current = mockScenario;
+  const [mockScenario, setScenarioState] = useState<MockScenario>("normal");
+  // Mock 클라이언트는 요청 때마다 ref 로 지금 값을 읽는다 (클라이언트를 다시 만들지 않게)
+  const scenarioRef = useRef<MockScenario>("normal");
+  const setMockScenario = useCallback((s: MockScenario) => {
+    scenarioRef.current = s;
+    setScenarioState(s);
+  }, []);
   const resolved = useMemo(() => client ?? createDefaultClient(config, () => scenarioRef.current), [client, config]);
-  const value = useMemo(() => ({ client: resolved, config, mockScenario, setMockScenario }), [resolved, config, mockScenario]);
+  const value = useMemo(() => ({ client: resolved, config, mockScenario, setMockScenario }), [resolved, config, mockScenario, setMockScenario]);
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 }
 

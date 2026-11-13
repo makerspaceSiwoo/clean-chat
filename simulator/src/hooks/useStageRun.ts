@@ -45,17 +45,12 @@ export function useStageRun(client: StageApiClient, stageId: StageId) {
     [client, stageId],
   );
 
-  const cancel = useCallback(() => {
-    controller.current?.abort();
-    requestNo.current++;
-    setState({ phase: "idle" });
-  }, []);
-
+  /** 진행 중 요청을 취소하고 실행 전 상태로 (취소 버튼, 케이스 변경) */
   const reset = useCallback(() => {
     requestNo.current++;
     controller.current?.abort();
     setState({ phase: "idle" });
   }, []);
 
-  return { state, run, cancel, reset };
+  return { state, run, reset };
 }

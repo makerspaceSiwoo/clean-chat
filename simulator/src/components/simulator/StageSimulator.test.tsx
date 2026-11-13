@@ -88,3 +88,22 @@ describe("StageSimulator (Mock 클라이언트 주입)", () => {
     expect(screen.queryByText("옛 응답")).not.toBeInTheDocument();
   });
 });
+
+describe("응답 흉내 (기본 Mock 클라이언트)", () => {
+  const fast = parseConfig({ NEXT_PUBLIC_MOCK_LATENCY_MS: "0" });
+  // 실제 앱처럼 Provider(레이아웃)는 그대로 두고 화면(StageSimulator)만 다시 연다
+  const page = (screenKey: string) => (
+    <ApiProvider config={fast}>
+      <StageSimulator key={screenKey} meta={META} cases={CASES} />
+    </ApiProvider>
+  );
+
+  it("서버 오류를 고르면 다음 실행이 500 이 되고, 다른 화면으로 넘어가면 정상으로 돌아온다", async () => {
+    const { rerender } = render(page("a"));
+    await userEvent.selectOptions(screen.getByLabelText(/응답 흉내/), "server-error");
+    await userEvent.click(screen.getByRole("button", { name: "실행 (테스트)" }));
+    expect(await screen.findByTestId("result-error")).toHaveTextContent("HTTP 500");
+    rerender(page("b"));
+    await waitFor(() => expect(screen.getByLabelText(/응답 흉내/)).toHaveValue("normal"));
+  });
+});

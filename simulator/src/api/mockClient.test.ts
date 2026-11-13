@@ -38,3 +38,13 @@ describe("mockClient", () => {
     await expect(p).rejects.toBeInstanceOf(AbortError);
   });
 });
+
+describe("mockClient 대기", () => {
+  it("응답이 끝나면 abort 리스너를 남기지 않는다", async () => {
+    const client = createMockClient({ cases: { incoming_policy: CASES }, latencyMs: 1, timeoutMs: 10 });
+    const ac = new AbortController();
+    const remove = jest.spyOn(ac.signal, "removeEventListener");
+    await client.runStage({ stageId: "incoming_policy", input: CASES[0]!.input }, { signal: ac.signal });
+    expect(remove).toHaveBeenCalledWith("abort", expect.any(Function));
+  });
+});

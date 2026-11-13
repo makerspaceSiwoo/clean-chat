@@ -27,7 +27,7 @@ export function StageSimulator({ meta, cases }: Props) {
   const [caseId, setCaseId] = useState<string>(first?.caseId ?? CUSTOM_CASE);
   const [text, setText] = useState<string>(first ? prettyJson(first.input) : "{}");
   const [runNo, setRunNo] = useState(0);
-  const { state, run, cancel, reset } = useStageRun(client, meta.stageId);
+  const { state, run, reset } = useStageRun(client, meta.stageId);
 
   // 응답 흉내(장애) 설정은 화면마다 "정상"에서 시작 → 다른 모듈로 넘어가며 오류 흉내가 남아 헷갈리지 않게
   useEffect(() => setMockScenario("normal"), [meta.stageId, setMockScenario]);
@@ -81,7 +81,7 @@ export function StageSimulator({ meta, cases }: Props) {
             disabled={!parsed.ok}
             disabledReason={parsed.ok ? undefined : "입력 JSON 을 고쳐야 실행할 수 있습니다"}
             onRun={onRun}
-            onCancel={cancel}
+            onCancel={reset}
           />
           <p className="font-mono text-xs text-slate-500">
             POST /stages/{meta.stageId}/run
