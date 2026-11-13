@@ -59,4 +59,5 @@ simulator/out/
 simulator/coverage/
 simulator/next-env.d.ts
 simulator/src/mocks/generated/
+simulator/src/shared/generated/
 simulator/*.tsbuildinfo

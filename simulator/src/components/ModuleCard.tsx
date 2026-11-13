@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FLOW_LABEL, type ModuleMeta } from "@/modules/registry";
+import { getContract } from "@/shared/contracts";
 
 const FLOW_STYLE: Record<ModuleMeta["flow"], string> = {
   A: "bg-sky-50 text-sky-800",
@@ -9,6 +10,7 @@ const FLOW_STYLE: Record<ModuleMeta["flow"], string> = {
 };
 
 export function ModuleCard({ meta, caseCount }: { meta: ModuleMeta; caseCount: number }) {
+  const contract = getContract(meta.stageId);
   return (
     <Link
       href={`/modules/${meta.stageId}`}
@@ -24,7 +26,7 @@ export function ModuleCard({ meta, caseCount }: { meta: ModuleMeta; caseCount: n
       <p className="mt-2 line-clamp-2 text-sm text-slate-600">{meta.description}</p>
       <div className="mt-auto flex items-center justify-between pt-3 text-xs text-slate-500">
         <span className="font-mono">
-          {meta.inputType} → {meta.outputType}
+          {contract.input} → {contract.output}
         </span>
         <span className={caseCount === 0 ? "text-amber-700" : undefined}>Mock {caseCount}건</span>
       </div>

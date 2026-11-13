@@ -1,12 +1,12 @@
 # 시뮬레이션 웹앱(simulator/) 검사: 타입 검사 + 테스트 + 빌드.
-# fixtures 가 바뀌어도 실행한다 (웹앱 Mock 데이터 = fixtures, registry 와 어긋나면 테스트가 실패).
+# 공통 자료(fixtures/, contracts/)가 바뀌어도 실행한다 (웹앱이 그대로 쓰므로 어긋나면 테스트가 실패).
 name: simulator
 on:
   pull_request:
-    paths: ["simulator/**", "fixtures/**", ".github/workflows/simulator.yml"]
+    paths: ["simulator/**", "fixtures/**", "contracts/**", ".github/workflows/simulator.yml"]
   push:
     branches: [main, develop]
-    paths: ["simulator/**", "fixtures/**", ".github/workflows/simulator.yml"]
+    paths: ["simulator/**", "fixtures/**", "contracts/**", ".github/workflows/simulator.yml"]
 
 concurrency:
   group: simulator-${{ github.event.pull_request.head.sha || github.sha }}

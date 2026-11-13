@@ -143,3 +143,16 @@
 - **이유**: 롤 클라이언트가 이미 단계를 알려 주므로 화면 인식보다 정확하다. 읽기 전용 로컬 API는 메모리 읽기·드라이버와 달리 Vanguard 위험이 낮고, 많은 공개 도구가 같은 방식을 쓴다. 채팅은 여전히 LCU로 읽지 않는다(ADR-0002).
 - **버린 대안**: (a) 화면 인식으로 게임 시작·종료 판단 — 부정확하고 OCR 부담이 커진다. (b) 단계 없이 항상 캡처 — 게임 밖 화면을 읽고, 신고 묶음 단위가 없다.
 - **영향**: 새 모듈 `session/`(WP8)과 Windows 전용 코드 1곳(`session/windows.py`)이 생겼다. LCU 단계 이름과 전환 시점은 실측이 필요하다(OPEN-12). 세션 파일에는 실제 채팅 원문이 들어가므로 git에 올리지 않는다.
+
+## ADR-0015: 웹 시뮬레이터는 같은 레포의 별도 앱으로 두고, 계약·데이터만 공유하며 Vercel 에 배포한다
+- 2026-11-14 / 확정 / 리드
+- **배경**: 모듈이 `develop`에 병합될 때마다 웹에서 동작을 확인할 시뮬레이터(`simulator/`)를 Vercel 에 배포해야 한다. 데스크톱 앱(Python)과는 명확히 분리하되, Stage 계약은 공통으로 써야 한다. 웹앱의 TS 타입과 필수 필드 목록이 `schemas.py` 손 사본이라 어긋날 위험이 있었다.
+- **결정**:
+  - 한 레포에 앱 2개를 나란히 둔다: 데스크톱(루트 `pyproject.toml`, `src/`) / 웹(`simulator/`). 각자 의존성·CI(`ci.yml` / `simulator.yml`, 경로로 분리)·배포를 따로 가진다.
+  - 공유는 **데이터와 계약만**: `fixtures/`(예시) + `contracts/stages.schema.json`(`scripts/export_contracts.py` 가 pydantic 에서 생성, 커밋). 웹앱은 빌드 전에 여기서 Mock 데이터·TS 타입·출력 필드를 자동 생성한다(`simulator/scripts/sync-shared.mjs`).
+  - 계약이 낡으면 pytest 가, 계약과 fixtures·화면 메타가 어긋나면 웹 테스트가 실패한다.
+  - Vercel: Root Directory `simulator`, `main` → Production, `develop` → 브랜치 고정 Preview 주소, PR → 임시 Preview. `simulator/`·`fixtures/`·`contracts/` 가 바뀐 커밋만 빌드. 지금은 Mock 모드라 secret 없음.
+  - `repo_rules.py`: `simulator` 모듈 추가(`mod/simulator` 는 `simulator/` 만), `contracts/` 는 리드(core).
+- **이유**: Python 과 TypeScript 는 코드 패키지를 공유할 수 없어서 공유 대상은 계약·데이터뿐이다. 폴더 2개면 충분하고, 해커톤 중 경로를 옮기는 비용이 없다.
+- **버린 대안**: (a) `apps/desktop`·`apps/simulator`·`packages/*` + pnpm/turborepo 모노레포 — JS 앱이 하나뿐이라 이점이 없고, Python 패키지를 옮기면 문서·CI·팀원 브랜치 경로가 모두 깨진다. (b) 웹앱을 별도 레포로 — fixtures·계약 동기화가 수동이 된다. (c) TS 타입 손 관리 — 어긋남을 못 막는다.
+- **영향**: `schemas.py` 를 바꾸면 `export_contracts.py` 를 실행해 함께 커밋해야 한다. 실제 모듈을 웹에서 실행하는 API(HTTP 모드)는 범위 밖이며, 필요하면 Vercel 함수가 아닌 별도 서버(Render·Fly.io)에 둔다(분류 모델 크기).

@@ -1,6 +1,7 @@
 /**
- * 모듈(Stage) 목록과 화면·QA 용 메타데이터. 새 Stage 가 생기면 여기에 1개 추가하면 홈 카드·시뮬레이션 화면·체크리스트가 생긴다.
- * 기준 문서: docs/MODULES.md, docs/CONTRACTS.md, docs/SPEC.md 8장(지연 목표)
+ * 모듈(Stage)의 화면·QA 용 메타데이터만 둔다. 새 Stage 가 생기면 여기에 1개 추가 → 홈 카드·시뮬레이션 화면이 생긴다.
+ * 입출력 모델 이름과 출력 필드는 공통 계약(shared/contracts.ts)에서 가져온다 — 여기에 베껴 두지 않는다 (ADR-0015).
+ * 기준 문서: docs/MODULES.md, docs/SPEC.md 8장(지연 목표)
  */
 import type { StageId } from "@/types/contracts";
 
@@ -27,10 +28,6 @@ export interface ModuleMeta {
   workPackage: string;
   flow: Flow;
   description: string;
-  inputType: string;
-  outputType: string;
-  /** 출력에 반드시 있어야 하는 필드 (체크리스트 자동 검사) */
-  requiredFields: string[];
   /** 결과 화면 요약 표에 보여 줄 필드 */
   summaryFields: SummaryField[];
   /** 응답 시간 목표(ms). http 모드에서만 검사 */
@@ -49,9 +46,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP2",
     flow: "A",
     description: "채팅창 이미지 → 새로 나타난 채팅 줄",
-    inputType: "Frame",
-    outputType: "OcrResult",
-    requiredFields: ["frame_id", "lines"],
     summaryFields: [
       { label: "프레임", path: "frame_id" },
       { label: "새 줄 수", path: "lines.length" },
@@ -68,9 +62,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP3",
     flow: "A",
     description: "OCR 줄 → 채널·화자·챔피언·본문",
-    inputType: "RawLine",
-    outputType: "ParseResult",
-    requiredFields: ["line_id", "message"],
     summaryFields: [
       { label: "채널", path: "message.channel" },
       { label: "화자", path: "message.speaker" },
@@ -89,9 +80,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP3",
     flow: "B",
     description: "오버레이 입력 → ChatMessage (OCR 없이)",
-    inputType: "OutgoingText",
-    outputType: "ChatMessage",
-    requiredFields: ["id", "source", "channel", "text", "is_me", "raw"],
     summaryFields: [
       { label: "출처", path: "source" },
       { label: "채널", path: "channel" },
@@ -109,9 +97,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP3",
     flow: "common",
     description: "시1발 · tlqkf · ㅅ ㅂ → 원래 형태",
-    inputType: "ChatMessage",
-    outputType: "NormalizedMessage",
-    requiredFields: ["text", "raw", "text_norm", "hints"],
     summaryFields: [
       { label: "원문", path: "text" },
       { label: "정리된 문장", path: "text_norm" },
@@ -128,9 +113,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP4",
     flow: "common",
     description: "등급 L0~L3 · 유해 유형 · 피드백 포함",
-    inputType: "NormalizedMessage",
-    outputType: "Classification",
-    requiredFields: ["msg_id", "level", "harm_types", "has_feedback", "model_version"],
     summaryFields: [
       { label: "등급", path: "level" },
       { label: "유해 유형", path: "harm_types" },
@@ -148,9 +130,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP5",
     flow: "common",
     description: "악성 문장 → 피드백만 공손하게 (L2↑ & 피드백일 때)",
-    inputType: "RewriteRequest",
-    outputType: "Rewrite",
-    requiredFields: ["msg_id", "feedback_spans", "rewritten", "backend"],
     summaryFields: [
       { label: "피드백 조각", path: "feedback_spans" },
       { label: "다듬은 문장", path: "rewritten" },
@@ -167,9 +146,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP1",
     flow: "A",
     description: "타 유저 채팅: 표시 · 가림 · 피드백만 · 숨김 + 신고",
-    inputType: "PolicyRequest",
-    outputType: "Decision",
-    requiredFields: ["msg_id", "is_me", "action", "display_text", "report", "complaint_candidate", "reason"],
     summaryFields: [
       { label: "처리", path: "action" },
       { label: "표시 문장", path: "display_text" },
@@ -189,9 +165,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP1",
     flow: "B",
     description: "내 채팅: 복사 · 가려서 복사 · 피드백만 · 차단",
-    inputType: "PolicyRequest",
-    outputType: "Decision",
-    requiredFields: ["msg_id", "is_me", "action", "display_text", "reason"],
     summaryFields: [
       { label: "처리", path: "action" },
       { label: "복사할 문장", path: "display_text" },
@@ -209,9 +182,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP6",
     flow: "post_game",
     description: "게임 세션 + 대상 → 복사용 신고 문구",
-    inputType: "ReportRequest",
-    outputType: "ReportDraft",
-    requiredFields: ["speaker", "text", "incident_ids"],
     summaryFields: [
       { label: "대상", path: "speaker" },
       { label: "기록", path: "incident_ids" },
@@ -227,9 +197,6 @@ export const MODULES: readonly ModuleMeta[] = [
     workPackage: "WP6",
     flow: "post_game",
     description: "게임 세션 + 대상 + 고소인 → 초안 + 한글 PDF",
-    inputType: "ComplaintRequest",
-    outputType: "ComplaintDraft",
-    requiredFields: ["speaker", "summary", "incident_ids", "pdf_path"],
     summaryFields: [
       { label: "피고소인", path: "speaker" },
       { label: "사건 경위", path: "summary" },

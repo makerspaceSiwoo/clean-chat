@@ -6,7 +6,7 @@
 ```bash
 cd simulator
 npm ci
-npm run dev        # http://localhost:3100 (fixtures 를 Mock 데이터로 변환한 뒤 실행)
+npm run dev        # http://localhost:3100 (공통 fixtures·계약을 변환한 뒤 실행)
 npm test           # 단위·통합 테스트 (Jest + React Testing Library)
 npm run verify     # 타입 검사 + 테스트 + 프로덕션 빌드 (CI 와 같음)
 ```
@@ -18,6 +18,20 @@ npm run verify     # 타입 검사 + 테스트 + 프로덕션 빌드 (CI 와 같
 | 시뮬레이션 | `/modules/<stageId>` | 왼쪽: Mock 케이스 선택·입력 JSON 편집·응답 흉내 / 가운데: 실행 버튼·로딩·결과(요약 표, 실제 응답 vs 기대값) / 오른쪽: E2E 체크리스트(자동 판정 + 사람이 확인) |
 
 PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하지 않습니다(창이 좁으면 가로 스크롤).
+
+## 배포 (Vercel)
+데스크톱 앱은 배포하지 않습니다. 같은 레포에서 이 폴더만 Vercel 프로젝트로 연결했습니다(ADR-0015).
+
+| 브랜치 | Vercel 환경 | 주소 | `NEXT_PUBLIC_APP_ENV` | 볼 수 있는 사람 |
+|---|---|---|---|---|
+| `main` | Production | (연결 후 기록) | `main` | 누구나 (Hobby 요금제는 Production 보호 불가 — 가상 fixtures 뿐이라 허용) |
+| `develop` | Preview (브랜치 고정 주소) | (연결 후 기록) | `develop` | Vercel 로그인한 팀원 |
+| PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글에 자동 표시 | `local` | Vercel 로그인한 팀원 |
+
+- **자동 배포**: GitHub push 마다. 단, `simulator/`·`fixtures/`·`contracts/` 가 바뀐 커밋만 빌드합니다(`vercel.json` 의 `ignoreCommand`). 파이썬만 고친 커밋은 건너뜁니다.
+- **프로젝트 설정**: Root Directory `simulator`, Framework Next.js, Node 22(`package.json` engines), "Root Directory 밖 파일 포함" 켜짐(공통 `../fixtures`, `../contracts` 를 읽음).
+- **환경 변수 위치**: Vercel 프로젝트 → Settings → Environment Variables (Production / Preview / Preview-develop 브랜치). 값은 아래 표와 같고 **secret 은 없습니다.**
+- 실제 모듈을 웹에서 실행하는 API(HTTP 모드)는 이번 범위가 아닙니다. 분류 모델(torch)은 Vercel 함수 크기 제한을 넘을 가능성이 커서, 필요해지면 Render·Fly.io 같은 곳에 따로 둡니다.
 
 ## 환경 변수 (main / develop 서버 분리)
 같은 코드를 서버마다 다른 환경 변수로 띄웁니다. `.env.example` 을 복사해 `.env.local` 로 씁니다.
@@ -38,16 +52,16 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 | 결정 | 이유 |
 |---|---|
 | **Next.js 15 (App Router) + TypeScript + Tailwind 3**, 레포 안 `simulator/` 폴더 | fixtures·스키마와 같은 레포에 있어야 모듈 병합 때 웹앱 Mock 이 함께 바뀐다. 파이썬 패키지와 섞이지 않게 폴더만 분리 |
-| **Mock 데이터 = 레포 `fixtures/`** (`scripts/sync-fixtures.mjs` 가 dev·build·test 전에 JSON 으로 변환, 결과는 git 제외) | 데이터를 웹앱에 복사해 두면 파이썬 쪽과 어긋난다. 단일 기준을 유지 |
+| **Mock 데이터 = 레포 `fixtures/`, 타입 = 레포 `contracts/`** (`scripts/sync-shared.mjs` 가 dev·build·test 전에 변환, 결과는 git 제외) | 데이터·계약을 웹앱에 손으로 베끼면 파이썬 쪽과 어긋난다. 단일 출처 유지 (ADR-0015) |
 | Mock 은 **입력이 fixtures 와 구조까지 같을 때만** 기대값 응답(200), 다르면 404 | 파이썬 `MockStage` 와 같은 규칙. 값을 지어내지 않는다(= 실제 로직 배제) |
 | API 는 **포트(`StageApiClient`) + 어댑터(Mock / HTTP)**, React Context 로 주입(`ApiProvider`) | 실제 백엔드로 바꿀 때 화면 코드는 그대로. 테스트는 가짜 클라이언트를 주입 |
 | 클라이언트는 **예외 대신 `RunStageResponse`** 로 실패를 돌려줌 (네트워크·타임아웃은 status 0) | 화면이 실패 종류별로 try/catch 하지 않게. 취소만 `AbortError` |
-| 체크리스트 자동 판정은 **순수 함수**(`lib/checklist.ts`), 모듈별 필수 필드·지연 목표·STRICT 여부는 **registry** 에 데이터로 | 새 모듈 추가 = `modules/registry.ts` 에 1개 추가. 판정 규칙은 단위 테스트로 고정 |
+| 체크리스트 자동 판정은 **순수 함수**(`lib/checklist.ts`). 출력 필드는 **공통 계약**에서, 지연 목표·STRICT·QA 항목은 **registry** 에서 | 계약이 바뀌면 필드 검사가 자동으로 따라간다. 판정 규칙은 단위 테스트로 고정 |
 | STRICT 모듈(parse, compose, 정책 2개)은 기대값과 다르면 **실패**, AI 모듈은 **경고** | `tests/test_real_impls.py` 의 STRICT 기준과 같음 |
 | Mock 모드에서는 **응답 시간 검사 건너뜀** | Mock 지연은 흉내라 의미가 없다. http 모드에서만 SPEC 8장 목표로 검사 |
 | 늦게 도착한 옛 응답 무시, 화면 이탈 시 요청 취소, 결과·체크리스트에 Error Boundary, 라우트 `error.tsx` | 실행 버튼 연타·느린 서버·예상 못 한 응답 모양에서도 화면이 깨지지 않게 |
 | **응답 흉내**(500 · 타임아웃 · 빈 응답) 선택 | 오류 화면과 체크리스트 실패 표시를 백엔드 없이 QA |
-| `src/types/contracts.ts` 는 `core/schemas.py` 의 **문서용 사본** (런타임 검증 없음) | 데이터 구조를 한눈에 보이게. 필수 필드 확인은 체크리스트가 함 |
+| TS 타입은 `contracts/stages.schema.json` 에서 **자동 생성**(`json-schema-to-typescript`), `src/types/contracts.ts` 는 다시 내보내기만 | 손 사본 제거. `schemas.py` 변경 → `export_contracts.py` 실행 → 웹앱 타입 자동 갱신 |
 
 가정: 시뮬레이터는 사내망 전용(로그인 없음), 사용자는 PC 크롬 계열, 실제 채팅 원문·닉네임은 다루지 않음(fixtures 는 팀이 쓴 가상 문장).
 
@@ -71,21 +85,23 @@ POST {BASE_URL}/stages/{stageId}/run
 ## 폴더 구조
 ```
 simulator/
-├─ scripts/sync-fixtures.mjs     ../fixtures → src/mocks/generated/fixtures.json (자동, git 제외)
+├─ vercel.json                  Vercel 빌드 설정 (빌드 건너뛰기 규칙)
+├─ scripts/sync-shared.mjs       ../fixtures → src/mocks/generated/, ../contracts → src/shared/generated/ (자동, git 제외)
 ├─ src/
 │  ├─ app/                       라우트: layout, page(홈), modules/[stageId], error, not-found
 │  ├─ api/                       ApiProvider(주입), mockClient, httpClient
 │  ├─ config/env.ts              환경 변수 → 설정 (검증·기본값·경고)
-│  ├─ modules/registry.ts        Stage 목록·필수 필드·지연 목표·QA 항목 (새 모듈은 여기에 추가)
+│  ├─ shared/contracts.ts        공통 계약 읽기 (Stage 목록, 입출력 모델 이름, 출력 필드)
+│  ├─ modules/registry.ts        Stage 별 화면 메타·지연 목표·QA 항목 (새 모듈은 여기에 추가)
 │  ├─ mocks/fixtures.ts          생성된 Mock 데이터 접근
 │  ├─ lib/                       checklist(자동 판정), json(파싱·비교)
 │  ├─ hooks/useStageRun.ts       실행 상태 (idle/loading/success/error, 취소·경쟁 처리)
 │  ├─ components/                ModuleCard·ModuleGrid(홈), simulator/(입력·실행·결과·체크리스트), ErrorBoundary
-│  └─ types/                     contracts(스키마 사본), api(요청/응답·클라이언트 인터페이스)
+│  └─ types/                     contracts(생성 타입 다시 내보내기), api(요청/응답·클라이언트 인터페이스)
 └─ *.test.ts(x)                  각 파일 옆에 테스트
 ```
 
 ## 새 모듈(Stage)을 추가할 때
-1. 파이썬 쪽에 `fixtures/<stage>/input.jsonl`, `expected.jsonl` 이 생기면 → `registry.test.ts` 가 "registry 에 없음"으로 실패합니다.
-2. `src/modules/registry.ts` 에 항목 1개, `src/types/contracts.ts` 의 `StageContracts` 에 타입 1줄을 추가합니다.
+1. 파이썬 쪽에서 Stage 를 등록하고 `uv run python scripts/export_contracts.py` 로 계약을 다시 만들면 → `registry.test.ts` 가 "registry 와 계약이 다름"으로 실패합니다.
+2. `src/modules/registry.ts` 에 화면 메타 1개를 추가합니다 (타입·필드는 계약에서 자동).
 3. `npm run verify` 통과 → 홈 카드와 시뮬레이션 화면이 자동으로 생깁니다.

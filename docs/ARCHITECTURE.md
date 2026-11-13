@@ -153,9 +153,12 @@ src/clean_chat/
 ├─ report/   stage.py impl.py (report + complaint)         [WP6]
 ├─ session/  fake.py windows.py(🪟) store.py               [WP8]
 └─ ui/       app.py bridge.py client.py overlay.py win32.py(🪟)  [WP7]
-fixtures/<stage>/input.jsonl, expected.jsonl    모듈별 통신 예시 = 명세
+fixtures/<stage>/input.jsonl, expected.jsonl    모듈별 통신 예시 = 명세 (두 앱 공통)
 fixtures/scenario/                              전체 흐름 예시 (lines, outgoing, phases, players, expected_*)
+contracts/stages.schema.json                    공통 계약: schemas.py → JSON Schema (자동 생성, 두 앱 공통)
+simulator/                                      웹 시뮬레이터 (Next.js, Vercel 배포) — simulator/README.md
 ```
+- 데스크톱 앱과 웹 시뮬레이터는 같은 레포의 **별도 앱**입니다. 코드를 공유하지 않고 `contracts/`(계약)와 `fixtures/`(데이터)만 공유합니다(ADR-0015).
 
 ## 7. 모듈 안에서 자유롭게 해도 되는 것
 - `impl.py`에서 내부 파일 추가 (예: `classify/model.py`, `rewrite/backends/api.py`, `report/templates/`)

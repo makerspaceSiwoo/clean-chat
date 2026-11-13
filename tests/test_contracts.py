@@ -58,3 +58,19 @@ def test_phase_event_values():
     assert [p.value for p in GamePhase] == ["idle", "in_game", "post_game"]
     ev = PhaseEvent.model_validate_json('{"ts": 1.0, "phase": "in_game", "raw": "InProgress"}')
     assert ev.phase is GamePhase.IN_GAME
+
+
+def test_shared_contracts_file_is_up_to_date():
+    """contracts/stages.schema.json 이 schemas.py 와 같아야 웹앱이 같은 계약을 쓴다 (ADR-0015).
+
+    실패하면: uv run python scripts/export_contracts.py 실행 후 함께 커밋
+    """
+    import importlib.util
+
+    from clean_chat.core.config import ROOT
+
+    spec = importlib.util.spec_from_file_location("export_contracts", ROOT / "scripts" / "export_contracts.py")
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.main(["--check"]) == 0

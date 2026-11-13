@@ -3,6 +3,7 @@
  * 사람이 직접 보는 항목(manualChecks)은 화면에서 체크박스로 다룬다.
  */
 import type { ModuleMeta } from "@/modules/registry";
+import type { StageContract } from "@/shared/contracts";
 import type { RunStageResponse } from "@/types/api";
 import { deepEqual, hasPath } from "./json";
 
@@ -17,6 +18,8 @@ export interface CheckItem {
 
 export interface ChecklistContext {
   meta: ModuleMeta;
+  /** 공통 계약 (출력 모델 이름과 필드) */
+  contract: StageContract;
   response: RunStageResponse;
   /** 고른 fixtures 케이스의 기대값. 입력을 고쳤거나 직접 입력이면 undefined */
   expected?: unknown;
@@ -24,7 +27,7 @@ export interface ChecklistContext {
   apiMode: "mock" | "http";
 }
 
-export function evaluateChecklist({ meta, response, expected, apiMode }: ChecklistContext): CheckItem[] {
+export function evaluateChecklist({ meta, contract, response, expected, apiMode }: ChecklistContext): CheckItem[] {
   const out = response.output;
   const hasOutput = out !== null && out !== undefined;
   const items: CheckItem[] = [
@@ -36,12 +39,12 @@ export function evaluateChecklist({ meta, response, expected, apiMode }: Checkli
     },
     {
       id: "has-output",
-      label: `출력(${meta.outputType})이 비어 있지 않은가?`,
+      label: `출력(${contract.output})이 비어 있지 않은가?`,
       status: hasOutput ? "pass" : "fail",
       detail: hasOutput ? undefined : response.error,
     },
   ];
-  for (const field of meta.requiredFields) {
+  for (const field of contract.outputFields) {
     items.push({
       id: `field-${field}`,
       label: `'${field}' 필드가 포함되어 있는가?`,

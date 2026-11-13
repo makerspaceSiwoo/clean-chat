@@ -4,20 +4,20 @@
   "private": true,
   "description": "Clean Chat 모듈별 E2E 시뮬레이션 웹앱 (사내 테스트 도구, Mock 데이터 전용)",
   "scripts": {
-    "sync-fixtures": "node scripts/sync-fixtures.mjs",
-    "predev": "npm run sync-fixtures",
+    "predev": "npm run sync-shared",
     "dev": "next dev -p 3100",
-    "prebuild": "npm run sync-fixtures",
+    "prebuild": "npm run sync-shared",
     "build": "next build",
     "start": "next start -p 3100",
-    "pretypecheck": "npm run sync-fixtures",
+    "pretypecheck": "npm run sync-shared",
     "typecheck": "tsc --noEmit",
-    "pretest": "npm run sync-fixtures",
+    "pretest": "npm run sync-shared",
     "test": "jest",
-    "verify": "npm run typecheck && npm test && npm run build"
+    "verify": "npm run typecheck && npm test && npm run build",
+    "sync-shared": "node scripts/sync-shared.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "dependencies": {
     "next": "15.5.29",
@@ -36,6 +36,7 @@
     "autoprefixer": "10.4.21",
     "jest": "29.7.0",
     "jest-environment-jsdom": "29.7.0",
+    "json-schema-to-typescript": "15.0.4",
     "postcss": "8.5.32",
     "tailwindcss": "3.4.19",
     "typescript": "5.9.3"

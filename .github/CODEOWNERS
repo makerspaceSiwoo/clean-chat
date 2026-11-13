@@ -19,12 +19,14 @@
 /src/clean_chat/report/      @WP6_REPORT
 /src/clean_chat/ui/          @WP7_UI
 /src/clean_chat/session/     @WP8_SESSION
+/simulator/                  @SIM_OWNER
 
 # 계약: 인터페이스·기대값·핵심 문서는 항상 리드 승인 필요 (가장 아래 = 최우선)
 /src/clean_chat/core/        @WP1_LEAD
 /src/clean_chat/*/stage.py   @WP1_LEAD
 /fixtures/*/expected.jsonl @WP1_LEAD
 /fixtures/scenario/        @WP1_LEAD
+/contracts/                 @WP1_LEAD
 /docs/SPEC.md              @WP1_LEAD
 /docs/ARCHITECTURE.md      @WP1_LEAD
 /docs/CONTRACTS.md         @WP1_LEAD
