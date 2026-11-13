@@ -61,3 +61,6 @@ simulator/next-env.d.ts
 simulator/src/mocks/generated/
 simulator/src/shared/generated/
 simulator/*.tsbuildinfo
+
+# Vercel CLI 연결 정보 (로컬 전용, vercel link 가 만드는 .env.local 은 위 .env.* 규칙으로 제외됨)
+.vercel

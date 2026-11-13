@@ -22,15 +22,17 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 ## 배포 (Vercel)
 데스크톱 앱은 배포하지 않습니다. 같은 레포에서 이 폴더만 Vercel 프로젝트로 연결했습니다(ADR-0015).
 
-| 브랜치 | Vercel 환경 | 주소 | `NEXT_PUBLIC_APP_ENV` | 볼 수 있는 사람 |
-|---|---|---|---|---|
-| `main` | Production | (연결 후 기록) | `main` | 누구나 (Hobby 요금제는 Production 보호 불가 — 가상 fixtures 뿐이라 허용) |
-| `develop` | Preview (브랜치 고정 주소) | (연결 후 기록) | `develop` | Vercel 로그인한 팀원 |
-| PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글에 자동 표시 | `local` | Vercel 로그인한 팀원 |
+| 브랜치 | Vercel 환경 | 주소 | `NEXT_PUBLIC_APP_ENV` |
+|---|---|---|---|
+| `main` | Production | 첫 main 배포 후 기록 (`vercel project inspect clean-chat-simulator`) | `main` |
+| `develop` | Preview (브랜치 고정 주소) | https://clean-chat-simulator-git-develop-seeyouspace0-5824s-projects.vercel.app | `develop` |
+| PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글·`vercel ls` 에 표시 | `local` |
 
+- **Vercel 프로젝트**: `clean-chat-simulator` (팀 `siwoojung's team`). GitHub `makerspaceSiwoo/clean-chat` 연결, Production Branch `main`.
+- **볼 수 있는 사람**: 기본 보호(Vercel Authentication, "커스텀 도메인을 뺀 모든 배포")라서 main·develop·PR 주소 모두 **Vercel 에 로그인한 팀 멤버만** 볼 수 있습니다. 팀원은 Vercel 팀에 초대해야 합니다. 커스텀 도메인을 붙이면 그 주소는 공개됩니다.
 - **자동 배포**: GitHub push 마다. 단, `simulator/`·`fixtures/`·`contracts/` 가 바뀐 커밋만 빌드합니다(`vercel.json` 의 `ignoreCommand`). 파이썬만 고친 커밋은 건너뜁니다.
 - **프로젝트 설정**: Root Directory `simulator`, Framework Next.js, Node 22(`package.json` engines), "Root Directory 밖 파일 포함" 켜짐(공통 `../fixtures`, `../contracts` 를 읽음).
-- **환경 변수 위치**: Vercel 프로젝트 → Settings → Environment Variables (Production / Preview / Preview-develop 브랜치). 값은 아래 표와 같고 **secret 은 없습니다.**
+- **환경 변수 위치**: Vercel 프로젝트 → Settings → Environment Variables. Production(`APP_ENV=main`), Preview·develop 브랜치(`develop`), Preview 그 밖(`local`), 셋 다 `API_MODE=mock`. **secret 은 없습니다.** 바꾸려면 `npx vercel@65.8.0 env ls` / `env add --force`.
 - 실제 모듈을 웹에서 실행하는 API(HTTP 모드)는 이번 범위가 아닙니다. 분류 모델(torch)은 Vercel 함수 크기 제한을 넘을 가능성이 커서, 필요해지면 Render·Fly.io 같은 곳에 따로 둡니다.
 
 ## 환경 변수 (main / develop 서버 분리)
