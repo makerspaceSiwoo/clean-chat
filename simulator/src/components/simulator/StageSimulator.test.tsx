@@ -109,3 +109,67 @@ describe("응답 흉내 (기본 Mock 클라이언트)", () => {
     await waitFor(() => expect(screen.getByLabelText(/응답 흉내/)).toHaveValue("normal"));
   });
 });
+
+describe("이미지 첨부 (imageField 가 있는 Stage)", () => {
+  const imageMeta = { ...META, imageField: "image_path" };
+  const created: string[] = [];
+  const revoked: string[] = [];
+  beforeAll(() => {
+    // jsdom 에는 blob URL 이 없다
+    URL.createObjectURL = () => {
+      const url = `blob:test/${created.length}`;
+      created.push(url);
+      return url;
+    };
+    URL.revokeObjectURL = (url: string) => void revoked.push(url);
+  });
+
+  const renderImage = () =>
+    render(
+      <ApiProvider client={mock()} config={config}>
+        <StageSimulator meta={imageMeta} cases={CASES} />
+      </ApiProvider>,
+    );
+  const png = (name: string) => new File(["png"], name, { type: "image/png" });
+  const box = () => screen.getByLabelText("입력 JSON") as HTMLTextAreaElement;
+
+  it("이미지가 없는 Stage 에는 첨부 칸이 없다", () => {
+    renderWith(mock());
+    expect(screen.queryByLabelText("이미지 첨부")).not.toBeInTheDocument();
+  });
+
+  it("첨부하면 미리보기가 보이고 입력 JSON 경로에 파일 이름이 들어간다 → 빼면 원래 값", async () => {
+    renderImage();
+    await userEvent.upload(screen.getByLabelText("이미지 첨부"), png("chat.png"));
+    expect(screen.getByAltText("첨부한 이미지: chat.png")).toHaveAttribute("src", created.at(-1));
+    expect(JSON.parse(box().value).image_path).toBe("uploads/chat.png");
+    expect(screen.getByText(/수정됨/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "첨부 빼기" }));
+    expect(screen.queryByAltText(/첨부한 이미지/)).not.toBeInTheDocument();
+    expect(JSON.parse(box().value)).not.toHaveProperty("image_path");
+    expect(revoked).toContain(created.at(-1));
+  });
+
+  it("다시 첨부하면 이전 미리보기 URL 을 해제하고, 케이스를 바꾸면 첨부가 지워진다", async () => {
+    renderImage();
+    await userEvent.upload(screen.getByLabelText("이미지 첨부"), png("a.png"));
+    const first = created.at(-1)!;
+    await userEvent.upload(screen.getByLabelText("이미지 첨부"), png("b.png"));
+    expect(revoked).toContain(first);
+    expect(JSON.parse(box().value).image_path).toBe("uploads/b.png");
+
+    await userEvent.selectOptions(screen.getByLabelText("Mock 케이스 (fixtures)"), "c2");
+    expect(screen.queryByAltText(/첨부한 이미지/)).not.toBeInTheDocument();
+  });
+
+  it("이미지가 아닌 파일은 거절하고 입력을 바꾸지 않는다", async () => {
+    renderImage();
+    const before = box().value;
+    await userEvent.upload(screen.getByLabelText("이미지 첨부"), new File(["x"], "a.txt", { type: "text/plain" }), {
+      applyAccept: false,
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent("이미지 파일만");
+    expect(box().value).toBe(before);
+  });
+});

@@ -36,6 +36,8 @@ export interface ModuleMeta {
   strict: boolean;
   /** 사람이 눈으로 확인할 QA 항목 */
   manualChecks: string[];
+  /** 입력 JSON 중 이미지 파일 경로 필드. 있으면 입력 칸에 이미지 첨부가 생긴다 (예: OCR 의 image_path) */
+  imageField?: string;
 }
 
 export const MODULES: readonly ModuleMeta[] = [
@@ -54,6 +56,7 @@ export const MODULES: readonly ModuleMeta[] = [
     latencyBudgetMs: 500,
     strict: false,
     manualChecks: ["이전 프레임과 겹치는 줄이 빠졌는가?", "오버레이가 캡처 이미지에 찍히지 않았는가?"],
+    imageField: "image_path",
   },
   {
     stageId: "parse",
