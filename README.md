@@ -36,6 +36,7 @@ uv sync --extra ui && uv run clean-chat app --source demo   # UI
 | [docs/SETUP.md](docs/SETUP.md) | 개발 환경 세팅 |
 | [docs/GITHUB_SETTINGS.md](docs/GITHUB_SETTINGS.md) | GitHub 규칙 설정 (리드) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 브랜치, PR, 병합 규칙 |
+| [simulator/README.md](simulator/README.md) | 모듈 시뮬레이션 웹앱 (Mock 데이터로 Stage 실행·QA) |
 | [AGENTS.md](AGENTS.md) | AI 에이전트 공통 규칙 |
 | [HANDOFF.md](HANDOFF.md) | 인수인계 기록과 진행 상황 |
 
