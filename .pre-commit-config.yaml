@@ -9,7 +9,6 @@ repos:
       - id: check-merge-conflict
       - id: check-added-large-files   # 500KB 넘는 파일 차단 (모델·영상은 git에 올리지 않음)
         args: [--maxkb=500]
-        exclude: ^simulator/package-lock\.json$   # npm lock 파일은 예외
       - id: detect-private-key
       - id: no-commit-to-branch       # main 에 직접 커밋 금지 (develop 은 허용)
         args: [--branch, main]

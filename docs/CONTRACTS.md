@@ -5,11 +5,11 @@
 
 ## 1. 규칙
 1. 모듈 = **함수 1개**: `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력 모델) -> 출력 모델` (ADR-0017).
-2. 모듈 사이에는 **pydantic 모델 객체**만 주고받습니다(같은 프로세스 안에서 함수 호출). 시뮬레이터는 같은 모델을 JSON 으로 보냅니다.
+2. 모듈 사이에는 **pydantic 모델 객체**만 주고받습니다(같은 프로세스 안에서 함수 호출). 시뮬레이터는 같은 모델을 JSON 으로 넘깁니다.
 3. 파일이나 테스트에서는 **JSONL**(한 줄 = 모델 1개 JSON)로 저장합니다.
 4. `fixtures/<모듈>/input.jsonl` n번째 줄 ↔ `expected.jsonl` n번째 줄이 짝입니다.
-5. 계약 변경은 "계약 변경 요청" 이슈 → 리드가 `schemas.py` 수정 + `SCHEMA_VERSION` 올림 + fixtures 갱신 + `uv run python scripts/export_contracts.py`.
-6. **Mock 은 없습니다.** 구현 전 함수는 `NotImplementedError` 를 던지고, 앱·시뮬레이터는 그대로 오류를 보여 줍니다.
+5. 계약 변경은 "계약 변경 요청" 이슈 → 리드가 `schemas.py` 수정 + `SCHEMA_VERSION` 올림 + fixtures 갱신.
+6. **Mock 은 없습니다.** 구현 전 함수는 `NotImplementedError` 를 던지고, 앱·시뮬레이터는 그대로 "구현 안 됨" 을 보여 줍니다.
 
 ## 2. 모듈별 입출력
 
@@ -23,7 +23,7 @@
 
 구성(리드)이 쓰는 모델: `Decision`, `Incident`(정책표 결과), `PhaseEvent`, `GameSession`, `PostGameResult`.
 
-전체 흐름 예시 (`fixtures/scenario/`, `clean-chat run --source demo` 입력)
+전체 흐름 예시 (`fixtures/scenario/`, Mac 에서 `uv run app` 이 재생하는 데모 입력)
 | 파일 | 내용 |
 |---|---|
 | `lines.jsonl` | 흐름 A: 다른 유저 채팅 `RawLine` |
@@ -81,9 +81,6 @@
 
 ## 5. 모듈 개별 테스트 방법
 ```bash
-uv run clean-chat module parse                        # 내 함수를 fixtures 입력으로 실행 (구현 전이면 "구현 안 됨", 종료 코드 2)
-uv run clean-chat module parse --check                # 기대값과 몇 개 일치하는지
-uv run clean-chat module parse --in my.jsonl --out result.jsonl
-uv run clean-chat serve                               # 시뮬레이터용 로컬 서버 → cd simulator && npm run dev
+uv run sim parse                                      # 브라우저: 입력 → 디버깅 콘솔 → 반환값 (예시 입력 = fixtures)
 uv run pytest tests/test_parse.py                     # 구현하면 자동 검사 (구현 전은 skip)
 ```

@@ -26,8 +26,7 @@ git clone https://github.com/<팀>/clean-chat.git
 cd clean-chat
 uv sync                      # 기본 + 개발 도구 설치 (= npm install)
 uv run pre-commit install    # 커밋할 때 자동 검사 켜기
-uv run clean-chat modules           # ✅ 모듈 5개 목록이 나오면 정상
-uv run clean-chat module parse      # ✅ 지금은 "구현이 아직 없습니다" (종료 코드 2) 가 정상 — Mock 없음 (ADR-0017)
+uv run sim                          # ✅ 브라우저에 모듈 시뮬레이터가 열리면 정상. 실행하면 지금은 "구현 안 됨" 이 정상 (ADR-0017)
 uv run pytest -q                    # ✅ passed + skipped(구현 전 모듈) 이면 정상
 ```
 
@@ -35,13 +34,11 @@ uv run pytest -q                    # ✅ passed + skipped(구현 전 모듈) �
 | 할 일 | Mac | Windows |
 |---|---|---|
 | clone, 설치(`uv sync`), 테스트 | ✅ | ✅ |
-| 모듈 실행 `clean-chat module <모듈>` · 시뮬레이터 서버 `clean-chat serve` | ✅ | ✅ |
-| 전체 흐름 `clean-chat run --source demo/screenshots` (모듈 5개 구현 후) | ✅ | ✅ |
-| UI 화면 개발 `clean-chat app --source demo` | ✅ | ✅ |
-| 내 채팅 1문장 `clean-chat say "..."` | ✅ | ✅ |
+| 모듈 시뮬레이터 `uv run sim` / `uv run sim <모듈>` | ✅ | ✅ |
+| 앱 전체 `uv run app` (Mac 은 데모 재생, 모듈 5개 구현 후 끝까지 돎) | ✅ | ✅ |
 | 게임 단계 감지기 `python -m clean_chat.session` (가짜) | ✅ | ✅ |
 | **실제 게임 단계 감지** `python -m clean_chat.session --real` | ❌ | ✅ |
-| **실제 게임 캡처 + 오버레이 데모** `clean-chat app --source screen` | ❌ | ✅ |
+| **실제 게임 캡처 + 오버레이 데모** `uv run app` | ❌ | ✅ |
 
 ## 2. 내 모듈에 필요한 것 추가 설치
 ```bash

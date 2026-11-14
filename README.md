@@ -8,29 +8,27 @@
 게임 종료 ─▶ 이번 게임 기록 → ⑤report → 신고 문구 / 고소장 초안 PDF
 ```
 
-## 빠른 시작 (Mac / Windows 공통)
+## 빠른 시작 (Mac / Windows 공통, Node 불필요)
 ```bash
-uv sync
-uv run clean-chat modules                    # 모듈 5개와 구현 위치
-uv run clean-chat module parse --check       # 모듈 1개를 fixtures 입력으로 실행 (구현 전이면 "구현 안 됨")
-uv run clean-chat serve                      # 웹 시뮬레이터용 로컬 모듈 서버 → cd simulator && npm run dev
-uv run clean-chat run --source demo          # 전체 흐름 (모듈 5개가 구현돼야 끝까지 돎)
-uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"   # 내 채팅 1문장 처리
-uv run pytest -q                             # 구현 전 모듈은 skip
-uv sync --extra ui && uv run clean-chat app --source demo   # UI
+uv sync                     # 설치 (처음 한 번, 앱 화면까지: uv sync --extra ui)
+uv run sim                  # 모듈 시뮬레이터 (브라우저가 열림: 입력 | 디버깅 콘솔 | 반환값)
+uv run sim parse            # 모듈 하나만 바로 열기 (ocr · parse · analyze · rewrite · report)
+uv run app                  # 앱 전체 (Windows = 실제 게임 화면, Mac = 데모 재생)
+uv run pytest -q            # 테스트 (구현 전 모듈은 skip)
 ```
-실제 데모(Windows): `scripts\run_windows.bat` 또는 `uv run clean-chat app --source screen`
+실행 명령은 `sim`, `app` 두 개뿐입니다. 발표 PC(Windows)는 `scripts\run_windows.bat` 더블클릭.
 
 > 이 스타터에는 **모듈 구현이 없습니다.** 모듈 5개(`src/clean_chat/modules/<모듈>/impl.py`)는 함수 시그니처와 설명만 있고(`NotImplementedError`), **Mock 도 없어서** 실행하면 "구현 안 됨" 오류가 납니다(ADR-0017).
 > 5명이 한 폴더씩 맡습니다: ① ocr · ② parse · ③ analyze · ④ rewrite · ⑤ report. 나머지는 구성(리드)입니다. 자세히: [docs/MODULES.md](docs/MODULES.md)
 
-## 레포 구조 (앱 2개 + 공통 2개, ADR-0015)
-| 폴더 | 무엇 | 도구 | 배포 |
-|---|---|---|---|
-| `src/clean_chat/`, `tests/`, `pyproject.toml` | **데스크톱 앱** (Python, Windows 실행) | uv · CI `ci.yml` | 없음 |
-| `simulator/` | **웹 시뮬레이터** (입력 → 실제 모듈 함수 output, 로컬 서버 필요) | npm · CI `simulator.yml` | Vercel (화면만) |
-| `contracts/` | **공통 계약** — 모듈 입출력 JSON Schema (`schemas.py` 에서 자동 생성) | `scripts/export_contracts.py` | – |
-| `fixtures/` | **공통 예시 데이터** — 모듈별 입력 → 기대값 | 손으로 작성 | – |
+## 레포 구조
+| 폴더 | 무엇 |
+|---|---|
+| `src/clean_chat/modules/` | **모듈 5개** (5명이 한 폴더씩) |
+| `src/clean_chat/core/`, `ui/`, `session/` | 구성 (리드): 연결·정책표·게임 단계·화면 |
+| `src/clean_chat/sim/` | **로컬 모듈 시뮬레이터** (`uv run sim`, 파이썬 서버 + HTML 화면, ADR-0019) |
+| `fixtures/` | 모듈별 입력 → 기대값 예시 (= 명세, 시뮬레이터의 예시 입력) |
+| `tests/` | 테스트 |
 
 ## 문서 지도
 | 문서 | 내용 |
@@ -46,7 +44,6 @@ uv sync --extra ui && uv run clean-chat app --source demo   # UI
 | [docs/SETUP.md](docs/SETUP.md) | 개발 환경 세팅 |
 | [docs/GITHUB_SETTINGS.md](docs/GITHUB_SETTINGS.md) | GitHub 규칙 설정 (리드) |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 브랜치, PR, 병합 규칙 |
-| [simulator/README.md](simulator/README.md) | 모듈 시뮬레이터 웹앱 (입력 → 실제 함수 실행 → output) |
 | [AGENTS.md](AGENTS.md) | AI 에이전트 공통 규칙 |
 | [HANDOFF.md](HANDOFF.md) | 인수인계 기록과 진행 상황 |
 

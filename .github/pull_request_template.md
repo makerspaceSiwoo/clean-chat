@@ -3,8 +3,7 @@
 
 ## 어떻게 확인했나요?
 - [ ] `uv run pytest` 통과
-- [ ] `uv run clean-chat module <내 모듈> --check` 결과 첨부
-- [ ] 시뮬레이터(`uv run clean-chat serve` + `cd simulator && npm run dev`)에서 내 모듈 실행 결과 확인
+- [ ] `uv run sim <내 모듈>` 에서 실행 결과 확인 (반환값 화면 캡처 첨부)
 - [ ] (Windows 모듈) 실제 게임 또는 녹화 화면에서 확인 → 스크린샷/짧은 영상 첨부
 
 ## 체크리스트

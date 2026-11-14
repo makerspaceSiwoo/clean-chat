@@ -90,8 +90,7 @@ stateDiagram-v2
 | 모듈 함수 | `modules/<모듈>/impl.py: run` (+ 내부 파일 자유) | 모듈 담당 | `run(입력 모델) -> 출력 모델` 하나 |
 | 연결표 | `core/modules.py: MODULES` | 리드 | 이름 → 입력·출력 모델, 함수 위치 |
 | 실행 | `core/modules.py: call / invoke`, `ModuleSet` | 리드 | 입력 검증 → 함수 → 출력 검증. `NotImplementedError` → `ModuleNotImplemented` |
-| 단독 실행 | `clean-chat module <모듈>` (`core/runner.py`) | 리드 | fixtures 입력으로 실행, `--check` 로 기대값 비교 |
-| 웹 실행 | `clean-chat serve` (`core/server.py`) | 리드 | 시뮬레이터가 `POST /modules/<모듈>/run` 으로 실제 함수 호출 |
+| 시뮬레이터 | `uv run sim [모듈]` (`sim/server.py`, `sim/worker.py`) | 리드 | 입력 → 새 프로세스에서 실제 함수 → 디버깅 콘솔(실시간) + 반환값 |
 
 **웹 비유**: 모듈 = 요청·응답 스키마가 고정된 함수(서버리스 함수 하나), fixtures = API 문서의 요청·응답 예시입니다.
 
@@ -105,18 +104,14 @@ stateDiagram-v2
 
 | 명령 | 채팅 소스 | 단계 감지기 | Mac | Windows | 용도 |
 |---|---|---|---|---|---|
-| `clean-chat module <모듈>` | fixtures | – | ✅ | ✅ | 모듈 단독 개발·테스트 |
-| `clean-chat serve` + `simulator` | 웹 입력 | – | ✅ | ✅ | 입력을 넣고 실제 함수 output 확인 |
+| `uv run sim [모듈]` | 화면에서 입력 | – | ✅ | ✅ | 모듈 하나 실행: 입력 / 디버깅 콘솔 / 반환값 |
 | `python -m clean_chat.session` | – | 가짜 | ✅ | ✅ | 단계 이벤트 확인 (`--real`은 🪟) |
-| `clean-chat run --source demo` | 시나리오 JSONL | 가짜 | ✅ | ✅ | 단계 전환 + 흐름 A + 게임 결과를 콘솔로 (모듈 5개 구현 후) |
-| `clean-chat say "<문장>"` | – | – | ✅ | ✅ | 흐름 B 1문장 |
-| `clean-chat run --source screenshots` | PNG 폴더 | 가짜 | ✅ | ✅ | OCR 포함 흐름 확인 |
-| `clean-chat app --source demo` | 시나리오 | 가짜 | ✅ | ✅ | UI 개발 (게임 없이) |
-| `clean-chat app --source screen` | 실제 화면 캡처 | LCU | ❌ | ✅ | **실제 데모** |
+| `uv run app` (Mac 등) | 시나리오 재생 | 가짜 | ✅ | – | 앱 전체 (게임 없이, 모듈 5개 구현 후 끝까지) |
+| `uv run app` (Windows) | 실제 화면 캡처 | LCU | – | ✅ | **실제 데모** |
 
 - Windows 전용 코드는 3곳입니다: `core/grabber.py`(화면 캡처), `ui/win32.py`(오버레이 캡처 제외), `session/windows.py`(LCU 단계 감지). 모두 `core/platform.py`의 `require_windows()` / `IS_WINDOWS`로 막습니다.
 - Windows 전용 라이브러리는 **함수 안에서 import**하고, `pyproject.toml`에 `; sys_platform == 'win32'` 마커를 붙입니다. 그래야 Mac에서 `uv sync`가 깨지지 않습니다.
-- CI는 **macOS와 Windows 두 곳**에서 설치, 린트, 테스트, 모듈 목록, 계약 최신 확인을 돌립니다.
+- CI는 **macOS와 Windows 두 곳**에서 설치, 린트, 테스트, 시뮬레이터 모듈 목록을 확인합니다.
 
 ## 5. 스레드 구조 (데스크톱 앱 초보자용)
 ```
@@ -132,7 +127,7 @@ stateDiagram-v2
 ## 6. 폴더 구조
 ```
 src/clean_chat/
-├─ __main__.py         CLI (modules / module / serve / run / say / app)
+├─ __main__.py         실행 명령 2개: sim / app
 ├─ modules/            모듈 5개 = 5명 (각 폴더: impl.py 의 run() + README.md + 내부 파일 자유)
 │  ├─ ocr/               ① 이미지 → 줄
 │  ├─ parse/             ② 줄 → 채팅만 + 정규화
@@ -146,21 +141,18 @@ src/clean_chat/
 │  ├─ policy.py          정책표 (SPEC 5-1, 5-2)
 │  ├─ game.py            GameStateMachine, SessionRepository, PostGameBatch
 │  ├─ engine.py          백그라운드 실행 + 구독 (단계 → 캡처 → 결과)
-│  ├─ server.py          로컬 모듈 실행 서버 (시뮬레이터용)
-│  ├─ runner.py          모듈 단독 실행기
 │  ├─ sources.py         입력 포트 (채팅 소스, 단계 감지기) + demo / screenshots 어댑터
 │  ├─ grabber.py         🪟 화면 캡처 → Frame
 │  ├─ jsonl.py           JSONL 입출력
 │  ├─ platform.py        OS 구분, 콘솔 UTF-8
 │  └─ config.py          설정
+├─ sim/      server.py worker.py inputs.py static/   로컬 모듈 시뮬레이터 (리드)
 ├─ session/  fake.py windows.py(🪟) store.py   구성 (리드)
 └─ ui/       app.py bridge.py client.py overlay.py win32.py(🪟)  구성 (리드)
 fixtures/<모듈>/input.jsonl, expected.jsonl     모듈별 입출력 예시 = 명세 (두 앱 공통)
 fixtures/scenario/                              전체 흐름 입력 (lines, outgoing, phases, players)
-contracts/modules.schema.json                   공통 계약: schemas.py → JSON Schema (자동 생성, 두 앱 공통)
-simulator/                                      웹 시뮬레이터 (Next.js) — simulator/README.md
 ```
-- 데스크톱 앱과 웹 시뮬레이터는 같은 레포의 **별도 앱**입니다. 코드를 공유하지 않고 `contracts/`(계약)와 `fixtures/`(입력 예시)를 공유하며, 시뮬레이터는 로컬 서버(`clean-chat serve`)로 실제 함수를 부릅니다(ADR-0015, ADR-0017).
+- 시뮬레이터(`sim/`)는 로컬 전용이고 배포하지 않습니다. 파이썬 서버가 HTML 화면(`sim/static/`, 빌드 없음)도 함께 줍니다(ADR-0019).
 
 ## 7. 모듈 안에서 자유롭게 해도 되는 것
 - `impl.py` 의 `_도우미()` 함수를 바꾸거나 지우기, 같은 폴더에 내부 파일 추가 (예: `analyze/model.py`, `rewrite/prompts.py`, `report/templates/`)

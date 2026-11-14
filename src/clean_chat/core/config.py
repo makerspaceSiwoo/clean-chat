@@ -22,8 +22,8 @@ class Settings(BaseModel):
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
     capture_interval_sec: float = 0.4
-    server_port: int = 8765  # clean-chat serve (시뮬레이터가 부르는 로컬 모듈 실행 서버)
-    uploads_dir: Path = ROOT / ".clean-chat" / "uploads"  # serve 가 받은 첨부 이미지 (git 제외)
+    uploads_dir: Path = ROOT / ".clean-chat" / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
+    sim_timeout_sec: float = 120.0  # 시뮬레이터에서 모듈 1번 실행 제한 시간 (모델 로딩 포함)
 
 
 settings = Settings()

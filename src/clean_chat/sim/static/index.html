@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clean Chat 모듈 시뮬레이터</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><b>Clean Chat</b> 모듈 시뮬레이터 <span class="muted">· 로컬 전용</span></div>
+    <nav id="tabs" class="tabs" aria-label="모듈"></nav>
+  </header>
+
+  <main class="grid">
+    <!-- 1. 입력 -->
+    <section class="panel" aria-labelledby="h-input">
+      <div class="panel-head">
+        <h2 id="h-input">입력</h2>
+        <span id="input-model" class="mono muted"></span>
+      </div>
+      <div class="panel-body">
+        <p id="module-desc" class="desc"></p>
+        <p id="module-path" class="mono muted small"></p>
+
+        <div id="mode" class="seg" role="tablist" aria-label="입력 방식">
+          <button type="button" role="tab" data-mode="simple" id="mode-simple">간단 입력</button>
+          <button type="button" role="tab" data-mode="json" id="mode-json">JSON 직접</button>
+        </div>
+
+        <div id="image-box" class="field" hidden>
+          <label for="image-input">이미지 첨부 (PNG·JPG·WEBP·BMP, 10MB 이하)</label>
+          <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/bmp">
+          <img id="image-preview" alt="" hidden>
+          <p id="image-info" class="small muted"></p>
+        </div>
+
+        <div id="simple-form"></div>
+
+        <div id="json-box" hidden>
+          <div class="field">
+            <label for="example">예시 입력 (fixtures)</label>
+            <select id="example"></select>
+          </div>
+          <div class="field grow">
+            <label for="json">입력 JSON</label>
+            <textarea id="json" spellcheck="false"></textarea>
+            <p id="json-error" class="error small" role="alert"></p>
+          </div>
+        </div>
+
+        <p id="input-error" class="error small" role="alert"></p>
+      </div>
+      <div class="panel-foot">
+        <button id="run" type="button" class="primary">▶ 실행</button>
+        <button id="stop" type="button" hidden>■ 중지</button>
+        <span id="timer" class="muted small"></span>
+      </div>
+    </section>
+
+    <!-- 2. 디버깅 콘솔 -->
+    <section class="panel" aria-labelledby="h-console">
+      <div class="panel-head">
+        <h2 id="h-console">디버깅 콘솔</h2>
+        <button id="clear" type="button" class="link">지우기</button>
+      </div>
+      <pre id="console" class="console" aria-live="polite"><span class="sys">▶ 실행을 누르면 모듈의 출력(print, logging, 오류)이 여기에 실시간으로 나옵니다.</span></pre>
+    </section>
+
+    <!-- 3. 반환값 -->
+    <section class="panel" aria-labelledby="h-result">
+      <div class="panel-head">
+        <h2 id="h-result">반환값</h2>
+        <span id="output-model" class="mono muted"></span>
+      </div>
+      <div class="panel-body">
+        <div class="status-row">
+          <span id="badge" class="badge idle">실행 전</span>
+          <span id="duration" class="muted small"></span>
+          <button id="copy" type="button" class="link" hidden>복사</button>
+        </div>
+        <p id="result-error" class="error"></p>
+        <pre id="output" class="json" hidden></pre>
+        <details id="used-input-box" hidden>
+          <summary>실행한 입력 JSON 보기</summary>
+          <pre id="used-input" class="json"></pre>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@ name: 작업
 about: 모듈 작업 하나
 labels: task
 ---
-**모듈**: ocr / parse / analyze / rewrite / report · (구성, 리드) ui / session / simulator / core
+**모듈**: ocr / parse / analyze / rewrite / report · (구성, 리드) ui / session / sim / core
 
 **할 일**
 

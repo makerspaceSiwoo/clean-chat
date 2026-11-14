@@ -15,8 +15,7 @@
 
 ```bash
 uv sync --extra ui
-uv run clean-chat app --source demo      # Mac/Windows: 시나리오 재생 (모듈 5개가 구현돼야 끝까지 돎)
-uv run clean-chat app --source screen    # 🪟 실제
+uv run app      # Mac: 시나리오 재생 / 🪟 Windows: 실제 (모듈 5개가 구현돼야 끝까지 돎)
 uv run pytest tests/test_ui_smoke.py     # 화면 없이 조립 확인 (가짜 모듈 함수 사용)
 ```
 웹 비유: `QWidget`은 div, `QVBoxLayout`은 flex-column, Signal/Slot은 이벤트 리스너와 같습니다. **화면 갱신은 메인 스레드에서만** 합니다.

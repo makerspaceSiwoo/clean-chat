@@ -16,7 +16,7 @@
 | ⑤ | **report** | 게임 기록 → **신고 문구 / 고소장 초안 PDF** | `ReportRequest` → `ReportDraft` | 템플릿 + LLM(사건 경위) | 모두 | ★★ |
 | – | 공통 | 라벨링 1인 100문장 | `data/labeled/` | – | – | ★ |
 
-**구성 (리드, 모듈 아님)**: 흐름 연결(`core/pipeline.py`), 정책표(`core/policy.py`, SPEC 5장), 화면 캡처(`core/grabber.py` 🪟), 게임 단계·세션(`core/game.py`, `session/`), UI(`ui/`), 로컬 모듈 서버(`core/server.py`), 웹 시뮬레이터(`simulator/`).
+**구성 (리드, 모듈 아님)**: 흐름 연결(`core/pipeline.py`), 정책표(`core/policy.py`, SPEC 5장), 화면 캡처(`core/grabber.py` 🪟), 게임 단계·세션(`core/game.py`, `session/`), UI(`ui/`), 로컬 모듈 시뮬레이터(`sim/`).
 
 > 배정이 끝나면 `.github/CODEOWNERS`의 `@M1_OCR` ~ `@M5_REPORT`, `@LEAD` 자리표시자를 실제 GitHub 아이디로 바꿉니다.
 
@@ -27,7 +27,7 @@
 - 같은 폴더에 내부 파일(사전, 프롬프트, 템플릿 등)을 자유롭게 추가합니다. **다른 모듈 폴더는 import 하지 않습니다.**
 - 모델 로딩처럼 무거운 준비는 `functools.cache` 로 한 번만 합니다. 무거운 import(torch 등)는 함수 안에서 합니다.
 - 실패해도 앱을 멈추지 않게 안전한 값을 돌려줍니다(예: ocr → 빈 lines, rewrite → `rewritten=None`). 구현 전에는 `NotImplementedError`.
-- 실행: `uv run clean-chat module <모듈> [--check]` · 웹으로: `uv run clean-chat serve` + `cd simulator && npm run dev`
+- 실행: `uv run sim <모듈>` → 브라우저에서 입력 | 디버깅 콘솔(print·logging·오류) | 반환값. 모듈 코드를 고치면 서버를 다시 켜지 않아도 다음 실행에 반영됩니다.
 - 테스트: `tests/test_<모듈>.py` (구현하면 자동으로 fixtures 검사 시작)
 
 ### ① `ocr` — modules/ocr/ · AI 지점 A1
@@ -81,16 +81,15 @@
 | `core/pipeline.py` | 흐름 A: ocr → 줄 중복 제거 → parse → analyze → (조건부) rewrite → 정책표 / 흐름 B: 내 입력 → parse(self_input) → … → 복사·차단 |
 | `core/policy.py` | 정책표 SPEC 5-1(다른 유저)·5-2(내 채팅): `Analysis` → `Decision` |
 | `core/game.py`, `core/engine.py` | 게임 단계 상태 기계, 세션 기록, 게임 종료 배치(report 를 kind 별로) |
-| `core/server.py` | `clean-chat serve`: 시뮬레이터가 실제 모듈 함수를 부르는 로컬 HTTP 서버 |
+| `sim/` | `uv run sim`: 로컬 모듈 시뮬레이터 (서버 + HTML 화면, 실행마다 새 프로세스) |
 | `core/grabber.py` | 🪟 화면 캡처 → Frame |
 | `session/` | 단계 감지기(LCU 읽기 전용, 가짜), 세션 저장소 |
 | `ui/` | 클라이언트(대기/게임 중/게임 결과), 오버레이(필터된 채팅, 내 입력 → 클립보드), 캡처 제외 |
-| `simulator/` | 웹: 모듈 1개에 입력을 넣고 실제 함수 output 확인 |
 
 ---
 
 ## 통합 기준
 | 시점 | 기준 |
 |---|---|
-| 1주차 끝 | 내 모듈이 `uv run clean-chat module <모듈>` 로 fixtures 를 끝까지 처리(형식 OK, parse 는 `--check` 전부 일치) + 시뮬레이터에서 결과 확인 |
-| 2주차 | 5개가 모두 구현되면 `uv run clean-chat run --source demo` 가 끝까지 돎 → Windows 에서 `clean-chat app --source screen` 시연 |
+| 1주차 끝 | 내 모듈이 `uv run sim <모듈>` 에서 예시 입력으로 성공 + `uv run pytest tests/test_<모듈>.py` 통과 (parse 는 기대값 전부 일치) |
+| 2주차 | 5개가 모두 구현되면 `uv run app` 이 끝까지 돎 (Mac 데모) → Windows 에서 `uv run app` 실제 시연 |

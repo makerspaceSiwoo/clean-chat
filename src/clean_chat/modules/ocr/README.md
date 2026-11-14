@@ -18,9 +18,8 @@
 - 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
 
 ```bash
-uv run clean-chat module ocr              # fixtures 입력으로 내 함수 실행 (구현 전이면 "구현 안 됨")
-uv run clean-chat module ocr --check      # 기대값과 비교
-uv run pytest tests/test_ocr.py           # 자동 테스트 (구현 전이면 skip)
-uv run clean-chat serve                  # 웹 시뮬레이터용 서버 → 다른 터미널에서 cd simulator && npm run dev
-uv run python scripts/pack_context.py ocr # 웹 AI 채팅에 첨부할 맥락 묶음
+uv run sim ocr                         # 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
+uv run pytest tests/test_ocr.py        # 자동 테스트 (구현 전이면 skip)
+uv run python scripts/pack_context.py ocr   # 웹 AI 채팅에 첨부할 맥락 묶음
 ```
+모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).

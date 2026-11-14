@@ -190,3 +190,15 @@
 - **이유**: 규칙이 하나라서 설명이 쉽고, 리뷰에 필요한 신호(범위 초과)만 자동으로 준다.
 - **영향**: ADR-0009 의 브랜치 이름·PR 제목 강제를 대체한다. 규칙 원본은 `scripts/repo_rules.py`(`MODULES`, `module_scope`).
 
+## ADR-0019: 시뮬레이터는 로컬 전용으로, 파이썬이 화면까지 제공한다 (Vercel·Next.js 제거). 실행 명령은 `sim`, `app` 두 개
+- 2026-11-14 / 확정 / 리드
+- **배경**: 시뮬레이터의 목적은 비개발자가 바이브 코딩으로 만든 모듈 하나를 직관적으로 실행해 보는 것이다. OCR·경량 LLM 모듈은 Vercel 에서 돌릴 수 없고, 별도 파이썬 서버 운영은 부담이다. Next.js + 파이썬 서버를 따로 띄우는 구조와 많은 CLI 옵션이 헷갈렸다.
+- **결정**:
+  - `src/clean_chat/sim/`: 표준 라이브러리 HTTP 서버(127.0.0.1)가 HTML 화면(`static/`, 빌드 없음)과 API 를 함께 준다. 새 패키지·Node 없음.
+  - 화면은 3칸: **입력**(간단 입력 = 텍스트·이미지 / JSON 직접 + fixtures 예시) · **디버깅 콘솔**(stdout·stderr 실시간) · **반환값**(상태 + return JSON).
+  - 실행마다 새 파이썬 프로세스(`sim/worker.py`). 모듈 코드를 고치면 바로 반영되고, print·logging·traceback 이 모두 보이며, 멈추거나 죽어도 서버는 산다. 제한 시간 `settings.sim_timeout_sec`(120초), 중지 버튼·창 닫기 시 프로세스 종료.
+  - 실행 명령은 `uv run sim [모듈]`, `uv run app`(Windows = 실제 화면, 그 밖 = 데모 재생) 두 개만. `clean-chat` 명령과 하위 명령·옵션은 없앤다.
+  - Vercel 프로젝트 `clean-chat-simulator` 삭제, `simulator/`(Next.js), `simulator.yml`, `contracts/`·`export_contracts.py` 삭제(웹 TS 타입용이라 쓰는 곳이 없음; 화면은 `/api/modules` 의 JSON Schema 를 쓴다).
+- **이유**: 설치·실행이 `uv sync` + `uv run sim` 으로 끝난다. 무거운 모듈도 각자 PC 에서 그대로 돈다.
+- **버린 대안**: (a) Next.js 유지 + 명령 하나로 둘 다 실행 — 모두 Node 설치 필요. (b) 서버 프로세스 안에서 실행 — 코드 수정 시 재시작 필요, C 라이브러리 출력·크래시를 못 잡는다(대가: 실행마다 모델을 다시 불러와 느릴 수 있음).
+- **영향**: ADR-0015 를 대체하고, ADR-0017 의 시뮬레이터 부분(로컬 서버 `clean-chat serve` + Next.js)을 갱신한다.

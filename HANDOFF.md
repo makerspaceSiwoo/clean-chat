@@ -215,3 +215,6 @@ class Parser(ParseStage):
 - GitHub 규칙은 `protect-main` 하나. 브랜치 이름·PR 제목 형식 검사와 "main 에는 develop 에서만" 검사는 없앰
 - 모듈 작업 브랜치 = `<모듈>/<작업 내용>` (예: `parse/colon-fix`). PR 에서 CI `module-scope` 가 모듈 범위 밖 수정을 실패로 표시 → 리드가 리뷰에서 판단 (병합은 막지 않음)
 
+## 13. 로컬 전용 시뮬레이터 + 명령 2개 (2026-11-14, ADR-0019)
+- 실행 명령은 두 개뿐: `uv run sim [모듈]`(브라우저: 입력 | 디버깅 콘솔 | 반환값), `uv run app`(Windows = 실제, 그 밖 = 데모)
+- 11장의 `clean-chat serve`·`module`·`run`·`say`·`modules`, Next.js `simulator/`, `contracts/`, Vercel 프로젝트는 모두 없앰

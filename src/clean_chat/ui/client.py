@@ -95,8 +95,9 @@ class ClientWindow(QMainWindow):
         raise NotImplementedError("ui 담당: open_selected_complaint")
 
     def show_engine_error(self, message: str) -> None:
-        """엔진이 멈췄다는 안내 (예: "모듈 'parse' 구현이 아직 없습니다 ..."). 대기 화면 위쪽에 눈에 띄게."""
-        raise NotImplementedError("ui 담당: show_engine_error")
+        """엔진이 멈췄다는 안내 (예: "모듈 'parse' 구현이 아직 없습니다 ..."). 상태 표시줄과 게임 중 화면에 보여 준다."""
+        self.statusBar().showMessage(f"⏳ {message}")
+        self.game_label.setText(f"멈춤 — {message}")
 
     def load_history(self, session_ids: list[str]) -> None:
         """대기 화면에 지난 게임 목록 표시 (세션 저장소 list_ids)."""

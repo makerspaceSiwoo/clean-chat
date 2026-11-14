@@ -29,8 +29,6 @@
 /src/clean_chat/core/               @LEAD
 /fixtures/*/expected.jsonl          @LEAD
 /fixtures/scenario/                 @LEAD
-/contracts/                         @LEAD
-/simulator/                         @LEAD
 /docs/SPEC.md                       @LEAD
 /docs/ARCHITECTURE.md               @LEAD
 /docs/CONTRACTS.md                  @LEAD

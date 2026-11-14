@@ -14,7 +14,7 @@
 ```bash
 uv run python -m clean_chat.session          # 가짜 감지기: 단계 이벤트와 명단 출력 (모든 OS)
 uv run python -m clean_chat.session --real   # 🪟 롤 클라이언트를 켜고 실행, 로비 → 게임 → 종료하며 단계 이름 실측 (Ctrl+C)
-uv run clean-chat run --source demo          # 단계 전환이 앱 전체 흐름에 어떻게 쓰이는지
+uv run app                                   # 단계 전환이 앱 전체 흐름에 어떻게 쓰이는지
 ```
 
 금지: LCU로 채팅 읽기, POST/PUT 같은 조작 요청, lockfile 비밀번호를 로그·파일에 남기기 (ADR-0002, ADR-0014)
