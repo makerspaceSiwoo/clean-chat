@@ -1,45 +1,24 @@
 /** 테스트 공용 가짜 데이터 (레포 fixtures 와 무관하게 고정) */
+import type { InputExample } from "@/examples/examples";
 import type { ModuleMeta } from "@/modules/registry";
-import type { StageContract } from "@/shared/contracts";
-import type { FixtureCase } from "@/mocks/fixtures";
-import type { RunStageResponse } from "@/types/api";
+import type { RunModuleResponse } from "@/types/api";
 
-export const META: ModuleMeta = {
-  stageId: "incoming_policy",
-  title: "수신 정책",
-  modulePath: "src/clean_chat/policy/impl.py",
-  workPackage: "WP1",
-  flow: "A",
-  description: "테스트용",
-  summaryFields: [
-    { label: "처리", path: "action" },
-    { label: "표시 문장", path: "display_text" },
-  ],
-  latencyBudgetMs: 100,
-  strict: true,
-  manualChecks: ["SPEC 표와 같은가?"],
-};
+export const META: ModuleMeta = { moduleId: "parse", number: "②", description: "테스트용 설명" };
+export const OCR_META: ModuleMeta = { moduleId: "ocr", number: "①", description: "테스트용 OCR", imageField: "image_path" };
 
-/** Decision 계약 모양을 모두 갖춘 기대값 (화면 통합 테스트는 실제 공통 계약으로 필드를 검사함) */
-const decision = (msg_id: string, action: string, display_text: string | null) => ({
-  msg_id,
-  is_me: false,
-  action,
-  display_text,
-  target: "정글",
-  report: true,
-  complaint_candidate: false,
-  reason: "테스트",
-});
-
-export const CASES: FixtureCase[] = [
-  { caseId: "c1", label: "#1 · L3 · 용 먼저", input: { message: { id: "L3", text: "용 먼저" } }, expected: decision("L3", "show_rewritten", "용 먼저 치자") },
-  { caseId: "c2", label: "#2 · L4 · 숨김", input: { message: { id: "L4", text: "x" } }, expected: decision("L4", "hide", null) },
+export const EXAMPLES: InputExample[] = [
+  { exampleId: "e1", label: "#1 · L3 · 용 먼저", input: { line: { id: "L3", text: "용 먼저" }, my_name: "나" } },
+  { exampleId: "e2", label: "#2 · L4 · 숨김", input: { line: { id: "L4", text: "x" }, my_name: "나" } },
 ];
 
-export function okResponse(output: unknown, extra: Partial<RunStageResponse> = {}): RunStageResponse {
-  return { status: 200, ok: true, output, impl: "mock-fixture", durationMs: 12, ...extra };
+export const OCR_EXAMPLES: InputExample[] = [
+  { exampleId: "o1", label: "#1 · F0", input: { id: "F0", ts: 1, image_path: "fixtures/ocr/images/sample_01.png", region: { x: 0, y: 0, w: 1, h: 1 } } },
+];
+
+export function okResponse(output: unknown, extra: Partial<RunModuleResponse> = {}): RunModuleResponse {
+  return { status: 200, ok: true, output, durationMs: 12, ...extra };
 }
 
-/** 테스트용 계약 (실제 계약과 무관하게 고정) */
-export const CONTRACT: StageContract = { input: "PolicyRequest", output: "Decision", inputFields: ["message", "classification"], outputFields: ["action", "display_text"] };
+export function errorResponse(status: number, error: string): RunModuleResponse {
+  return { status, ok: false, output: null, error, durationMs: 3 };
+}

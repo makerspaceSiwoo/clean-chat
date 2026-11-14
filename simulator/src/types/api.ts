@@ -1,38 +1,43 @@
 /**
- * 웹앱 ↔ 시뮬레이션 API 사이의 요청/응답 형식.
+ * 웹앱 ↔ 로컬 모듈 실행 서버(`uv run clean-chat serve`) 사이의 요청/응답 형식. 서버 쪽: src/clean_chat/core/server.py
  *
- * HTTP 계약 (API_MODE=http):  POST {BASE_URL}/stages/{stageId}/run
- *   요청 본문: RunStageRequest   응답 본문: StageRunBody (HTTP 상태 코드는 RunStageResponse.status 로 옮겨 담음)
- * Mock 모드도 같은 RunStageResponse 를 돌려준다 → 화면 코드는 어느 쪽인지 모른다.
+ *   POST {BASE_URL}/modules/{moduleId}/run
+ *     요청 본문: { input, image?: { name, base64 } }
+ *     응답 본문: { output, error? }   200 성공 · 501 구현 없음 · 422 입력 형식 오류 · 500 모듈 예외
  */
-import type { StageId } from "./contracts";
+import type { ModuleId } from "./contracts";
 
-export interface RunStageRequest {
-  stageId: StageId;
-  /** Stage 입력 모델 JSON (StageContracts[stageId]["input"]) */
+export interface UploadImage {
+  name: string;
+  /** 파일 내용 (data: 접두사 없는 base64) */
+  base64: string;
+}
+
+export interface RunModuleRequest {
+  moduleId: ModuleId;
+  /** 모듈 입력 모델 JSON */
   input: unknown;
+  /** 첨부 이미지 (OCR). 서버가 저장하고 입력의 image_path 를 그 경로로 바꾼다 */
+  image?: UploadImage;
 }
 
 /** 서버가 돌려주는 본문 */
-export interface StageRunBody {
-  /** Stage 출력 모델 JSON. 실패면 null */
+export interface ModuleRunBody {
+  /** 모듈 출력 모델 JSON. 실패면 null */
   output: unknown | null;
-  /** 어떤 구현이 응답했나: "mock-fixture" | "mock" | "real" 등 */
-  impl: string;
   /** 실패 이유 (사람이 읽는 문장) */
   error?: string;
 }
 
-export interface RunStageResponse extends StageRunBody {
-  /** HTTP 상태 코드. 네트워크 오류·타임아웃은 0 */
+export interface RunModuleResponse extends ModuleRunBody {
+  /** HTTP 상태 코드. 서버 연결 실패·타임아웃은 0 */
   status: number;
   ok: boolean;
   /** 요청부터 응답까지 걸린 시간(ms), 화면에서 잰 값 */
   durationMs: number;
 }
 
-/** API 클라이언트 (포트). Mock 과 HTTP 구현을 바꿔 끼운다 — UI 는 이 인터페이스만 안다. */
-export interface StageApiClient {
-  readonly kind: "mock" | "http";
-  runStage(request: RunStageRequest, options?: { signal?: AbortSignal }): Promise<RunStageResponse>;
+/** API 클라이언트 (포트). 화면은 이 인터페이스만 안다 → 테스트에서 가짜로 바꿔 끼운다 */
+export interface ModuleApiClient {
+  runModule(request: RunModuleRequest, options?: { signal?: AbortSignal }): Promise<RunModuleResponse>;
 }

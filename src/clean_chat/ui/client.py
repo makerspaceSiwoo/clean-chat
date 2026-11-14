@@ -1,4 +1,4 @@
-"""[뼈대 · WP7] 클라이언트 창 (SPEC 3-1). 게임 단계마다 다른 화면을 보여 준다 (HANDOFF 5-2).
+"""[구성 · 리드] 클라이언트 창 (SPEC 3-1). 게임 단계마다 다른 화면을 보여 준다 (HANDOFF 5-2).
 
 | 단계        | 화면                                              |
 |------------|---------------------------------------------------|
@@ -95,7 +95,7 @@ class ClientWindow(QMainWindow):
         raise NotImplementedError("ui 담당: open_selected_complaint")
 
     def show_engine_error(self, message: str) -> None:
-        """엔진이 시작하지 못했다는 안내 (예: "Stage 'parse'(real) 준비 실패 ..."). 대기 화면 위쪽에 눈에 띄게."""
+        """엔진이 멈췄다는 안내 (예: "모듈 'parse' 구현이 아직 없습니다 ..."). 대기 화면 위쪽에 눈에 띄게."""
         raise NotImplementedError("ui 담당: show_engine_error")
 
     def load_history(self, session_ids: list[str]) -> None:

@@ -13,18 +13,11 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-MODULES = (
-    "capture",
-    "text",
-    "classify",
-    "rewrite",
-    "policy",
-    "report",
-    "session",
-    "ui",
-    "simulator",
-    "core",
-)
+# 모듈 5개 = 5명 (ADR-0017). 각자 src/clean_chat/modules/<모듈>/ 만 고친다
+WORK_MODULES = ("ocr", "parse", "analyze", "rewrite", "report")
+# 구성 (리드): 흐름 연결·정책표·게임 단계·UI·시뮬레이터
+LEAD_AREAS = ("ui", "session", "simulator", "core")
+MODULES = WORK_MODULES + LEAD_AREAS
 
 # 브랜치 이름 규칙
 BRANCH_RE = re.compile(
@@ -36,23 +29,16 @@ PR_TITLE_RE = re.compile(rf"^(feat|fix|docs|chore|refactor|test|data)\(({'|'.joi
 
 # 모듈 브랜치가 수정해도 되는 경로 (앞부분 일치)
 SHARED_OK = ("data/labeled/", "data/lexicon/", "data/demo/", "docs/modules/", "uv.lock")
-# 모듈 → 담당 fixtures 폴더 (Stage 이름 기준)
-STAGES_OF = {
-    "capture": ("ocr",),
-    "text": ("parse", "compose", "normalize"),
-    "policy": ("incoming_policy", "outgoing_policy"),
-    "report": ("report", "complaint"),
-}
 MODULE_PATHS: dict[str, tuple[str, ...]] = {
-    m: (f"src/clean_chat/{m}/", f"tests/{m}/", f"tests/test_{m}.py")
-    + tuple(f"fixtures/{st}/" for st in STAGES_OF.get(m, (m,)))
-    for m in MODULES
+    m: (f"src/clean_chat/modules/{m}/", f"tests/test_{m}.py", f"fixtures/{m}/") for m in WORK_MODULES
 }
-MODULE_PATHS["classify"] += ("training/",)
+MODULE_PATHS["analyze"] += ("training/",)
+MODULE_PATHS["ui"] = ("src/clean_chat/ui/", "tests/test_ui_smoke.py")
+MODULE_PATHS["session"] = ("src/clean_chat/session/", "tests/test_session.py")
 # 웹 시뮬레이터는 자기 폴더만 (공통 계약·fixtures 는 core = 리드, ADR-0015)
 MODULE_PATHS["simulator"] = ("simulator/",)
-MODULE_PATHS["core"] += (
-    "src/clean_chat/__main__.py",
+MODULE_PATHS["core"] = (
+    "src/clean_chat/",
     "fixtures/",
     "contracts/",
     "scripts/",

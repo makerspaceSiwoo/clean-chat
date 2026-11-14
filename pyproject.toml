@@ -16,13 +16,13 @@ clean-chat = "clean_chat.__main__:main"
 # 새 패키지 추가는 PR에 이유를 적고 리드 승인 후 (AGENTS.md 규칙)
 [project.optional-dependencies]
 ui = ["pyside6>=6.7"]
-capture = [
+ocr = [
     "pillow>=10.0",
     "numpy>=1.26",
-    "mss>=9.0",            # 화면 캡처 (Mac에서도 설치 가능, 실제 사용은 Windows)
+    "mss>=9.0",            # 화면 캡처 core/grabber.py (Mac에서도 설치 가능, 실제 사용은 Windows)
     # OCR 엔진 · Windows 캡처 라이브러리는 OPEN-02/03 실측 후 추가 (win32 마커 필수)
 ]
-ml = [
+analyze = [
     "torch>=2.3",
     "transformers>=4.44",
     "scikit-learn>=1.5",

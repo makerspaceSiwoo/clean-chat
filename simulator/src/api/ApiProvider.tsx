@@ -1,41 +1,24 @@
 "use client";
 /**
- * API 클라이언트 주입 (의존성 주입). 컴포넌트는 useApiClient() 로만 API 를 부르고, 어떤 구현인지 모른다.
- * - 기본: 환경 변수(API_MODE)에 따라 Mock / HTTP 클라이언트 생성
+ * API 클라이언트 주입 (의존성 주입). 컴포넌트는 useApi() 로만 API 를 부르고, 어떤 구현인지 모른다.
+ * - 기본: 로컬 모듈 실행 서버(HTTP) 클라이언트
  * - 테스트: <ApiProvider client={가짜}> 로 바꿔 끼움
- * mock 모드의 장애 흉내(mockScenario)도 여기서 관리한다.
  */
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { appConfig, type AppConfig } from "@/config/env";
-import { allFixtureCases } from "@/mocks/fixtures";
 import { createHttpClient } from "./httpClient";
-import { createMockClient, type MockScenario } from "./mockClient";
-import type { StageApiClient } from "@/types/api";
+import type { ModuleApiClient } from "@/types/api";
 
 interface ApiContextValue {
-  client: StageApiClient;
+  client: ModuleApiClient;
   config: AppConfig;
-  mockScenario: MockScenario;
-  setMockScenario: (s: MockScenario) => void;
 }
 
 const ApiContext = createContext<ApiContextValue | null>(null);
 
-export function createDefaultClient(config: AppConfig, scenario: () => MockScenario): StageApiClient {
-  if (config.apiMode === "http") return createHttpClient({ baseUrl: config.apiBaseUrl, timeoutMs: config.apiTimeoutMs });
-  return createMockClient({ cases: allFixtureCases(), latencyMs: config.mockLatencyMs, timeoutMs: config.apiTimeoutMs, scenario });
-}
-
-export function ApiProvider({ children, client, config = appConfig }: { children: ReactNode; client?: StageApiClient; config?: AppConfig }) {
-  const [mockScenario, setScenarioState] = useState<MockScenario>("normal");
-  // Mock 클라이언트는 요청 때마다 ref 로 지금 값을 읽는다 (클라이언트를 다시 만들지 않게)
-  const scenarioRef = useRef<MockScenario>("normal");
-  const setMockScenario = useCallback((s: MockScenario) => {
-    scenarioRef.current = s;
-    setScenarioState(s);
-  }, []);
-  const resolved = useMemo(() => client ?? createDefaultClient(config, () => scenarioRef.current), [client, config]);
-  const value = useMemo(() => ({ client: resolved, config, mockScenario, setMockScenario }), [resolved, config, mockScenario, setMockScenario]);
+export function ApiProvider({ children, client, config = appConfig }: { children: ReactNode; client?: ModuleApiClient; config?: AppConfig }) {
+  const resolved = useMemo(() => client ?? createHttpClient({ baseUrl: config.apiBaseUrl, timeoutMs: config.apiTimeoutMs }), [client, config]);
+  const value = useMemo(() => ({ client: resolved, config }), [resolved, config]);
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 }
 

@@ -1,34 +1,26 @@
 import Link from "next/link";
-import { FLOW_LABEL, type ModuleMeta } from "@/modules/registry";
+import type { ModuleMeta } from "@/modules/registry";
 import { getContract } from "@/shared/contracts";
 
-const FLOW_STYLE: Record<ModuleMeta["flow"], string> = {
-  A: "bg-sky-50 text-sky-800",
-  B: "bg-violet-50 text-violet-800",
-  common: "bg-slate-100 text-slate-700",
-  post_game: "bg-rose-50 text-rose-800",
-};
-
-export function ModuleCard({ meta, caseCount }: { meta: ModuleMeta; caseCount: number }) {
-  const contract = getContract(meta.stageId);
+export function ModuleCard({ meta, exampleCount }: { meta: ModuleMeta; exampleCount: number }) {
+  const contract = getContract(meta.moduleId);
   return (
     <Link
-      href={`/modules/${meta.stageId}`}
-      data-testid={`module-card-${meta.stageId}`}
-      className="group flex h-[172px] flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-400 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+      href={`/modules/${meta.moduleId}`}
+      data-testid={`module-card-${meta.moduleId}`}
+      className="group flex h-[188px] flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-400 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
     >
-      <div className="flex items-center justify-between">
-        <span className={`rounded px-2 py-0.5 text-[11px] font-medium ${FLOW_STYLE[meta.flow]}`}>{FLOW_LABEL[meta.flow].split(" · ")[0]}</span>
-        <span className="text-[11px] text-slate-500">{meta.workPackage}</span>
+      <div className="flex items-baseline gap-2">
+        <span className="text-lg text-slate-400">{meta.number}</span>
+        <span className="font-mono text-sm font-semibold text-slate-900">{meta.moduleId}</span>
       </div>
-      <h3 className="mt-3 text-base font-semibold text-slate-900">{meta.title}</h3>
-      <p className="font-mono text-xs text-slate-500">{meta.stageId}</p>
+      <h3 className="mt-1 text-sm font-medium text-slate-800">{contract.title}</h3>
       <p className="mt-2 line-clamp-2 text-sm text-slate-600">{meta.description}</p>
-      <div className="mt-auto flex items-center justify-between pt-3 text-xs text-slate-500">
-        <span className="font-mono">
+      <div className="mt-auto space-y-1 pt-3 text-xs text-slate-500">
+        <p className="font-mono">
           {contract.input} → {contract.output}
-        </span>
-        <span className={caseCount === 0 ? "text-amber-700" : undefined}>Mock {caseCount}건</span>
+        </p>
+        <p>예시 입력 {exampleCount}개</p>
       </div>
     </Link>
   );

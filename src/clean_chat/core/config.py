@@ -4,44 +4,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parents[3]
 DATA = ROOT / "data"
 FIXTURES = ROOT / "fixtures"
 
-STAGE_NAMES = (
-    "ocr",
-    "parse",
-    "compose",
-    "normalize",
-    "classify",
-    "rewrite",
-    "incoming_policy",
-    "outgoing_policy",
-    "report",
-    "complaint",
-)
-# Stage → 단독 실행 명령 (`uv run python -m clean_chat.<값>`). 한 모듈 폴더에 Stage 가 2개면 뒤에 하위 이름
-STAGE_COMMANDS = {
-    "ocr": "capture",
-    "parse": "text parse",
-    "compose": "text compose",
-    "normalize": "text normalize",
-    "classify": "classify",
-    "rewrite": "rewrite",
-    "incoming_policy": "policy",
-    "outgoing_policy": "policy outgoing",
-    "report": "report",
-    "complaint": "report complaint",
-}
-
 
 class Settings(BaseModel):
     my_name: str = "나"  # 내 소환사명 (클라이언트 설정에서 변경)
-    # 모듈별로 real / mock 선택. 기본은 전부 mock → 구현이 끝난 모듈부터 real 로 바꿔 끼움
-    impl: dict[str, str] = Field(default_factory=lambda: dict.fromkeys(STAGE_NAMES, "mock"))
-    llm_backend: str = "none"  # rewrite/complaint 용: "local" | "api" (OPEN-04)
+    llm_backend: str = "none"  # rewrite/report 모듈용: "local" | "api" (OPEN-04)
     store_dir: Path = ROOT / ".clean-chat"  # 처리 내역 로컬 저장 (git 제외)
     sessions_dir: Path = ROOT / ".clean-chat" / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
     complaint_output_dir: str = (
@@ -50,6 +22,8 @@ class Settings(BaseModel):
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
     capture_interval_sec: float = 0.4
+    server_port: int = 8765  # clean-chat serve (시뮬레이터가 부르는 로컬 모듈 실행 서버)
+    uploads_dir: Path = ROOT / ".clean-chat" / "uploads"  # serve 가 받은 첨부 이미지 (git 제외)
 
 
 settings = Settings()

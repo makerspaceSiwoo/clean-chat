@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Clean Chat 모듈 시뮬레이터",
-  description: "모듈별 E2E 동작을 Mock 데이터로 확인하는 사내 테스트 도구",
+  description: "입력을 넣으면 실제 모듈 함수(로컬 서버)를 실행해 output 을 보여 주는 개발 도구",
   robots: { index: false, follow: false },
 };
 

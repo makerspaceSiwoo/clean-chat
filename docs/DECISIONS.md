@@ -163,3 +163,18 @@
 - **결정**: `src/clean_chat/text/` 한 모듈에 둔다. 인터페이스는 `stage.py` 하나(Stage 3개), 구현은 파일 하나에 클래스 하나(`parse.py: Parser`, `compose.py: Composer`, `normalize.py: Normalizer`). 단독 실행은 `python -m clean_chat.text <parse|compose|normalize>`.
 - **바꾸지 않은 것**: Stage 이름·계약(`schemas.py`, `contracts/`), fixtures 폴더, 파이프라인, 웹 시뮬레이터 화면. 바뀐 것은 코드 위치와 `repo_rules.py`(모듈 `text`, 브랜치 `mod/text`), CODEOWNERS, 문서뿐이다.
 - **버린 대안**: Stage 자체를 하나로 합치기 — 계약·fixtures·시뮬레이터를 모두 바꿔야 하고, 흐름 A/B 입구(parse/compose)와 공통 필터(normalize)의 경계가 사라진다.
+
+## ADR-0017: 모듈을 함수 5개(ocr · parse · analyze · rewrite · report)로 줄이고, 나머지는 구성으로 둔다. Mock 은 없앤다
+- 2026-11-14 / 확정 / 리드
+- **배경**: Stage 10개, 모듈 폴더 8개(인터페이스 `stage.py` + 구현 클래스 + `setup/run/close` + MockStage)라 5명에게 나눠 주기에 복잡했다. 시뮬레이터와 `clean-chat run` 은 Mock(fixtures 응답)으로 돌아서 구현이 하나도 없는데도 동작하는 것처럼 보였다. E2E 시나리오도 아직 없어 기대값 비교가 의미가 없었다.
+- **결정**:
+  - 모듈 = **함수 1개**, 5개: ① `ocr` 이미지 → 줄 / ② `parse` 줄 → 채팅만(시스템 메시지·핑 제외, 규칙) + 정규화(옛 normalize) + 내 입력(옛 compose) / ③ `analyze` 누가 누구에게(대상, 옛 policy 의 대상 추정)·등급·유형·비속어·피드백 조각(옛 classify + rewrite 의 피드백 추출) / ④ `rewrite` 순화 문장 / ⑤ `report` 신고 문구·고소장(옛 report + complaint, `kind` 로 구분).
+  - 위치: `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력 모델) -> 출력 모델`. 한 사람 = 한 폴더(`mod/<모듈>` 브랜치는 그 폴더·`tests/test_<모듈>.py`·`fixtures/<모듈>/` 만).
+  - **구성(리드)**: 정책표(`core/policy.py`, SPEC 5장을 코드로 구현), 흐름 연결·프레임 사이 줄 중복 제거(`core/pipeline.py`), 화면 캡처(`core/grabber.py`), 게임 단계·세션, UI, 로컬 모듈 서버, 시뮬레이터.
+  - **Mock 제거**: `MockStage`, `--impl mock`, `--real`, 시뮬레이터 Mock 클라이언트·장애 흉내·체크리스트·기대값 비교를 지운다. 구현 전 함수는 `NotImplementedError` → 어디서든 "구현 안 됨" 오류(`ModuleNotImplemented`, CLI 종료 코드 2, 서버 501, 엔진은 멈추고 모듈 이름을 알림).
+  - **시뮬레이터 = 함수 호출기**: 입력 JSON(+ OCR 이미지)을 넣고 실행하면 로컬 서버(`uv run clean-chat serve`, 표준 라이브러리 HTTP, 127.0.0.1)가 실제 함수를 부르고 output 만 보여 준다. fixtures 는 입력 예시로만 쓴다.
+  - 연결 구조(흐름·정책표·세션·배치) 검증은 테스트 안의 가짜 함수(`tests/helpers.py`)로만 한다.
+  - 계약 1.0.0: `NormalizedMessage` → `ChatMessage` 에 합침, `Classification` → `Analysis`, `OutgoingText`·`PolicyRequest`·`ComplaintRequest`·`ComplaintDraft` 삭제. `contracts/stages.schema.json` → `modules.schema.json`.
+- **이유**: 5명이 "함수 하나"만 보면 되고 경계가 폴더로 분명하다. 처리 결정(정책표)은 표를 옮기는 일이라 모듈로 둘 만큼 크지 않다. Mock 이 없으면 구현 여부가 실행 결과에 그대로 드러난다.
+- **버린 대안**: (a) Stage 10개 유지하고 사람만 묶기 — 인터페이스·Mock·하위 Stage 명령이 그대로 복잡하다. (b) normalize 를 analyze 에 — 작업량이 가장 큰 analyze 에 몰려 parse(규칙)에 둔다. (c) 시뮬레이터를 Vercel 파이썬 함수로 — OCR·분류 모델이 용량 제한(250MB)을 넘는다. 배포 주소는 화면만 보이고, 실행은 로컬에서 한다.
+- **영향**: ADR-0011(Stage 구조), ADR-0016(text 모듈)을 대체한다. 모듈 5개가 모두 구현되기 전에는 `clean-chat run/say/app` 이 끝까지 돌지 않는다. pyproject extra 이름도 `capture` → `ocr`, `ml` → `analyze`.

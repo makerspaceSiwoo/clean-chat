@@ -1,0 +1,7 @@
+{"msg_id":"L0","target":null,"level":0,"harm_types":[],"profanity_spans":[],"feedback_spans":[],"scores":{},"model_version":"fixture"}
+{"msg_id":"L2","target":null,"level":1,"harm_types":["profanity"],"profanity_spans":["ㅅㅂ"],"feedback_spans":[],"scores":{"profanity":0.9},"model_version":"fixture"}
+{"msg_id":"L3","target":"정글","level":2,"harm_types":["profanity","blame"],"profanity_spans":["ㅂㅅ"],"feedback_spans":["용 먼저 치라고"],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
+{"msg_id":"L4","target":"미드","level":2,"harm_types":["profanity","blame"],"profanity_spans":["시1발"],"feedback_spans":[],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
+{"msg_id":"L5","target":"탑","level":3,"harm_types":["profanity","family_insult"],"profanity_spans":["니애미","tlqkf"],"feedback_spans":[],"scores":{"profanity":0.9,"family_insult":0.9},"model_version":"fixture"}
+{"msg_id":"L7","target":"정글","level":2,"harm_types":["profanity","blame"],"profanity_spans":["ㅂㅅ"],"feedback_spans":["왜 안 와"],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
+{"msg_id":"L8","target":"정글","level":2,"harm_types":["profanity"],"profanity_spans":["개새끼"],"feedback_spans":[],"scores":{"profanity":0.9},"model_version":"fixture"}

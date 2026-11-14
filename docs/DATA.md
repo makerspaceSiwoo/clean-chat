@@ -24,7 +24,7 @@
 2. 100문장을 채우면 담당(개발자 B)이 CSV로 내보내 `data/<주제>` 브랜치로 PR합니다.
 3. **테스트셋은 처음 모인 데이터에서 먼저 떼어 고정합니다.** 이후 학습에 절대 섞지 않습니다.
 
-## 외부 데이터셋 후보 (classify 담당이 확인)
+## 외부 데이터셋 후보 (analyze 담당이 확인)
 | 이름 | 내용 | 확인할 것 |
 |---|---|---|
 | Korean UnSmile (스마일게이트) | 혐오·악플 다중 라벨 | 라이선스(비상업 조건 여부), 공개 모델 존재 여부 |
@@ -36,7 +36,7 @@
 
 ## 모델 공유 (Hugging Face 비공개 저장소)
 ```bash
-# 올리기 (classify 담당)
+# 올리기 (analyze 담당)
 huggingface-cli login
 huggingface-cli upload <팀계정>/clean-chat-classifier ./models/classifier --private
 
@@ -44,4 +44,4 @@ huggingface-cli upload <팀계정>/clean-chat-classifier ./models/classifier --p
 huggingface-cli download <팀계정>/clean-chat-classifier --local-dir models/classifier
 ```
 - 팀원은 Hugging Face 조직(Organization)에 초대해서 비공개 저장소를 같이 씁니다.
-- 모델을 바꾸면 `classify/__init__.py`의 `MODEL_VERSION`을 올립니다.
+- 모델을 바꾸면 `Analysis.model_version` 에 넣는 버전 문자열을 올립니다 (`modules/analyze/`).

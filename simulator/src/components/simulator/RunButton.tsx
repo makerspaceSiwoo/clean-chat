@@ -20,7 +20,7 @@ export function RunButton({ loading, disabled = false, disabledReason, onRun, on
         className="inline-flex h-10 min-w-[140px] items-center justify-center gap-2 rounded-lg bg-slate-900 px-5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {loading && <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />}
-        {loading ? "실행 중…" : "실행 (테스트)"}
+        {loading ? "실행 중…" : "실행"}
       </button>
       {loading && onCancel && (
         <button type="button" onClick={onCancel} className="h-10 rounded-lg border border-slate-300 px-4 text-sm text-slate-700 hover:bg-slate-50">

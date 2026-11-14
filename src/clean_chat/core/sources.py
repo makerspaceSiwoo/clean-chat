@@ -5,7 +5,7 @@
 |------------------|-----------|----------|----------------------------------|
 | DemoLineSource   | RawLine   | 모두      | 시나리오 재생 (Mac 개발, 발표 백업) |
 | ScreenshotSource | Frame     | 모두      | 저장된 스크린샷으로 OCR 테스트       |
-| ScreenGrabber    | Frame     | Windows  | 실제 게임 화면 캡처 (capture 모듈)  |
+| ScreenGrabber    | Frame     | Windows  | 실제 게임 화면 캡처 (core/grabber)  |
 
 게임 단계 감지기 (PhaseDetector)
 | 어댑터                         | OS      | 용도                                        |
@@ -23,8 +23,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Protocol
 
+from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.schemas import Frame, PhaseEvent, Player, RawLine, Region
-from clean_chat.core.stage import read_jsonl
 
 
 class LineSource(Protocol):

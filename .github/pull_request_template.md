@@ -3,13 +3,13 @@
 
 ## 어떻게 확인했나요?
 - [ ] `uv run pytest` 통과
-- [ ] `uv run python -m clean_chat.<내모듈> [하위 Stage] --check` 결과 첨부
-- [ ] `uv run clean-chat run --real <내 Stage>` 가 끝까지 돌아감
+- [ ] `uv run clean-chat module <내 모듈> --check` 결과 첨부
+- [ ] 시뮬레이터(`uv run clean-chat serve` + `cd simulator && npm run dev`)에서 내 모듈 실행 결과 확인
 - [ ] (Windows 모듈) 실제 게임 또는 녹화 화면에서 확인 → 스크린샷/짧은 영상 첨부
 
 ## 체크리스트
-- [ ] 내 모듈 폴더 밖은 수정하지 않았다 (필요하면 리드에게 `cross-module` 라벨 요청)
-- [ ] `core/schemas.py`의 함수 이름, 입력/출력 타입을 바꾸지 않았다
+- [ ] 내 모듈 폴더(`src/clean_chat/modules/<모듈>/`) 밖은 수정하지 않았다 (필요하면 리드에게 `cross-module` 라벨 요청)
+- [ ] `run()` 함수 이름과 `core/schemas.py`의 입력/출력 타입을 바꾸지 않았다
 - [ ] 새 패키지를 추가했다면 이유를 아래에 적었다
 - [ ] 실제 유저 채팅 원문, 닉네임, 개인정보를 커밋하지 않았다
 - [ ] AI가 짠 코드를 최소한 한 번 읽어 보았다

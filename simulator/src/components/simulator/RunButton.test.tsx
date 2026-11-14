@@ -6,7 +6,7 @@ describe("RunButton", () => {
   it("누르면 onRun 을 부른다", async () => {
     const onRun = jest.fn();
     render(<RunButton loading={false} onRun={onRun} />);
-    await userEvent.click(screen.getByRole("button", { name: "실행 (테스트)" }));
+    await userEvent.click(screen.getByRole("button", { name: "실행" }));
     expect(onRun).toHaveBeenCalledTimes(1);
   });
 
@@ -24,7 +24,7 @@ describe("RunButton", () => {
 
   it("실행할 수 없으면 비활성화하고 이유를 보여 준다", () => {
     render(<RunButton loading={false} disabled disabledReason="입력 JSON 오류" onRun={jest.fn()} />);
-    expect(screen.getByRole("button", { name: "실행 (테스트)" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "실행" })).toBeDisabled();
     expect(screen.getByText("입력 JSON 오류")).toBeInTheDocument();
   });
 });

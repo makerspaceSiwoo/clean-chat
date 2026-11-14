@@ -1,7 +1,7 @@
 "use client";
 /**
- * 이미지 첨부 칸 (OCR 처럼 입력에 이미지 경로가 있는 Stage).
- * 미리보기만 보여 준다 — 이미지를 읽거나 서버로 보내지 않는다(실제 모듈 동작 없음).
+ * 이미지 첨부 칸 (OCR 처럼 입력에 이미지 경로가 있는 모듈).
+ * 실행하면 이미지를 로컬 모듈 서버로 보내고, 서버가 저장한 경로로 실제 모듈 함수를 부른다.
  */
 import { useState } from "react";
 import { formatBytes, IMAGE_TYPES } from "@/lib/image";
@@ -11,6 +11,8 @@ export interface AttachedImage {
   size: number;
   /** 미리보기용 blob URL (브라우저 안에서만 유효) */
   url: string;
+  /** 실행할 때 서버로 보낼 원본 파일 */
+  file: File;
 }
 
 interface Props {
@@ -82,7 +84,7 @@ export function ImageAttach({ field, image, error, onAttach, onClear }: Props) {
         </p>
       )}
       <p className="mt-1 text-[11px] text-slate-500">
-        이미지는 이 브라우저 안에서 미리보기만 하고 서버로 보내지 않습니다. 입력 JSON 의 <code>{field}</code> 에 파일 이름이 들어갑니다.
+        실행하면 이미지를 로컬 모듈 서버로 보냅니다. 서버가 <code>.clean-chat/uploads/</code> 에 저장하고 입력의 <code>{field}</code> 를 그 경로로 바꿉니다.
       </p>
     </div>
   );

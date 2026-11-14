@@ -2,15 +2,13 @@
 
 import threading
 
-from clean_chat.core.config import FIXTURES
 from clean_chat.core.engine import Engine
+from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.pipeline import Pipelines, SentLog
 from clean_chat.core.schemas import GamePhase, Player, PostGameResult
 from clean_chat.core.sources import DemoLineSource
-from clean_chat.core.stage import read_jsonl
 from clean_chat.session.fake import FakePhaseDetector
-
-SCENARIO = FIXTURES / "scenario"
+from helpers import SCENARIO, fixture_modules
 
 
 class LoadingDetector(FakePhaseDetector):
@@ -26,7 +24,7 @@ class LoadingDetector(FakePhaseDetector):
 
 
 def _engine(detector) -> Engine:
-    return Engine(Pipelines(), DemoLineSource(SCENARIO / "lines.jsonl", delay_sec=0), detector)
+    return Engine(Pipelines(fixture_modules()), DemoLineSource(SCENARIO / "lines.jsonl", delay_sec=0), detector)
 
 
 def test_players_are_polled_until_loading_finishes():
@@ -40,7 +38,7 @@ def test_batch_failure_still_emits_result_and_keeps_detecting():
     eng = _engine(FakePhaseDetector(SCENARIO / "phases.jsonl", SCENARIO / "players.jsonl"))
 
     def broken(_session):
-        raise RuntimeError("complaint 구현 오류")
+        raise RuntimeError("report 구현 오류")
 
     eng.batch.run = broken
     results: list[PostGameResult] = []
