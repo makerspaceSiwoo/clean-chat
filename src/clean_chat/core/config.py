@@ -25,9 +25,9 @@ STAGE_NAMES = (
 # Stage → 단독 실행 명령 (`uv run python -m clean_chat.<값>`). 한 모듈 폴더에 Stage 가 2개면 뒤에 하위 이름
 STAGE_COMMANDS = {
     "ocr": "capture",
-    "parse": "parse",
-    "compose": "parse compose",
-    "normalize": "normalize",
+    "parse": "text parse",
+    "compose": "text compose",
+    "normalize": "text normalize",
     "classify": "classify",
     "rewrite": "rewrite",
     "incoming_policy": "policy",

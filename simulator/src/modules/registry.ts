@@ -61,7 +61,7 @@ export const MODULES: readonly ModuleMeta[] = [
   {
     stageId: "parse",
     title: "채팅 줄 분해",
-    modulePath: "src/clean_chat/parse/impl.py",
+    modulePath: "src/clean_chat/text/parse.py",
     workPackage: "WP3",
     flow: "A",
     description: "OCR 줄 → 채널·화자·챔피언·본문",
@@ -79,7 +79,7 @@ export const MODULES: readonly ModuleMeta[] = [
   {
     stageId: "compose",
     title: "내 입력 메시지화",
-    modulePath: "src/clean_chat/parse/impl.py",
+    modulePath: "src/clean_chat/text/compose.py",
     workPackage: "WP3",
     flow: "B",
     description: "오버레이 입력 → ChatMessage (OCR 없이)",
@@ -96,7 +96,7 @@ export const MODULES: readonly ModuleMeta[] = [
   {
     stageId: "normalize",
     title: "우회어 복원",
-    modulePath: "src/clean_chat/normalize/impl.py",
+    modulePath: "src/clean_chat/text/normalize.py",
     workPackage: "WP3",
     flow: "common",
     description: "시1발 · tlqkf · ㅅ ㅂ → 원래 형태",

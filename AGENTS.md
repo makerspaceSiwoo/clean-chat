@@ -52,7 +52,7 @@ uv sync                                                  # 설치 (UI 작업: uv
 uv run clean-chat modules                                # Stage 10개와 단독 실행 명령
 uv run python -m clean_chat.<모듈> --impl mock --check    # 통신 포맷 확인
 uv run python -m clean_chat.<모듈> --check               # 내 실제 구현(impl.py)을 fixtures로 실행·비교
-uv run python -m clean_chat.parse compose --check        # 한 폴더에 Stage가 2개면 하위 이름 (policy outgoing, report complaint)
+uv run python -m clean_chat.text compose --check         # 한 폴더에 Stage가 여러 개면 하위 이름 (text parse|compose|normalize, policy outgoing, report complaint)
 uv run python -m clean_chat.session                      # 게임 단계 감지기 (가짜, --real 은 Windows)
 uv run clean-chat run --source demo                      # 게임 단계 전환 + 흐름 A + 게임 결과(신고·고소장)를 콘솔로
 uv run clean-chat run --real <Stage>                     # 내 Stage만 실제, 나머지 mock으로 전체 흐름

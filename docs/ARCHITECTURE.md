@@ -93,7 +93,7 @@ stateDiagram-v2
 | 단독 실행 | `<모듈>/__main__.py` | 자동 | `python -m clean_chat.<모듈> [하위 Stage]` |
 | 등록 | `core/registry.py`, `core/config.py: STAGE_NAMES, STAGE_COMMANDS` | 리드 | 이름 → 인터페이스·구현 연결 |
 
-한 모듈 폴더에 Stage가 2개인 곳: `parse/`(parse, compose), `policy/`(incoming_policy, outgoing_policy), `report/`(report, complaint).
+한 모듈 폴더에 Stage가 여러 개인 곳: `text/`(parse, compose, normalize — 파일 하나에 클래스 하나, ADR-0016), `policy/`(incoming_policy, outgoing_policy), `report/`(report, complaint).
 
 **웹 비유**: Stage = 요청·응답 스키마가 고정된 API 엔드포인트, MockStage = MSW 같은 목 서버, fixtures = API 문서의 요청·응답 예시입니다.
 
@@ -145,8 +145,7 @@ src/clean_chat/
 │  ├─ platform.py        OS 구분, 콘솔 UTF-8
 │  └─ config.py          설정 (모듈별 real/mock 포함)
 ├─ capture/  stage.py impl.py(OCR) grabber.py(🪟)          [WP2]
-├─ parse/    stage.py impl.py (parse + compose)            [WP3]
-├─ normalize/stage.py impl.py                              [WP3]
+├─ text/     stage.py parse.py compose.py normalize.py     [WP3]
 ├─ classify/ stage.py impl.py                              [WP4]
 ├─ rewrite/  stage.py impl.py                              [WP5]
 ├─ policy/   stage.py impl.py (incoming + outgoing)        [WP1]

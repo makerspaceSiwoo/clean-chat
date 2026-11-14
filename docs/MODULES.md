@@ -10,7 +10,7 @@
 |---|---|---|---|---|---|
 | **WP1** 코어·정책 | 계약, 파이프라인, 엔진, 상태 기계, CI, 통합 + **정책 2개** | core/, policy/ (`incoming_policy`, `outgoing_policy`) | Mac | ★★★ | 리드 |
 | **WP2** 캡처·OCR | 화면 캡처, OCR, 줄 중복 제거 | capture/ (`ocr`) | **Windows**(캡처) / Mac(OCR) | ★★★ | 개발자 또는 Windows 바이브 코더 |
-| **WP3** 텍스트 정리 | 채팅 줄 분해, 내 입력 메시지화, 우회어 복원 | parse/ (`parse`, `compose`), normalize/ | 모두 | ★★ | 바이브 코더 |
+| **WP3** 텍스트 정리 | 채팅 줄 분해, 내 입력 메시지화, 우회어 복원 | text/ (`parse`, `compose`, `normalize`) | 모두 | ★★ | 바이브 코더 |
 | **WP4** 분류 모델 | 분류 모델, 학습·평가, 라벨 관리 | classify/, training/ | 모두 + Colab | ★★★ | 개발자 |
 | **WP5** 피드백 다듬기 | 피드백 추출, 문장 다듬기 (LLM) | rewrite/ | 모두 | ★★ | 바이브 코더 |
 | **WP6** 신고·고소장 | 신고 문구, 고소장 양식, 한글 PDF | report/ (`report`, `complaint`) | 모두 | ★★ | 바이브 코더 |
@@ -51,7 +51,7 @@
 | Mac 테스트 | `fixtures/ocr/images/*.png` + `clean-chat run --source screenshots` |
 | 결정 필요 | OPEN-02(캡처 제외), OPEN-03(OCR 엔진), OPEN-06(채팅 색 설정) |
 
-### `parse` — parse/ (WP3)
+### `parse` — text/parse.py (WP3)
 | 항목 | 내용 |
 |---|---|
 | 흐름 | A (다른 유저 채팅) |
@@ -60,16 +60,16 @@
 | 책임 아님 | 욕설 판단, 우회어 복원, 내 입력(→ compose) |
 | 검사 | **STRICT**: `expected.jsonl`과 정확히 같아야 함 |
 
-### `compose` — parse/ (WP3)
+### `compose` — text/compose.py (WP3)
 | 항목 | 내용 |
 |---|---|
 | 흐름 | B (내 입력). OCR·parse를 거치지 않습니다 |
 | 입력 → 출력 | `OutgoingText`(id, ts, text) → `ChatMessage`(`source=self_input`, `is_me=True`, `speaker=내 소환사명`) |
 | 책임 | 내 문장을 메시지로 만들기, 채널 명령(예: `/all`) 해석 |
-| 단독 실행 | `uv run python -m clean_chat.parse compose --impl mock --check` |
+| 단독 실행 | `uv run python -m clean_chat.text compose --impl mock --check` |
 | 검사 | **STRICT** |
 
-### `normalize` — normalize/ (WP3)
+### `normalize` — text/normalize.py (WP3)
 | 항목 | 내용 |
 |---|---|
 | 입력 → 출력 | `ChatMessage` → `NormalizedMessage`(+`text_norm`, `hints`) |
