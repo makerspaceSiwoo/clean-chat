@@ -10,6 +10,8 @@ export interface StageContract {
   input: string;
   /** 출력 모델 이름 (예: "Decision") */
   output: string;
+  /** 입력 모델의 필드 (예: Frame → id, ts, image_path, region) */
+  inputFields: string[];
   /** 출력 모델의 모든 필드. pydantic 은 모든 필드를 직렬화하므로 응답에 다 있어야 한다 */
   outputFields: string[];
 }

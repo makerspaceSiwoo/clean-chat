@@ -1,4 +1,5 @@
 "use client";
+import type { ReactNode } from "react";
 import type { MockScenario } from "@/api/mockClient";
 import type { FixtureCase } from "@/mocks/fixtures";
 
@@ -26,6 +27,8 @@ interface Props {
   /** mock 모드일 때만 장애 흉내 선택 */
   mockScenario?: MockScenario;
   onMockScenario?: (s: MockScenario) => void;
+  /** 입력 JSON 위에 끼우는 칸 (예: 이미지 첨부) */
+  attachment?: ReactNode;
 }
 
 export function InputPanel(p: Props) {
@@ -53,6 +56,8 @@ export function InputPanel(p: Props) {
         <option value={CUSTOM_CASE}>직접 입력</option>
       </select>
       {p.cases.length === 0 && <p className="mt-1 text-xs text-amber-700">이 Stage 의 fixtures 가 없습니다. 직접 입력만 가능합니다.</p>}
+
+      {p.attachment}
 
       <div className="mt-3 flex items-center justify-between">
         <label className="text-xs font-medium text-slate-600" htmlFor="input-json">

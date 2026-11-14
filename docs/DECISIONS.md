@@ -156,3 +156,10 @@
 - **이유**: Python 과 TypeScript 는 코드 패키지를 공유할 수 없어서 공유 대상은 계약·데이터뿐이다. 폴더 2개면 충분하고, 해커톤 중 경로를 옮기는 비용이 없다.
 - **버린 대안**: (a) `apps/desktop`·`apps/simulator`·`packages/*` + pnpm/turborepo 모노레포 — JS 앱이 하나뿐이라 이점이 없고, Python 패키지를 옮기면 문서·CI·팀원 브랜치 경로가 모두 깨진다. (b) 웹앱을 별도 레포로 — fixtures·계약 동기화가 수동이 된다. (c) TS 타입 손 관리 — 어긋남을 못 막는다.
 - **영향**: `schemas.py` 를 바꾸면 `export_contracts.py` 를 실행해 함께 커밋해야 한다. 실제 모듈을 웹에서 실행하는 API(HTTP 모드)는 범위 밖이며, 필요하면 Vercel 함수가 아닌 별도 서버(Render·Fly.io)에 둔다(분류 모델 크기).
+
+## ADR-0016: parse · compose · normalize 를 문장 처리 모듈 `text/` 하나로 합친다
+- 2026-11-14 / 확정 / 리드
+- **배경**: 모듈 폴더가 Stage 단위로 잘게 쪼개져 있었다(`parse/`(parse, compose), `normalize/`). 셋 다 WP3 한 담당이 맡는 문장 처리이고, compose 는 몇 줄짜리라 폴더를 나눌 이유가 없다.
+- **결정**: `src/clean_chat/text/` 한 모듈에 둔다. 인터페이스는 `stage.py` 하나(Stage 3개), 구현은 파일 하나에 클래스 하나(`parse.py: Parser`, `compose.py: Composer`, `normalize.py: Normalizer`). 단독 실행은 `python -m clean_chat.text <parse|compose|normalize>`.
+- **바꾸지 않은 것**: Stage 이름·계약(`schemas.py`, `contracts/`), fixtures 폴더, 파이프라인, 웹 시뮬레이터 화면. 바뀐 것은 코드 위치와 `repo_rules.py`(모듈 `text`, 브랜치 `mod/text`), CODEOWNERS, 문서뿐이다.
+- **버린 대안**: Stage 자체를 하나로 합치기 — 계약·fixtures·시뮬레이터를 모두 바꿔야 하고, 흐름 A/B 입구(parse/compose)와 공통 필터(normalize)의 경계가 사라진다.

@@ -17,6 +17,8 @@ npm run verify     # 타입 검사 + 테스트 + 프로덕션 빌드 (CI 와 같
 | 홈 | `/` | Stage 10개를 흐름별(흐름 A · 흐름 B · 공통 필터 · 게임 종료 후) 카드로 표시. 카드 → 시뮬레이션 화면 |
 | 시뮬레이션 | `/modules/<stageId>` | 왼쪽: Mock 케이스 선택·입력 JSON 편집·응답 흉내 / 가운데: 실행 버튼·로딩·결과(요약 표, 실제 응답 vs 기대값) / 오른쪽: E2E 체크리스트(자동 판정 + 사람이 확인) |
 
+**이미지 첨부 (OCR)**: 입력에 이미지 경로가 있는 Stage(`registry.ts` 의 `imageField`, 지금은 OCR 의 `image_path`)는 입력 칸에 이미지 첨부(파일 선택·끌어다 놓기, PNG·JPG·WEBP·BMP 10MB 이하)가 생깁니다. 첨부하면 미리보기가 보이고 입력 JSON 의 `image_path` 가 `uploads/<파일 이름>` 으로 바뀝니다. 이미지는 브라우저 안에서만 보이고 서버로 보내지 않으며, 웹앱은 OCR 을 하지 않습니다 → Mock 에서는 fixtures 에 없는 입력이라 404 안내가 나옵니다. 실제 인식 결과는 OCR 서버(HTTP 모드)가 생긴 뒤 이미지 전송 방식을 정해서 붙입니다.
+
 PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하지 않습니다(창이 좁으면 가로 스크롤).
 
 ## 배포 (Vercel)
@@ -24,12 +26,12 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 
 | 브랜치 | Vercel 환경 | 주소 | `NEXT_PUBLIC_APP_ENV` |
 |---|---|---|---|
-| `main` | Production | 첫 main 배포 후 기록 (`vercel project inspect clean-chat-simulator`) | `main` |
-| `develop` | Preview (브랜치 고정 주소) | https://clean-chat-simulator-git-develop-seeyouspace0-5824s-projects.vercel.app | `develop` |
+| `main` | Production | https://cleanchat-simul.vercel.app | `main` |
+| `develop` | Preview (브랜치 고정 주소) | https://develop-cleanchat-simul.vercel.app | `develop` |
 | PR·그 밖의 브랜치 | Preview (커밋마다 임시 주소) | PR 댓글·`vercel ls` 에 표시 | `local` |
 
 - **Vercel 프로젝트**: `clean-chat-simulator` (팀 `siwoojung's team`). GitHub `makerspaceSiwoo/clean-chat` 연결, Production Branch `main`.
-- **볼 수 있는 사람**: 기본 보호(Vercel Authentication, "커스텀 도메인을 뺀 모든 배포")라서 main·develop·PR 주소 모두 **Vercel 에 로그인한 팀 멤버만** 볼 수 있습니다. 팀원은 Vercel 팀에 초대해야 합니다. 커스텀 도메인을 붙이면 그 주소는 공개됩니다.
+- **볼 수 있는 사람**: **모든 주소(main·develop·PR 미리보기)가 공개**입니다. 팀원이 Vercel 팀 계정(유료) 없이 볼 수 있도록 Deployment Protection 을 껐습니다. 내용은 팀이 쓴 가상 fixtures 뿐이고 secret 이 없으며, 검색 엔진 수집은 막아 두었습니다(`robots: noindex`). 실제 채팅·닉네임·secret 은 이 앱에 넣지 않습니다.
 - **자동 배포**: GitHub push 마다. 단, `simulator/`·`fixtures/`·`contracts/` 가 바뀐 커밋만 빌드합니다(`vercel.json` 의 `ignoreCommand`). 파이썬만 고친 커밋은 건너뜁니다.
 - **프로젝트 설정**: Root Directory `simulator`, Framework Next.js, Node 22(`package.json` engines), "Root Directory 밖 파일 포함" 켜짐(공통 `../fixtures`, `../contracts` 를 읽음).
 - **환경 변수 위치**: Vercel 프로젝트 → Settings → Environment Variables. Production(`APP_ENV=main`), Preview·develop 브랜치(`develop`), Preview 그 밖(`local`), 셋 다 `API_MODE=mock`. **secret 은 없습니다.** 바꾸려면 `npx vercel@65.8.0 env ls` / `env add --force`.
@@ -74,6 +76,7 @@ PC 전용입니다. 화면 폭은 1280px 고정이고, 반응형 처리를 하�
 | 응답 지연 | `NEXT_PUBLIC_MOCK_LATENCY_MS` 만큼 대기 | 실제 측정값(`durationMs`) |
 | 서버 오류·타임아웃·빈 응답 | 화면의 "응답 흉내" 선택 | 실제 서버 응답 |
 | impl 표시 | `mock-fixture` / `mock` | 서버가 보내는 `impl` (예: `real`) |
+| 첨부 이미지 (OCR) | 미리보기만, 서버로 보내지 않음 | OCR 서버 + 이미지 업로드 계약 (아직 없음) |
 
 ## HTTP API 계약 (`API_MODE=http`, 아직 서버 없음)
 ```

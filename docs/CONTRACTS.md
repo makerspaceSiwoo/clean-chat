@@ -82,10 +82,10 @@ Player       { name, champion?, team?, position?, is_me }
 
 ## 5. 모듈 개별 테스트 방법
 ```bash
-uv run python -m clean_chat.parse --impl mock --check   # 형식 확인 (항상 통과)
-uv run python -m clean_chat.parse                       # 내 실제 구현으로 fixtures 실행
-uv run python -m clean_chat.parse --check               # 기대값과 몇 개 일치하는지
-uv run python -m clean_chat.parse --in my_cases.jsonl --out result.jsonl
+uv run python -m clean_chat.text parse --impl mock --check   # 형식 확인 (항상 통과)
+uv run python -m clean_chat.text parse                       # 내 실제 구현으로 fixtures 실행
+uv run python -m clean_chat.text parse --check               # 기대값과 몇 개 일치하는지
+uv run python -m clean_chat.text parse --in my_cases.jsonl --out result.jsonl
 uv run clean-chat run --real parse,normalize            # 내 모듈만 실제로, 나머지 mock으로 전체 흐름
 uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와" --real compose   # 흐름 B 1문장
 uv run pytest -q                                      # 구현된 모듈만 자동 검사 (미구현은 skip)

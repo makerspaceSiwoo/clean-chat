@@ -25,6 +25,12 @@ describe("공통 계약 ↔ registry ↔ fixtures", () => {
     expect(unknown).toEqual([]);
   });
 
+  it("이미지 첨부 필드는 입력 모델에 있는 필드다", () => {
+    const wrong = MODULES.filter((m) => m.imageField !== undefined && !getContract(m.stageId).inputFields.includes(m.imageField));
+    expect(wrong.map((m) => m.stageId)).toEqual([]);
+    expect(MODULES.find((m) => m.stageId === "ocr")?.imageField).toBe("image_path");
+  });
+
   it.each(MODULES.map((m) => [m.stageId, m] as const))("%s: fixtures 기대값이 출력 모델 필드를 모두 가진다", (_id, meta) => {
     const cases = fixtures[meta.stageId] ?? [];
     expect(cases.length).toBeGreaterThan(0);

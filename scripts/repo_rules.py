@@ -15,8 +15,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 MODULES = (
     "capture",
-    "parse",
-    "normalize",
+    "text",
     "classify",
     "rewrite",
     "policy",
@@ -40,7 +39,7 @@ SHARED_OK = ("data/labeled/", "data/lexicon/", "data/demo/", "docs/modules/", "u
 # 모듈 → 담당 fixtures 폴더 (Stage 이름 기준)
 STAGES_OF = {
     "capture": ("ocr",),
-    "parse": ("parse", "compose"),
+    "text": ("parse", "compose", "normalize"),
     "policy": ("incoming_policy", "outgoing_policy"),
     "report": ("report", "complaint"),
 }

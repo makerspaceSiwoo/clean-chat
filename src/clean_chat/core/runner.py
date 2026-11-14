@@ -1,9 +1,9 @@
 """모듈 단독 실행기. 모든 모듈의 `python -m clean_chat.<모듈>` 이 이 함수를 씁니다.
 
-uv run python -m clean_chat.parse                 # 실제 구현(real)을 fixtures 입력으로 실행
-uv run python -m clean_chat.parse --impl mock     # 형식 확인용 가짜 실행
-uv run python -m clean_chat.parse --check         # expected.jsonl 과 비교
-uv run python -m clean_chat.parse --in my.jsonl --out out.jsonl
+uv run python -m clean_chat.text parse            # 실제 구현(real)을 fixtures 입력으로 실행
+uv run python -m clean_chat.text parse --impl mock # 형식 확인용 가짜 실행
+uv run python -m clean_chat.text parse --check    # expected.jsonl 과 비교
+uv run python -m clean_chat.text parse --in my.jsonl --out out.jsonl
 """
 
 from __future__ import annotations

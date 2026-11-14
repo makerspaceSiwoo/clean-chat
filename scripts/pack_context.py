@@ -24,7 +24,7 @@ COMMON = [
 ]
 STAGES_OF = {
     "capture": ["ocr"],
-    "parse": ["parse", "compose"],
+    "text": ["parse", "compose", "normalize"],
     "policy": ["incoming_policy", "outgoing_policy"],
     "report": ["report", "complaint"],
 }

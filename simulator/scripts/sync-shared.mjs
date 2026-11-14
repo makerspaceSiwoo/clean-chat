@@ -80,14 +80,18 @@ async function syncContracts() {
   }
   if (!doc.stages || !doc.$defs) throw new Error(`${CONTRACTS}: stages / $defs 가 없습니다`);
 
-  // 런타임용: Stage → 입력·출력 모델 이름, 출력 필드 목록 (pydantic 은 모든 필드를 직렬화 → 출력에 다 있어야 함)
+  // 런타임용: Stage → 입력·출력 모델 이름, 입력·출력 필드 목록 (pydantic 은 모든 필드를 직렬화 → 출력에 다 있어야 함)
   const name = (ref) => ref.split("/").pop();
   const stages = Object.fromEntries(
     Object.entries(doc.stages).map(([stage, io]) => {
+      const fields = (model) => {
+        const def = doc.$defs[model];
+        if (!def) throw new Error(`계약에 ${model} 정의가 없습니다 (Stage ${stage})`);
+        return Object.keys(def.properties ?? {});
+      };
+      const input = name(io.input.$ref);
       const output = name(io.output.$ref);
-      const def = doc.$defs[output];
-      if (!def) throw new Error(`계약에 ${output} 정의가 없습니다 (Stage ${stage})`);
-      return [stage, { input: name(io.input.$ref), output, outputFields: Object.keys(def.properties ?? {}) }];
+      return [stage, { input, output, inputFields: fields(input), outputFields: fields(output) }];
     }),
   );
   write(join(OUT_SHARED, "contracts.json"), JSON.stringify({ schemaVersion: doc.schema_version, stages }, null, 2) + "\n");

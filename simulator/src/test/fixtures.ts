@@ -42,4 +42,4 @@ export function okResponse(output: unknown, extra: Partial<RunStageResponse> = {
 }
 
 /** 테스트용 계약 (실제 계약과 무관하게 고정) */
-export const CONTRACT: StageContract = { input: "PolicyRequest", output: "Decision", outputFields: ["action", "display_text"] };
+export const CONTRACT: StageContract = { input: "PolicyRequest", output: "Decision", inputFields: ["message", "classification"], outputFields: ["action", "display_text"] };
