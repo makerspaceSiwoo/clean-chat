@@ -11,8 +11,8 @@ export interface AttachedImage {
   size: number;
   /** 미리보기용 blob URL (브라우저 안에서만 유효) */
   url: string;
-  /** 실행할 때 서버로 보낼 원본 파일 */
-  file: File;
+  /** 실행할 때 서버로 보낼 내용 (첨부할 때 미리 읽어 둠, data: 접두사 없는 base64) */
+  base64: string;
 }
 
 interface Props {

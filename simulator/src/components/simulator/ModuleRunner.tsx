@@ -50,15 +50,21 @@ export function ModuleRunner({ meta, examples }: Props) {
     [],
   );
 
-  const attachImage = (file: File) => {
+  const attachImage = async (file: File) => {
     const field = meta.imageField;
     if (field === undefined) return;
     const invalid = checkImageFile(file);
     if (invalid) return setImageError(invalid);
     const next = parsed.ok ? withImagePath(parsed.value, field, uploadPath(file.name)) : undefined;
     if (next === undefined) return setImageError("입력 JSON 을 먼저 고쳐야 이미지를 첨부할 수 있습니다");
+    let base64: string;
+    try {
+      base64 = await fileToBase64(file);
+    } catch {
+      return setImageError(`이미지를 읽을 수 없습니다: ${file.name}`);
+    }
     setImageError(undefined);
-    replaceImage({ name: file.name, size: file.size, url: URL.createObjectURL(file), file });
+    replaceImage({ name: file.name, size: file.size, url: URL.createObjectURL(file), base64 });
     setText(prettyJson(next));
   };
 
@@ -88,11 +94,10 @@ export function ModuleRunner({ meta, examples }: Props) {
     reset();
   };
 
-  const onRun = async () => {
+  const onRun = () => {
     if (!parsed.ok) return;
     setRunNo((n) => n + 1);
-    const upload = image ? { name: image.name, base64: await fileToBase64(image.file) } : undefined;
-    void run({ moduleId: meta.moduleId, input: parsed.value, image: upload });
+    void run({ moduleId: meta.moduleId, input: parsed.value, image: image ? { name: image.name, base64: image.base64 } : undefined });
   };
 
   return (
@@ -113,7 +118,7 @@ export function ModuleRunner({ meta, examples }: Props) {
         }}
         attachment={
           meta.imageField !== undefined ? (
-            <ImageAttach field={meta.imageField} image={image} error={imageError} onAttach={attachImage} onClear={detachImage} />
+            <ImageAttach field={meta.imageField} image={image} error={imageError} onAttach={(f) => void attachImage(f)} onClear={detachImage} />
           ) : undefined
         }
       />
@@ -124,7 +129,7 @@ export function ModuleRunner({ meta, examples }: Props) {
             loading={state.phase === "loading"}
             disabled={!parsed.ok}
             disabledReason={parsed.ok ? undefined : "입력 JSON 을 고쳐야 실행할 수 있습니다"}
-            onRun={() => void onRun()}
+            onRun={onRun}
             onCancel={reset}
           />
           <p className="font-mono text-xs text-slate-500">

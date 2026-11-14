@@ -79,7 +79,7 @@ describe("ModuleRunner", () => {
       renderRunner(client, OCR_META, OCR_EXAMPLES);
       const file = new File(["ABC"], "chat.png", { type: "image/png" });
       await userEvent.upload(screen.getByLabelText("이미지 첨부"), file);
-      expect(screen.getByAltText("첨부한 이미지: chat.png")).toBeInTheDocument();
+      expect(await screen.findByAltText("첨부한 이미지: chat.png")).toBeInTheDocument();
       expect((screen.getByLabelText("입력 JSON") as HTMLTextAreaElement).value).toContain('"image_path": "uploads/chat.png"');
       await userEvent.click(screen.getByRole("button", { name: "실행" }));
       await waitFor(() => expect(calls).toHaveLength(1));
@@ -98,7 +98,7 @@ describe("ModuleRunner", () => {
       const { client } = fakeClient(() => okResponse({}));
       renderRunner(client, OCR_META, OCR_EXAMPLES);
       await userEvent.upload(screen.getByLabelText("이미지 첨부"), new File(["ABC"], "chat.png", { type: "image/png" }));
-      await userEvent.click(screen.getByRole("button", { name: "첨부 빼기" }));
+      await userEvent.click(await screen.findByRole("button", { name: "첨부 빼기" }));
       expect((screen.getByLabelText("입력 JSON") as HTMLTextAreaElement).value).toContain("fixtures/ocr/images/sample_01.png");
       expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview");
     });

@@ -56,6 +56,13 @@ def test_image_upload_replaces_image_path(monkeypatch, tmp_path):
     assert seen[0].image_path == str(saved)
 
 
+def test_image_only_for_modules_with_image_field(tmp_path):
+    with pytest.raises(RunError) as e:
+        run_module("parse", {"input": {}, "image": {"name": "a.png", "base64": "QUJD"}}, uploads_dir=tmp_path)
+    assert e.value.status == 422
+    assert not list(tmp_path.iterdir())  # 저장하지 않음
+
+
 def test_http_roundtrip_and_cors():
     httpd = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()

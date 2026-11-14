@@ -65,6 +65,8 @@ def run_module(name: str, body: Any, uploads_dir: Path | None = None) -> dict[st
         raise RunError(HTTPStatus.UNPROCESSABLE_ENTITY, '본문은 {"input": {...}} 형식이어야 합니다')
     data = dict(body["input"])
     if isinstance(body.get("image"), dict):
+        if IMAGE_FIELD not in modules.MODULES[name].input_model.model_fields:
+            raise RunError(HTTPStatus.UNPROCESSABLE_ENTITY, f"모듈 '{name}' 입력에는 이미지({IMAGE_FIELD})가 없습니다")
         data[IMAGE_FIELD] = str(save_upload(body["image"], uploads_dir or settings.uploads_dir))
     try:
         out = modules.call(name, data)
