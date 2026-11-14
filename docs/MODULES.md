@@ -11,14 +11,27 @@
 |---|---|---|---|---|---|---|
 | ① | **ocr** | 채팅창 이미지 → 텍스트 줄 | `Frame` → `OcrResult` | OCR 엔진 (OPEN-03) | Mac 개발 / Windows 실측 | ★★★ |
 | ② | **parse** | 줄 → **채팅만** (시스템 메시지·핑 제외, 규칙 코드) + 우회어 정규화 | `ParseRequest` → `ParseResult` | 규칙 (정규식·사전) | 모두 | ★★ |
-| ③ | **analyze** | **누가 누구에게** 욕하는지(대상), 욕설 등급 L0~L3, 유형, 비속어·**피드백 조각** | `AnalyzeRequest` → `Analysis` | 소형 분류 모델 + 규칙 | 모두 + Colab | ★★★ |
-| ④ | **rewrite** | 피드백 조각 → **순화한 문장** 1개 | `RewriteRequest` → `Rewrite` | LLM 또는 규칙 | 모두 | ★★ |
-| ⑤ | **report** | 게임 기록 → **신고 문구 / 고소장 초안 PDF** | `ReportRequest` → `ReportDraft` | 템플릿 + LLM(사건 경위) | 모두 | ★★ |
+| ③ | **analyze** | **누가 누구에게** 욕하는지(대상), 욕설 등급 L0~L3, 유형, 비속어·**피드백 조각** | `AnalyzeRequest` → `Analysis` | **로컬** 소형 분류 모델 + 규칙 | 모두 + Colab | ★★★ |
+| ④ | **rewrite** | 피드백 조각 → **순화한 문장** 1개 | `RewriteRequest` → `Rewrite` | **외부 LLM API** (실패 시 규칙) | 모두 | ★★ |
+| ⑤ | **report** | 게임 기록 → **신고 문구 / 고소장 초안 PDF** | `ReportRequest` → `ReportDraft` | 템플릿 + **외부 LLM API**(사건 경위) | 모두 | ★★ |
 | – | 공통 | 라벨링 1인 100문장 | `data/labeled/` | – | – | ★ |
 
 **구성 (리드, 모듈 아님)**: 흐름 연결(`core/pipeline.py`), 정책표(`core/policy.py`, SPEC 5장), 화면 캡처(`core/grabber.py` 🪟), 게임 단계·세션(`core/game.py`, `session/`), UI(`ui/`), 로컬 모듈 시뮬레이터(`sim/`).
 
 > 배정이 끝나면 `.github/CODEOWNERS`의 `@M1_OCR` ~ `@M5_REPORT`, `@LEAD` 자리표시자를 실제 GitHub 아이디로 바꿉니다.
+
+### 구현 방식: 모듈마다 응답이 가장 빠른 방법
+
+| 모듈 | 방식 | 이유 (예상치, 실측은 sim 의 `durationMs`) |
+|---|---|---|
+| ③ analyze | **로컬 소형 분류 모델** + 규칙 (LLM 아님) | 모든 채팅마다 실행 → 로컬 CPU 1문장 10~50ms. API 는 0.5~2초라 너무 느림 |
+| ④ rewrite | **외부 LLM API** | L2↑ & 피드백일 때만 실행 → API 0.5~1.5초. 로컬 LLM 은 CPU 1~4초, 앱 +1~2GB, 게임과 CPU·GPU 경쟁 |
+| ⑤ report | 템플릿 + **외부 LLM API** (사건 경위 문장만) | 게임 끝난 뒤 실행. 앱 크기를 늘리지 않음 |
+
+- API 키는 `.env` 에만 둡니다(git 금지). 키가 없거나 실패·시간 초과면 앱을 멈추지 말고 **규칙·템플릿으로 대체**하거나 `rewritten=None` 을 돌려줍니다.
+- API 로는 **채팅 본문만** 보냅니다. 닉네임 등 개인정보는 넣지 않습니다(report 는 템플릿 쪽에서 채움).
+- 로컬 모델 가중치는 `models/` (git 제외), 공유는 Hugging Face 비공개 저장소(`docs/DATA.md`).
+- 새 패키지(API SDK 등)는 리드에게 요청합니다 — `pyproject.toml` 의 모듈 extra 는 리드가 추가합니다.
 
 ---
 
@@ -53,6 +66,7 @@
 | 입력 → 출력 | `AnalyzeRequest`(메시지, 최근 대화, 명단) → `Analysis` |
 | 책임 | **대상(target)** 추정(포지션·닉네임·챔피언·직전 대화), **등급 L0~L3**·유형, 가릴 **비속어 조각**, **피드백 조각**(L2 이상) |
 | 하지 않는 것 | 숨김·신고·차단 결정 (정책표 `core/policy.py`가 Analysis 를 보고 정함) |
+| 방식 | **로컬** 소형 분류 모델(KoELECTRA 등) + 규칙. LLM·외부 API 는 쓰지 않음 |
 | 기준 | CPU 1문장 0.2초 이내. 조각은 `message.text` 에 그대로 있는 문자열. 정확도는 `training/` 평가 |
 | 관련 | SPEC 4장, ADR-0005, `docs/LABELING_GUIDE.md`, `docs/DATA.md` |
 
@@ -62,6 +76,7 @@
 | 입력 → 출력 | `RewriteRequest`(메시지, Analysis) → `Rewrite`(순화 문장 또는 `None`) |
 | 언제 | 구성이 **L2 이상 & `feedback_spans` 가 있을 때만** 부릅니다 |
 | 책임 | 피드백 조각을 롤 용어를 살린 공손한 문장 1개로. 원문에 없는 내용 금지, 욕설이 남으면 `None` |
+| 방식 | **외부 LLM API** (`backend="api"`). 키 없음·실패·시간 초과면 규칙(`"rule"`) 또는 `None` |
 | 기준 | 3초 이내 (SPEC 8장). LLM 백엔드 `settings.llm_backend` (OPEN-04), API 키는 `.env` |
 
 ### ⑤ `report` — modules/report/ · AI 지점 A4
@@ -70,6 +85,7 @@
 | 입력 → 출력 | `ReportRequest`(kind, 세션, 대상, 고소인?, 저장 폴더?) → `ReportDraft` |
 | 언제 | 게임이 끝난 뒤(POST_GAME) 구성이 대상 화자마다 부릅니다. `report` = 정책표가 `report=True` 표시한 화자, `complaint` = `complaint_candidate=True` 화자 |
 | 책임 | `report`: 복사용 신고 문구 (자동 신고 금지, ADR-0007) / `complaint`: 사건 경위 + 고정 양식 고소장 + 한글 PDF (ADR-0008, "법률 자문 아님" 고지) |
+| 방식 | 고정 양식은 **템플릿**, 사건 경위 문장만 **외부 LLM API**. 실패하면 템플릿만으로 작성 |
 | 기준 | 원문·시각은 그대로 인용(한국 시간). PDF 는 git 에 올리지 않음 |
 
 ---

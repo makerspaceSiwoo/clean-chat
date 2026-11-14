@@ -12,6 +12,7 @@
 | `fixtures/analyze/expected.jsonl` | 기대값 (명세) | 리드 승인 |
 | `tests/test_analyze.py` | 내 테스트 추가 | ✅ |
 
+- **구현 방식: 로컬 소형 분류 모델 + 규칙** (LLM·외부 API 아님). 모든 채팅에 실행되므로 CPU 1문장 0.2초 이내가 목표입니다. 가중치는 `models/`(git 제외), 무거운 로딩은 `functools.cache` 로 한 번만.
 - AI 모듈: 출력 형식만 자동 검사하고, 정확도는 `training/` 평가와 `data/eval/` 로 봅니다.
 - 숨김·신고 같은 처리는 하지 않습니다. 정책표(`core/policy.py`)가 이 결과를 보고 정합니다. 라벨 기준: `docs/LABELING_GUIDE.md`.
 - 브랜치는 `analyze/<작업 내용>` 으로 만듭니다(예: `analyze/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).

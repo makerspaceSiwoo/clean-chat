@@ -12,6 +12,7 @@
 | `fixtures/rewrite/expected.jsonl` | 기대값 (명세) | 리드 승인 |
 | `tests/test_rewrite.py` | 내 테스트 추가 | ✅ |
 
+- **구현 방식: 외부 LLM API** (`backend="api"`). 로컬 LLM 보다 빠르고(0.5~1.5초 예상) 앱 크기·게임 성능에 부담이 없습니다. 키가 없거나 실패·시간 초과면 규칙(`"rule"`)으로 대체하거나 `rewritten=None`. 채팅 본문만 보내고 닉네임은 보내지 않습니다.
 - 생성 모듈: 출력 형식만 자동 검사합니다.
 - 구성이 L2 이상이고 `feedback_spans` 가 있을 때만 부릅니다. API 키는 `.env`(git 금지).
 - 브랜치는 `rewrite/<작업 내용>` 으로 만듭니다(예: `rewrite/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
