@@ -12,6 +12,7 @@
 | `fixtures/report/expected.jsonl` | 기대값 (명세) | 리드 승인 |
 | `tests/test_report.py` | 내 테스트 추가 | ✅ |
 
+- **구현 방식: 템플릿 + 외부 LLM API**. 고정 양식·원문 인용은 템플릿, 사건 경위 문장만 API 로 만듭니다. API 가 실패해도 템플릿만으로 결과를 돌려줍니다. 닉네임 등 개인정보는 API 에 보내지 않고 템플릿에서 채웁니다.
 - 출력 형식을 자동 검사합니다.
 - `kind=report` 는 복사용 신고 문구(자동 신고 금지), `kind=complaint` 는 고소장 초안 + 한글 PDF(`uv sync --extra report`). PDF 는 git 에 올리지 않습니다.
 - 브랜치는 `report/<작업 내용>` 으로 만듭니다(예: `report/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
