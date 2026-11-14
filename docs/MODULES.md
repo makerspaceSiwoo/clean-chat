@@ -35,7 +35,7 @@
 ## Stage 명세
 
 공통 규칙
-- 실제 구현은 `<모듈>/impl.py`의 클래스 하나입니다. 무거운 준비는 `setup()`에서 1번, 처리는 `run()`, 정리는 `close()`에서 합니다.
+- 실제 구현은 Stage마다 클래스 하나입니다. 파일은 보통 `<모듈>/impl.py`이고, `text/`만 Stage마다 따로(`parse.py`, `compose.py`, `normalize.py`) 있습니다. 정확한 위치는 `core/registry.py`. 무거운 준비는 `setup()`에서 1번, 처리는 `run()`, 정리는 `close()`에서 합니다.
 - 실패해도 **예외로 앱을 멈추지 않습니다.** 안전한 기본값을 돌려주고 로그를 남깁니다(예외: 미구현 상태의 `NotImplementedError`).
 - 단독 실행: `uv run python -m clean_chat.<모듈> [하위 Stage] [--impl mock|real] [--check] [--in 파일] [--out 파일]`
 - 전체 목록: `uv run clean-chat modules` (Stage 10개: ocr, parse, compose, normalize, classify, rewrite, incoming_policy, outgoing_policy, report, complaint)

@@ -3,6 +3,9 @@
 > 이 문서는 claude.ai에서 정리한 내용을 데스크톱의 Claude Code로 넘기기 위한 문서입니다.
 > **Claude Code는 이 파일을 가장 먼저 읽고, 맨 아래 "작업 지시"를 따릅니다.**
 > 작성: 2026-11-12 · 작성자: 리드 + Claude
+>
+> **⚠️ 인수인계 작업(9장)은 끝났습니다.** 0~9장은 당시(zip 스타터, 이름 `lolguard`) 기록이라 지금 코드와 다릅니다. 9장 작업 지시를 다시 실행하지 마세요.
+> 지금 구조는 `docs/ARCHITECTURE.md`·`docs/MODULES.md`, 진행 상황은 **10장**을 봅니다.
 
 ---
 
@@ -193,4 +196,8 @@ class Parser(ParseStage):
 - 두 흐름(ADR-0013), 게임 단계·세션(ADR-0014), 모든 `impl.py` 스텁(6장 규칙), UI 단계별 화면 뼈대
 - 새 미결정: OPEN-12(LCU 단계 이름 실측), OPEN-13(내 채팅 중복 기준)
 - 남은 일: CODEOWNERS 아이디, WP 배정, OPEN 항목 실측, 실제 Windows 실행 확인
-- (2026-11-14) 웹 시뮬레이터 `simulator/` 추가(PR #2), 공통 계약 `contracts/` + Vercel 배포(PR #3, ADR-0015). Vercel 프로젝트 `clean-chat-simulator`, develop 주소는 `simulator/README.md`
+- (2026-11-14) 웹 시뮬레이터 `simulator/` 추가(PR #2), 공통 계약 `contracts/` + Vercel 배포(PR #3, ADR-0015). Vercel 프로젝트 `clean-chat-simulator`
+  - 주소(모두 공개): main https://cleanchat-simul.vercel.app · develop https://develop-cleanchat-simul.vercel.app
+  - OCR 화면에 이미지 첨부(미리보기만, 서버로 보내지 않음)
+- (2026-11-14) `parse/`·`normalize/` 폴더를 `text/` 모듈 하나로 합침(PR #5, ADR-0016). Stage 이름·계약·fixtures는 그대로
+- 지금 모듈 폴더: `capture`(ocr) · `text`(parse, compose, normalize) · `classify` · `rewrite` · `policy`(incoming_policy, outgoing_policy) · `report`(report, complaint) · `session` · `ui` + 웹 `simulator/`

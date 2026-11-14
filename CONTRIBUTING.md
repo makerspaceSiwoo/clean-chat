@@ -25,12 +25,13 @@ main       ← 발표용. 항상 데모가 돌아가는 상태. develop → main
 | `data/<주제>` | 데이터 추가 | `data/label-batch2` |
 | `chore/<주제>` | 설정 등 잡일 | `chore/ci-cache` |
 
-- 모듈 이름: `capture parse normalize classify rewrite policy report session ui simulator core` (`simulator` = 웹 시뮬레이터, `simulator/` 폴더만)
+- 모듈 이름: `capture text classify rewrite policy report session ui simulator core` (`text` = parse·compose·normalize, `simulator` = 웹 시뮬레이터, `simulator/` 폴더만)
 - 영어 소문자, 숫자, `-`만 사용합니다.
 
 ## 2. 커밋과 PR 제목
 - 형식: `<종류>(<모듈>): <설명>`
-  - 예: `feat(capture): 채팅 줄 중복 제거`, `fix(parse): 콜론 오인식 처리`, `data(classify): 라벨 100건 추가`
+  - 예: `feat(capture): 채팅 줄 중복 제거`, `fix(text): 콜론 오인식 처리`, `data(classify): 라벨 100건 추가`
+- `<모듈>`에는 위 모듈 이름 외에 `repo`(레포 전체 설정·문서), `develop`(develop → main 반영)도 쓸 수 있습니다.
 - 종류: `feat`(기능) `fix`(버그) `docs`(문서) `chore`(설정) `refactor`(구조 개선) `test`(테스트) `data`(데이터)
 - **squash 병합**을 쓰므로 PR 제목이 곧 최종 커밋 메시지가 됩니다. 중간 커밋 메시지는 자유입니다.
 
@@ -59,7 +60,7 @@ git push
 
 ## 5. 주말 통합 체크리스트 (리드)
 1. 모든 모듈 PR이 `develop`에 병합되었는지 확인
-2. `uv run pytest -q` + `uv run clean-chat run --real <구현된 모듈들>` 실행
+2. `uv run pytest -q` + `uv run clean-chat run --real <구현된 Stage들>` 실행 (Stage 이름, 쉼표 구분. 예: `parse,normalize`)
 3. Windows PC에서 실제 게임(또는 녹화) 실행 확인
 4. `develop → main` PR 생성, 결과 영상을 PR에 첨부
 5. 다음 주 할 일을 각 모듈 이슈로 정리

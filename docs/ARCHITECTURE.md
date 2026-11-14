@@ -22,7 +22,7 @@
 │ 흐름 A: ocr → parse ─┐                       ┌→ incoming_policy                            │
 │                     ├→ normalize → classify → [rewrite] ┤                                 │
 │ 흐름 B: compose ─────┘                       └→ outgoing_policy      게임 종료: report, complaint │
-│  각 Stage = stage.py(인터페이스) + impl.py(실제) + MockStage(fixtures 응답)                 │
+│  각 Stage = stage.py(인터페이스) + 구현 파일(impl.py, text/는 Stage별 파일) + MockStage      │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
                ▲ 모든 데이터는 core/schemas.py 의 pydantic 모델 (JSONL 직렬화)
 ```
@@ -88,7 +88,7 @@ stateDiagram-v2
 | 구성 | 파일 | 소유 | 설명 |
 |---|---|---|---|
 | 인터페이스 | `<모듈>/stage.py` | 리드 | `name`, `input_model`, `output_model`, `mock_default()` |
-| 실제 구현 | `<모듈>/impl.py` (+ 내부 파일 자유) | 모듈 담당 | `setup()`, `run(입력) -> 출력`, `close()` |
+| 실제 구현 | `<모듈>/impl.py`, `text/`는 `parse.py`·`compose.py`·`normalize.py` (+ 내부 파일 자유) | 모듈 담당 | `setup()`, `run(입력) -> 출력`, `close()` |
 | 가짜 구현 | `core/stage.py: MockStage` | 자동 | `fixtures/<name>/input.jsonl` → `expected.jsonl` 그대로 응답 |
 | 단독 실행 | `<모듈>/__main__.py` | 자동 | `python -m clean_chat.<모듈> [하위 Stage]` |
 | 등록 | `core/registry.py`, `core/config.py: STAGE_NAMES, STAGE_COMMANDS` | 리드 | 이름 → 인터페이스·구현 연결 |
@@ -160,12 +160,12 @@ simulator/                                      웹 시뮬레이터 (Next.js, Ve
 - 데스크톱 앱과 웹 시뮬레이터는 같은 레포의 **별도 앱**입니다. 코드를 공유하지 않고 `contracts/`(계약)와 `fixtures/`(데이터)만 공유합니다(ADR-0015).
 
 ## 7. 모듈 안에서 자유롭게 해도 되는 것
-- `impl.py`에서 내부 파일 추가 (예: `classify/model.py`, `rewrite/backends/api.py`, `report/templates/`)
+- 구현 파일에서 쓰는 내부 파일 추가 (예: `classify/model.py`, `rewrite/backends/api.py`, `report/templates/`)
 - 내부 클래스, 설정, 캐시
 - `fixtures/<내 stage>/`에 입력 사례 추가 (`expected`는 리드 리뷰)
 
 ## 8. 하면 안 되는 것
 - `stage.py`의 입력·출력 모델 변경 (→ 계약 변경 이슈)
-- 다른 모듈의 `impl.py`를 직접 import (→ 반드시 Pipeline이나 Stage를 거침)
+- 다른 모듈의 구현 파일을 직접 import (→ 반드시 Pipeline이나 Stage를 거침)
 - UI에서 분류나 정책 판단
 - `core/game.py`의 상태 전환표를 모듈에서 바꾸기 (→ 리드)
