@@ -9,9 +9,9 @@ from clean_chat.core.stage import MockStage, Stage
 # name: (인터페이스 "모듈:클래스", 실제 구현 "모듈:클래스")
 REGISTRY: dict[str, tuple[str, str]] = {
     "ocr": ("clean_chat.capture.stage:OcrStage", "clean_chat.capture.impl:OcrEngine"),
-    "parse": ("clean_chat.parse.stage:ParseStage", "clean_chat.parse.impl:Parser"),
-    "compose": ("clean_chat.parse.stage:ComposeStage", "clean_chat.parse.impl:Composer"),
-    "normalize": ("clean_chat.normalize.stage:NormalizeStage", "clean_chat.normalize.impl:Normalizer"),
+    "parse": ("clean_chat.text.stage:ParseStage", "clean_chat.text.parse:Parser"),
+    "compose": ("clean_chat.text.stage:ComposeStage", "clean_chat.text.compose:Composer"),
+    "normalize": ("clean_chat.text.stage:NormalizeStage", "clean_chat.text.normalize:Normalizer"),
     "classify": ("clean_chat.classify.stage:ClassifyStage", "clean_chat.classify.impl:Classifier"),
     "rewrite": ("clean_chat.rewrite.stage:RewriteStage", "clean_chat.rewrite.impl:Rewriter"),
     "incoming_policy": ("clean_chat.policy.stage:IncomingPolicyStage", "clean_chat.policy.impl:IncomingPolicy"),

@@ -7,8 +7,7 @@
 # 구현 담당 (작업 패키지별)
 /src/clean_chat/capture/     @WP2_CAPTURE
 /fixtures/ocr/             @WP2_CAPTURE
-/src/clean_chat/parse/       @WP3_TEXT
-/src/clean_chat/normalize/   @WP3_TEXT
+/src/clean_chat/text/        @WP3_TEXT
 /data/lexicon/             @WP3_TEXT
 /src/clean_chat/classify/    @WP4_CLASSIFY
 /training/                 @WP4_CLASSIFY

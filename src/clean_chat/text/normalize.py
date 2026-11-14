@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from clean_chat.core.schemas import ChatMessage, NormalizedMessage
-from clean_chat.normalize.stage import NormalizeStage
+from clean_chat.text.stage import NormalizeStage
 
 
 class Normalizer(NormalizeStage):
@@ -14,7 +14,7 @@ class Normalizer(NormalizeStage):
 
     def setup(self) -> None:
         """우회어 사전(data/lexicon/bypass.csv)과 OCR 오인식 보정표 로딩. 앱 시작 시 1번."""
-        raise NotImplementedError("normalize 담당: setup")
+        raise NotImplementedError("text 담당(normalize): setup")
 
     def run(self, item: ChatMessage) -> NormalizedMessage:
         """본문(text)을 정리한 text_norm 과, 어떤 보정을 했는지 hints 를 붙인다.
@@ -27,7 +27,7 @@ class Normalizer(NormalizeStage):
         주의: text 와 raw 는 증거라서 절대 바꾸지 않는다(text_norm 만). 정상 문장은 그대로(과잉 보정 금지).
         관련: SPEC 2장 페인 포인트 2
         """
-        raise NotImplementedError("normalize 담당: run")
+        raise NotImplementedError("text 담당(normalize): run")
 
     def _remove_noise_between_hangul(self, text: str) -> tuple[str, list[str]]:
         """한글 사이 숫자·특수문자 제거. 예) "시1발" → "시발". (바뀐 문장, 붙일 hints)"""

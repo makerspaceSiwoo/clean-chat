@@ -14,7 +14,7 @@ uv sync
 uv run clean-chat run --source demo          # 게임 단계 전환 + 채팅 처리 + 게임 결과 (지금은 전부 mock = fixtures 응답)
 uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"   # 내 채팅 1문장 처리
 uv run clean-chat modules                    # Stage별 단독 실행 명령
-uv run python -m clean_chat.parse --impl mock --check
+uv run python -m clean_chat.text parse --impl mock --check
 uv run pytest -q                             # 미구현 모듈은 skip
 uv sync --extra ui && uv run clean-chat app --source demo   # UI
 ```
