@@ -8,7 +8,9 @@ dependencies = [
 ]
 
 [project.scripts]
-clean-chat = "clean_chat.__main__:main"
+# 실행 명령은 두 개뿐: uv run sim [모듈] · uv run app (ADR-0019)
+sim = "clean_chat.__main__:sim"
+app = "clean_chat.__main__:app"
 
 # 모듈별 추가 의존성. 필요한 사람만 설치:  uv sync --extra ui
 # 원칙: 모든 extra 는 Mac 에서도 설치가 성공해야 한다. Windows 전용 패키지는 반드시 마커를 붙인다.

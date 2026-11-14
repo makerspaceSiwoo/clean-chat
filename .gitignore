@@ -51,16 +51,3 @@ desktop.ini
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
-
-# 시뮬레이션 웹앱 (simulator/)
-simulator/node_modules/
-simulator/.next/
-simulator/out/
-simulator/coverage/
-simulator/next-env.d.ts
-simulator/src/examples/generated/
-simulator/src/shared/generated/
-simulator/*.tsbuildinfo
-
-# Vercel CLI 연결 정보 (로컬 전용, vercel link 가 만드는 .env.local 은 위 .env.* 규칙으로 제외됨)
-.vercel

@@ -46,7 +46,7 @@ git switch -c parse/colon-fix                  # <내 모듈>/<작업 내용>
 # ... AI와 작업 (src/clean_chat/modules/parse/ 안에서만) ...
 uv run ruff check . --fix && uv run ruff format .
 uv run pytest -q
-uv run clean-chat module parse --check
+uv run sim parse                               # 브라우저에서 내 모듈 실행해 보기 (콘솔·반환값 확인)
 git add -A && git commit -m "콜론 오인식 처리"
 git push -u origin parse/colon-fix
 # GitHub 에서 PR 만들기 (base: develop) → CI 의 module-scope 가 초록인지 확인
@@ -54,7 +54,7 @@ git push -u origin parse/colon-fix
 
 ## 4. 주말 통합 체크리스트 (리드)
 1. 모듈 PR 이 `develop` 에 병합되었는지, `module-scope` 실패 PR 은 범위를 넘는 이유가 타당했는지 확인
-2. `uv run pytest -q` + 구현된 모듈마다 `uv run clean-chat module <모듈> --check` (5개가 다 구현되면 `uv run clean-chat run --source demo`)
+2. `uv run pytest -q` + 구현된 모듈을 `uv run sim` 으로 확인 (5개가 다 구현되면 `uv run app`)
 3. Windows PC 에서 실제 게임(또는 녹화) 실행 확인
 4. `develop → main` PR 생성, 결과 영상을 PR 에 첨부
 5. 다음 주 할 일을 각 모듈 이슈로 정리

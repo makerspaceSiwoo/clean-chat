@@ -24,20 +24,20 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
                                                  └→ 정책표(내 채팅) → 클립보드 / 차단           (B)
 게임 종료:  GameSession → ⑤report(kind=report 신고 문구 / complaint 고소장 PDF)
 ```
-- **모듈 = 함수 1개 × 5개** (ADR-0017): `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력) -> 출력`. 5명이 한 폴더씩 맡습니다. 목록: `uv run clean-chat modules`
+- **모듈 = 함수 1개 × 5개** (ADR-0017): `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력) -> 출력`. 5명이 한 폴더씩 맡습니다.
   - ① `ocr` 이미지 → 줄 · ② `parse` 줄 → 채팅만(시스템 메시지 제외) + 정규화 · ③ `analyze` 대상·등급·피드백 · ④ `rewrite` 순화 · ⑤ `report` 신고·고소장
-  - 그 밖(흐름 연결, 정책표, 캡처, 게임 단계, UI, 로컬 서버, 시뮬레이터)은 **구성**이고 리드가 `core/`, `ui/`, `session/`, `simulator/` 에서 합니다.
+  - 그 밖(흐름 연결, 정책표, 캡처, 게임 단계, UI, 시뮬레이터)은 **구성**이고 리드가 `core/`, `ui/`, `session/`, `sim/` 에서 합니다.
 - `run()` 의 시그니처와 docstring이 할 일 목록입니다. docstring의 예시·순서·주의를 따라 본문을 채우세요.
 - 통신 포맷 = `core/schemas.py`의 pydantic 모델, 연결표 = `core/modules.py`, 예시 = `fixtures/<모듈>/input.jsonl → expected.jsonl` (**이 예시가 명세**)
 - **Mock 은 없습니다.** 구현 전 함수는 `NotImplementedError` 이고, 앱·시뮬레이터는 실행하면 "구현 안 됨" 오류를 냅니다.
 - **analyze 는 "누가 누구에게, 얼마나 나쁜가"만 판단하고, 처리(숨김·신고 등)는 정책표(`core/policy.py`)가 결정합니다.** 섞지 마세요.
 - 게임 단계 전환과 세션 기록은 `core/game.py`(상태 기계, 리드)가 합니다. 단계 감지기(`session/`)는 단계를 보고만 합니다.
 - 실제 앱은 Windows, 개발은 Mac. Windows 전용 코드는 `core/grabber.py`, `ui/win32.py`, `session/windows.py`(구성)에만 둡니다. OCR 엔진은 모듈 안에서 Windows 전용 import 를 함수 안에 둡니다.
-- 웹 시뮬레이터(`simulator/`, Next.js)는 **별도 앱**입니다. 파이썬 코드를 import 하지 않고 `contracts/`, `fixtures/`(입력 예시)를 읽고, 실행은 로컬 서버(`uv run clean-chat serve`)의 실제 함수를 HTTP 로 부릅니다. 작업 규칙은 `simulator/README.md`.
+- 모듈 시뮬레이터(`sim/`, `uv run sim`)는 로컬 전용입니다. 파이썬 서버가 HTML 화면도 함께 주고, 실행마다 새 프로세스로 실제 함수를 불러 **입력 | 디버깅 콘솔 | 반환값** 을 보여 줍니다(ADR-0019). 배포하지 않습니다.
 
 ## 3. 반드시 지킬 규칙
 1. **자기 모듈 범위(`src/clean_chat/modules/<모듈>/`, `tests/test_<모듈>.py`, `fixtures/<모듈>/`) 밖은 수정하지 않습니다.** 브랜치는 `<모듈>/<작업 내용>` 이고, PR 에서 CI `module-scope` 가 범위 밖 수정을 실패로 표시합니다(ADR-0018).
-2. **`core/schemas.py`와 각 모듈의 `run()` 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다. (리드가 `schemas.py`를 바꾸면 `uv run python scripts/export_contracts.py`로 `contracts/`를 다시 만들어 함께 커밋합니다 — 웹 시뮬레이터가 이 파일을 씁니다.)
+2. **`core/schemas.py`와 각 모듈의 `run()` 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다.
 3. **새 패키지를 추가하기 전에 사용자에게 먼저 물어봅니다.** 추가할 때는 `pyproject.toml`의 해당 모듈 extra에 넣습니다(`uv add --optional <모듈> <패키지>`).
 4. 판단 로직은 해당 모듈에만 둡니다. UI에 분류나 정책 로직을 넣지 않습니다.
 5. 실제 유저 채팅 원문, 닉네임, 스크린샷, 모델 가중치, `.env`는 커밋하지 않습니다.
@@ -51,16 +51,12 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
 
 ## 5. 명령어
 ```bash
-uv sync                                                  # 설치 (UI 작업: uv sync --extra ui)
-uv run clean-chat modules                                # 모듈 5개와 구현 위치
-uv run clean-chat module <모듈>                          # 내 함수를 fixtures 입력으로 실행 (구현 전이면 "구현 안 됨", 종료 코드 2)
-uv run clean-chat module <모듈> --check                  # 기대값과 비교
-uv run clean-chat serve                                  # 웹 시뮬레이터용 로컬 모듈 서버 (→ cd simulator && npm run dev)
-uv run python -m clean_chat.session                      # 게임 단계 감지기 (가짜, --real 은 Windows)
-uv run clean-chat run --source demo                      # 전체 흐름 (모듈 5개가 구현돼야 끝까지 돎)
-uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"               # 흐름 B(내 입력) 1문장
-uv run clean-chat app --source demo                      # UI 앱 (Mac 가능)
-uv run clean-chat app --source screen                    # 실제 데모 (Windows)
+uv sync                     # 설치 (처음 한 번, 앱 화면까지: uv sync --extra ui)
+uv run sim                  # 모듈 시뮬레이터 (브라우저가 열림: 입력 | 디버깅 콘솔 | 반환값)
+uv run sim parse            # 모듈 하나만 바로 열기 (ocr · parse · analyze · rewrite · report)
+uv run app                  # 앱 전체 (Windows = 실제 게임 화면, Mac = 데모 재생)
+uv run pytest -q            # 테스트 (구현 전 모듈은 skip)
+uv run python -m clean_chat.session   # (리드) 게임 단계 감지기만 (가짜, --real 은 Windows)
 
 # 확인 명령 (PR 전에 모두 통과해야 함)
 uv run ruff check . --fix && uv run ruff format .

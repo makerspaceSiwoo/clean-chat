@@ -1,4 +1,4 @@
-"""[동작 · ui] 앱 조립: QApplication + Engine + 창 2개 연결.  `uv run clean-chat app ...` 이 호출.
+"""[동작 · ui] 앱 조립: QApplication + Engine + 창 2개 연결.  `uv run app` 이 호출.
 
 연결 (패턴: 이벤트 발행·구독 + MVP 에 가까운 구조 — 창은 보여 주기만, 판단은 모듈·정책표)
   Engine 단계 신호  → 클라이언트 화면 전환 + 오버레이 표시(IN_GAME)/숨김(그 외)
