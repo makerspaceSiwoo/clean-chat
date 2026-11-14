@@ -32,6 +32,37 @@ function clearConsole() {
   $("console").textContent = "";
 }
 
+// 클립보드 복사. navigator.clipboard 가 막힌 환경이면 예전 방식(execCommand)으로 한 번 더 시도.
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  }
+}
+
+// 콘솔 로그 전부 복사 → 아이콘이 잠깐 ✓(성공) 또는 빨간색(실패)으로 바뀜
+async function copyConsole() {
+  const btn = $("copy-console");
+  const ok = await copyText($("console").textContent);
+  btn.classList.toggle("copied", ok);
+  btn.classList.toggle("failed", !ok);
+  btn.title = ok ? "복사했습니다" : "복사하지 못했습니다";
+  clearTimeout(state.copyTimer);
+  state.copyTimer = setTimeout(() => {
+    btn.classList.remove("copied", "failed");
+    btn.title = "로그 전부 복사";
+  }, 1500);
+}
+
 // ── 반환값 ─────────────────────────────────────────────
 function setBadge(status) {
   const b = $("badge");
@@ -266,7 +297,8 @@ async function init() {
   $("run").onclick = run;
   $("stop").onclick = () => state.controller && state.controller.abort();
   $("clear").onclick = clearConsole;
-  $("copy").onclick = () => navigator.clipboard.writeText($("output").textContent);
+  $("copy-console").onclick = copyConsole;
+  $("copy").onclick = () => copyText($("output").textContent);
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && !state.controller) run();
   });

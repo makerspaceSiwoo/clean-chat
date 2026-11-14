@@ -146,7 +146,9 @@ def test_http_static_api_and_stream():
     base = f"http://127.0.0.1:{httpd.server_address[1]}"
     try:
         with urllib.request.urlopen(f"{base}/", timeout=5) as r:
-            assert "모듈 시뮬레이터" in r.read().decode()
+            page = r.read().decode()
+        assert "모듈 시뮬레이터" in page
+        assert 'id="copy-console"' in page  # 콘솔 로그 전부 복사 버튼
         for path in ("/app.js", "/style.css"):
             with urllib.request.urlopen(base + path, timeout=5) as r:
                 assert r.status == 200
