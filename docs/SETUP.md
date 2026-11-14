@@ -54,9 +54,10 @@ uv sync --all-extras       # 리드: 전부
 
 ## 3. 내 브랜치 만들기
 ```bash
-git switch develop
-git switch -c mod/<내모듈>      # 예: mod/ocr, mod/parse, mod/analyze, mod/rewrite, mod/report
-git push -u origin mod/<내모듈>
+git switch develop && git pull
+git switch -c <내모듈>/<작업 내용>      # 예: parse/colon-fix, ocr/two-line-merge, analyze/target-guess
+git push -u origin <내모듈>/<작업 내용>
+# PR 을 만들면 CI(module-scope)가 모듈 범위 밖 수정이 있는지 표시합니다 (CONTRIBUTING.md)
 ```
 
 ## 4. AI 도구 연결
@@ -87,6 +88,6 @@ git push -u origin mod/<내모듈>
 |---|---|
 | `uv: command not found` | 터미널을 껐다 켜기 |
 | 커밋이 막힘 (pre-commit) | 메시지대로 수정되었으면 `git add -A` 후 다시 커밋 |
-| `no-commit-to-branch` 실패 | `main`에서 작업 중 → `git switch mod/<내모듈>` |
-| PR에서 `모듈 경계` 실패 | 내 폴더 밖 파일 수정을 되돌리거나 리드에게 문의 |
+| `no-commit-to-branch` 실패 | `main`에서 작업 중 → `git switch -c <내모듈>/<작업 내용>` |
+| PR에서 `module-scope` 실패 | 내 모듈 범위 밖 파일 수정을 되돌리거나, 꼭 필요하면 PR 설명에 이유를 적기 |
 | 한글이 깨짐 (Windows) | VS Code 오른쪽 아래 인코딩을 UTF-8로 |

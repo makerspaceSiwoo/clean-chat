@@ -14,6 +14,7 @@
 
 - AI 모듈: 출력 형식만 자동 검사하고, 정확도는 `training/` 평가와 `data/eval/` 로 봅니다.
 - 숨김·신고 같은 처리는 하지 않습니다. 정책표(`core/policy.py`)가 이 결과를 보고 정합니다. 라벨 기준: `docs/LABELING_GUIDE.md`.
+- 브랜치는 `analyze/<작업 내용>` 으로 만듭니다(예: `analyze/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
 - 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
 
 ```bash

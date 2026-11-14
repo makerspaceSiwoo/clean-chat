@@ -25,9 +25,3 @@ repos:
         entry: uv run ruff format
         language: system
         types: [python]
-      - id: branch-name
-        name: 브랜치 이름 검사
-        entry: bash -c 'cd scripts && python check_branch_name.py "$(git rev-parse --abbrev-ref HEAD)"'
-        language: system
-        pass_filenames: false
-        always_run: true

@@ -210,3 +210,8 @@ class Parser(ParseStage):
 - 시뮬레이터: `uv run clean-chat serve` + `cd simulator && npm run dev` → 입력 넣고 실행하면 실제 함수 output. Vercel 배포 주소는 화면만(로컬 서버가 없어 연결 오류)
 - 명령: `uv run clean-chat modules` · `uv run clean-chat module <모듈> [--check]` · `uv run clean-chat serve`
 - 남은 일: CODEOWNERS 의 `@LEAD`, `@M1_OCR` ~ `@M5_REPORT` 를 실제 아이디로, OPEN 항목 실측, UI 화면 메서드·세션 저장소·LCU 감지기(구성) 구현
+
+## 12. 브랜치 규칙 단순화 (2026-11-14, ADR-0018)
+- GitHub 규칙은 `protect-main` 하나. 브랜치 이름·PR 제목 형식 검사와 "main 에는 develop 에서만" 검사는 없앰
+- 모듈 작업 브랜치 = `<모듈>/<작업 내용>` (예: `parse/colon-fix`). PR 에서 CI `module-scope` 가 모듈 범위 밖 수정을 실패로 표시 → 리드가 리뷰에서 판단 (병합은 막지 않음)
+
