@@ -24,8 +24,9 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
                                                             └→ outgoing_policy → 클립보드 / 차단        (B)
 게임 종료:  GameSession → report(신고 문구) / complaint(고소장 PDF)
 ```
-- 모든 처리 모듈 = **Stage**: `stage.py`(인터페이스, 수정 금지) + `impl.py`(실제 구현, 담당자가 작성) + `python -m clean_chat.<모듈>`(단독 실행). Stage 10개 목록: `uv run clean-chat modules`
-- `impl.py`의 함수 시그니처와 docstring이 할 일 목록입니다. docstring의 예시·순서·주의를 따라 본문을 채우세요.
+- 모든 처리 모듈 = **Stage**: `stage.py`(인터페이스, 수정 금지) + 구현 파일(담당자가 작성) + `python -m clean_chat.<모듈> [하위 Stage]`(단독 실행). Stage 10개 목록: `uv run clean-chat modules`
+  - 구현 파일은 보통 `impl.py` 하나입니다. `text/`만 Stage마다 파일이 따로 있습니다(`parse.py`, `compose.py`, `normalize.py`, ADR-0016). 정확한 위치는 `core/registry.py`.
+- 구현 파일의 함수 시그니처와 docstring이 할 일 목록입니다. docstring의 예시·순서·주의를 따라 본문을 채우세요.
 - 통신 포맷 = `core/schemas.py`의 pydantic 모델, 예시 = `fixtures/<stage>/input.jsonl → expected.jsonl` (**이 예시가 명세**)
 - **분류(classify)는 "얼마나 나쁜가"만 판단하고, 처리(숨김·신고 등)는 policy(`incoming_policy`/`outgoing_policy`)가 결정합니다.** 섞지 마세요.
 - 게임 단계 전환과 세션 기록은 `core/game.py`(상태 기계, 리드)가 합니다. 단계 감지기(`session/`)는 단계를 보고만 합니다.
@@ -51,7 +52,7 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
 uv sync                                                  # 설치 (UI 작업: uv sync --extra ui)
 uv run clean-chat modules                                # Stage 10개와 단독 실행 명령
 uv run python -m clean_chat.<모듈> --impl mock --check    # 통신 포맷 확인
-uv run python -m clean_chat.<모듈> --check               # 내 실제 구현(impl.py)을 fixtures로 실행·비교
+uv run python -m clean_chat.<모듈> --check               # 내 실제 구현을 fixtures로 실행·비교
 uv run python -m clean_chat.text compose --check         # 한 폴더에 Stage가 여러 개면 하위 이름 (text parse|compose|normalize, policy outgoing, report complaint)
 uv run python -m clean_chat.session                      # 게임 단계 감지기 (가짜, --real 은 Windows)
 uv run clean-chat run --source demo                      # 게임 단계 전환 + 흐름 A + 게임 결과(신고·고소장)를 콘솔로
@@ -70,7 +71,7 @@ uv run pytest -q
 - ruff가 포맷과 린트를 담당합니다(줄 길이 120). 직접 스타일을 맞추려 하지 마세요.
 - 주석과 문서는 한국어로 쓰고, 코드 식별자는 영어로 씁니다.
 - 함수는 작게 만들고, 새 기능에는 `tests/test_<모듈>.py`에 테스트를 1개 이상 추가합니다.
-- 구현은 `impl.py`(와 같은 폴더의 내부 파일)에만 합니다. 다른 모듈의 `impl.py`를 import하지 않습니다.
+- 구현은 내 모듈 폴더의 구현 파일(`impl.py` 또는 `text/`의 Stage별 파일)과 내부 파일에만 합니다. 다른 모듈의 구현 파일을 import하지 않습니다.
 - 각 모듈은 `fixtures/<stage>/`의 입력만으로 혼자 실행하고 테스트할 수 있어야 합니다.
 - Windows 전용 라이브러리는 **함수 안에서 import**, `pyproject.toml`에는 `; sys_platform == 'win32'` 마커를 붙입니다. 테스트에는 `@pytest.mark.windows`를 붙입니다(Mac에서 설치와 테스트가 깨지지 않게).
 

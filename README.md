@@ -20,7 +20,7 @@ uv sync --extra ui && uv run clean-chat app --source demo   # UI
 ```
 실제 데모(Windows): `scripts\run_windows.bat` 또는 `uv run clean-chat app --source screen`
 
-> 이 스타터에는 **실제 구현이 없습니다.** 모든 `impl.py`는 함수 시그니처와 설명만 있고(`NotImplementedError`), 실행 결과는 `fixtures/`의 예시 데이터입니다.
+> 이 스타터에는 **실제 구현이 없습니다.** 모든 구현 파일(`impl.py`, `text/*.py`)은 함수 시그니처와 설명만 있고(`NotImplementedError`), 실행 결과는 `fixtures/`의 예시 데이터입니다.
 
 ## 레포 구조 (앱 2개 + 공통 2개, ADR-0015)
 | 폴더 | 무엇 | 도구 | 배포 |

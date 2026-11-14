@@ -3,8 +3,8 @@
 
 ## 어떻게 확인했나요?
 - [ ] `uv run pytest` 통과
-- [ ] `uv run python -m clean_chat.<내모듈> --check` 결과 첨부
-- [ ] `uv run clean-chat run --real <내모듈>` 이 끝까지 돌아감
+- [ ] `uv run python -m clean_chat.<내모듈> [하위 Stage] --check` 결과 첨부
+- [ ] `uv run clean-chat run --real <내 Stage>` 가 끝까지 돌아감
 - [ ] (Windows 모듈) 실제 게임 또는 녹화 화면에서 확인 → 스크린샷/짧은 영상 첨부
 
 ## 체크리스트
