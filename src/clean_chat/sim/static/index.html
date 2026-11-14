@@ -62,7 +62,13 @@
     <section class="panel" aria-labelledby="h-console">
       <div class="panel-head">
         <h2 id="h-console">디버깅 콘솔</h2>
-        <button id="clear" type="button" class="link">지우기</button>
+        <div class="head-actions">
+          <button id="copy-console" type="button" class="icon-btn" title="로그 전부 복사" aria-label="로그 전부 복사">
+            <svg class="icon-copy" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+            <svg class="icon-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button id="clear" type="button" class="link">지우기</button>
+        </div>
       </div>
       <pre id="console" class="console" aria-live="polite"><span class="sys">▶ 실행을 누르면 모듈의 출력(print, logging, 오류)이 여기에 실시간으로 나옵니다.</span></pre>
     </section>

@@ -57,6 +57,13 @@ button { font: inherit; padding: 7px 14px; border: 1px solid var(--border); bord
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 button:disabled { opacity: .5; cursor: not-allowed; }
 button.link { border: 0; background: none; color: var(--accent); padding: 2px 4px; }
+.head-actions { display: flex; align-items: center; gap: 4px; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--muted); padding: 5px; border-radius: 6px; }
+.icon-btn:hover { color: var(--text); background: var(--code-bg); }
+.icon-btn .icon-check, .icon-btn.copied .icon-copy { display: none; }
+.icon-btn.copied .icon-check { display: block; }
+.icon-btn.copied { color: var(--ok); }
+.icon-btn.failed { color: var(--err); }
 
 .console { flex: 1; margin: 0; padding: 12px 14px; overflow: auto; background: var(--console-bg); color: var(--console-text); font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-all; }
 .console .sys { color: var(--sys); }
