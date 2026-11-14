@@ -36,7 +36,7 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
 - 웹 시뮬레이터(`simulator/`, Next.js)는 **별도 앱**입니다. 파이썬 코드를 import 하지 않고 `contracts/`, `fixtures/`(입력 예시)를 읽고, 실행은 로컬 서버(`uv run clean-chat serve`)의 실제 함수를 HTTP 로 부릅니다. 작업 규칙은 `simulator/README.md`.
 
 ## 3. 반드시 지킬 규칙
-1. **자기 모듈 폴더(`src/clean_chat/modules/<모듈>/`) 밖은 수정하지 않습니다.** CI가 검사합니다(`scripts/check_module_boundary.py`).
+1. **자기 모듈 범위(`src/clean_chat/modules/<모듈>/`, `tests/test_<모듈>.py`, `fixtures/<모듈>/`) 밖은 수정하지 않습니다.** 브랜치는 `<모듈>/<작업 내용>` 이고, PR 에서 CI `module-scope` 가 범위 밖 수정을 실패로 표시합니다(ADR-0018).
 2. **`core/schemas.py`와 각 모듈의 `run()` 이름, 입력/출력 타입은 바꾸지 않습니다.** 필요하면 "계약 변경 요청" 이슈를 올립니다. (리드가 `schemas.py`를 바꾸면 `uv run python scripts/export_contracts.py`로 `contracts/`를 다시 만들어 함께 커밋합니다 — 웹 시뮬레이터가 이 파일을 씁니다.)
 3. **새 패키지를 추가하기 전에 사용자에게 먼저 물어봅니다.** 추가할 때는 `pyproject.toml`의 해당 모듈 extra에 넣습니다(`uv add --optional <모듈> <패키지>`).
 4. 판단 로직은 해당 모듈에만 둡니다. UI에 분류나 정책 로직을 넣지 않습니다.

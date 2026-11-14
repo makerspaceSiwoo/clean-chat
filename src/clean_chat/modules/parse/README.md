@@ -14,6 +14,7 @@
 
 - 규칙 모듈: fixtures 기대값과 **정확히 같아야** 합니다(`--check` 10/10).
 - 우회어 사전은 `data/lexicon/` 에 둡니다. 내 입력(흐름 B)도 `source=self_input` 줄로 이 함수를 거칩니다.
+- 브랜치는 `parse/<작업 내용>` 으로 만듭니다(예: `parse/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
 - 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
 
 ```bash

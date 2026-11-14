@@ -92,7 +92,7 @@
 
 ## ADR-0010: 모듈 단위로 분담하고, 주말마다 `develop`에 통합한다
 - 2026-11-12 / 확정 / 팀
-- **결정**: 모듈별 장기 브랜치 `mod/<모듈>`에서 작업하고, 주말 통합 때 `develop`으로 PR을 올린다. 평일에도 작은 PR은 허용한다(통합 충돌 감소).
+- **결정**: 모듈별 브랜치에서 작업하고(ADR-0018 이후 이름 `<모듈>/<작업 내용>`), 주말 통합 때 `develop`으로 PR을 올린다. 평일에도 작은 PR은 허용한다(통합 충돌 감소).
 - **이유**: 모듈마다 담당 폴더가 분명해서 충돌이 적다. 계약(스키마)과 `fixtures`로 각 모듈을 따로 실행하고 시험할 수 있다.
 - **영향**: 스키마를 바꾸면 모든 모듈에 영향이 가므로, `core/`는 리드만 수정한다.
 
@@ -169,7 +169,7 @@
 - **배경**: Stage 10개, 모듈 폴더 8개(인터페이스 `stage.py` + 구현 클래스 + `setup/run/close` + MockStage)라 5명에게 나눠 주기에 복잡했다. 시뮬레이터와 `clean-chat run` 은 Mock(fixtures 응답)으로 돌아서 구현이 하나도 없는데도 동작하는 것처럼 보였다. E2E 시나리오도 아직 없어 기대값 비교가 의미가 없었다.
 - **결정**:
   - 모듈 = **함수 1개**, 5개: ① `ocr` 이미지 → 줄 / ② `parse` 줄 → 채팅만(시스템 메시지·핑 제외, 규칙) + 정규화(옛 normalize) + 내 입력(옛 compose) / ③ `analyze` 누가 누구에게(대상, 옛 policy 의 대상 추정)·등급·유형·비속어·피드백 조각(옛 classify + rewrite 의 피드백 추출) / ④ `rewrite` 순화 문장 / ⑤ `report` 신고 문구·고소장(옛 report + complaint, `kind` 로 구분).
-  - 위치: `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력 모델) -> 출력 모델`. 한 사람 = 한 폴더(`mod/<모듈>` 브랜치는 그 폴더·`tests/test_<모듈>.py`·`fixtures/<모듈>/` 만).
+  - 위치: `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력 모델) -> 출력 모델`. 한 사람 = 한 폴더(모듈 브랜치는 그 폴더·`tests/test_<모듈>.py`·`fixtures/<모듈>/` 만, 브랜치 이름은 ADR-0018).
   - **구성(리드)**: 정책표(`core/policy.py`, SPEC 5장을 코드로 구현), 흐름 연결·프레임 사이 줄 중복 제거(`core/pipeline.py`), 화면 캡처(`core/grabber.py`), 게임 단계·세션, UI, 로컬 모듈 서버, 시뮬레이터.
   - **Mock 제거**: `MockStage`, `--impl mock`, `--real`, 시뮬레이터 Mock 클라이언트·장애 흉내·체크리스트·기대값 비교를 지운다. 구현 전 함수는 `NotImplementedError` → 어디서든 "구현 안 됨" 오류(`ModuleNotImplemented`, CLI 종료 코드 2, 서버 501, 엔진은 멈추고 모듈 이름을 알림).
   - **시뮬레이터 = 함수 호출기**: 입력 JSON(+ OCR 이미지)을 넣고 실행하면 로컬 서버(`uv run clean-chat serve`, 표준 라이브러리 HTTP, 127.0.0.1)가 실제 함수를 부르고 output 만 보여 준다. fixtures 는 입력 예시로만 쓴다.
@@ -178,3 +178,15 @@
 - **이유**: 5명이 "함수 하나"만 보면 되고 경계가 폴더로 분명하다. 처리 결정(정책표)은 표를 옮기는 일이라 모듈로 둘 만큼 크지 않다. Mock 이 없으면 구현 여부가 실행 결과에 그대로 드러난다.
 - **버린 대안**: (a) Stage 10개 유지하고 사람만 묶기 — 인터페이스·Mock·하위 Stage 명령이 그대로 복잡하다. (b) normalize 를 analyze 에 — 작업량이 가장 큰 analyze 에 몰려 parse(규칙)에 둔다. (c) 시뮬레이터를 Vercel 파이썬 함수로 — OCR·분류 모델이 용량 제한(250MB)을 넘는다. 배포 주소는 화면만 보이고, 실행은 로컬에서 한다.
 - **영향**: ADR-0011(Stage 구조), ADR-0016(text 모듈)을 대체한다. 모듈 5개가 모두 구현되기 전에는 `clean-chat run/say/app` 이 끝까지 돌지 않는다. pyproject extra 이름도 `capture` → `ocr`, `ml` → `analyze`.
+
+## ADR-0018: 브랜치 규칙은 `main` 보호 하나만 두고, 모듈 작업은 `<모듈>/<작업 내용>` 브랜치 + 모듈 범위 CI 검사로 본다
+- 2026-11-14 / 확정 / 리드
+- **배경**: 브랜치 이름 정규식(`mod/<모듈>-<주제>`, `fix/…` 등), PR 제목 형식, "main 에는 develop 에서만" 검사가 팀원에게 헷갈리기만 했다. 실제로 리드가 알고 싶은 것은 "이 PR 이 자기 모듈 범위를 넘었나" 하나다.
+- **결정**:
+  - GitHub 규칙은 `protect-main`(PR 필수, 다른 팀원 승인 1명, force push·삭제 금지) 하나만 둔다.
+  - 브랜치 이름·PR 제목 형식 검사, develop → main 전용 검사, pre-commit 브랜치 이름 훅, `cross-module` 라벨을 없앤다.
+  - 모듈 작업 브랜치는 `<모듈>/<작업 내용>`(예: `parse/colon-fix`). PR 이 열리면 CI `module-scope`(`.github/workflows/pr-rules.yml`, `scripts/check_module_boundary.py`)가 모듈 범위(`src/clean_chat/modules/<모듈>/`, `tests/test_<모듈>.py`, `fixtures/<모듈>/`) 밖 파일 변경을 찾아 실패시킨다. 그 밖의 브랜치 이름은 자유이고 검사하지 않는다.
+  - 실패는 병합을 막지 않는다(필수 검사 아님). 리드가 리뷰에서 "모듈 범위를 넘는 변경"으로 보고 거절하거나 참고한다.
+- **이유**: 규칙이 하나라서 설명이 쉽고, 리뷰에 필요한 신호(범위 초과)만 자동으로 준다.
+- **영향**: ADR-0009 의 브랜치 이름·PR 제목 강제를 대체한다. 규칙 원본은 `scripts/repo_rules.py`(`MODULES`, `module_scope`).
+
