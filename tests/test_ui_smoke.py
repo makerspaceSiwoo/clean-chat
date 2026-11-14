@@ -8,20 +8,18 @@ import pytest
 pytest.importorskip("PySide6")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from clean_chat.core.config import FIXTURES  # noqa: E402
 from clean_chat.core.pipeline import Pipelines  # noqa: E402
 from clean_chat.core.schemas import GamePhase  # noqa: E402
 from clean_chat.core.sources import DemoLineSource  # noqa: E402
 from clean_chat.session.fake import FakePhaseDetector  # noqa: E402
-
-SCENARIO = FIXTURES / "scenario"
+from helpers import SCENARIO, fixture_modules  # noqa: E402
 
 
 def test_app_follows_game_phases():
     from clean_chat.ui.app import App
 
     detector = FakePhaseDetector(SCENARIO / "phases.jsonl", SCENARIO / "players.jsonl")
-    app = App(Pipelines(), DemoLineSource(SCENARIO / "lines.jsonl", delay_sec=0), detector)
+    app = App(Pipelines(fixture_modules()), DemoLineSource(SCENARIO / "lines.jsonl", delay_sec=0), detector)
     seen: list[GamePhase] = []
     results = []
     app.bridge.phase.connect(lambda phase, _s: seen.append(phase))

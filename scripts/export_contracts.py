@@ -1,7 +1,7 @@
-"""공통 계약 내보내기: core/schemas.py(pydantic) → contracts/stages.schema.json (JSON Schema).
+"""공통 계약 내보내기: core/schemas.py(pydantic) → contracts/modules.schema.json (JSON Schema).
 
 데스크톱 앱(Python)과 웹앱(simulator/, TypeScript)이 같은 계약을 쓰기 위한 단일 출처입니다.
-웹앱은 이 파일에서 TS 타입과 '출력에 반드시 있어야 하는 필드'를 자동으로 만듭니다(simulator/scripts/sync-shared.mjs).
+웹앱은 이 파일에서 TS 타입과 모듈 목록을 자동으로 만듭니다(simulator/scripts/sync-shared.mjs).
 
   uv run python scripts/export_contracts.py           # 다시 만들기 (schemas.py 를 바꾼 뒤 꼭 실행)
   uv run python scripts/export_contracts.py --check   # 최신인지 확인만 (CI·pytest 가 사용)
@@ -15,32 +15,33 @@ import sys
 
 from pydantic.json_schema import models_json_schema
 
-from clean_chat.core import registry
-from clean_chat.core.config import ROOT, STAGE_NAMES
+from clean_chat.core.config import ROOT
+from clean_chat.core.modules import MODULES
 from clean_chat.core.schemas import SCHEMA_VERSION
 
-OUT = ROOT / "contracts" / "stages.schema.json"
+OUT = ROOT / "contracts" / "modules.schema.json"
 
 
 def build() -> str:
-    """Stage 별 입력·출력 모델을 하나의 JSON Schema 문서로 (모델 정의는 $defs 에 한 번씩만)."""
+    """모듈별 입력·출력 모델을 하나의 JSON Schema 문서로 (모델 정의는 $defs 에 한 번씩만)."""
     models = []
-    for name in STAGE_NAMES:
-        iface = registry.interface(name)
-        models += [(iface.input_model, "validation"), (iface.output_model, "validation")]
+    for spec in MODULES.values():
+        models += [(spec.input_model, "validation"), (spec.output_model, "validation")]
     refs, schema = models_json_schema(models, ref_template="#/$defs/{model}")
     ref_of = {model: ref["$ref"] for (model, _mode), ref in refs.items()}
     doc = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "title": "Clean Chat Stage contracts",
+        "title": "Clean Chat module contracts",
         "description": "자동 생성 파일 — 직접 고치지 말고 scripts/export_contracts.py 로 다시 만드세요.",
         "schema_version": SCHEMA_VERSION,
-        "stages": {
+        "modules": {
             name: {
-                "input": {"$ref": ref_of[registry.interface(name).input_model]},
-                "output": {"$ref": ref_of[registry.interface(name).output_model]},
+                "title": spec.title,
+                "path": spec.path,
+                "input": {"$ref": ref_of[spec.input_model]},
+                "output": {"$ref": ref_of[spec.output_model]},
             }
-            for name in STAGE_NAMES
+            for name, spec in MODULES.items()
         },
         "$defs": schema["$defs"],
     }
@@ -64,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(text, encoding="utf-8", newline="\n")
-    print(f"✅ {OUT.relative_to(ROOT)} 생성 (Stage {len(STAGE_NAMES)}개, schema {SCHEMA_VERSION})")
+    print(f"✅ {OUT.relative_to(ROOT)} 생성 (모듈 {len(MODULES)}개, schema {SCHEMA_VERSION})")
     return 0
 
 

@@ -5,7 +5,7 @@
 > 작성: 2026-11-12 · 작성자: 리드 + Claude
 >
 > **⚠️ 인수인계 작업(9장)은 끝났습니다.** 0~9장은 당시(zip 스타터, 이름 `lolguard`) 기록이라 지금 코드와 다릅니다. 9장 작업 지시를 다시 실행하지 마세요.
-> 지금 구조는 `docs/ARCHITECTURE.md`·`docs/MODULES.md`, 진행 상황은 **10장**을 봅니다.
+> 지금 구조는 `docs/ARCHITECTURE.md`·`docs/MODULES.md`, 진행 상황은 **10장·11장**을 봅니다. 10장의 모듈 구조는 11장(ADR-0017)으로 바뀌었습니다.
 
 ---
 
@@ -201,3 +201,12 @@ class Parser(ParseStage):
   - OCR 화면에 이미지 첨부(미리보기만, 서버로 보내지 않음)
 - (2026-11-14) `parse/`·`normalize/` 폴더를 `text/` 모듈 하나로 합침(PR #5, ADR-0016). Stage 이름·계약·fixtures는 그대로
 - 지금 모듈 폴더: `capture`(ocr) · `text`(parse, compose, normalize) · `classify` · `rewrite` · `policy`(incoming_policy, outgoing_policy) · `report`(report, complaint) · `session` · `ui` + 웹 `simulator/`
+
+## 11. 모듈 5개로 축소 (2026-11-14, ADR-0017)
+- 모듈 = 함수 5개, 5명이 한 폴더씩: `src/clean_chat/modules/{ocr,parse,analyze,rewrite,report}/impl.py` 의 `run()`
+  - ① ocr 이미지 → 줄 · ② parse 줄 → 채팅만 + 정규화(옛 parse·compose·normalize) · ③ analyze 대상·등급·조각(옛 classify + 대상 추정 + 피드백 추출) · ④ rewrite 순화 · ⑤ report 신고·고소장(옛 report·complaint)
+- 구성(리드): `core/`(연결표 `modules.py`, 정책표 `policy.py` — **구현됨**, 파이프라인, 게임 단계, 로컬 서버 `server.py`, 캡처 `grabber.py`), `session/`, `ui/`, `simulator/`
+- **Mock 없음**: 구현 전 모듈은 어디서 실행해도 "구현 안 됨" 오류. `clean-chat run --source demo` 는 parse 에서 멈추는 것이 정상
+- 시뮬레이터: `uv run clean-chat serve` + `cd simulator && npm run dev` → 입력 넣고 실행하면 실제 함수 output. Vercel 배포 주소는 화면만(로컬 서버가 없어 연결 오류)
+- 명령: `uv run clean-chat modules` · `uv run clean-chat module <모듈> [--check]` · `uv run clean-chat serve`
+- 남은 일: CODEOWNERS 의 `@LEAD`, `@M1_OCR` ~ `@M5_REPORT` 를 실제 아이디로, OPEN 항목 실측, UI 화면 메서드·세션 저장소·LCU 감지기(구성) 구현

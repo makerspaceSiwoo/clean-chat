@@ -1,6 +1,7 @@
 /**
- * 이미지 첨부(OCR 등) 규칙. 순수 함수만 둔다.
- * 시뮬레이터는 이미지를 읽거나 서버로 보내지 않는다 — 입력 JSON 의 경로 필드에 파일 이름만 넣는다.
+ * 이미지 첨부(OCR 등) 규칙.
+ * 첨부한 이미지는 실행할 때 base64 로 로컬 모듈 서버에 보낸다. 서버가 .clean-chat/uploads/ 에 저장하고
+ * 입력의 경로 필드(image_path)를 그 경로로 바꿔 실제 모듈 함수에 넘긴다 (src/clean_chat/core/server.py).
  */
 export const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/bmp"] as const;
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
@@ -12,7 +13,7 @@ export function checkImageFile(file: { name: string; type: string; size: number 
   return undefined;
 }
 
-/** 입력 JSON 에 넣을 경로 (브라우저는 실제 파일 경로를 알 수 없어 이름만) */
+/** 입력 JSON 에 넣어 둘 표시용 경로 (실제 경로는 서버가 저장한 뒤 바꿔 넣는다) */
 export function uploadPath(fileName: string): string {
   return `uploads/${fileName}`;
 }
@@ -27,4 +28,17 @@ export function formatBytes(n: number): string {
   if (n < 1024) return `${n}B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)}KB`;
   return `${(n / 1024 / 1024).toFixed(1)}MB`;
+}
+
+/** 파일 → data: 접두사 없는 base64 (서버로 보낼 본문) */
+export function fileToBase64(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("파일을 읽을 수 없습니다"));
+    reader.onload = () => {
+      const url = String(reader.result ?? "");
+      resolve(url.slice(url.indexOf(",") + 1)); // "data:image/png;base64,...." → "...."
+    };
+    reader.readAsDataURL(file);
+  });
 }

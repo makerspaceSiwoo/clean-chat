@@ -11,8 +11,8 @@ import threading
 from collections.abc import Iterator
 from pathlib import Path
 
+from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.schemas import PhaseEvent, Player
-from clean_chat.core.stage import read_jsonl
 
 
 class FakePhaseDetector:

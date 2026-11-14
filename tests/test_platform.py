@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from clean_chat.capture.grabber import ScreenGrabber
+from clean_chat.core.grabber import ScreenGrabber
 from clean_chat.core.platform import IS_WINDOWS, PlatformNotSupported, use_utf8_console
 from clean_chat.core.schemas import Region
 

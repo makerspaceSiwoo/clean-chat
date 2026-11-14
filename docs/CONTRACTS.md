@@ -1,64 +1,59 @@
 # 통신 포맷 (계약)
 
-> 코드 기준: `src/clean_chat/core/schemas.py` · 예시 기준: `fixtures/<stage>/*.jsonl`
+> 코드 기준: `src/clean_chat/core/schemas.py`(모델), `core/modules.py`(모듈 → 입출력 연결표) · 예시 기준: `fixtures/<모듈>/*.jsonl`
 > 이 문서와 코드가 다르면 **코드가 맞습니다**.
 
 ## 1. 규칙
-1. 모듈 사이에는 **pydantic 모델 객체**만 주고받습니다(같은 프로세스 안에서 함수 호출).
-2. 파일이나 테스트에서는 **JSONL**(한 줄 = 모델 1개 JSON)로 저장합니다. 사람이 읽고 고칠 수 있습니다.
-3. 모든 Stage는 **입력 모델 1개 → 출력 모델 1개**입니다. 입력이 여러 개 필요하면 `~Request` 봉투 모델로 묶습니다.
-4. 각 Stage의 `fixtures/<stage>/input.jsonl` n번째 줄 ↔ `expected.jsonl` n번째 줄이 짝입니다.
-5. 계약 변경은 "계약 변경 요청" 이슈 → 리드가 `schemas.py` 수정 + `SCHEMA_VERSION` 올림 + fixtures 갱신.
+1. 모듈 = **함수 1개**: `src/clean_chat/modules/<모듈>/impl.py` 의 `run(입력 모델) -> 출력 모델` (ADR-0017).
+2. 모듈 사이에는 **pydantic 모델 객체**만 주고받습니다(같은 프로세스 안에서 함수 호출). 시뮬레이터는 같은 모델을 JSON 으로 보냅니다.
+3. 파일이나 테스트에서는 **JSONL**(한 줄 = 모델 1개 JSON)로 저장합니다.
+4. `fixtures/<모듈>/input.jsonl` n번째 줄 ↔ `expected.jsonl` n번째 줄이 짝입니다.
+5. 계약 변경은 "계약 변경 요청" 이슈 → 리드가 `schemas.py` 수정 + `SCHEMA_VERSION` 올림 + fixtures 갱신 + `uv run python scripts/export_contracts.py`.
+6. **Mock 은 없습니다.** 구현 전 함수는 `NotImplementedError` 를 던지고, 앱·시뮬레이터는 그대로 오류를 보여 줍니다.
 
-## 2. Stage별 입출력
+## 2. 모듈별 입출력
 
-| Stage | 입력 | 출력 | fixtures |
-|---|---|---|---|
-| Stage | 흐름 | 입력 | 출력 | fixtures |
+| # | 모듈 | 입력 | 출력 | fixtures |
 |---|---|---|---|---|
-| ocr | A | `Frame` | `OcrResult` | `fixtures/ocr/` |
-| parse | A | `RawLine` | `ParseResult` | `fixtures/parse/` |
-| compose | B | `OutgoingText` | `ChatMessage` | `fixtures/compose/` |
-| normalize | 공통 | `ChatMessage` | `NormalizedMessage` | `fixtures/normalize/` |
-| classify | 공통 | `NormalizedMessage` | `Classification` | `fixtures/classify/` |
-| rewrite | 공통 | `RewriteRequest` | `Rewrite` | `fixtures/rewrite/` |
-| incoming_policy | A | `PolicyRequest` | `Decision` | `fixtures/incoming_policy/` |
-| outgoing_policy | B | `PolicyRequest` | `Decision` | `fixtures/outgoing_policy/` |
-| report | 게임 종료 | `ReportRequest` | `ReportDraft` | `fixtures/report/` |
-| complaint | 게임 종료 | `ComplaintRequest` | `ComplaintDraft` | `fixtures/complaint/` |
+| ① | ocr | `Frame` | `OcrResult` | `fixtures/ocr/` |
+| ② | parse | `ParseRequest` | `ParseResult` | `fixtures/parse/` |
+| ③ | analyze | `AnalyzeRequest` | `Analysis` | `fixtures/analyze/` |
+| ④ | rewrite | `RewriteRequest` | `Rewrite` | `fixtures/rewrite/` |
+| ⑤ | report | `ReportRequest` | `ReportDraft` | `fixtures/report/` |
 
-전체 흐름 예시 (`fixtures/scenario/`)
+구성(리드)이 쓰는 모델: `Decision`, `Incident`(정책표 결과), `PhaseEvent`, `GameSession`, `PostGameResult`.
+
+전체 흐름 예시 (`fixtures/scenario/`, `clean-chat run --source demo` 입력)
 | 파일 | 내용 |
 |---|---|
-| `lines.jsonl` → `expected_incidents.jsonl` | 흐름 A: 다른 유저 채팅 `RawLine` → `Incident` |
-| `outgoing.jsonl` → `expected_outgoing.jsonl` | 흐름 B: 내 입력 `OutgoingText` → `Incident` |
+| `lines.jsonl` | 흐름 A: 다른 유저 채팅 `RawLine` |
+| `outgoing.jsonl` | 흐름 B: 내 입력 문장 `{id, ts, text}` |
 | `phases.jsonl` | 가짜 단계 감지기가 재생하는 `PhaseEvent` (idle → in_game → post_game) |
 | `players.jsonl` | 게임 참가자 `Player` (가짜 감지기의 명단) |
-
-> 주의: 게임 중에는 `PolicyRequest.players`에 명단이 들어갑니다. 정책 fixtures 입력에도 같은 명단이 있어야 mock이 응답합니다.
 
 ## 3. 모델 요약
 
 ```
-Frame        { id, ts, image_path, region{x,y,w,h} }
-OcrResult    { frame_id, lines: RawLine[] }
-RawLine      { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
-OutgoingText { id, ts, text }                                  ← 흐름 B 입구 (오버레이 입력칸)
-ParseResult  { line_id, message: ChatMessage | null }
-ChatMessage  { id, ts, source, channel: team|all|system|ping|unknown, speaker?, champion?, text, is_me, raw }
-NormalizedMessage = ChatMessage + { text_norm, hints[] }
-Classification { msg_id, level: 0~3, harm_types[], has_feedback, scores{}, model_version }
-RewriteRequest { message: NormalizedMessage, classification }
-Rewrite      { msg_id, feedback_spans[], rewritten?, backend }
-PolicyRequest { message, classification, rewrite?, players: Player[] }
-Decision     { msg_id, is_me, action, display_text?, target?, report, complaint_candidate, reason }
-Incident     { msg, classification, decision, rewrite? }     ← UI·저장·신고가 쓰는 최종 기록
-PhaseEvent   { ts, phase: idle|in_game|post_game, raw? }   ← 단계 감지기 출력 (raw = LCU 원본 값)
-GameSession  { id, started_at, ended_at?, players: Player[], incidents: Incident[] }   ← 게임 1판 기록
-ReportRequest { session: GameSession, speaker }   → ReportDraft { speaker, text, incident_ids[] }
-ComplaintRequest { session: GameSession, speaker, complainant, output_dir } → ComplaintDraft { speaker, summary, incident_ids[], pdf_path? }
-PostGameResult { session_id, reports: ReportDraft[], complaints: ComplaintDraft[] }   ← 게임 종료 배치 결과 (UI용)
-Player       { name, champion?, team?, position?, is_me }
+① Frame          { id, ts, image_path, region{x,y,w,h} }
+   OcrResult      { frame_id, lines: RawLine[] }                ← 보이는 줄 전부 (프레임 사이 중복 제거는 구성)
+   RawLine        { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
+② ParseRequest   { line: RawLine, my_name }                     ← 내 입력은 source=self_input (본문만)
+   ParseResult    { line_id, message: ChatMessage | null }       ← 시스템 메시지·핑·잡음은 null
+   ChatMessage    { id, ts, source, channel: team|all|unknown, speaker, champion?, text, text_norm, hints[], is_me, raw }
+③ AnalyzeRequest { message: ChatMessage, history: ChatMessage[], players: Player[] }
+   Analysis       { msg_id, target?, level: 0~3, harm_types[], profanity_spans[], feedback_spans[], scores{}, model_version }
+④ RewriteRequest { message: ChatMessage, analysis: Analysis }
+   Rewrite        { msg_id, rewritten?, backend }
+⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir? }
+   ReportDraft    { kind, speaker, text, incident_ids[], pdf_path? }
+
+구성 (core/)
+   Decision       { msg_id, is_me, action, display_text?, target?, report, complaint_candidate, reason }   ← core/policy.py
+   Incident       { msg: ChatMessage, analysis, decision, rewrite? }   ← UI·저장·신고가 쓰는 최종 기록
+   PhaseEvent     { ts, phase: idle|in_game|post_game, raw? }
+   GameSession    { id, started_at, ended_at?, players: Player[], incidents: Incident[] }
+   PostGameResult { session_id, reports: ReportDraft[], complaints: ReportDraft[] }
+   Player         { name, champion?, team?, position?, is_me }
 ```
 
 ### 열거값
@@ -66,7 +61,11 @@ Player       { name, champion?, team?, position?, is_me }
 - `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질
 - `action` (타 유저): `show` · `show_masked` · `show_rewritten` · `hide`
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
-- `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료 (HANDOFF 5-2). report/complaint 는 `post_game` 에서만 실행
+- `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료. report 는 `post_game` 에서만 실행
+- `kind`: `report` 신고 문구 · `complaint` 고소장 초안(+PDF)
+
+### 조각(span) 규칙
+- `profanity_spans`, `feedback_spans` 는 `message.text`(원문)에 **그대로 있는** 조각입니다. 정책표가 비속어를 `**` 로 가리고(L1), rewrite 가 피드백 조각을 다듬습니다.
 
 ### 게임 세션
 - `GameSession.incidents` 에는 **다른 유저 채팅(흐름 A)만** 기록합니다. 내 채팅(흐름 B)은 복사/차단으로 끝납니다.
@@ -75,18 +74,16 @@ Player       { name, champion?, team?, position?, is_me }
 ## 4. 예시 (fixtures/parse 1줄)
 ```json
 // input.jsonl
-{"id":"L3","ts":1762920003.0,"text":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95}
+{"line":{"id":"L3","ts":1762920003.0,"text":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
 // expected.jsonl
-{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","is_me":false,"raw":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}}
+{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","text_norm":"야 정글 병신아 용 먼저 치라고","hints":["lexicon:ㅂㅅ"],"is_me":false,"raw":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}}
 ```
 
 ## 5. 모듈 개별 테스트 방법
 ```bash
-uv run python -m clean_chat.text parse --impl mock --check   # 형식 확인 (항상 통과)
-uv run python -m clean_chat.text parse                       # 내 실제 구현으로 fixtures 실행
-uv run python -m clean_chat.text parse --check               # 기대값과 몇 개 일치하는지
-uv run python -m clean_chat.text parse --in my_cases.jsonl --out result.jsonl
-uv run clean-chat run --real parse,normalize            # 내 모듈만 실제로, 나머지 mock으로 전체 흐름
-uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와" --real compose   # 흐름 B 1문장
-uv run pytest -q                                      # 구현된 모듈만 자동 검사 (미구현은 skip)
+uv run clean-chat module parse                        # 내 함수를 fixtures 입력으로 실행 (구현 전이면 "구현 안 됨", 종료 코드 2)
+uv run clean-chat module parse --check                # 기대값과 몇 개 일치하는지
+uv run clean-chat module parse --in my.jsonl --out result.jsonl
+uv run clean-chat serve                               # 시뮬레이터용 로컬 서버 → cd simulator && npm run dev
+uv run pytest tests/test_parse.py                     # 구현하면 자동 검사 (구현 전은 skip)
 ```

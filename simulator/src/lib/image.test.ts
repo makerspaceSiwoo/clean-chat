@@ -1,4 +1,4 @@
-import { checkImageFile, formatBytes, MAX_IMAGE_BYTES, uploadPath, withImagePath } from "./image";
+import { checkImageFile, fileToBase64, formatBytes, MAX_IMAGE_BYTES, uploadPath, withImagePath } from "./image";
 
 describe("이미지 첨부 규칙", () => {
   it("PNG·JPG 는 통과, 이미지가 아니거나 너무 크면 이유를 돌려준다", () => {
@@ -20,5 +20,9 @@ describe("이미지 첨부 규칙", () => {
     expect(formatBytes(500)).toBe("500B");
     expect(formatBytes(2048)).toBe("2.0KB");
     expect(formatBytes(3 * 1024 * 1024)).toBe("3.0MB");
+  });
+
+  it("파일을 data: 접두사 없는 base64 로", async () => {
+    await expect(fileToBase64(new Blob(["ABC"], { type: "image/png" }))).resolves.toBe("QUJD");
   });
 });

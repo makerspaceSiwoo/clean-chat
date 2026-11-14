@@ -16,7 +16,7 @@ class EngineBridge(QObject):
     incident = Signal(object)  # Incident (흐름 A 결과 1건)
     phase = Signal(object, object)  # GamePhase, GameSession | None
     result = Signal(object)  # PostGameResult (게임 종료 배치 처리 결과)
-    error = Signal(str)  # 엔진이 시작하지 못함 (Stage 준비 실패 등)
+    error = Signal(str)  # 엔진이 멈춤 (구현 없는 모듈을 만남 등)
 
     def __init__(self, engine: Engine) -> None:
         super().__init__()
@@ -27,7 +27,7 @@ class EngineBridge(QObject):
 
 
 class OutgoingRunner(QObject):
-    done = Signal(object)  # Incident (흐름 B 결과)
+    done = Signal(object)  # Incident | None (흐름 B 결과, 채팅이 아니면 None)
     failed = Signal(str)
 
     def __init__(self, outgoing: OutgoingPipeline) -> None:

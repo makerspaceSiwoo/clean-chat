@@ -1,19 +1,22 @@
 import { ModuleGrid } from "@/components/ModuleGrid";
-import { allFixtureCases } from "@/mocks/fixtures";
+import { allExamples } from "@/examples/examples";
 import { MODULES } from "@/modules/registry";
 
 export default function HomePage() {
-  const fixtures = allFixtureCases();
-  const caseCounts = Object.fromEntries(MODULES.map((m) => [m.stageId, fixtures[m.stageId]?.length ?? 0]));
+  const examples = allExamples();
+  const exampleCounts = Object.fromEntries(MODULES.map((m) => [m.moduleId, examples[m.moduleId]?.length ?? 0]));
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold">모듈 목록</h1>
+        <h1 className="text-xl font-semibold">모듈 5개</h1>
         <p className="mt-1 text-sm text-slate-600">
-          카드를 누르면 해당 Stage 를 Mock 데이터로 실행하고 결과·체크리스트를 확인할 수 있습니다. Mock 데이터는 레포의 <code className="font-mono">fixtures/</code> 입니다.
+          카드를 누르고 입력을 넣어 실행하면 <b>실제 파이썬 모듈 함수</b>의 output 이 나옵니다. 구현 전인 모듈은 &lsquo;501 구현 안 됨&rsquo; 오류가 납니다.
+        </p>
+        <p className="mt-1 text-sm text-slate-600">
+          먼저 레포 루트에서 <code className="rounded bg-slate-100 px-1 font-mono">uv run clean-chat serve</code> 로 로컬 모듈 서버를 켜세요.
         </p>
       </div>
-      <ModuleGrid modules={MODULES} caseCounts={caseCounts} />
+      <ModuleGrid modules={MODULES} exampleCounts={exampleCounts} />
     </div>
   );
 }

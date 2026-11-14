@@ -34,7 +34,7 @@ Settings → Rules → Rulesets → `protect-main`
 - 필수 status check
 
 `.github/CODEOWNERS`는 리뷰 요청을 자동으로 보내는 용도로만 씁니다(승인 필수 아님).
-`@WP1_LEAD` 같은 자리표시자를 `docs/MODULES.md`의 작업 패키지 배정대로 실제 GitHub 아이디로 바꿉니다.
+`@LEAD`, `@M1_OCR` ~ `@M5_REPORT` 자리표시자를 `docs/MODULES.md`의 배정대로 실제 GitHub 아이디로 바꿉니다.
 
 ## 4. 선택 설정 (아직 안 함)
 필요하면 Settings에서 직접 바꿉니다.
@@ -46,4 +46,4 @@ Settings → Rules → Rulesets → `protect-main`
 ## 5. 확인
 - `main`에 직접 push → 거부되면 정상
 - 팀원이 `feature/test` 브랜치로 PR → `pr-rules` 실패 표시가 뜨면 정상
-- `mod/ui` 브랜치에서 `core/schemas.py` 수정 PR → `모듈 경계` 실패 표시가 뜨면 정상
+- `mod/parse` 브랜치에서 `core/schemas.py` 수정 PR → `모듈 경계` 실패 표시가 뜨면 정상

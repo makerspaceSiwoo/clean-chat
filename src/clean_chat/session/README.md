@@ -1,13 +1,13 @@
-# session (WP8) — 게임 단계 감지 + 세션 저장소
+# session (구성 · 리드) — 게임 단계 감지 + 세션 저장소
 
-명세: `docs/MODULES.md`의 `session` 절 · 결정: ADR-0014 · 미정: OPEN-11(명단), OPEN-12(단계 이름)
+명세: `docs/MODULES.md`의 구성 절 · 결정: ADR-0014 · 미정: OPEN-11(명단), OPEN-12(단계 이름)
 
 | 파일 | 내용 | 상태 | 수정 |
 |---|---|---|---|
 | `fake.py` | `FakePhaseDetector`: `fixtures/scenario/phases.jsonl`, `players.jsonl` 재생 | 동작 | ✅ |
 | `windows.py` | 🪟 `LcuPhaseDetector`: LCU `gameflow-phase` 읽기(읽기 전용) + Live Client Data 명단 | 시그니처·설명만 | ✅ |
 | `store.py` | `JsonlSessionRepository`: `.clean-chat/sessions/<id>.jsonl` 저장·조회 | 시그니처·설명만 | ✅ |
-| `core/game.py` | 상태 기계, 저장소 포트, 게임 종료 배치 (참고용) | 동작 | ❌ (리드) |
+| `core/game.py` | 상태 기계, 저장소 포트, 게임 종료 배치 (참고용) | 동작 | ✅ (리드) |
 
 감지기는 단계를 **보고만** 합니다. 어떤 전환을 받아들일지는 `core/game.py`의 상태 기계가 정합니다.
 

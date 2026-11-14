@@ -1,4 +1,4 @@
-"""[뼈대 · WP7] 오버레이 창 (SPEC 3-2): 게임 채팅창을 가리고 필터된 채팅 표시 + 내 채팅 입력
+"""[구성 · 리드] 오버레이 창 (SPEC 3-2): 게임 채팅창을 가리고 필터된 채팅 표시 + 내 채팅 입력
 
 - 게임 중(IN_GAME)에만 보인다. 표시/숨김은 app.py 가 단계 신호로 정한다.
 - Decision.display_text 만 보여 주고 **판단하지 않는다** (MVP: 화면은 보여 주기만).
@@ -41,11 +41,11 @@ class OverlayWindow(QWidget):
         """입력칸 Enter: 텍스트를 읽고 비운 뒤 on_submit(text) 호출. 빈 문장은 무시. 처리 중 표시(notice)."""
         raise NotImplementedError("ui 담당: submit_input")
 
-    def apply_outgoing(self, inc: Incident) -> None:
+    def apply_outgoing(self, inc: Incident | None) -> None:
         """흐름 B 결과 반영 (ADR-0006: 가상 키 입력 없이 클립보드만).
 
         copy / copy_masked / copy_rewritten → display_text 를 클립보드에 복사 + "복사됨, 게임 채팅창에 붙여넣으세요"
-        block → 클립보드는 그대로 두고 "이 문장은 보낼 수 없어요"
+        block → 클립보드는 그대로 두고 "이 문장은 보낼 수 없어요" / None(채팅이 아님) → 아무것도 안 함
         예) "아 정글 ㅂㅅ 왜 안 와" → copy_rewritten "정글 합류 부탁해요" 복사
         """
         raise NotImplementedError("ui 담당: apply_outgoing")

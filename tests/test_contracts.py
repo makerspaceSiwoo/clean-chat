@@ -2,50 +2,62 @@
 
 import pytest
 
-from clean_chat.core import registry
-from clean_chat.core.config import FIXTURES, STAGE_NAMES
-from clean_chat.core.schemas import (
-    ComplaintRequest,
-    GamePhase,
-    GameSession,
-    Incident,
-    PhaseEvent,
-    RawLine,
-    ReportRequest,
-)
-from clean_chat.core.stage import read_jsonl
+from clean_chat.core.config import FIXTURES
+from clean_chat.core.jsonl import read_jsonl
+from clean_chat.core.modules import MODULE_NAMES, MODULES
+from clean_chat.core.schemas import GamePhase, GameSession, PhaseEvent, RawLine, ReportKind, ReportRequest
+from helpers import fixture_pairs
 
 
-@pytest.mark.parametrize("name", STAGE_NAMES)
+def test_five_modules():
+    assert MODULE_NAMES == ("ocr", "parse", "analyze", "rewrite", "report")
+
+
+@pytest.mark.parametrize("name", MODULE_NAMES)
 def test_fixture_pairs_match_schema(name):
-    iface = registry.interface(name)
-    ins = read_jsonl(FIXTURES / name / "input.jsonl", iface.input_model)
-    outs = read_jsonl(FIXTURES / name / "expected.jsonl", iface.output_model)
-    assert ins and len(ins) == len(outs)
+    assert fixture_pairs(name)
+
+
+@pytest.mark.parametrize("name", MODULE_NAMES)
+def test_module_function_exists(name):
+    """모듈마다 impl.run 이 있어야 연결표가 찾을 수 있다."""
+    from clean_chat.core.modules import load
+
+    assert callable(load(name))
+    assert MODULES[name].path == f"src/clean_chat/modules/{name}/impl.py"
+
+
+def test_parse_drops_system_messages_and_handles_my_input():
+    """parse 예시: 시스템·핑·잡음은 None, 내 입력(self_input)은 화자 = my_name"""
+    pairs = {i.line.id: (i, o) for i, o in fixture_pairs("parse")}
+    assert pairs["L1"][1].message is None  # 핑
+    assert pairs["L6"][1].message is None  # 잡음
+    req, out = pairs["L7"]
+    assert req.line.source == "self_input" and out.message.speaker == req.my_name and out.message.is_me
+
+
+def test_analyze_spans_are_in_original_text():
+    """비속어·피드백 조각은 원문(text)에 그대로 있어야 정책표가 가리고 rewrite 가 쓸 수 있다"""
+    for req, out in fixture_pairs("analyze"):
+        for span in out.profanity_spans + out.feedback_spans:
+            assert span in req.message.text, (out.msg_id, span)
 
 
 def test_scenario_files():
     assert read_jsonl(FIXTURES / "scenario" / "lines.jsonl", RawLine)
-    assert read_jsonl(FIXTURES / "scenario" / "expected_incidents.jsonl", Incident)
 
 
-@pytest.mark.parametrize("name", STAGE_NAMES)
-def test_mock_default_is_valid(name):
-    """fixtures에 없는 입력이 와도 mock이 형식에 맞는 값을 돌려주는지"""
-    iface = registry.interface(name)
-    item = read_jsonl(FIXTURES / name / "input.jsonl", iface.input_model)[0]
-    out = iface.mock_default(item)
-    assert isinstance(out, iface.output_model)
-
-
-@pytest.mark.parametrize(("name", "model"), [("report", ReportRequest), ("complaint", ComplaintRequest)])
-def test_report_inputs_are_game_sessions(name, model):
-    """신고·고소장 입력은 게임 세션 기반이고, 세션에는 다른 유저 채팅(흐름 A)만 기록된다 (HANDOFF 5-1, 5-2)."""
-    for req in read_jsonl(FIXTURES / name / "input.jsonl", model):
-        assert isinstance(req.session, GameSession)
+def test_report_inputs_are_game_sessions():
+    """신고·고소장 입력은 게임 세션 기반이고, 세션에는 다른 유저 채팅(흐름 A)만 기록된다."""
+    kinds = set()
+    for req in read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest):
+        kinds.add(req.kind)
         assert req.session.ended_at is not None  # POST_GAME 에서만 실행 → 끝난 게임
         assert req.session.incidents
         assert not any(inc.msg.is_me for inc in req.session.incidents)
+        if req.kind == ReportKind.COMPLAINT:
+            assert req.complainant and req.output_dir
+    assert kinds == {ReportKind.REPORT, ReportKind.COMPLAINT}
 
 
 def test_session_round_trip_jsonl():
@@ -61,7 +73,7 @@ def test_phase_event_values():
 
 
 def test_shared_contracts_file_is_up_to_date():
-    """contracts/stages.schema.json 이 schemas.py 와 같아야 웹앱이 같은 계약을 쓴다 (ADR-0015).
+    """contracts/modules.schema.json 이 schemas.py 와 같아야 웹앱이 같은 계약을 쓴다 (ADR-0015).
 
     실패하면: uv run python scripts/export_contracts.py 실행 후 함께 커밋
     """

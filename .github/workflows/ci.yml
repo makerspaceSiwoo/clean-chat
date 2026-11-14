@@ -29,17 +29,9 @@ jobs:
         run: uv run ruff check .
       - name: 포맷 검사
         run: uv run ruff format --check .
-      - name: 테스트 (미구현 모듈은 skip)
+      - name: 테스트 (구현 전 모듈은 skip, 연결 구조·정책표·서버는 가짜 함수로 검사)
         run: uv run pytest -q
-      - name: 모듈 단독 실행 (모든 Stage, mock)
-        shell: bash
-        run: |
-          # Windows 에서는 출력 줄 끝에 CR(\r)이 붙어 마지막 인자가 깨지므로 지운다
-          uv run clean-chat modules | tr -d '\r' | while read -r stage cmd; do
-            echo "▶ $stage"
-            $cmd < /dev/null > /dev/null
-          done
+      - name: 모듈 목록 (모듈 5개, ADR-0017)
+        run: uv run clean-chat modules
       - name: 공통 계약 최신 확인 (contracts/, ADR-0015)
         run: uv run python scripts/export_contracts.py --check
-      - name: 흐름 B 단독 실행 (mock)
-        run: uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"

@@ -12,9 +12,7 @@ export function EnvBadge() {
   return (
     <div className="flex items-center gap-2 text-xs">
       <span className={`rounded border px-2 py-0.5 font-medium ${ENV_STYLE[config.appEnv]}`}>{config.appEnv}</span>
-      <span className="rounded border border-slate-300 bg-white px-2 py-0.5 text-slate-700">
-        {config.apiMode === "mock" ? "Mock 데이터 (fixtures)" : `API ${config.apiBaseUrl}`}
-      </span>
+      <span className="rounded border border-slate-300 bg-white px-2 py-0.5 font-mono text-slate-700">모듈 서버 {config.apiBaseUrl}</span>
     </div>
   );
 }
