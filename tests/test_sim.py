@@ -140,7 +140,9 @@ def test_module_list_has_forms_and_examples():
     assert next(m for m in items if m["name"] == "ocr")["form"][0]["type"] == "image"
 
 
-def test_http_static_api_and_stream():
+def test_http_static_api_and_stream(monkeypatch):
+    monkeypatch.setenv("CLEAN_CHAT_SIM_TARGET", "sim_fakes:ok")
+    monkeypatch.setenv("PYTHONPATH", str(TESTS))
     httpd = make_server(0)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{httpd.server_address[1]}"
@@ -160,7 +162,8 @@ def test_http_static_api_and_stream():
             assert r.headers["Content-Type"].startswith("application/x-ndjson")
             events = [json.loads(line) for line in r.read().decode().splitlines() if line.strip()]
         assert events[0]["type"] == "log" and events[-1]["type"] == "result"
-        assert events[-1]["status"] == "not_implemented"
+        assert events[-1]["status"] == "ok"
+        assert events[-1]["output"] == {"line_id": events[-1]["input"]["line"]["id"], "message": None}
         with pytest.raises(urllib.error.HTTPError) as e:
             urllib.request.urlopen(f"{base}/../pyproject.toml", timeout=5)
         assert e.value.code == 404
