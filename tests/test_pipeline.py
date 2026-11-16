@@ -101,8 +101,13 @@ def test_process_frame_runs_ocr_then_lines():
 
 
 def test_unimplemented_module_stops_engine_with_its_name():
-    """Mock 이 없으므로 구현 전 모듈을 만나면 멈추고 이름을 알린다 (실제 모듈 = 지금은 전부 미구현)."""
-    eng = _engine(ModuleSet())
+    """미구현 모듈을 만나면 엔진이 멈추고 해당 모듈 이름을 알린다."""
+    from clean_chat.core.schemas import ParseRequest, ParseResult
+
+    def unimplemented_parse(req: ParseRequest) -> ParseResult:
+        raise NotImplementedError("테스트용 미구현 모듈")
+
+    eng = _engine(ModuleSet({"parse": unimplemented_parse}))
     errors: list[str] = []
     results: list[PostGameResult] = []
     eng.on_error(errors.append)
