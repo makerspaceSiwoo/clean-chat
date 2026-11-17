@@ -14,11 +14,11 @@ def run(req: AnalyzeRequest) -> Analysis:
     """메시지 1개(+ 앞 대화, 명단) → 대상(target), 등급 L0~L3, 유해 유형, 비속어 조각, 피드백 조각.
 
     입력: AnalyzeRequest(message, history, players) → 출력: Analysis
-    예) 원딜러: "야 정글 ㅂㅅ아 용 먼저 치라고" (text_norm "야 정글 병신아 용 먼저 치라고")
-        → target="정글", level=2, harm_types=[profanity, blame], profanity_spans=["ㅂㅅ"], feedback_spans=["용 먼저 치라고"]
-    예) 미드킹: "아 ㅅㅂ 내가 실수함" → target=None, level=1 (대상 없는 혼잣말), profanity_spans=["ㅅㅂ"]
-    예) 상대탑: "탑 니애미 tlqkf" → target="탑", level=3, harm_types=[profanity, family_insult]
-    예) 탑솔장인: "다들 화이팅" → level=0, 나머지 빈 값
+    예) 불꽃남자: "야 정글 ㅂㅅ아 용 먼저 치라고" (text_norm "야 정글 병신아 용 먼저 치라고")
+        → target="초코우유" (정글 = 리신을 고른 사람), level=2, harm_types=[profanity, blame], profanity_spans=["ㅂㅅ"], feedback_spans=["용 먼저 치라고"]
+    예) 달빛고양이: "아 ㅅㅂ 내가 실수함" → target=None, level=1 (대상 없는 혼잣말), profanity_spans=["ㅅㅂ"]
+    예) 얼음땡(상대 팀, 전체 채팅): "탑 니애미 tlqkf" → target="밤하늘별" (우리 팀 탑 = 가렌), level=3, harm_types=[profanity, family_insult]
+    예) 밤하늘별: "다들 화이팅" → level=0, 나머지 빈 값
     순서: _predict_harm → _guess_target → _decide_level → _find_profanity → _extract_feedback
     주의: 내 채팅과 다른 유저 채팅에 같은 기준. CPU 1문장 0.2초 이내. model_version 기록.
           profanity_spans·feedback_spans 는 message.text(원문)에 있는 그대로의 조각이어야 한다.
@@ -33,7 +33,11 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
 
 
 def _guess_target(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> str | None:
-    """공격 대상 추정: 포지션 단어(탑/정글/미드/원딜/서폿) → 명단의 닉네임·챔피언 → 직전 대화 상대. 모르면 None."""
+    """공격 대상 추정 → 닉네임 (ADR-0020). 모르면 None.
+
+    채팅은 `닉네임 (챔피언)` 뿐이라 포지션을 모른다. 포지션 단어(탑/정글/미드/원딜/서폿)는 명단·앞 대화의 챔피언이
+    주로 가는 라인으로 그 사람을 찾는다 → 닉네임·챔피언 언급 → 직전 대화 상대. 한 명으로 못 좁히면 포지션 단어 그대로.
+    """
     raise NotImplementedError
 
 

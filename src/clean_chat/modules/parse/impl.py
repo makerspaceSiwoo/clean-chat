@@ -12,11 +12,11 @@ def run(req: ParseRequest) -> ParseResult:
     """줄 1개 → 채팅이면 ChatMessage(채널·화자·챔피언·본문 + text_norm), 채팅이 아니면 None.
 
     입력: ParseRequest(line, my_name) → 출력: ParseResult(line_id, message)
-    예) "[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"
-        → channel=team, speaker="원딜러", champion="징크스", text="야 정글 ㅂㅅ아 용 먼저 치라고",
+    예) "[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"
+        → channel=team, speaker="불꽃남자", champion="징크스", text="야 정글 ㅂㅅ아 용 먼저 치라고",
           text_norm="야 정글 병신아 용 먼저 치라고", hints=["lexicon:ㅂㅅ"], is_me=False
     예) "[팀] 나 (쓰레쉬): 정글 합류 부탁해요" (my_name="나") → is_me=True
-    예) "정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다" → 핑·시스템 메시지라 message=None
+    예) "초코우유 (리신)님이 점멸 쿨타임 신호를 보냈습니다" → 핑·시스템 메시지라 message=None
     예) "@@ ㅡ ##" → 잡음이라 message=None
     예) source=self_input, text="아 정글 ㅂㅅ 왜 안 와" (내 입력, 흐름 B)
         → channel=team, speaker=my_name, champion=None, is_me=True, raw=입력 그대로
@@ -30,12 +30,12 @@ def run(req: ParseRequest) -> ParseResult:
 
 # ── 줄 분해 ──
 def _split_channel(text: str) -> tuple[Channel | None, str]:
-    """앞의 채널 표기와 나머지를 분리. 예) "[팀] 원딜러 (징크스): ..." → (team, "원딜러 (징크스): ...")"""
+    """앞의 채널 표기와 나머지를 분리. 예) "[팀] 불꽃남자 (징크스): ..." → (team, "불꽃남자 (징크스): ...")"""
     raise NotImplementedError
 
 
 def _split_speaker(rest: str) -> tuple[str | None, str | None, str]:
-    """닉네임·챔피언·본문 분리. 예) "원딜러 (징크스): 용 먼저" → ("원딜러", "징크스", "용 먼저"). 닉네임에 공백 가능."""
+    """닉네임·챔피언·본문 분리. 예) "불꽃남자 (징크스): 용 먼저" → ("불꽃남자", "징크스", "용 먼저"). 닉네임에 공백 가능."""
     raise NotImplementedError
 
 
