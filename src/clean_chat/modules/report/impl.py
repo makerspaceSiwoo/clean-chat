@@ -14,12 +14,12 @@ def run(req: ReportRequest) -> ReportDraft:
     """대상 화자의 기록을 모아 신고 문구 또는 고소장 초안을 만든다.
 
     입력: ReportRequest(kind, session, speaker, complainant?, output_dir?) → 출력: ReportDraft
-    예) kind=report, speaker="원딜러" →
-        text="신고 대상: 원딜러\\n사유: 언어 폭력 2건\\n[2025-11-12 13:00:03] 야 정글 ㅂㅅ아 용 먼저 치라고 (욕설, 비난)\\n...",
+    예) kind=report, speaker="불꽃남자" →
+        text="신고 대상: 불꽃남자\\n사유: 언어 폭력 2건\\n[2025-11-12 13:00:03] 야 정글 ㅂㅅ아 용 먼저 치라고 (욕설, 비난)\\n...",
         incident_ids=["L3", "L4"]
-    예) kind=complaint, speaker="상대탑" →
+    예) kind=complaint, speaker="얼음땡" →
         text="피고소인은 게임 중 전체 채팅으로 고소인의 가족을 모욕하는 채팅을 1회 하였다.",
-        incident_ids=["L5"], pdf_path=".clean-chat/complaints/complaint_상대탑.pdf"
+        incident_ids=["L5"], pdf_path=".clean-chat/complaints/complaint_얼음땡.pdf"
     순서: report    → _pick_incidents(decision.report) → _format_line → 머리말(대상, 건수)
           complaint → _pick_incidents(decision.complaint_candidate) → _summarize → _fill_template → _render_pdf
     주의: 원문은 msg.text 를 그대로 인용(고치지 않음). 시각은 한국 시간. 자동으로 보내지 않는다.

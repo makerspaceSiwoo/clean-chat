@@ -42,6 +42,7 @@
    ChatMessage    { id, ts, source, channel: team|all|unknown, speaker, champion?, text, text_norm, hints[], is_me, raw }
 ③ AnalyzeRequest { message: ChatMessage, history: ChatMessage[], players: Player[] }
    Analysis       { msg_id, target?, level: 0~3, harm_types[], profanity_spans[], feedback_spans[], scores{}, model_version }
+                  ← target = 공격 대상의 **닉네임** (한 명으로 못 좁히면 포지션 단어 "정글", 없으면 null) — ADR-0020
 ④ RewriteRequest { message: ChatMessage, analysis: Analysis }
    Rewrite        { msg_id, rewritten?, backend }
 ⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir? }
@@ -53,7 +54,7 @@
    PhaseEvent     { ts, phase: idle|in_game|post_game, raw? }
    GameSession    { id, started_at, ended_at?, players: Player[], incidents: Incident[] }
    PostGameResult { session_id, reports: ReportDraft[], complaints: ReportDraft[] }
-   Player         { name, champion?, team?, position?, is_me }
+   Player         { name, champion?, team?, position?, is_me }   ← position 은 비어 있을 수 있음. 채팅은 `닉네임 (챔피언)` 뿐이라 포지션은 챔피언으로 추정 (ADR-0020)
 ```
 
 ### 열거값
@@ -74,9 +75,9 @@
 ## 4. 예시 (fixtures/parse 1줄)
 ```json
 // input.jsonl
-{"line":{"id":"L3","ts":1762920003.0,"text":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L3","ts":1762920003.0,"text":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
 // expected.jsonl
-{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"원딜러","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","text_norm":"야 정글 병신아 용 먼저 치라고","hints":["lexicon:ㅂㅅ"],"is_me":false,"raw":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}}
+{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"불꽃남자","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","text_norm":"야 정글 병신아 용 먼저 치라고","hints":["lexicon:ㅂㅅ"],"is_me":false,"raw":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}}
 ```
 
 ## 5. 모듈 개별 테스트 방법

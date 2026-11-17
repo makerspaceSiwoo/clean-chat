@@ -74,7 +74,7 @@ class ClientWindow(QMainWindow):
     def add_incident(self, inc: Incident) -> None:
         """게임 중 화면의 실시간 내역에 1건 추가: 시각 · 화자 · 원문 · 등급 · 처리 결과.
 
-        예) "13:00:04 원딜러 | 미드 시1발 개못하네 | L2 | 숨김·신고"
+        예) "13:00:04 불꽃남자 | 미드 시1발 개못하네 | L2 | 숨김·신고"
         주의: 판단하지 말고 Decision 을 그대로 보여 주기만. 원문 표시는 클라이언트에서만(오버레이에는 표시 금지).
         """
         raise NotImplementedError("ui 담당: add_incident")
@@ -82,7 +82,7 @@ class ClientWindow(QMainWindow):
     def show_result(self, result: PostGameResult) -> None:
         """'이번 게임 결과' 화면 채우기: reports 목록(화자 + 문구 앞부분), complaints 목록(화자 + PDF 경로).
 
-        예) 신고 2건(원딜러, 상대탑), 고소장 1건(상대탑)
+        예) 신고 2건(불꽃남자, 얼음땡), 고소장 1건(얼음땡)
         """
         raise NotImplementedError("ui 담당: show_result")
 
