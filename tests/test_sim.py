@@ -65,8 +65,10 @@ def test_image_saved_safely_and_only_for_image_modules(tmp_path):
 
 
 # ── 실행 (하위 프로세스) ──
-def test_unimplemented_module_streams_steps_and_not_implemented():
-    logs, result = _run("parse", {"simple": {"text": "[팀] 불꽃남자 (징크스): ㅎㅇ"}})
+def test_unimplemented_module_streams_steps_and_not_implemented(monkeypatch):
+    logs, result = _run(
+        "parse", {"simple": {"text": "[팀] 불꽃남자 (징크스): ㅎㅇ"}}, monkeypatch, target="unimplemented"
+    )
     assert result["status"] == "not_implemented" and "parse" in result["error"]
     text = _text(logs)
     assert "입력 검증" in text and "run() 실행" in text and "구현이 아직 없습니다" in text
