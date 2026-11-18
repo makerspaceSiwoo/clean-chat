@@ -15,7 +15,12 @@ from clean_chat.core.schemas import Channel, ChatMessage, ParseRequest, ParseRes
 _CHANNEL = re.compile(r"^[\[(（［][ \t]*(팀|전체)[ \t]*[\])）］][ \t]*")
 _HEADER_TEXT = r"[^:;：；()（）\[\]［］\r\n]+?"
 _SPEAKER = re.compile(rf"({_HEADER_TEXT})(?:[ \t]*[(（]({_HEADER_TEXT})[)）])?[ \t]*[:;：；][ \t]?([^\r\n]*)")
-_SYSTEM = re.compile(r".+(?:님이 .*(?:신호를 보냈습니다|처치했습니다)|님이 게임을 (?:종료|떠났)습니다)[.!]?")
+_SYSTEM = re.compile(
+    rf"{_HEADER_TEXT}(?:[ \t]*[(（]{_HEADER_TEXT}[)）])?[ \t]*님이 "
+    r"(?:[^\r\n]*(?:신호를 보냈습니다|처치했습니다)|게임을 (?:종료했습니다|떠났습니다))[.!]?"
+)
+_UI_CLOCK = re.compile(r"(?:게임 시간|남은 시간)[ \t]*[:;：；][ \t]*[0-9]{1,3}[:：][0-9]{2}")
+_NOTICE_LABEL = re.compile(r"^(?:알림|시스템)[ \t]*[:;：；][ \t]*")
 
 
 def run(req: ParseRequest) -> ParseResult:
@@ -30,7 +35,7 @@ def run(req: ParseRequest) -> ParseResult:
     예) "@@ ㅡ ##" → 잡음이라 message=None
     예) source=self_input, text="아 정글 ㅂㅅ 왜 안 와" (내 입력, 흐름 B)
         → channel=team, speaker=my_name, champion=None, is_me=True, raw=입력 그대로
-    순서: (self_input 이면 _split_channel_command) / (아니면 _is_noise → _split_channel → _split_speaker → _is_system)
+    순서: (self_input 이면 _split_channel_command) / (아니면 _is_noise → _split_channel → _is_system → _split_speaker)
           → normalize(본문) → ChatMessage(raw=원본 줄 그대로)
     주의: text 와 raw 는 증거라서 절대 고치지 않는다(정규화는 text_norm 에만). OCR 오인식([ ↔ (, : ↔ ;)에 강하게.
     관련: ADR-0002, ADR-0006, OPEN-09
@@ -43,8 +48,10 @@ def run(req: ParseRequest) -> ParseResult:
         if _is_noise(line.text):
             return ParseResult(line_id=line.id, message=None)
         channel, rest = _split_channel(line.text)
+        if channel is None and _is_system(rest):
+            return ParseResult(line_id=line.id, message=None)
         speaker, champion, body = _split_speaker(rest)
-        if speaker is None or _is_system(rest):
+        if speaker is None:
             return ParseResult(line_id=line.id, message=None)
         is_me = bool(req.my_name) and speaker == req.my_name
         channel = channel or Channel.UNKNOWN
@@ -87,9 +94,11 @@ def _split_speaker(rest: str) -> tuple[str | None, str | None, str]:
 
 
 def _is_system(text: str) -> bool:
-    """시스템 메시지·핑·스펠 체크 문구인지 (예: "~님이 처치했습니다", "~신호를 보냈습니다"). 문구 목록은 OPEN-09."""
-    # 화자 구분자가 있는 실제 채팅은 본문에 알림 문구를 인용해도 보존한다.
-    return _SPEAKER.fullmatch(text) is None and _SYSTEM.fullmatch(text.strip()) is not None
+    """알려진 알림 전체 형식과 시계 UI만 제외한다. 실제 문구 목록 확정은 OPEN-09."""
+    stripped = text.strip()
+    # 본문 키워드만 찾지 않는다. 명시적 채널이 없는 경우에도 일반 화자의 인용 채팅은 남긴다.
+    notice = _NOTICE_LABEL.sub("", stripped, count=1)
+    return _SYSTEM.fullmatch(notice) is not None or _UI_CLOCK.fullmatch(stripped) is not None
 
 
 def _is_noise(text: str) -> bool:

@@ -47,7 +47,8 @@ def test_empty_self_input(raw: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "raw", ["", "@@ ㅡ ##", "옵션", "용 먼저", "[팀] 나 (가렌):   ", "정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다"]
+    "raw",
+    ["", "@@ ㅡ ##", "옵션", "용 먼저", "[팀] 나 (가렌):   ", "초코우유 (리신)님이 점멸 쿨타임 신호를 보냈습니다"],
 )
 def test_non_chat(raw: str) -> None:
     assert run(request(raw)).message is None
@@ -147,3 +148,68 @@ def test_self_input_does_not_repair_chat_headers() -> None:
     assert message is not None
     assert (message.speaker, message.champion, message.is_me) == ("나", None, True)
     assert (message.text, message.raw) == (raw, raw)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "초코우유 (리신)님이 점멸 쿨타임 신호를 보냈습니다",
+        "초코우유（리신）님이 점멸: 30초 신호를 보냈습니다.",
+        "초코우유님이 밤하늘별님을 처치했습니다!",
+        "초코우유님이 게임을 종료했습니다",
+        "초코우유님이 게임을 떠났습니다.",
+        "알림: 초코우유님이 게임을 떠났습니다",
+        "시스템； 초코우유 (리신)님이 점멸 쿨타임 신호를 보냈습니다",
+        "게임 시간: 12:34",
+        "남은 시간： 01：20",
+    ],
+)
+def test_known_notifications_and_clock_labels_are_not_chat(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+@pytest.mark.parametrize(
+    ("header", "speaker"),
+    [
+        ("[팀] 불꽃남자 (징크스): ", "불꽃남자"),
+        ("(팀) 불꽃남자 (징크스); ", "불꽃남자"),
+        ("불꽃남자: ", "불꽃남자"),
+        ("알림 (가렌): ", "알림"),
+    ],
+)
+@pytest.mark.parametrize(
+    "body",
+    [
+        "초코우유님이 게임을 떠났습니다",
+        "초코우유님이 점멸 쿨타임 신호를 보냈습니다",
+        "게임 시간: 12:34",
+    ],
+)
+def test_notification_words_in_chat_body_are_preserved(header: str, speaker: str, body: str) -> None:
+    raw = header + body
+    message = run(request(raw)).message
+    assert message is not None
+    assert (message.speaker, message.text, message.raw) == (speaker, body, raw)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "[팀] 게임 시간: 12:34",
+        "게임 시간 (가렌): 12:34",
+        "게임 시간: 합류 부탁해요",
+        "게임 시간: 12:34에 합류해요",
+        "초코우유님이: 게임을 떠났습니다",
+    ],
+)
+def test_clock_or_notice_like_player_names_are_not_blanket_filtered(raw: str) -> None:
+    message = run(request(raw)).message
+    assert message is not None
+    assert message.raw == raw
+
+
+@pytest.mark.parametrize("raw", ["게임 시간: 12:34", "알림: 초코우유님이 게임을 떠났습니다"])
+def test_notification_detection_is_not_applied_to_self_input(raw: str) -> None:
+    message = run(request(raw, Source.SELF_INPUT)).message
+    assert message is not None
+    assert (message.speaker, message.text, message.raw) == ("나", raw, raw)
