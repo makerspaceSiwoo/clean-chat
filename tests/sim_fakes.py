@@ -12,6 +12,10 @@ def ok(req: ParseRequest) -> ParseResult:
     return ParseResult(line_id=req.line.id, message=None)
 
 
+def unimplemented(req: ParseRequest) -> ParseResult:
+    raise NotImplementedError("테스트용 미구현 모듈")
+
+
 def boom(req: ParseRequest) -> ParseResult:
     print("곧 터짐")
     raise ValueError("일부러 낸 오류")

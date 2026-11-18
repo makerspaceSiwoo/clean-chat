@@ -93,7 +93,9 @@ class Player(BaseModel):
     name: str
     champion: str | None = None
     team: str | None = None  # "ORDER" | "CHAOS"
-    position: str | None = None  # TOP/JUNGLE/MIDDLE/BOTTOM/UTILITY
+    position: str | None = (
+        None  # TOP/JUNGLE/MIDDLE/BOTTOM/UTILITY. 비어 있을 수 있다 → 챔피언의 주 라인으로 추정 (ADR-0020)
+    )
     is_me: bool = False
 
 
@@ -167,7 +169,9 @@ class Analysis(BaseModel):
     """판단만 한다(얼마나 나쁜가, 누구를 향하나). 숨김·신고·차단 같은 처리는 구성(core/policy.py)이 정한다."""
 
     msg_id: str
-    target: str | None = None  # 공격 대상 (닉네임·포지션·챔피언). 모르거나 대상이 없으면 None
+    target: str | None = (
+        None  # 공격 대상의 닉네임. 한 명으로 못 좁히면 포지션 단어("정글"), 대상이 없으면 None (ADR-0020)
+    )
     level: Level
     harm_types: list[HarmType] = Field(default_factory=list)
     profanity_spans: list[str] = Field(default_factory=list)  # text 에서 가릴 비속어 조각 (원문 그대로)
