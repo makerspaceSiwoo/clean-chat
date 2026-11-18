@@ -12,8 +12,9 @@ from functools import cache
 from clean_chat.core.config import DATA
 from clean_chat.core.schemas import Channel, ChatMessage, ParseRequest, ParseResult, Source
 
-_CHANNEL = re.compile(r"^\[(팀|전체)\][ \t]*")
-_SPEAKER = re.compile(r"([^:()\r\n]+?)(?:[ \t]*\(([^()\r\n]+)\))?[ \t]*:[ \t]?([^\r\n]*)")
+_CHANNEL = re.compile(r"^[\[(（［][ \t]*(팀|전체)[ \t]*[\])）］][ \t]*")
+_HEADER_TEXT = r"[^:;：；()（）\[\]［］\r\n]+?"
+_SPEAKER = re.compile(rf"({_HEADER_TEXT})(?:[ \t]*[(（]({_HEADER_TEXT})[)）])?[ \t]*[:;：；][ \t]?([^\r\n]*)")
 _SYSTEM = re.compile(r".+(?:님이 .*(?:신호를 보냈습니다|처치했습니다)|님이 게임을 (?:종료|떠났)습니다)[.!]?")
 
 
@@ -70,7 +71,7 @@ def run(req: ParseRequest) -> ParseResult:
 
 # ── 줄 분해 ──
 def _split_channel(text: str) -> tuple[Channel | None, str]:
-    """앞의 채널 표기와 나머지를 분리. 예) "[팀] 원딜러 (징크스): ..." → (team, "원딜러 (징크스): ...")"""
+    """팀·전체 표기의 괄호 오인식만 허용해 분리한다. 본문에는 치환을 적용하지 않는다."""
     match = _CHANNEL.match(text.lstrip())
     if match is None:
         return None, text.lstrip()
@@ -78,9 +79,9 @@ def _split_channel(text: str) -> tuple[Channel | None, str]:
 
 
 def _split_speaker(rest: str) -> tuple[str | None, str | None, str]:
-    """닉네임·챔피언·본문 분리. 예) "원딜러 (징크스): 용 먼저" → ("원딜러", "징크스", "용 먼저"). 닉네임에 공백 가능."""
+    """공백 있는 닉네임과 선택적 챔피언을 분리한다. 콜론·세미콜론과 전각 구분자를 허용한다."""
     match = _SPEAKER.fullmatch(rest)
-    if match is None or not match[1].strip():
+    if match is None or not match[1].strip() or (match[2] is not None and not match[2].strip()):
         return None, None, ""
     return match[1].strip(), match[2].strip() if match[2] else None, match[3]
 

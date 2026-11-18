@@ -77,3 +77,73 @@ def test_system_phrase_in_player_chat_is_preserved() -> None:
 )
 def test_basic_normalization(text: str, expected: str, hints: list[str]) -> None:
     assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    ("tag", "channel"),
+    [
+        ("[팀]", Channel.TEAM),
+        ("(팀)", Channel.TEAM),
+        ("[팀)", Channel.TEAM),
+        ("(팀]", Channel.TEAM),
+        ("［ 팀 ］", Channel.TEAM),
+        ("（전체）", Channel.ALL),
+        ("[전체)", Channel.ALL),
+        ("(전체]", Channel.ALL),
+    ],
+)
+@pytest.mark.parametrize("source", [Source.OCR, Source.DEMO])
+def test_channel_bracket_variants(tag: str, channel: Channel, source: Source) -> None:
+    raw = f"{tag} 불꽃남자 (징크스): 합류 부탁해요"
+    message = run(request(raw, source)).message
+    assert message is not None
+    assert (message.channel, message.speaker, message.champion) == (channel, "불꽃남자", "징크스")
+    assert (message.text, message.raw) == ("합류 부탁해요", raw)
+
+
+@pytest.mark.parametrize("separator", [":", ";", "：", "；"])
+@pytest.mark.parametrize("champion", ["(징크스)", "（징크스）"])
+def test_header_delimiter_variants_preserve_body(separator: str, champion: str) -> None:
+    body = "용: 1분; (합류) [확인] ： 그대로；  "
+    raw = f"[전체] 불꽃 남자 {champion}{separator} {body}"
+    req = request(raw)
+    original = req.model_dump()
+    message = run(req).message
+    assert message is not None
+    assert (message.channel, message.speaker, message.champion) == (Channel.ALL, "불꽃 남자", "징크스")
+    assert (message.text, message.text_norm, message.raw) == (body, body, raw)
+    assert req.model_dump() == original
+
+
+@pytest.mark.parametrize("separator", [":", ";", "：", "；"])
+def test_delimiter_variants_without_champion(separator: str) -> None:
+    message = run(request(f"나{separator} 합류 부탁해요")).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.UNKNOWN, True)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "[팀 불꽃남자 (징크스): 합류 부탁해요",
+        "팀] 불꽃남자 (징크스): 합류 부탁해요",
+        "[파티] 불꽃남자 (징크스): 합류 부탁해요",
+        "[팀] 불꽃남자 (징크스: 합류 부탁해요",
+        "[팀] 불꽃남자 징크스): 합류 부탁해요",
+        "[팀] 불꽃남자 (): 합류 부탁해요",
+        "[팀] 불꽃남자 (   ): 합류 부탁해요",
+        "[팀] (징크스): 합류 부탁해요",
+        "[팀] 불꽃남자 (징크스) 합류 부탁해요",
+        "[팀] 불꽃남자 (징크스): 첫 줄\n둘째 줄",
+    ],
+)
+def test_malformed_header_is_not_used_as_speaker(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+def test_self_input_does_not_repair_chat_headers() -> None:
+    raw = "[팀) 불꽃남자 (징크스); 합류 부탁해요"
+    message = run(request(raw, Source.SELF_INPUT)).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.is_me) == ("나", None, True)
+    assert (message.text, message.raw) == (raw, raw)
