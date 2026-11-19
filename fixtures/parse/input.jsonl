@@ -1,8 +1,10 @@
-{"id":"L0","ts":1762920000.0,"text":"[팀] 탑솔장인 (가렌): 다들 화이팅","source":"ocr","ocr_confidence":0.95}
-{"id":"L1","ts":1762920001.0,"text":"정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다","source":"ocr","ocr_confidence":0.95}
-{"id":"L2","ts":1762920002.0,"text":"[팀] 미드킹 (제드): 아 ㅅㅂ 내가 실수함","source":"ocr","ocr_confidence":0.95}
-{"id":"L3","ts":1762920003.0,"text":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95}
-{"id":"L4","ts":1762920004.0,"text":"[팀] 원딜러 (징크스): 미드 시1발 개못하네","source":"ocr","ocr_confidence":0.95}
-{"id":"L5","ts":1762920005.0,"text":"[전체] 상대탑 (다리우스): 탑 니애미 tlqkf","source":"ocr","ocr_confidence":0.95}
-{"id":"L6","ts":1762920006.0,"text":"@@ ㅡ ##","source":"ocr","ocr_confidence":0.95}
-{"id":"L9","ts":1762920009.0,"text":"[팀] 나 (쓰레쉬): 정글 합류 부탁해요","source":"ocr","ocr_confidence":0.93}
+{"line":{"id":"L0","ts":1762920000.0,"text":"[팀] 탑솔장인 (가렌): 다들 화이팅","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L1","ts":1762920001.0,"text":"정글러 (리신)님이 점멸 쿨타임 신호를 보냈습니다","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L2","ts":1762920002.0,"text":"[팀] 미드킹 (제드): 아 ㅅㅂ 내가 실수함","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L3","ts":1762920003.0,"text":"[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L4","ts":1762920004.0,"text":"[팀] 원딜러 (징크스): 미드 시1발 개못하네","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L5","ts":1762920005.0,"text":"[전체] 상대탑 (다리우스): 탑 니애미 tlqkf","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L6","ts":1762920006.0,"text":"@@ ㅡ ##","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
+{"line":{"id":"L9","ts":1762920009.0,"text":"[팀] 나 (쓰레쉬): 정글 합류 부탁해요","source":"ocr","ocr_confidence":0.93},"my_name":"나"}
+{"line":{"id":"L7","ts":1762920007.0,"text":"아 정글 ㅂㅅ 왜 안 와","source":"self_input","ocr_confidence":null},"my_name":"나"}
+{"line":{"id":"L8","ts":1762920008.0,"text":"정글 개새끼","source":"self_input","ocr_confidence":null},"my_name":"나"}

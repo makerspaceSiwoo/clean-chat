@@ -1,4 +1,4 @@
-"""[구현 · WP8 · 🪟 Windows 전용] LCU·Live Client Data API 로 게임 단계와 플레이어 명단을 읽는 감지기.
+"""[구성 · 리드 · 🪟 Windows 전용] LCU·Live Client Data API 로 게임 단계와 플레이어 명단을 읽는 감지기.
 
 읽기 전용으로만 쓴다. 채팅은 읽지 않는다(ADR-0002, ADR-0014). Windows 전용 라이브러리는 함수 안에서 import.
 관련: HANDOFF 5-2, OPEN-12(단계 이름·전환 시점 실측)
@@ -13,7 +13,7 @@ from clean_chat.core.schemas import GamePhase, PhaseEvent, Player
 
 
 class LcuPhaseDetector:
-    """[구현 · WP8] PhaseDetector 어댑터 (명세: docs/MODULES.md#session)"""
+    """[구성 · 리드] PhaseDetector 어댑터 (명세: docs/MODULES.md#session)"""
 
     def __init__(self, poll_sec: float = 1.5) -> None:
         """poll_sec: gameflow-phase 확인 주기 (settings.phase_poll_sec, 1~2초)."""

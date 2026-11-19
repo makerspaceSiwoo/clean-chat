@@ -5,8 +5,8 @@
 패턴
 - 상태(State): GameStateMachine 이 지금 단계와 이번 게임 세션을 들고, 허용된 전환만 받는다.
 - 저장소(Repository): SessionRepository 로 세션을 저장·조회 (메모리 / JSONL 파일 구현을 골라 끼움).
-- 배치 처리: PostGameBatch 가 끝난 세션 전체를 한 번에 report / complaint Stage 로 보낸다.
-판단(신고 대상 여부 등)은 하지 않는다. policy 가 Decision 에 표시한 report / complaint_candidate 만 따른다.
+- 배치 처리: PostGameBatch 가 끝난 세션 전체를 한 번에 report 모듈(kind=report / complaint)로 보낸다.
+판단(신고 대상 여부 등)은 하지 않는다. 정책표(core/policy.py)가 Decision 에 표시한 report / complaint_candidate 만 따른다.
 """
 
 from __future__ import annotations
@@ -16,14 +16,15 @@ from datetime import datetime, timedelta, timezone
 from typing import Protocol
 
 from clean_chat.core.config import settings
+from clean_chat.core.modules import ModuleSet
 from clean_chat.core.schemas import (
-    ComplaintRequest,
     GamePhase,
     GameSession,
     Incident,
     PhaseEvent,
     Player,
     PostGameResult,
+    ReportKind,
     ReportRequest,
 )
 
@@ -115,7 +116,7 @@ class GameStateMachine:
 
 
 class SessionRepository(Protocol):
-    """세션 저장소 (포트). 구현: MemorySessionRepository(기본), session.store.JsonlSessionRepository(WP8)."""
+    """세션 저장소 (포트). 구현: MemorySessionRepository(기본), session.store.JsonlSessionRepository(리드)."""
 
     def save(self, session: GameSession) -> None: ...
 
@@ -141,23 +142,28 @@ class MemorySessionRepository:
 
 
 class PostGameBatch:
-    """게임 종료 후 배치 처리: 세션 → 화자별 신고 문구(report) + 고소장 초안(complaint)."""
+    """게임 종료 후 배치 처리: 세션 → 화자별 신고 문구 + 고소장 초안 (report 모듈, kind 만 다르게)."""
 
-    def __init__(self, stages) -> None:  # stages: core.pipeline.StageSet (순환 import 방지로 타입 생략)
-        self.st = stages
+    def __init__(self, modules: ModuleSet) -> None:
+        self.modules = modules
 
     def run(self, session: GameSession) -> PostGameResult:
         report_speakers = _speakers(session, lambda inc: inc.decision.report)
         complaint_speakers = _speakers(session, lambda inc: inc.decision.complaint_candidate)
-        reports = [self.st["report"].run(ReportRequest(session=session, speaker=s)) for s in report_speakers]
+        reports = [
+            self.modules.run("report", ReportRequest(kind=ReportKind.REPORT, session=session, speaker=s))
+            for s in report_speakers
+        ]
         complaints = [
-            self.st["complaint"].run(
-                ComplaintRequest(
+            self.modules.run(
+                "report",
+                ReportRequest(
+                    kind=ReportKind.COMPLAINT,
                     session=session,
                     speaker=s,
                     complainant=settings.my_name,
                     output_dir=settings.complaint_output_dir,
-                )
+                ),
             )
             for s in complaint_speakers
         ]
@@ -165,6 +171,6 @@ class PostGameBatch:
 
 
 def _speakers(session: GameSession, flagged) -> list[str]:
-    """policy 가 표시한 기록이 있는 화자 목록 (처음 나온 순서, 중복 없음)."""
+    """정책표가 표시한 기록이 있는 화자 목록 (처음 나온 순서, 중복 없음)."""
     names = [inc.msg.speaker for inc in session.incidents if flagged(inc) and inc.msg.speaker]
     return list(dict.fromkeys(names))

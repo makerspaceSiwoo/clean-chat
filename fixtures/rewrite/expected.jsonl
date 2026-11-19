@@ -1,2 +1,2 @@
-{"msg_id":"L3","feedback_spans":["용 먼저 치라고"],"rewritten":"용 먼저 치자","backend":"fixture"}
-{"msg_id":"L7","feedback_spans":["왜 안 와"],"rewritten":"정글 합류 부탁해요","backend":"fixture"}
+{"msg_id":"L3","rewritten":"용 먼저 치자","backend":"fixture"}
+{"msg_id":"L7","rewritten":"정글 합류 부탁해요","backend":"fixture"}

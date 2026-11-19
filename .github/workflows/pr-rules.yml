@@ -1,11 +1,13 @@
-# PR 규칙 검사: 브랜치 이름, PR 제목, 모듈 경계 (ADR-0009)
+# 모듈 범위 검사 (ADR-0018). 브랜치 이름이 <모듈>/<작업 내용> 인 PR 만 검사한다 (예: parse/colon-fix).
+# 모듈 범위 밖 파일을 바꾸면 실패 → 리드가 리뷰할 때 "모듈 범위를 넘는 변경"으로 보고 판단한다 (병합을 막지는 않음).
+# 브랜치 이름·PR 제목 형식은 검사하지 않는다. main 보호는 GitHub 규칙(protect-main)이 맡는다.
 name: pr-rules
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  rules:
+  module-scope:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,23 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: 브랜치 이름 검사
-        working-directory: scripts
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: python check_branch_name.py "$HEAD_REF"
-      - name: PR 제목 검사
-        working-directory: scripts
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        run: python check_pr_title.py "$TITLE"
-      - name: main 으로는 develop 브랜치만 병합 가능
-        if: github.base_ref == 'main' && github.head_ref != 'develop'
-        run: |
-          echo "❌ main 에는 develop → main PR만 허용됩니다 (주말 통합 후 리드가 진행)"
-          exit 1
-      - name: 모듈 경계 검사
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'cross-module') }}
+      - name: 모듈 범위 검사 (<모듈>/<작업 내용> 브랜치)
         env:
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}

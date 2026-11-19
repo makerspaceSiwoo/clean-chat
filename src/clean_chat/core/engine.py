@@ -16,7 +16,8 @@ import traceback
 from collections.abc import Callable
 
 from clean_chat.core.game import GameStateMachine, MemorySessionRepository, PostGameBatch, SessionRepository
-from clean_chat.core.pipeline import Pipelines, StageSetupError
+from clean_chat.core.modules import ModuleNotImplemented
+from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, PhaseEvent, PostGameResult
 from clean_chat.core.sources import FrameSource, LineSource, PhaseDetector
 
@@ -36,12 +37,12 @@ class Engine:
         self.pipelines, self.source, self.detector = pipelines, source, detector
         self.repository = repository or MemorySessionRepository()
         self.machine = GameStateMachine()
-        self.batch = PostGameBatch(pipelines.stages)
+        self.batch = PostGameBatch(pipelines.modules)
         self._incident_listeners: list[IncidentListener] = []
         self._phase_listeners: list[PhaseListener] = []
         self._result_listeners: list[ResultListener] = []
         self._error_listeners: list[Callable[[str], None]] = []
-        self.setup_error: StageSetupError | None = None
+        self.error: ModuleNotImplemented | None = None  # 구현 없는 모듈을 만나 멈췄으면 그 원인
         self._stop = threading.Event()
         self._capture_stop = threading.Event()
         self._batch_running = threading.Event()  # 게임 종료 배치 중에는 결과 화면을 닫을 수 없음
@@ -63,7 +64,7 @@ class Engine:
         self._result_listeners.append(fn)
 
     def on_error(self, fn: Callable[[str], None]) -> None:
-        """엔진이 시작하지 못했을 때 (Stage 준비 실패 등) 사람이 읽을 안내 문장으로 호출"""
+        """구현이 없는 모듈을 만나 엔진이 멈출 때, 사람이 읽을 안내 문장으로 호출"""
         self._error_listeners.append(fn)
 
     @property
@@ -102,27 +103,31 @@ class Engine:
     # ── 내부 ──
     def _loop(self) -> None:
         try:
-            self.pipelines.setup()
-        except StageSetupError as e:
-            # 엔진 스레드가 조용히 죽지 않게 원인을 알리고 끝낸다 (CLI 는 종료 코드, 앱은 화면 안내로 이어 받음)
-            print(f"❌ {e}", file=sys.stderr)
-            self.setup_error = e
-            for fn in self._error_listeners:
-                fn(str(e))
-            self.pipelines.close()
-            return
-        try:
             for event in self.detector.events():
                 if self._stop.is_set():
                     break
                 try:
                     self._on_phase_event(event)
+                except ModuleNotImplemented as e:
+                    self._fail(e)
+                    break
                 except Exception:  # 한 번의 실패로 단계 감지 전체가 멈추지 않게
                     print(f"⚠️ 단계 처리 실패 ({event.phase}):", file=sys.stderr)
                     traceback.print_exc()
+                if self.error is not None:
+                    break
         finally:
             self._stop_capture(drain=False)
-            self.pipelines.close()
+
+    def _fail(self, error: ModuleNotImplemented) -> None:
+        """구현 없는 모듈을 만남 → 원인을 알리고 엔진을 멈춘다 (Mock 으로 대신하지 않음, ADR-0017)."""
+        if self.error is not None:
+            return
+        self.error = error
+        print(f"⏳ {error}", file=sys.stderr)
+        for fn in self._error_listeners:
+            fn(str(error))
+        self.stop()
 
     def _on_phase_event(self, event: PhaseEvent) -> None:
         target = self.machine.peek(event)
@@ -131,6 +136,9 @@ class Engine:
             # → 남은 줄까지 이번 세션에 기록됨 (재생 소스는 끝까지 처리)
             self._batch_running.set()
             self._stop_capture(drain=bool(getattr(self.source, "finite", False)))
+            if self.error is not None:  # 캡처 중 구현 없는 모듈을 만나 멈춤 → 배치도 하지 않는다
+                self._batch_running.clear()
+                return
         try:
             phase = self.machine.handle(event)  # 유예 시간 계산 때문에 target 이 없어도 항상 적용
         finally:
@@ -161,6 +169,9 @@ class Engine:
             traceback.print_exc()
         try:
             result = self.batch.run(session)
+        except ModuleNotImplemented as e:
+            self._fail(e)
+            result = PostGameResult(session_id=session.id)
         except Exception:
             print("⚠️ 신고 문구·고소장 생성 실패:", file=sys.stderr)
             traceback.print_exc()
@@ -197,6 +208,8 @@ class Engine:
     def _capture_loop(self) -> None:
         try:
             self._capture()
+        except ModuleNotImplemented as e:
+            self._fail(e)
         except Exception:  # 캡처 스레드가 조용히 죽지 않게 원인을 남긴다 (앱은 계속 돈다)
             print("⚠️ 흐름 A(캡처) 중단:", file=sys.stderr)
             traceback.print_exc()

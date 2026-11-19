@@ -1,4 +1,4 @@
-"""[구현 · WP8] 세션 저장소: 게임 1판 기록을 .clean-chat/sessions/<id>.jsonl 로 저장·조회 (로컬 전용, git 제외).
+"""[구성 · 리드] 세션 저장소: 게임 1판 기록을 .clean-chat/sessions/<id>.jsonl 로 저장·조회 (로컬 전용, git 제외).
 
 core/game.py 의 SessionRepository 포트를 따른다. 구현 전까지 앱은 MemorySessionRepository 를 쓴다.
 """
@@ -11,7 +11,7 @@ from clean_chat.core.schemas import GameSession
 
 
 class JsonlSessionRepository:
-    """[구현 · WP8] SessionRepository 어댑터 (파일 1개 = 세션 1개)"""
+    """[구성 · 리드] SessionRepository 어댑터 (파일 1개 = 세션 1개)"""
 
     def __init__(self, root: Path) -> None:
         """root: 저장 폴더 (settings.sessions_dir). 없으면 save 때 만든다."""

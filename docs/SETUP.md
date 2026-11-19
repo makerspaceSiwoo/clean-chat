@@ -26,37 +26,35 @@ git clone https://github.com/<팀>/clean-chat.git
 cd clean-chat
 uv sync                      # 기본 + 개발 도구 설치 (= npm install)
 uv run pre-commit install    # 커밋할 때 자동 검사 켜기
-uv run clean-chat run --source demo   # ✅ 게임 단계 IN_GAME → 채팅 6줄 → POST_GAME → 신고 2건·고소장 1건이 나오면 성공 (mock)
-uv run clean-chat say "아 정글 ㅂㅅ 왜 안 와"   # ✅ copy_rewritten | 정글 합류 부탁해요
-uv run pytest -q                    # ✅ passed + skipped(미구현) 이면 정상
+uv run sim                          # ✅ 브라우저에 모듈 시뮬레이터가 열리면 정상. 실행하면 지금은 "구현 안 됨" 이 정상 (ADR-0017)
+uv run pytest -q                    # ✅ passed + skipped(구현 전 모듈) 이면 정상
 ```
 
 ## 1-1. 어떤 OS에서 무엇이 되나
 | 할 일 | Mac | Windows |
 |---|---|---|
 | clone, 설치(`uv sync`), 테스트 | ✅ | ✅ |
-| 모듈 단독 실행 `python -m clean_chat.<모듈>` | ✅ | ✅ |
-| 전체 흐름 `clean-chat run --source demo/screenshots` | ✅ | ✅ |
-| UI 화면 개발 `clean-chat app --source demo` | ✅ | ✅ |
-| 내 채팅 1문장 `clean-chat say "..."` | ✅ | ✅ |
+| 모듈 시뮬레이터 `uv run sim` / `uv run sim <모듈>` | ✅ | ✅ |
+| 앱 전체 `uv run app` (Mac 은 데모 재생, 모듈 5개 구현 후 끝까지 돎) | ✅ | ✅ |
 | 게임 단계 감지기 `python -m clean_chat.session` (가짜) | ✅ | ✅ |
 | **실제 게임 단계 감지** `python -m clean_chat.session --real` | ❌ | ✅ |
-| **실제 게임 캡처 + 오버레이 데모** `clean-chat app --source screen` | ❌ | ✅ |
+| **실제 게임 캡처 + 오버레이 데모** `uv run app` | ❌ | ✅ |
 
 ## 2. 내 모듈에 필요한 것 추가 설치
 ```bash
-uv sync --extra ui         # ui 담당 (PySide6)
-uv sync --extra capture    # capture 담당 (화면 캡처)
-uv sync --extra ml         # classify 담당 (torch, transformers — 용량 큼)
-uv sync --extra report     # report 담당 (PDF)
+uv sync --extra ocr        # ① ocr 담당 (이미지 처리, 화면 캡처)
+uv sync --extra analyze    # ③ analyze 담당 (torch, transformers — 용량 큼)
+uv sync --extra report     # ⑤ report 담당 (PDF)
+uv sync --extra ui         # 리드 (PySide6 화면)
 uv sync --all-extras       # 리드: 전부
 ```
 
 ## 3. 내 브랜치 만들기
 ```bash
-git switch develop
-git switch -c mod/<내모듈>      # 예: mod/capture
-git push -u origin mod/<내모듈>
+git switch develop && git pull
+git switch -c <내모듈>/<작업 내용>      # 예: parse/colon-fix, ocr/two-line-merge, analyze/target-guess
+git push -u origin <내모듈>/<작업 내용>
+# PR 을 만들면 CI(module-scope)가 모듈 범위 밖 수정이 있는지 표시합니다 (CONTRIBUTING.md)
 ```
 
 ## 4. AI 도구 연결
@@ -70,13 +68,13 @@ git push -u origin mod/<내모듈>
 
 ### 첫 프롬프트 예시 (복사해서 쓰세요)
 ```
-나는 이 레포에서 <capture> 모듈 담당이야. AGENTS.md와 src/clean_chat/<capture>/README.md를 먼저 읽어.
-이번 작업: <OcrSource.lines()를 구현해서 지정 영역을 캡처하고 OCR로 줄 단위 RawLine을 내보내기>.
+나는 이 레포에서 <parse> 모듈 담당이야. AGENTS.md와 src/clean_chat/modules/<parse>/README.md를 먼저 읽어.
+이번 작업: <impl.py 의 run()을 구현해서 채팅 줄을 채널·화자·본문으로 나누고 시스템 메시지는 None 으로>.
 내 모듈 폴더 밖은 수정하지 말고, 먼저 계획을 보여 줘. 끝나면 ruff와 pytest를 돌려 줘.
 ```
 
-## 5. Windows 준비 (WP2 캡처, WP7 화면, 발표 PC)
-- uv 설치(PowerShell 명령은 위) → `git clone` → `uv sync --extra ui --extra capture`
+## 5. Windows 준비 (① ocr 실측, 화면, 발표 PC)
+- uv 설치(PowerShell 명령은 위) → `git clone` → `uv sync --extra ui --extra ocr`
 - 발표 PC: `scripts\run_windows.bat` 더블클릭 (필요한 extra 전부 설치 후 실제 모드 실행)
 - 롤 그래픽 설정 → 창 모드: **테두리 없음** (전체 화면이면 오버레이가 안 보입니다)
 - Windows 10 2004 버전 이상인지 확인 (오버레이 캡처 제외 기능, ADR-0003)
@@ -87,6 +85,6 @@ git push -u origin mod/<내모듈>
 |---|---|
 | `uv: command not found` | 터미널을 껐다 켜기 |
 | 커밋이 막힘 (pre-commit) | 메시지대로 수정되었으면 `git add -A` 후 다시 커밋 |
-| `no-commit-to-branch` 실패 | `main`에서 작업 중 → `git switch mod/<내모듈>` |
-| PR에서 `모듈 경계` 실패 | 내 폴더 밖 파일 수정을 되돌리거나 리드에게 문의 |
+| `no-commit-to-branch` 실패 | `main`에서 작업 중 → `git switch -c <내모듈>/<작업 내용>` |
+| PR에서 `module-scope` 실패 | 내 모듈 범위 밖 파일 수정을 되돌리거나, 꼭 필요하면 PR 설명에 이유를 적기 |
 | 한글이 깨짐 (Windows) | VS Code 오른쪽 아래 인코딩을 UTF-8로 |

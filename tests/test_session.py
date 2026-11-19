@@ -1,4 +1,4 @@
-"""session 모듈 (WP8): 단계 감지기와 세션 저장소."""
+"""session (구성): 단계 감지기와 세션 저장소."""
 
 import subprocess
 import sys
@@ -6,8 +6,8 @@ import sys
 import pytest
 
 from clean_chat.core.config import FIXTURES, ROOT, resolve_repo_path
+from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.schemas import GamePhase, GameSession, Player, ReportRequest
-from clean_chat.core.stage import read_jsonl
 from clean_chat.session.fake import FakePhaseDetector
 from clean_chat.session.store import JsonlSessionRepository
 

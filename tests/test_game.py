@@ -2,8 +2,8 @@
 
 from clean_chat.core.config import FIXTURES
 from clean_chat.core.game import GameStateMachine, session_id_for
-from clean_chat.core.schemas import GamePhase, Incident, PhaseEvent
-from clean_chat.core.stage import read_jsonl
+from clean_chat.core.jsonl import read_jsonl
+from clean_chat.core.schemas import GamePhase, PhaseEvent, ReportRequest
 
 
 def ev(phase: str, ts: float = 1762919900.0) -> PhaseEvent:
@@ -52,7 +52,7 @@ def test_short_idle_during_game_does_not_split_session():
 
 
 def test_record_only_in_game():
-    inc = read_jsonl(FIXTURES / "scenario" / "expected_incidents.jsonl", Incident)[0]
+    inc = read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session.incidents[0]
     m = GameStateMachine()
     assert m.record(inc) is False
     m.handle(ev("in_game"))

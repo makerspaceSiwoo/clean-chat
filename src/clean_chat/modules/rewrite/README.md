@@ -1,0 +1,26 @@
+# ④ rewrite — 순화 — 피드백만 공손한 문장으로
+
+명세: `docs/MODULES.md`의 `rewrite` 절 · 계약: `docs/CONTRACTS.md` · 예시: `fixtures/rewrite/`
+
+**할 일은 `impl.py` 의 `run(RewriteRequest) -> Rewrite` 함수 하나입니다.** docstring 의 예시·순서·주의를 따라 본문을 채우세요.
+
+| 파일 | 내용 | 수정 |
+|---|---|---|
+| `impl.py` | `run()` + 제안용 도우미 함수 (`_`로 시작, 바꿔도 됨) | ✅ |
+| 그 밖의 파일 | 이 폴더 안에 자유롭게 추가 (사전, 프롬프트, 내부 모듈) | ✅ |
+| `fixtures/rewrite/input.jsonl` | 입력 예시 추가 | ✅ |
+| `fixtures/rewrite/expected.jsonl` | 기대값 (명세) | 리드 승인 |
+| `tests/test_rewrite.py` | 내 테스트 추가 | ✅ |
+
+- **구현 방식: 외부 LLM API** (`backend="api"`). 로컬 LLM 보다 빠르고(0.5~1.5초 예상) 앱 크기·게임 성능에 부담이 없습니다. 키가 없거나 실패·시간 초과면 규칙(`"rule"`)으로 대체하거나 `rewritten=None`. 채팅 본문만 보내고 닉네임은 보내지 않습니다.
+- 생성 모듈: 출력 형식만 자동 검사합니다.
+- 구성이 L2 이상이고 `feedback_spans` 가 있을 때만 부릅니다. API 키는 `.env`(git 금지).
+- 브랜치는 `rewrite/<작업 내용>` 으로 만듭니다(예: `rewrite/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
+- 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
+
+```bash
+uv run sim rewrite                         # 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
+uv run pytest tests/test_rewrite.py        # 자동 테스트 (구현 전이면 skip)
+uv run python scripts/pack_context.py rewrite   # 웹 AI 채팅에 첨부할 맥락 묶음
+```
+모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).
