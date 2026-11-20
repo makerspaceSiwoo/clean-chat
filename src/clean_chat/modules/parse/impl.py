@@ -5,12 +5,10 @@
 
 from __future__ import annotations
 
-import csv
 import re
-from functools import cache
 
-from clean_chat.core.config import DATA
 from clean_chat.core.schemas import Channel, ChatMessage, ParseRequest, ParseResult, Source
+from clean_chat.modules.parse.normalization import normalize
 
 _CHANNEL = re.compile(r"^[\[(（［][ \t]*(팀|전체)[ \t]*[\])）］][ \t]*")
 _HEADER_TEXT = r"[^:;：；()（）\[\]［］\r\n]+?"
@@ -110,64 +108,3 @@ def _split_channel_command(text: str) -> tuple[Channel, str]:
     """내 입력 앞의 채널 명령 해석. 예) "/all 굿굿" → (all, "굿굿"). 명령이 없으면 (team, 그대로)."""
     match = re.match(r"^[ \t]*/all(?:[ \t]+|$)", text, re.IGNORECASE)
     return (Channel.ALL, text[match.end() :]) if match else (Channel.TEAM, text)
-
-
-# ── 정규화 (text → text_norm, hints) ──
-def normalize(text: str) -> tuple[str, list[str]]:
-    """본문을 분석하기 좋게 정리. 학습 데이터(training/)에도 같은 함수를 쓸 수 있다.
-
-    예) "미드 시1발 개못하네" → ("미드 시발 개못하네", ["noise_removed"])
-    예) "탑 니애미 tlqkf" → ("탑 니애미 시발", ["lexicon:tlqkf"])
-    예) "다들 화이팅" → ("다들 화이팅", [])  ← 정상 문장은 그대로 (과잉 보정 금지)
-    순서: _remove_noise_between_hangul → _join_spaced_jamo → _squeeze_repeats → _fix_ocr_errors → _apply_lexicon
-    사전: data/lexicon/bypass.csv (variant, canonical, harm_type, note)
-    """
-    hints: list[str] = []
-    text, changes = _remove_noise_between_hangul(text)
-    hints.extend(changes)
-    text, changes = _apply_lexicon(text)
-    hints.extend(changes)
-    return text, list(dict.fromkeys(hints))
-
-
-def _remove_noise_between_hangul(text: str) -> tuple[str, list[str]]:
-    """한글 사이 숫자·특수문자 제거. 예) "시1발" → "시발". (바뀐 문장, 붙일 hints)"""
-    result = re.sub(r"시[0-9]+발", "시발", text)
-    return result, ["noise_removed"] if result != text else []
-
-
-def _join_spaced_jamo(text: str) -> tuple[str, list[str]]:
-    """자모 사이 공백 제거. 예) "ㅅ ㅂ" → "ㅅㅂ"."""
-    return text, []
-
-
-def _squeeze_repeats(text: str) -> tuple[str, list[str]]:
-    """같은 글자 반복 축약. 예) "ㅋㅋㅋㅋㅋ" → "ㅋㅋ"."""
-    return text, []
-
-
-def _fix_ocr_errors(text: str) -> tuple[str, list[str]]:
-    """OCR 오인식 보정표 적용. 예) "l" ↔ "1", "0" ↔ "o" (한글 맥락에서만)."""
-    return text, []
-
-
-def _apply_lexicon(text: str) -> tuple[str, list[str]]:
-    """우회어 사전 치환. 예) "tlqkf" → "시발" (hints: "lexicon:tlqkf"). 영타 변환 포함."""
-    lexicon = _load_lexicon()
-    # 한 번의 치환으로 끝내서 치환 결과를 다시 해석하지 않는다.
-    pattern = "|".join(re.escape(variant) for variant in sorted(lexicon, key=lambda item: (-len(item), item)))
-    hints: list[str] = []
-
-    def replace(match: re.Match[str]) -> str:
-        variant = match[0]
-        hints.append(f"lexicon:{variant}")
-        return lexicon[variant]
-
-    return re.sub(pattern, replace, text), hints
-
-
-@cache
-def _load_lexicon() -> dict[str, str]:
-    """공유 사전은 읽기만 하며 실행 위치와 관계없이 저장소 기준으로 찾는다."""
-    with (DATA / "lexicon" / "bypass.csv").open(encoding="utf-8-sig", newline="") as stream:
-        return {row["variant"]: row["canonical"] for row in csv.DictReader(stream) if row["variant"]}

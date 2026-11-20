@@ -213,3 +213,173 @@ def test_notification_detection_is_not_applied_to_self_input(raw: str) -> None:
     message = run(request(raw, Source.SELF_INPUT)).message
     assert message is not None
     assert (message.speaker, message.text, message.raw) == ("나", raw, raw)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "mytlqkfbuild",
+        "tlqkf123 qudtls_model _tlqkf_",
+        "ㄱㅅㅂㅂ ㅂㅅㄱ",
+        "https://example.test/tlqkf/시1발",
+        "www.example.test/qudtls",
+        "tlqkf@example.test",
+        "용 1분 미드2차 12:34 1.5초",
+        "LoL lol O0 l1 I1 모델 v1.0",
+    ],
+)
+def test_normalization_preserves_identifiers_and_normal_text(text: str) -> None:
+    assert normalize(text) == (text, [])
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hints"),
+    [
+        ("TLQKF QUDTLS", "시발 병신", ["lexicon:tlqkf", "lexicon:qudtls"]),
+        ("tlqkf야", "시발야", ["lexicon:tlqkf"]),
+        ("ㅂㅅ아 ㅂㅅ", "병신아 병신", ["lexicon:ㅂㅅ"]),
+        ("ㅄ 븅신", "병신 병신", ["lexicon:ㅄ", "lexicon:븅신"]),
+        ("https://example.test/tlqkf 옆의 tlqkf", "https://example.test/tlqkf 옆의 시발", ["lexicon:tlqkf"]),
+        ("tlqkf@example.test 다음 ㅂㅅ", "tlqkf@example.test 다음 병신", ["lexicon:ㅂㅅ"]),
+    ],
+)
+def test_guarded_lexicon_replacements(text: str, expected: str, hints: list[str]) -> None:
+    assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hints"),
+    [
+        ("시.발", "시발", ["noise_removed"]),
+        ("시*발 시_발", "시발 시발", ["noise_removed"]),
+        ("시\u200b발", "시발", ["noise_removed"]),
+        ("병1신아", "병신아", ["noise_removed"]),
+        ("씨.발", "시발", ["noise_removed", "lexicon:씨발"]),
+        ("ㅅ1ㅂ", "시발", ["noise_removed", "lexicon:ㅅㅂ"]),
+        ("ㅅ ㅂ", "시발", ["jamo_joined", "lexicon:ㅅㅂ"]),
+        ("ㅆ\tㅂ", "시발", ["jamo_joined", "lexicon:ㅆㅂ"]),
+        ("ㅂ \tㅅ아", "병신아", ["jamo_joined", "lexicon:ㅂㅅ"]),
+        ("ㅋㅋㅋㅋㅋ", "ㅋㅋ", ["repeats_squeezed"]),
+        ("ㅎㅎㅎㅎ ㅠㅠㅠㅜㅜㅜ", "ㅎㅎ ㅠㅠㅜㅜ", ["repeats_squeezed"]),
+        (
+            "아 ㅅ ㅂ 시.발ㅋㅋㅋㅋ",
+            "아 시발 시발ㅋㅋ",
+            ["noise_removed", "jamo_joined", "repeats_squeezed", "lexicon:ㅅㅂ"],
+        ),
+    ],
+)
+def test_dictionary_scoped_noise_and_jamo_normalization(text: str, expected: str, hints: list[str]) -> None:
+    assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "가가가 나나나 미미미",
+        "111 000 !!! ???",
+        "ㅋㅋ ㅎㅎ ㅠㅠ ㅜㅜ",
+        "미드2차 용 1분 쿨타임 12:34",
+        "시 1분 뒤에 발 묶어",
+        "ㄱ ㅅ ㄴ ㄴ",
+        "ㄱ ㅅ ㅂ",
+        "ㅅ\nㅂ",
+        "my시1발build",
+        "https://example.test/시.발/ㅋㅋㅋㅋ",
+    ],
+)
+def test_normalization_does_not_delete_unrecognized_content(text: str) -> None:
+    assert normalize(text) == (text, [])
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hints"),
+    [
+        ("시l발", "시발", ["ocr_fixed"]),
+        ("시I발 시|발", "시발 시발", ["ocr_fixed"]),
+        ("시o발 시O발", "시발 시발", ["ocr_fixed"]),
+        ("병l신아", "병신아", ["ocr_fixed"]),
+        ("시l1.발", "시발", ["ocr_fixed"]),
+        ("ㅅlㅂ", "시발", ["ocr_fixed", "lexicon:ㅅㅂ"]),
+        ("씨I발", "시발", ["ocr_fixed", "lexicon:씨발"]),
+        ("시0발", "시발", ["noise_removed"]),
+    ],
+)
+def test_ocr_corrections_are_scoped_to_dictionary_words(text: str, expected: str, hints: list[str]) -> None:
+    assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "I love LoL O0 l1 I1",
+        "미드0차 l초 O분 가l나 병원",
+        "model시l발build",
+        "myㅅ ㅂbuild",
+        "ㅂ ㅅ123",
+        "https://example.test/시l발/ㅋㅋㅋㅋ",
+    ],
+)
+def test_ocr_and_jamo_corrections_preserve_non_dictionary_context(text: str) -> None:
+    assert normalize(text) == (text, [])
+
+
+@pytest.mark.parametrize("source", [Source.OCR, Source.DEMO, Source.SELF_INPUT])
+def test_all_normalization_stages_preserve_evidence(source: Source) -> None:
+    body = "아 ㅅ ㅂ 시l발ㅋㅋㅋㅋ 용 1분  "
+    raw = body if source == Source.SELF_INPUT else f"[팀] 불꽃남자 (징크스): {body}"
+    req = request(raw, source)
+    before = req.model_dump()
+    result = run(req)
+    message = result.message
+    assert message is not None
+    assert (message.raw, message.text) == (raw, body)
+    assert message.text_norm == "아 시발 시발ㅋㅋ 용 1분  "
+    assert message.hints == ["jamo_joined", "repeats_squeezed", "ocr_fixed", "lexicon:ㅅㅂ"]
+    assert (message.id, message.ts, message.source) == (req.line.id, req.line.ts, source)
+    assert req.model_dump() == before
+    assert run(req) == result
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "",
+        "다들 화이팅",
+        "시1발 씨.발 ㅅ1ㅂ",
+        "ㅅ ㅂ 시l발ㅋㅋㅋㅋ 용 1분",
+        "TLQKF QUDTLS ㅂㅅ아",
+        "ㄱ ㅅ ㅂ",
+        "https://example.test/시l발 다음 tlqkf",
+        "tlqkf@example.test 옆의 ㅂ \tㅅ",
+    ],
+)
+def test_normalization_result_is_stable_on_second_pass(text: str) -> None:
+    normalized, hints = normalize(text)
+    assert len(hints) == len(set(hints))
+    assert normalize(normalized) == (normalized, [])
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("ㅅ1ㅂ ㅅ ㅂ", "시발 시발"),
+        ("ㅅ ㅂ ㅅ1ㅂ", "시발 시발"),
+        ("ㅅ ㅂ ㅄ", "시발 병신"),
+        ("ㅄ ㅅ ㅂ", "병신 시발"),
+        ("ㅂㅅ  \tㅅ ㅂ", "병신  \t시발"),
+    ],
+)
+def test_existing_jamo_words_do_not_block_neighbor_normalization(text: str, expected: str) -> None:
+    normalized, _ = normalize(text)
+    assert normalized == expected
+    assert normalize(normalized) == (expected, [])
+
+
+def test_composed_normalization_is_stable() -> None:
+    from itertools import product
+
+    samples = ["ㅅ1ㅂ", "ㅅ ㅂ", "ㅂ\tㅅ", "ㅄ", "ㅂㅅ", "TLQKF", "시l발", "ㅋㅋㅋㅋ", "용 1분"]
+    for left, separator, right in product(samples, [" ", "/", "\n"], samples):
+        text = left + separator + right
+        normalized, _ = normalize(text)
+        assert normalize(normalized) == (normalized, []), text
