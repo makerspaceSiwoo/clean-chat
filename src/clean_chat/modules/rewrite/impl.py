@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import time
 import unicodedata
 
 from clean_chat.core.schemas import Rewrite, RewriteRequest
 from clean_chat.modules.rewrite import backend
+
+_LOG = logging.getLogger(__name__)
+# 앱/시뮬레이터가 모듈을 불러오는 준비 단계. 생성 함수의 3초 예산과 구분한다.
+backend.prepare()
 
 _ROLES = ("정글", "미드", "탑", "원딜", "서폿", "서포터")
 _TERMS = (
@@ -193,14 +198,18 @@ def run(req: RewriteRequest) -> Rewrite:
     source = " ".join(spans)
     if re.search(r"왜\s*안\s*와", source):
         source += " " + " ".join(role for role in _ROLES if role in original)
-    if mode == "api" and config.get("LLM_API_KEY"):
+    if mode == "api":
         generated = backend.complete(_build_prompt(spans, source), max(0, 2.7 - (time.monotonic() - started)), config)
         if generated is not None:
             clean = _clean_output(generated)
             if time.monotonic() - started < 3 and _acceptable(clean, source, names, req.analysis.profanity_spans):
+                _LOG.info("[rewrite] Gemini API 순화 문장을 반환합니다.")
                 return Rewrite(msg_id=req.message.id, rewritten=clean, backend="api")
+            _LOG.info("[rewrite] 생성 결과가 안전/의미 검사를 통과하지 못해 null을 반환합니다.")
             return empty.model_copy(update={"backend": "api"})
     result = _rule(spans, original)
     if result and time.monotonic() - started < 3 and _acceptable(result, source, names, req.analysis.profanity_spans):
+        _LOG.info("[rewrite] AI 생성이 아닌, 등록된 규칙으로 변환했습니다.")
         return Rewrite(msg_id=req.message.id, rewritten=result, backend="rule")
+    _LOG.info("[rewrite] 규칙에 없는 표현이거나 안전한 변환이 어려워 null을 반환합니다.")
     return empty

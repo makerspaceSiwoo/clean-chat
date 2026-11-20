@@ -25,41 +25,57 @@ uv run python scripts/pack_context.py rewrite   # 웹 AI 채팅에 첨부할 맥
 ```
 모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).
 
-## 구현과 실행 설정
+## Gemini / LiteLLM 설정 (키·모델 제공 전 개발)
 
-`run()`은 입력/출력 계약을 유지하며 외부 OpenAI Chat Completions API를 사용합니다.
-추가 패키지는 없습니다(표준 라이브러리 HTTP + 기존 pydantic). 기본 모델은 `gpt-4.1-mini`입니다.
-공식 계약: https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create
-모델: https://developers.openai.com/api/docs/models/gpt-4.1-mini
+팀 안내에 따라 문장 생성은 **LiteLLM의 Gemini API**를 사용합니다. VESSL/GPU나 로컬 모델 다운로드는 필요 없습니다.
+Gemini 모델은 아직 미정이므로 기본 모델명을 임의로 지정하지 않습니다.
 
-레포 루트 `.env`에 다음 값을 설정하세요. 이 파일은 커밋하지 않습니다.
+```bash
+uv sync --extra rewrite
+uv run --extra rewrite sim rewrite
+```
+
+API 키가 없는 동안은 검토된 일부 표현만 규칙으로 바꿉니다. 이때 `backend="rule"`이고 **AI가 생성한 결과가 아닙니다.**
+규칙에 없는 표현은 `rewritten=null`입니다. `null`은 프로그램 오류가 아니며, 순화 문장을 반환하지 않았다는 뜻입니다.
+시뮬레이터의 디버깅 콘솔에서 키/모델 미설정, 규칙 변환, 규칙에 없는 표현, 시간 초과 등을 구분할 수 있습니다.
+
+팀장님께 키와 모델명을 받으면 레포 루트 `.env`에 설정합니다. 키는 채팅이나 Git에 올리지 않습니다.
 
 ```dotenv
-LLM_API_KEY=본인의_API_키
-LLM_MODEL=gpt-4.1-mini
+GEMINI_API_KEY=전달받은_키
+LLM_MODEL=gemini/전달받은_모델명
 LLM_BACKEND=api
 ```
 
-- 환경 변수가 `.env`보다 우선합니다. `LLM_BACKEND`가 없으면 `settings.llm_backend`의
-  `api`/`rule`/`local`을 따릅니다. 초기값 `none`은 이 모듈의 API 기본 설정으로 해석합니다.
-- `rule`은 네트워크 없이 검토된 표현만 순화합니다. 미지원 `local`/비정상 설정은 `None`입니다.
-- API 키 없음·통신/인증/파싱 실패·시간 초과면 규칙으로 대체합니다. 규칙에 없는 표현은 `None`입니다.
-  API가 위험한 문장을 반환한 경우에는 `backend="api", rewritten=None`으로 거절합니다.
-- API 대기는 최대 2.7초(전체 3초 예산의 여유)입니다. 재시도하지 않습니다.
-  DNS나 느린 응답에도 호출자는 제한 시간 후 돌아옵니다. 늦은 결과는 버리고, 실제 요청이 끝날
-  때까지 프로세스당 새 API 작업을 추가하지 않습니다. 대기 작업은 daemon이라 프로세스 종료를 막지 않습니다.
-- API에는 검증한 피드백과 문맥상 필요한 포지션 단어만 전송합니다. 전체 본문도 보내지 않습니다. `raw`, 화자/대상 필드, ID, 메타데이터는
-  보내지 않습니다. 입력에서 알려진 화자/대상 닉네임을 지우고, 그 이름이 피드백에 포함되면 요청을 포기합니다.
-  원문·키·HTTP 오류 본문은 모듈 로그에 남기지 않습니다. `store=false`로 요청합니다.
-- 출력에서 욕설(분석의 profanity_spans 포함), 여러 문장, 명령조, 알려진 닉네임, 새 수치·게임 용어,
-  금지/긍정 반전을 보수적으로 검사합니다. 이 검사와 프롬프트가 모든 한국어 의미·우회 욕설을
-  완벽하게 검증하는 것은 아닙니다. 규칙은 검토한 소수 표현만 지원하며 애매하면 `None`입니다.
-- 이 모듈은 표시·숨김·클립보드·신고 정책을 결정하지 않습니다.
+위 값은 자리 표시자이므로 실제 값으로 교체해야 합니다. `gemini/` 접두어 없는 모델명은 자동으로 붙입니다.
+기존 `LLM_API_KEY`도 별칭으로 지원하지만 `GEMINI_API_KEY`가 우선입니다.
+각 변수는 환경 변수가 `.env`보다 우선합니다. `LLM_BACKEND`가 없으면 settings의 api/rule/local을 따르고,
+초기값 none은 이 모듈의 api 준비 모드로 해석합니다. 미지원 local은 null을 반환합니다.
+
+### 지연·오류·개인정보
+
+- 유효한 키/모델이 설정된 경우, 모듈을 불러올 때 LiteLLM SDK를 한 번 준비합니다. **최초 SDK 로딩은 느릴 수 있습니다.**
+  이는 AI 모델 다운로드가 아니며 문장 생성 전 초기화입니다. 시뮬레이터는 실행마다 새 프로세스이므로 전체 소요 시간에는 이 로딩도 포함됩니다.
+- 준비 후 run()의 API 대기는 2.7초, 전체 문장 생성 예산은 3초입니다. 재시도는 하지 않습니다.
+  키/모델 없음, SDK/통신/인증/파싱 실패, 시간 초과는 규칙으로 대체하거나 null을 반환합니다.
+- API에는 선택된 피드백과 필요한 포지션 단어만 보냅니다. 전체 원문, raw, 화자/대상 메타데이터를 보내지 않습니다.
+  알려진 닉네임이 피드백에 있으면 요청을 포기합니다. 원문/키/외부 오류 본문을 모듈 로그에 남기지 않습니다.
+- SDK의 메시지 디버깅 로그와 원격 비용표 자동 조회를 끕니다. 실제 호출은 Google Gemini로 이루어지며
+  데이터 처리 정책은 팀이 선택한 Gemini 계정/요금제의 정책을 확인해야 합니다.
+- 욕설, 여러 문장, 새 게임 대상/수치, 부정 반전 등은 보수적으로 거절합니다. 모든 한국어 의미와 우회 욕설을
+  완벽히 검증하지는 못하므로 실키 제공 후 다양한 문장의 생성 품질과 지연을 별도로 확인해야 합니다.
+- 표시/숨김/클립보드/신고 정책과 입출력 계약은 변경하지 않습니다.
+
+### 검증과 리뷰 범위
 
 ```bash
-uv run sim rewrite
-uv run pytest tests/test_rewrite.py -v
+uv run --extra rewrite pytest tests/test_rewrite.py -v
 ```
 
-테스트는 네트워크를 가짜 응답으로 대체해 API 요청 형식·인증/통신 실패·시간 초과·개인정보·안전 검사를
-확인합니다. 실제 API 품질/지연 측정은 별도 키를 설정한 시뮬레이터에서 확인해야 합니다.
+키가 없는 테스트는 LiteLLM 호출 가짜 응답과 SDK의 mock_response로 연결 규격/실패 경로를 검증합니다.
+**실제 Gemini 생성 품질을 검증한 것이 아닙니다.** 앱/시뮬레이터에 가짜 생성 모드를 추가하지 않습니다.
+
+패키지 설치를 위해 `pyproject.toml`의 rewrite extra와 `uv.lock`이 변경되었습니다.
+이는 모듈 범위 밖의 필수 의존성 변경이므로 리드 리뷰가 필요합니다(가이드의 의존성 예외).
+
+공식 문서: https://docs.litellm.ai/docs/providers/gemini · https://docs.litellm.ai/docs/completion/input

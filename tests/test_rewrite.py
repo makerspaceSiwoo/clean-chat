@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import copy
-import io
 import json
 import threading
 import time
-import urllib.error
 
 import pytest
 
@@ -161,7 +159,7 @@ def test_env_file_and_environment_precedence(monkeypatch, tmp_path):
     # autouse의 가짜 options 대신 원래 함수를 아래 별도 참조로 사용한다.
     monkeypatch.setattr(backend, "ROOT", tmp_path)
     (tmp_path / ".env").write_text('LLM_API_KEY="file-key" # 주석\nLLM_MODEL=file-model\n', encoding="utf-8")
-    for key in ("LLM_API_KEY", "LLM_MODEL", "LLM_BACKEND"):
+    for key in ("LLM_API_KEY", "GEMINI_API_KEY", "LLM_MODEL", "LLM_BACKEND"):
         monkeypatch.delenv(key, raising=False)
     assert REAL_OPTIONS()["LLM_API_KEY"] == "file-key"
     monkeypatch.setenv("LLM_API_KEY", "environment-key")
@@ -174,44 +172,48 @@ REAL_OPTIONS = backend.options
 
 
 def response(content="용 먼저 치자", finish="stop"):
-    return json.dumps(
-        {
-            "choices": [
-                {
-                    "finish_reason": finish,
-                    "message": {"content": json.dumps({"rewritten": content}, ensure_ascii=False)},
-                }
-            ]
-        },
-        ensure_ascii=False,
-    ).encode("utf-8")
+    return {
+        "choices": [
+            {"finish_reason": finish, "message": {"content": json.dumps({"rewritten": content}, ensure_ascii=False)}}
+        ]
+    }
 
 
-def test_http_contract(monkeypatch):
+def test_litellm_gemini_contract(monkeypatch):
     captured = []
 
-    def open_fake(req, timeout):
-        captured.append((req, timeout))
-        return io.BytesIO(response())
+    def completion_fake(**kwargs):
+        captured.append(kwargs)
+        return response()
 
-    monkeypatch.setattr(backend.urllib.request, "urlopen", open_fake)
-    assert backend._request('{"text":"용 먼저 치라고"}', "test-key", "test-model", 0.5) == "용 먼저 치자"
-    req, timeout = captured[0]
-    data = json.loads(req.data)
-    assert req.full_url == "https://api.openai.com/v1/chat/completions"
-    assert req.get_header("Authorization") == "Bearer test-key"
-    assert data["store"] is False and timeout == 0.5
-    assert data["response_format"]["type"] == "json_schema"
-    assert data["model"] == "test-model"
-
-
-@pytest.mark.parametrize("body", [b"not-json", b"{}", response(finish="length"), response(None), b"x" * 17000])
-def test_bad_http_response_does_not_crash(monkeypatch, body):
-    monkeypatch.setattr(backend.urllib.request, "urlopen", lambda *_args, **_kwargs: io.BytesIO(body))
-    assert backend.complete("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "test"}) is None
+    monkeypatch.setattr(backend, "_completion", completion_fake)
+    assert backend._request('{"text":"용 먼저 치라고"}', "test-key", "gemini/test-model", 0.5) == "용 먼저 치자"
+    (data,) = captured
+    assert data["model"] == "gemini/test-model"
+    assert data["api_key"] == "test-key"
+    assert data["timeout"] == 0.5 and data["num_retries"] == 0
+    assert data["response_format"] == {"type": "json_object"}
+    assert json.loads(data["messages"][1]["content"]) == {"text": "용 먼저 치라고"}
 
 
-@pytest.mark.parametrize("error", [TimeoutError(), urllib.error.URLError("offline"), ValueError("bad")])
+@pytest.mark.parametrize(
+    "body",
+    [
+        {},
+        response(finish="length"),
+        response(None),
+        {"choices": [{"finish_reason": "stop", "message": {"content": "not-json"}}]},
+        {"choices": [{"finish_reason": "stop", "message": {"content": "x" * 17000}}]},
+        {"choices": [{"finish_reason": "stop", "message": {"content": "[]"}}]},
+        {"choices": [{"finish_reason": "stop", "message": {"content": '{"rewritten": 4}'}}]},
+    ],
+)
+def test_bad_litellm_response_does_not_crash(monkeypatch, body):
+    monkeypatch.setattr(backend, "_completion", lambda **_kwargs: body)
+    assert backend.complete("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
+
+
+@pytest.mark.parametrize("error", [TimeoutError(), ConnectionError("offline"), ValueError("bad")])
 def test_network_failure_is_safe(monkeypatch, error):
     def fail(*_):
         raise error
@@ -305,3 +307,82 @@ def test_simulator_subprocess_with_simple_input(monkeypatch, tmp_path):
     assert result["status"] == "ok"
     assert result["output"]["rewritten"] == "용 먼저 치자"
     assert result["durationMs"] < 3000
+
+
+def test_model_not_ready_never_calls_sdk(monkeypatch, caplog):
+    monkeypatch.setattr(backend, "_completion", lambda **_: pytest.fail("모델 없이 호출하면 안 됨"))
+    with caplog.at_level("INFO"):
+        assert backend.complete("test", 0.1, {"LLM_API_KEY": "test", "LLM_MODEL": ""}) is None
+    assert "키/모델이 준비되지" in caplog.text
+
+
+def test_gemini_key_alias_and_model_normalization(monkeypatch, tmp_path):
+    monkeypatch.setattr(backend, "ROOT", tmp_path)
+    for key in ("LLM_API_KEY", "GEMINI_API_KEY", "LLM_MODEL", "LLM_BACKEND"):
+        monkeypatch.delenv(key, raising=False)
+    (tmp_path / ".env").write_text(
+        "GEMINI_API_KEY=gemini-key\nLLM_API_KEY=legacy-key\nLLM_MODEL=team-model\n", encoding="utf-8"
+    )
+    assert REAL_OPTIONS()["LLM_API_KEY"] == "gemini-key"
+    assert REAL_OPTIONS()["LLM_MODEL"] == "gemini/team-model"
+    monkeypatch.setenv("GEMINI_API_KEY", "environment-gemini-key")
+    monkeypatch.setenv("LLM_MODEL", "gemini/team-model-2")
+    assert REAL_OPTIONS()["LLM_API_KEY"] == "environment-gemini-key"
+    assert REAL_OPTIONS()["LLM_MODEL"] == "gemini/team-model-2"
+
+
+def test_no_default_model_before_team_decides(monkeypatch, tmp_path):
+    monkeypatch.setattr(backend, "ROOT", tmp_path)
+    for key in ("LLM_API_KEY", "GEMINI_API_KEY", "LLM_MODEL", "LLM_BACKEND"):
+        monkeypatch.delenv(key, raising=False)
+    assert REAL_OPTIONS()["LLM_MODEL"] == ""
+
+
+def test_other_provider_is_not_called(monkeypatch):
+    monkeypatch.setattr(backend, "_completion", lambda **_: pytest.fail("Gemini 외 제공자 호출 금지"))
+    assert backend._request("test", "test", "openai/test", 0.2) is None
+
+
+def test_rule_and_null_reasons_are_visible(monkeypatch, caplog):
+    with caplog.at_level("INFO"):
+        assert impl.run(request()).backend == "rule"
+        assert impl.run(request("야 뭐하냐고", ["야 뭐하냐고"])).rewritten is None
+    assert "AI 생성이 아닌" in caplog.text
+    assert "규칙에 없는 표현" in caplog.text
+
+
+def test_real_litellm_mock_response_without_key(monkeypatch):
+    import importlib.util
+    import os
+    import subprocess
+    import sys
+
+    if importlib.util.find_spec("litellm") is None:
+        pytest.skip("선택 의존성: uv sync --extra rewrite")
+    env = dict(os.environ, LITELLM_LOCAL_MODEL_COST_MAP="True", PYTHONUTF8="1")
+    for key in ("GEMINI_API_KEY", "LLM_API_KEY", "GOOGLE_API_KEY"):
+        env.pop(key, None)
+    script = """
+import json, logging
+logging.basicConfig(level=logging.WARNING)
+from clean_chat.modules.rewrite import backend
+result = backend._completion(model='gemini/gemini-2.5-flash', messages=[{'role':'user','content':'test'}], mock_response='{"rewritten":"ok"}')
+assert json.loads(result.choices[0].message.content)['rewritten'] == 'ok'
+"""
+    result = subprocess.run([sys.executable, "-c", script], env=env, capture_output=True, text=True, timeout=120)
+    assert result.returncode == 0, result.stderr
+
+
+def test_prepare_requires_model_and_key(monkeypatch):
+    monkeypatch.setattr(backend, "_sdk", lambda: pytest.fail("설정 없이 로딩하면 안 됨"))
+    backend.prepare()
+
+
+def test_prepare_loads_sdk_without_completion(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}
+    )
+    monkeypatch.setattr(backend, "_sdk", lambda: calls.append(True))
+    backend.prepare()
+    assert calls == [True]
