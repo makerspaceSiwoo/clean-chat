@@ -4,7 +4,8 @@
     uv run python -m clean_chat.modules.analyze.evaluate data/eval/test.csv --with-parse --out report.json
 
 CSV 열은 docs/LABELING_GUIDE.md 를 따른다: text, level, harm_types(`|` 연결), has_feedback, target(me/team/enemy/none/unknown).
-선택 열 text_norm 이 있으면 그대로 쓰고, 없으면 text 를 쓴다. --with-parse 를 주면 실제 parse 모듈로 정규화한다
+선택 열: text_norm·hints(parse 를 거친 값, 없으면 text 그대로), profanity_spans(`|` 연결, 있으면 조각도 채점),
+split(--split test 로 시험 문장만 평가). --with-parse 를 주면 실제 parse 모듈로 정규화한다
 (실행 시와 같은 전처리. parse 가 구현되어 있어야 한다).
 표준 라이브러리만 쓴다 (추가 패키지 없음).
 """
@@ -29,10 +30,11 @@ Row = dict[str, str]
 LEVELS = (0, 1, 2, 3)
 
 
-def load_rows(path: Path) -> list[Row]:
-    """라벨 CSV → 행 목록. text 나 level 이 빈 행은 건너뛴다."""
+def load_rows(path: Path, split: str | None = None) -> list[Row]:
+    """라벨 CSV → 행 목록. text 나 level 이 빈 행은 건너뛴다. split 을 주면 split 열이 같은 행만."""
     with path.open(encoding="utf-8-sig", newline="") as f:
-        return [r for r in csv.DictReader(f) if (r.get("text") or "").strip() and (r.get("level") or "").strip()]
+        rows = [r for r in csv.DictReader(f) if (r.get("text") or "").strip() and (r.get("level") or "").strip()]
+    return [r for r in rows if split is None or (r.get("split") or "").strip() == split]
 
 
 def to_request(row: Row, index: int, normalize: Callable[[str], ChatMessage | None] | None = None) -> AnalyzeRequest:
@@ -48,6 +50,7 @@ def to_request(row: Row, index: int, normalize: Callable[[str], ChatMessage | No
             speaker="화자",
             text=text,
             text_norm=(row.get("text_norm") or "").strip() or text,
+            hints=[h for h in (row.get("hints") or "").split("|") if h.strip()],
             raw=text,
         )
     return AnalyzeRequest(message=msg.model_copy(update={"id": f"E{index}"}))
@@ -75,7 +78,7 @@ def evaluate(
     """라벨 행들을 predict 에 넣어 지표를 계산한다. 반환값은 JSON 으로 저장할 수 있는 dict."""
     confusion = {gold: dict.fromkeys(LEVELS, 0) for gold in LEVELS}
     types = {t.value: Counter() for t in HarmType}  # tp / fp / fn
-    feedback, target, bypass = Counter(), Counter(), Counter()
+    feedback, target, bypass, spans = Counter(), Counter(), Counter(), Counter()
     latency: list[float] = []
     errors: list[dict[str, Any]] = []
     model_version = ""
@@ -102,6 +105,9 @@ def evaluate(
         if (row.get("target") or "").strip() in ("me", "team", "enemy", "none"):
             target["n"] += 1
             target["ok"] += (row["target"].strip() != "none") == (out.target is not None)
+        if row.get("profanity_spans") is not None:  # 가릴 조각이 정답과 정확히 같은가 (순서 무시)
+            spans["n"] += 1
+            spans["ok"] += {s for s in row["profanity_spans"].split("|") if s} == set(out.profanity_spans)
         if gold_level != pred_level:
             errors.append(
                 {"text": req.message.text, "gold": gold_level, "pred": pred_level, "pred_types": sorted(pred_types)}
@@ -121,6 +127,7 @@ def evaluate(
         # 정상(L0)인데 L1 이상으로 본 비율 — 높으면 멀쩡한 채팅을 가린다
         "clean_false_positive_rate": _ratio(clean_n - confusion[0][0], clean_n),
         "bypass_level_accuracy": _ratio(bypass["ok"], bypass["n"]),
+        "span_accuracy": _ratio(spans["ok"], spans["n"]),
         "feedback_accuracy": _ratio(feedback["ok"], feedback["n"]),
         "target_presence_accuracy": _ratio(target["ok"], target["n"]),
         "harm_types": {name: _prf(c) for name, c in types.items()},
@@ -142,6 +149,7 @@ def format_report(result: dict[str, Any], max_errors: int = 20) -> str:
         f"악성(L2↑) 재현율     {pct(result['severe_recall'])}",
         f"정상(L0) 오탐률      {pct(result['clean_false_positive_rate'])}",
         f"우회 표현 등급 일치율 {pct(result['bypass_level_accuracy'])}",
+        f"가릴 조각 일치율      {pct(result['span_accuracy'])}",
         f"피드백 유무 일치율    {pct(result['feedback_accuracy'])}",
         f"대상 유무 일치율      {pct(result['target_presence_accuracy'])}",
         "유형별 (정밀도 / 재현율 / F1 / 정답 수)",
@@ -163,11 +171,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="analyze 평가: 라벨 CSV → 정확도·속도")
     ap.add_argument("csv", type=Path, help="라벨 CSV (docs/LABELING_GUIDE.md 형식)")
     ap.add_argument("--with-parse", action="store_true", help="실제 parse 모듈로 정규화한 뒤 평가")
+    ap.add_argument("--split", help="split 열이 이 값인 행만 평가 (예: test)")
     ap.add_argument("--out", type=Path, help="결과를 JSON 으로 저장할 경로")
     args = ap.parse_args(argv)
     normalize = parse_normalizer() if args.with_parse else None
     run(to_request({"text": "준비"}, -1))  # 첫 실행의 로딩 시간을 속도 측정에서 뺀다
-    result = evaluate(load_rows(args.csv), normalize=normalize)
+    result = evaluate(load_rows(args.csv, args.split), normalize=normalize)
     print(format_report(result))
     if args.out:
         args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")

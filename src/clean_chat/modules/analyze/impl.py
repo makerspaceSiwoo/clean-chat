@@ -15,12 +15,12 @@ import re
 from itertools import permutations
 
 from clean_chat.core.schemas import Analysis, AnalyzeRequest, ChatMessage, HarmType, Level, Player
-from clean_chat.modules.analyze import lexicon
+from clean_chat.modules.analyze import lexicon, model
 from clean_chat.modules.analyze.champions import roles_of
 
 logger = logging.getLogger(__name__)
 
-MODEL_VERSION = "rule-0.1"
+MODEL_VERSION = "rule-0.2"  # 규칙 버전. 파인튜닝 모델이 있으면 "rule-0.2+<모델 버전>" 으로 기록된다
 THRESHOLD = 0.5  # 이 점수 이상이면 해당 유형으로 본다
 _RULE_SCORE = 0.9  # 규칙이 걸렸을 때 주는 점수
 _MASKABLE = tuple(sorted({*lexicon.PROFANITY, *lexicon.FAMILY_INSULT, *lexicon.SEXUAL}, key=len, reverse=True))
@@ -47,7 +47,7 @@ def run(req: AnalyzeRequest) -> Analysis:
         target = _guess_target(msg, req.history, req.players)
         level, harm_types = _decide_level(scores, target)
         if level == Level.L0_CLEAN:  # 정상이면 나머지는 빈 값
-            return Analysis(msg_id=msg.id, level=level, model_version=MODEL_VERSION)
+            return Analysis(msg_id=msg.id, level=level, model_version=_model_version())
         return Analysis(
             msg_id=msg.id,
             target=target,
@@ -56,18 +56,28 @@ def run(req: AnalyzeRequest) -> Analysis:
             profanity_spans=_find_profanity(msg),
             feedback_spans=_extract_feedback(msg, level),
             scores={t.value: scores[t.value] for t in harm_types},
-            model_version=MODEL_VERSION,
+            model_version=_model_version(),
         )
     except Exception:  # 앱을 멈추지 않는다: 판단 못 하면 정상(L0)으로 돌려준다
         logger.exception("analyze 실패 (msg_id=%s) → L0 으로 돌려줌", msg.id)
-        return Analysis(msg_id=msg.id, level=Level.L0_CLEAN, model_version=MODEL_VERSION)
+        return Analysis(msg_id=msg.id, level=Level.L0_CLEAN, model_version=_model_version())
 
 
 def _predict_harm(text_norm: str) -> dict[str, float]:
     """유해 유형별 점수 0~1. 예) {"profanity": 0.9, "blame": 0.9}
 
-    지금은 사전 규칙. 모델 브랜치에서는 여기서 모델 점수를 구해 규칙 점수와 합친다(유형별 큰 값).
+    규칙 점수와 파인튜닝 모델 점수(model.py, 모델이 없으면 빈 값) 중 유형별 큰 값.
+    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질은 모델이 잡는 것을 기대한다.
     """
+    scores = _rule_scores(text_norm)
+    for name, score in model.predict(text_norm).items():
+        if score > scores.get(name, 0.0):
+            scores[name] = round(score, 4)
+    return scores
+
+
+def _rule_scores(text_norm: str) -> dict[str, float]:
+    """사전 규칙만으로 낸 점수. 걸린 유형만 들어 있다."""
     checks = {
         HarmType.PROFANITY: any(w in text_norm for w in lexicon.PROFANITY),
         HarmType.FAMILY_INSULT: any(w in text_norm for w in lexicon.FAMILY_INSULT),
@@ -76,6 +86,11 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
         HarmType.INSTIGATION: bool(lexicon.INSTIGATION.search(text_norm)),
     }
     return {t.value: _RULE_SCORE for t, hit in checks.items() if hit}
+
+
+def _model_version() -> str:
+    extra = model.version()
+    return f"{MODEL_VERSION}+{extra}" if extra else MODEL_VERSION
 
 
 def _guess_target(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> str | None:
@@ -91,15 +106,31 @@ def _guess_target(message: ChatMessage, history: list[ChatMessage], players: lis
     if found:
         return _resolve_position(found[0], message, speaker, people) or found[0]
     for p in people:
-        # 띄어쓰기는 무시한다 (명단 "리 신" ↔ 채팅 "리신")
-        words = [w.replace(" ", "") for w in (p.name, p.champion) if w]
-        if any(len(w) >= 2 and w in text.replace(" ", "") for w in words):
+        if _addressed(p, message, speaker):
             return p.name
     if lexicon.SECOND_PERSON.search(text):
         for prev in reversed(history):
             if prev.speaker != message.speaker:
                 return prev.speaker
     return None
+
+
+def _addressed(p: Player, message: ChatMessage, speaker: Player | None) -> bool:
+    """문장이 이 사람을 (닉네임이나 챔피언 이름으로) 부르고 있는가.
+
+    이름이 나온다고 다 대상은 아니다. "마이부터 잡으라고" 의 마이는 잡을 상대이지 욕하는 대상이 아니다.
+    - 팀 채팅에서 상대 팀 챔피언은 콜의 목적어로 본다 ("상대 마이 ㅂㅅ" 처럼 "상대" 가 붙으면 대상).
+    - 이름 뒤에 "부터 / 를 / 을" 이 붙으면 목적어로 본다.
+    """
+    text = message.text_norm.replace(" ", "")  # 띄어쓰기는 무시한다 (명단 "리 신" ↔ 채팅 "리신")
+    enemy = speaker is not None and speaker.team and p.team and p.team != speaker.team
+    if enemy and message.channel != "all" and "상대" not in text:
+        return False
+    for word in (p.name, p.champion):
+        word = (word or "").replace(" ", "")
+        if len(word) >= 2 and word in text and not re.search(re.escape(word) + r"(부터|를|을)", text):
+            return True
+    return False
 
 
 def _people(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> list[Player]:
@@ -258,4 +289,5 @@ def _position_token(text: str) -> tuple[str, int] | None:
 
 def _is_action(word: str) -> bool:
     """게임에서 할 수 있는 행동을 가리키는 낱말인가 (용, 와드, 합류, 와 …)."""
-    return word.lower().startswith(lexicon.ACTION_NOUNS) or bool(lexicon.ACTION_VERBS.match(word))
+    word = word.lower()
+    return word.startswith(lexicon.ACTION_NOUNS) or "템" in word or bool(lexicon.ACTION_VERBS.match(word))
