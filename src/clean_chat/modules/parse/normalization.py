@@ -13,9 +13,10 @@ _PROTECTED = re.compile(
     re.IGNORECASE | re.ASCII,
 )
 _NOISE = re.compile(r"[0-9.!*_\-·ㆍ…\u200b]+")
-_SPACED_JAMO = re.compile(r"[ㄱ-ㅎㅏ-ㅣ]+(?:[ \t\u200b]+[ㄱ-ㅎㅏ-ㅣ]+)+")
+_SPACED_JAMO = re.compile(r"(?<![A-Za-z0-9_])[ㄱ-ㅎㅏ-ㅣ]+(?:[ \t\u200b]+[ㄱ-ㅎㅏ-ㅣ]+)+(?![A-Za-z0-9_])")
 _JAMO_SPACES = re.compile(r"[ \t\u200b]+")
 _REPEATS = re.compile(r"([ㅋㅎㅠㅜ])\1{2,}")
+_OCR_NOISE = re.compile(r"[0-9.!*_\-·ㆍ…\u200blI|oO]+")
 
 
 def normalize(text: str) -> tuple[str, list[str]]:
@@ -40,6 +41,8 @@ def _normalize_segment(text: str) -> tuple[str, list[str]]:
     text, changes = _join_spaced_jamo(text)
     hints.extend(changes)
     text, changes = _squeeze_repeats(text)
+    hints.extend(changes)
+    text, changes = _fix_ocr_errors(text)
     hints.extend(changes)
     text, changes = _apply_lexicon(text)
     return text, hints + changes
@@ -68,6 +71,13 @@ def _squeeze_repeats(text: str) -> tuple[str, list[str]]:
     """ㅋ·ㅎ·ㅠ·ㅜ의 3회 이상 반복만 2회로 줄인다. 일반 음절·숫자·기호는 유지한다."""
     result = _REPEATS.sub(lambda match: match[1] * 2, text)
     return result, ["repeats_squeezed"] if result != text else []
+
+
+def _fix_ocr_errors(text: str) -> tuple[str, list[str]]:
+    """한글 사전 표현 사이에 끼인 l·I·|·o·O만 보정한다. 일반 영문과 숫자는 변환하지 않는다."""
+    pattern = _joined_form_rules(r"[0-9.!*_\-·ㆍ…\u200blI|oO]*")
+    result = pattern.sub(lambda match: _OCR_NOISE.sub("", match[0]), text)
+    return result, ["ocr_fixed"] if result != text else []
 
 
 def _bounded_variant(variant: str, pattern: str) -> str:
