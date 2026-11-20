@@ -357,3 +357,29 @@ def test_normalization_result_is_stable_on_second_pass(text: str) -> None:
     normalized, hints = normalize(text)
     assert len(hints) == len(set(hints))
     assert normalize(normalized) == (normalized, [])
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("ㅅ1ㅂ ㅅ ㅂ", "시발 시발"),
+        ("ㅅ ㅂ ㅅ1ㅂ", "시발 시발"),
+        ("ㅅ ㅂ ㅄ", "시발 병신"),
+        ("ㅄ ㅅ ㅂ", "병신 시발"),
+        ("ㅂㅅ  \tㅅ ㅂ", "병신  \t시발"),
+    ],
+)
+def test_existing_jamo_words_do_not_block_neighbor_normalization(text: str, expected: str) -> None:
+    normalized, _ = normalize(text)
+    assert normalized == expected
+    assert normalize(normalized) == (expected, [])
+
+
+def test_composed_normalization_is_stable() -> None:
+    from itertools import product
+
+    samples = ["ㅅ1ㅂ", "ㅅ ㅂ", "ㅂ\tㅅ", "ㅄ", "ㅂㅅ", "TLQKF", "시l발", "ㅋㅋㅋㅋ", "용 1분"]
+    for left, separator, right in product(samples, [" ", "/", "\n"], samples):
+        text = left + separator + right
+        normalized, _ = normalize(text)
+        assert normalize(normalized) == (normalized, []), text

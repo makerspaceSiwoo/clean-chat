@@ -56,15 +56,31 @@ def _remove_noise_between_hangul(text: str) -> tuple[str, list[str]]:
 
 
 def _join_spaced_jamo(text: str) -> tuple[str, list[str]]:
-    """자모열 전체를 합친 결과가 사전에 있을 때만 결합한다. 줄바꿈은 넘지 않는다."""
-    lexicon = _load_lexicon()
+    """이미 완성된 사전 단어를 경계로, 남은 자모열이 사전 표현일 때만 결합한다."""
+    lexicon, known_words = _lexicon_rules()
 
     def replace(match: re.Match[str]) -> str:
-        joined = _JAMO_SPACES.sub("", match[0])
-        return joined if joined in lexicon else match[0]
+        run = match[0]
+        parts: list[str] = []
+        end = 0
+        for known in known_words.finditer(run):
+            parts.extend((_join_known_jamo(run[end : known.start()], lexicon), known[0]))
+            end = known.end()
+        parts.append(_join_known_jamo(run[end:], lexicon))
+        return "".join(parts)
 
     result = _SPACED_JAMO.sub(replace, text)
     return result, ["jamo_joined"] if result != text else []
+
+
+def _join_known_jamo(fragment: str, lexicon: dict[str, str]) -> str:
+    """인접 단어 사이 공백은 남기고, 사전에 있는 자모 표현의 내부 공백만 제거한다."""
+    joined = _JAMO_SPACES.sub("", fragment)
+    if joined not in lexicon:
+        return fragment
+    start = len(fragment) - len(fragment.lstrip(" \t\u200b"))
+    end = len(fragment.rstrip(" \t\u200b"))
+    return fragment[:start] + joined + fragment[end:]
 
 
 def _squeeze_repeats(text: str) -> tuple[str, list[str]]:
