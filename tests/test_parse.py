@@ -213,3 +213,35 @@ def test_notification_detection_is_not_applied_to_self_input(raw: str) -> None:
     message = run(request(raw, Source.SELF_INPUT)).message
     assert message is not None
     assert (message.speaker, message.text, message.raw) == ("나", raw, raw)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "mytlqkfbuild",
+        "tlqkf123 qudtls_model _tlqkf_",
+        "ㄱㅅㅂㅂ ㅂㅅㄱ",
+        "https://example.test/tlqkf/시1발",
+        "www.example.test/qudtls",
+        "tlqkf@example.test",
+        "용 1분 미드2차 12:34 1.5초",
+        "LoL lol O0 l1 I1 모델 v1.0",
+    ],
+)
+def test_normalization_preserves_identifiers_and_normal_text(text: str) -> None:
+    assert normalize(text) == (text, [])
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hints"),
+    [
+        ("TLQKF QUDTLS", "시발 병신", ["lexicon:tlqkf", "lexicon:qudtls"]),
+        ("tlqkf야", "시발야", ["lexicon:tlqkf"]),
+        ("ㅂㅅ아 ㅂㅅ", "병신아 병신", ["lexicon:ㅂㅅ"]),
+        ("ㅄ 븅신", "병신 병신", ["lexicon:ㅄ", "lexicon:븅신"]),
+        ("https://example.test/tlqkf 옆의 tlqkf", "https://example.test/tlqkf 옆의 시발", ["lexicon:tlqkf"]),
+        ("tlqkf@example.test 다음 ㅂㅅ", "tlqkf@example.test 다음 병신", ["lexicon:ㅂㅅ"]),
+    ],
+)
+def test_guarded_lexicon_replacements(text: str, expected: str, hints: list[str]) -> None:
+    assert normalize(text) == (expected, hints)
