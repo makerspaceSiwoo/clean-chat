@@ -1,7 +1,7 @@
 """로컬 시뮬레이터 서버 (`uv run sim`). 화면(static/)과 모듈 실행 API 를 함께 제공한다. 표준 라이브러리만 쓴다.
 
   GET  /                       화면 (static/index.html)
-  GET  /api/modules            모듈 5개: 이름·제목·설명·간단 입력 칸·예시 입력(fixtures)·입력 JSON Schema
+  GET  /api/modules            모듈 5개 + 추가 화면(views.py, 대화 판단): 이름·제목·설명·간단 입력 칸·예시 입력(fixtures)·입력 JSON Schema
   POST /api/modules/<이름>/run  {"input": {...}} 또는 {"simple": {...}}, 선택 {"image": {"name", "base64"}}
                                → NDJSON 스트림: {"type":"log","stream":"stdout|stderr|system","text"}, {"type":"ping"}(1초마다) ... 마지막에
                                  {"type":"result","status","output","error","input","durationMs"}
@@ -30,10 +30,9 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from clean_chat.core import modules
-from clean_chat.core.config import FIXTURES, settings
+from clean_chat.core.config import settings
 from clean_chat.core.jsonl import read_jsonl
-from clean_chat.sim import inputs
+from clean_chat.sim import inputs, views
 
 STATIC = Path(__file__).parent / "static"
 STATIC_FILES = {"/": "index.html", "/app.js": "app.js", "/style.css": "style.css"}
@@ -52,6 +51,9 @@ class ClientGone(Exception):
 
 # ── 모듈 목록 ─────────────────────────────────────────────
 def _label(item: dict[str, Any], i: int) -> str:
+    if isinstance(item.get("messages"), list):  # 대화 판단: 대화 전체
+        first = item["messages"][0] if item["messages"] else {}
+        return f"#{i + 1} · 대화 {len(item['messages'])}줄 · {first.get('speaker', '')}: {first.get('text', '')} …"
     msg = item.get("line") or item.get("message") or {}
     text = (
         msg.get("text")
@@ -64,8 +66,8 @@ def _label(item: dict[str, Any], i: int) -> str:
 
 def module_list() -> list[dict[str, Any]]:
     out = []
-    for spec in modules.MODULES.values():
-        path = FIXTURES / spec.name / "input.jsonl"
+    for spec in views.VIEWS.values():
+        path = spec.examples
         examples = [x.model_dump(mode="json") for x in read_jsonl(path, spec.input_model)] if path.exists() else []
         out.append(
             {
@@ -104,7 +106,7 @@ def resolve_input(name: str, body: Any, uploads_dir: Path) -> dict[str, Any]:
     if not isinstance(body, dict):
         raise inputs.SimpleInputError('본문은 {"input": {...}} 또는 {"simple": {...}} 이어야 합니다')
     image = body.get("image") if isinstance(body.get("image"), dict) else None
-    if image is not None and IMAGE_FIELD not in modules.MODULES[name].input_model.model_fields:
+    if image is not None and IMAGE_FIELD not in views.VIEWS[name].input_model.model_fields:
         raise inputs.SimpleInputError(f"'{name}' 모듈 입력에는 이미지가 없습니다")
     image_path = str(save_upload(image, uploads_dir)) if image is not None else None
     if isinstance(body.get("simple"), dict):
@@ -131,8 +133,8 @@ def run_module(name: str, body: Any, emit: Emit, uploads_dir: Path | None = None
         ms = round((time.perf_counter() - started) * 1000)
         emit({"type": "result", "status": status, "output": output, "error": error, "input": data, "durationMs": ms})
 
-    if name not in modules.MODULES:
-        return result("invalid_input", error=f"모르는 모듈: {name} (있는 모듈: {', '.join(modules.MODULE_NAMES)})")
+    if name not in views.VIEWS:
+        return result("invalid_input", error=f"모르는 모듈: {name} (있는 모듈: {', '.join(views.VIEW_NAMES)})")
     try:
         data = resolve_input(name, body, uploads_dir or settings.uploads_dir)
     except Exception as e:  # 간단 입력 비어 있음, 이미지 깨짐, 형식 오류

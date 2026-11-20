@@ -24,6 +24,7 @@ from pydantic import ValidationError
 
 from clean_chat.core import modules
 from clean_chat.core.platform import use_utf8_console
+from clean_chat.sim import views
 
 
 def _write(path: Path, status: str, started: float, output: Any = None, error: str | None = None) -> None:
@@ -41,7 +42,7 @@ def _load(name: str):
     if target:
         mod, fn = target.split(":")
         return getattr(import_module(mod), fn)
-    return modules.load(name)
+    return views.load(name)
 
 
 def _ms(t: float) -> str:
@@ -54,7 +55,7 @@ def main(argv: list[str]) -> int:
     logging.basicConfig(
         level=logging.DEBUG, stream=sys.stderr, format="%(asctime)s %(levelname)s %(name)s: %(message)s", force=True
     )
-    spec = modules.MODULES[name]
+    spec = views.VIEWS[name]
     started = time.perf_counter()
 
     print(f"▶ [{name}] 입력 검증 ({spec.input_model.__name__})", flush=True)
@@ -78,7 +79,7 @@ def main(argv: list[str]) -> int:
     t = time.perf_counter()
     print("▶ run() 실행", flush=True)
     try:
-        result = modules.invoke(name, fn, item)
+        result = views.invoke(name, fn, item)
     except modules.ModuleNotImplemented as e:
         print(f"⏳ {e}", file=sys.stderr, flush=True)
         _write(out, "not_implemented", started, error=str(e))

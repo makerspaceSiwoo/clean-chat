@@ -55,7 +55,8 @@ LAW_OC=<open.law.go.kr 에서 받은 값> uv run python -m clean_chat.modules.an
 - 지금 세션 기록(`GameSession.incidents`)에는 다른 유저 채팅만 들어가고 내 채팅(흐름 B)은 없습니다. 내 말에 대한 반응까지 보려면 대화 판단에 넘길 "전체 대화"를 저장하는 방법도 함께 정해야 합니다.
 
 ```bash
-uv run sim analyze                         # 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
+uv run sim analyze                         # 단발 채팅 분류 — 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
+uv run sim judge                           # 전체 대화 판단 — 여러 줄 대화를 넣으면 화자별 신고 권고·고소 후보
 uv run pytest tests/test_analyze.py        # 자동 테스트 (구현 전이면 skip)
 uv run python scripts/pack_context.py analyze   # 웹 AI 채팅에 첨부할 맥락 묶음
 ```

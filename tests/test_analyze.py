@@ -301,3 +301,18 @@ def test_evaluate_scores_spans_and_split(tmp_path):
     )
     result = evaluate.evaluate(evaluate.load_rows(path, "test"))
     assert (result["n"], result["level_accuracy"], result["span_accuracy"]) == (2, 1.0, 0.5)
+
+
+def test_judge_runs_in_simulator():
+    """시뮬레이터에서 대화 판단을 간단 입력(여러 줄 대화)으로 돌릴 수 있다."""
+    from clean_chat.sim import inputs
+    from clean_chat.sim.server import run_module
+
+    events: list[dict] = []
+    simple = {f["key"]: f["default"] for f in inputs.FORMS["judge"]}
+    run_module("judge", {"simple": simple}, events.append)
+    result = events[-1]
+    assert result["status"] == "ok", result["error"]
+    speakers = {s["speaker"]: s for s in result["output"]["speakers"]}
+    assert speakers["얼음땡"]["complaint_candidate"] and speakers["얼음땡"]["legal"][0]["charge"] == "모욕"
+    assert speakers["불꽃남자"]["toward_me"] and speakers["달빛고양이"]["evidence"][0]["kind"] == "agree"
