@@ -32,7 +32,7 @@ class OverlayWindow(QWidget):
         """흐름 A 결과 1건을 채팅 목록에 추가한다.
 
         입력: Incident → 화면: "화자: display_text" 한 줄
-        예) show_rewritten "용 먼저 치자" → "원딜러: 용 먼저 치자" / hide → 아무것도 추가하지 않음
+        예) show_rewritten "용 먼저 치자" → "불꽃남자: 용 먼저 치자" / hide → 아무것도 추가하지 않음
         주의: display_text 가 None 이면 표시하지 않는다. 판단하지 않고 Decision 만 따른다. 오래된 줄은 위에서 지운다.
         """
         raise NotImplementedError("ui 담당: show_incident")

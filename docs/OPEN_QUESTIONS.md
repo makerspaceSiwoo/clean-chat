@@ -14,6 +14,6 @@
 | OPEN-08 | 고소장의 법적 요건(피해자 특정성 등)을 데모에서 어떻게 설명하나 | 발표 Q&A용 정리 | report | 주말 #3 |
 | OPEN-09 | 어떤 줄을 시스템 메시지·핑으로 보고 버리나 | 채팅창에 **글자로** 찍히는 핑·스펠 체크·처치 알림 문구 목록 (parse 가 `message=None`, 지도 위 핑은 범위 밖) | parse | 주말 #2 |
 | OPEN-10 | 발표용 PC에서 롤 + 분류 모델 + LLM을 동시에 돌릴 수 있나 | 사양 확인 후 OPEN-04 결정에 반영 | 리드 | 주말 #2 |
-| OPEN-11 | 대상 추정에 쓸 플레이어 명단 | Live Client Data API `playerlist` (게임 중에만, 로컬) → `AnalyzeRequest.players` | 리드 + analyze | 주말 #2 |
+| OPEN-11 | 대상 추정에 쓸 플레이어 명단 | Live Client Data API `playerlist` (게임 중에만, 로컬) → `AnalyzeRequest.players`. `position` 은 비어 있을 수 있다고 보고 챔피언으로 추정(ADR-0020). 실제로 채워지는지 실측 필요 | 리드 + analyze | 주말 #2 |
 | OPEN-12 | LCU 게임 진행 단계 이름과 전환 시점 | `InProgress`/`EndOfGame` 외 `Reconnect`, `WaitingForStats`, `PreEndOfGame` 등이 언제 오는지 실측 → `session/windows.py: _to_game_phase` 표, 튕김 시 처리(지금 가정: 게임 중 대기가 10초 이상 계속되면 게임 종료, `settings.idle_grace_sec`) | session(리드) | 주말 #2 전 |
 | OPEN-13 | 내가 보낸 채팅이 OCR로 다시 읽혔다는 판단 기준 | 지금 가정: 내 채팅이고 60초 안에 보낸 문장과 본문이 같으면 건너뜀(`core/pipeline.py: SentLog`). 프레임 사이 줄 중복 제거 기준(`LineDedup`, 최근 30줄과 같은 문장)도 같이 실측. OCR 오타·잘림을 고려해 유사도로 바꿀지 | 리드 + capture | 주말 #2 |

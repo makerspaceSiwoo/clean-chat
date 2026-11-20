@@ -140,7 +140,7 @@ class Parser(ParseStage):
 
     def run(self, item: RawLine) -> ParseResult:
         """한 줄을 채널/화자/챔피언/본문으로 분해한다.
-        예) "[팀] 원딜러 (징크스): 용 먼저 치라고" → team, 원딜러, 징크스, "용 먼저 치라고"
+        예) "[팀] 불꽃남자 (징크스): 용 먼저 치라고" → team, 불꽃남자, 징크스, "용 먼저 치라고"
         잡음 줄이면 message=None. 순서: _split_channel → _split_speaker → _classify_channel
         """
         raise NotImplementedError("parse 담당: run")
@@ -218,3 +218,9 @@ class Parser(ParseStage):
 ## 13. 로컬 전용 시뮬레이터 + 명령 2개 (2026-11-14, ADR-0019)
 - 실행 명령은 두 개뿐: `uv run sim [모듈]`(브라우저: 입력 | 디버깅 콘솔 | 반환값), `uv run app`(Windows = 실제, 그 밖 = 데모)
 - 11장의 `clean-chat serve`·`module`·`run`·`say`·`modules`, Next.js `simulator/`, `contracts/`, Vercel 프로젝트는 모두 없앰
+
+## 14. 사람은 닉네임으로 가리킨다 (2026-11-17, ADR-0020)
+- 채팅은 `닉네임 (챔피언): 내용` 뿐이라 포지션은 주어지지 않는다. `Player.position` 은 비어 있을 수 있고, analyze 가 챔피언의 주 라인과 앞 대화로 추정한다
+- `Analysis.target` = 공격 대상의 **닉네임** (한 명으로 못 좁히면 포지션 단어 "정글", 없으면 None). rewrite·report 입력과 `Decision.target` 에도 닉네임이 들어온다
+- 예시 시나리오 닉네임 교체: `탑솔장인→밤하늘별`(가렌) · `정글러→초코우유`(리신) · `미드킹→달빛고양이`(제드) · `원딜러→불꽃남자`(징크스) · `상대탑→얼음땡`(다리우스). `나`(쓰레쉬)는 그대로. 시나리오 명단의 `position` 은 `null`
+- 이 문서 0~13장과 예전 프롬프트·가이드에 남은 옛 닉네임은 위 표대로 읽는다. 새 예시에는 포지션이 드러나는 닉네임을 쓰지 않는다

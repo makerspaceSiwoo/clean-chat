@@ -36,8 +36,8 @@ class LcuPhaseDetector:
         """게임 중 참가자 명단. Live Client Data API(https://127.0.0.1:2999/liveclientdata/playerlist).
 
         입력: 없음 → 출력: Player 목록 (내 소환사는 is_me=True, activeplayername 과 비교)
-        예) [{"summonerName": "원딜러", "championName": "Jinx", "team": "ORDER", "position": "BOTTOM"}, ...]
-            → Player(name="원딜러", champion="징크스", team="ORDER", position="BOTTOM")
+        예) [{"summonerName": "불꽃남자", "championName": "Jinx", "team": "ORDER", "position": "BOTTOM"}, ...]
+            → Player(name="불꽃남자", champion="징크스", team="ORDER", position="BOTTOM")
         순서: _get_live_client_json("playerlist") → _to_players
         주의: 게임 로딩 중에는 응답이 없다(연결 거부) → 빈 목록. 자체 서명 인증서라 검증을 끈다(로컬 주소 한정).
         관련: OPEN-11(플레이어 명단), policy 의 공격 대상 추정

@@ -45,10 +45,10 @@ def test_demo_game_wiring():
     assert session == read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session  # 같은 시나리오
     (result,) = results
     assert [(r.kind, r.speaker) for r in result.reports] == [
-        (ReportKind.REPORT, "원딜러"),
-        (ReportKind.REPORT, "상대탑"),
+        (ReportKind.REPORT, "불꽃남자"),
+        (ReportKind.REPORT, "얼음땡"),
     ]
-    assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "상대탑")]
+    assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "얼음땡")]
 
 
 def test_rewrite_only_for_l2_with_feedback():
@@ -101,8 +101,13 @@ def test_process_frame_runs_ocr_then_lines():
 
 
 def test_unimplemented_module_stops_engine_with_its_name():
-    """Mock 이 없으므로 구현 전 모듈을 만나면 멈추고 이름을 알린다 (실제 모듈 = 지금은 전부 미구현)."""
-    eng = _engine(ModuleSet())
+    """미구현 모듈을 만나면 엔진이 멈추고 해당 모듈 이름을 알린다."""
+    from clean_chat.core.schemas import ParseRequest, ParseResult
+
+    def unimplemented_parse(req: ParseRequest) -> ParseResult:
+        raise NotImplementedError("테스트용 미구현 모듈")
+
+    eng = _engine(ModuleSet({"parse": unimplemented_parse}))
     errors: list[str] = []
     results: list[PostGameResult] = []
     eng.on_error(errors.append)
