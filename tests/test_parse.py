@@ -245,3 +245,47 @@ def test_normalization_preserves_identifiers_and_normal_text(text: str) -> None:
 )
 def test_guarded_lexicon_replacements(text: str, expected: str, hints: list[str]) -> None:
     assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hints"),
+    [
+        ("시.발", "시발", ["noise_removed"]),
+        ("시*발 시_발", "시발 시발", ["noise_removed"]),
+        ("시\u200b발", "시발", ["noise_removed"]),
+        ("병1신아", "병신아", ["noise_removed"]),
+        ("씨.발", "시발", ["noise_removed", "lexicon:씨발"]),
+        ("ㅅ1ㅂ", "시발", ["noise_removed", "lexicon:ㅅㅂ"]),
+        ("ㅅ ㅂ", "시발", ["jamo_joined", "lexicon:ㅅㅂ"]),
+        ("ㅆ\tㅂ", "시발", ["jamo_joined", "lexicon:ㅆㅂ"]),
+        ("ㅂ \tㅅ아", "병신아", ["jamo_joined", "lexicon:ㅂㅅ"]),
+        ("ㅋㅋㅋㅋㅋ", "ㅋㅋ", ["repeats_squeezed"]),
+        ("ㅎㅎㅎㅎ ㅠㅠㅠㅜㅜㅜ", "ㅎㅎ ㅠㅠㅜㅜ", ["repeats_squeezed"]),
+        (
+            "아 ㅅ ㅂ 시.발ㅋㅋㅋㅋ",
+            "아 시발 시발ㅋㅋ",
+            ["noise_removed", "jamo_joined", "repeats_squeezed", "lexicon:ㅅㅂ"],
+        ),
+    ],
+)
+def test_dictionary_scoped_noise_and_jamo_normalization(text: str, expected: str, hints: list[str]) -> None:
+    assert normalize(text) == (expected, hints)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "가가가 나나나 미미미",
+        "111 000 !!! ???",
+        "ㅋㅋ ㅎㅎ ㅠㅠ ㅜㅜ",
+        "미드2차 용 1분 쿨타임 12:34",
+        "시 1분 뒤에 발 묶어",
+        "ㄱ ㅅ ㄴ ㄴ",
+        "ㄱ ㅅ ㅂ",
+        "ㅅ\nㅂ",
+        "my시1발build",
+        "https://example.test/시.발/ㅋㅋㅋㅋ",
+    ],
+)
+def test_normalization_does_not_delete_unrecognized_content(text: str) -> None:
+    assert normalize(text) == (text, [])

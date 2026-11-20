@@ -12,6 +12,10 @@ _PROTECTED = re.compile(
     r"https?://[^\s<>]+|www\.[^\s<>]+|[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}",
     re.IGNORECASE | re.ASCII,
 )
+_NOISE = re.compile(r"[0-9.!*_\-·ㆍ…\u200b]+")
+_SPACED_JAMO = re.compile(r"[ㄱ-ㅎㅏ-ㅣ]+(?:[ \t\u200b]+[ㄱ-ㅎㅏ-ㅣ]+)+")
+_JAMO_SPACES = re.compile(r"[ \t\u200b]+")
+_REPEATS = re.compile(r"([ㅋㅎㅠㅜ])\1{2,}")
 
 
 def normalize(text: str) -> tuple[str, list[str]]:
@@ -33,14 +37,37 @@ def normalize(text: str) -> tuple[str, list[str]]:
 def _normalize_segment(text: str) -> tuple[str, list[str]]:
     """단계 순서를 고정하고 실제로 수행한 보정만 기록한다."""
     text, hints = _remove_noise_between_hangul(text)
+    text, changes = _join_spaced_jamo(text)
+    hints.extend(changes)
+    text, changes = _squeeze_repeats(text)
+    hints.extend(changes)
     text, changes = _apply_lexicon(text)
     return text, hints + changes
 
 
 def _remove_noise_between_hangul(text: str) -> tuple[str, list[str]]:
-    """기본 숫자 삽입 우회어 복원. 추가 복원 규칙도 사전 안의 표현으로 제한한다."""
-    result = re.sub(_bounded_variant("시발", r"시[0-9]+발"), "시발", text)
+    """사전의 한글 표현이 되는 경우에만 글자 사이 숫자·특수문자를 제거한다."""
+    pattern = _joined_form_rules(r"[0-9.!*_\-·ㆍ…\u200b]*")
+    result = pattern.sub(lambda match: _NOISE.sub("", match[0]), text)
     return result, ["noise_removed"] if result != text else []
+
+
+def _join_spaced_jamo(text: str) -> tuple[str, list[str]]:
+    """자모열 전체를 합친 결과가 사전에 있을 때만 결합한다. 줄바꿈은 넘지 않는다."""
+    lexicon = _load_lexicon()
+
+    def replace(match: re.Match[str]) -> str:
+        joined = _JAMO_SPACES.sub("", match[0])
+        return joined if joined in lexicon else match[0]
+
+    result = _SPACED_JAMO.sub(replace, text)
+    return result, ["jamo_joined"] if result != text else []
+
+
+def _squeeze_repeats(text: str) -> tuple[str, list[str]]:
+    """ㅋ·ㅎ·ㅠ·ㅜ의 3회 이상 반복만 2회로 줄인다. 일반 음절·숫자·기호는 유지한다."""
+    result = _REPEATS.sub(lambda match: match[1] * 2, text)
+    return result, ["repeats_squeezed"] if result != text else []
 
 
 def _bounded_variant(variant: str, pattern: str) -> str:
@@ -78,3 +105,19 @@ def _lexicon_rules() -> tuple[dict[str, str], re.Pattern[str]]:
     variants = sorted(lexicon, key=lambda item: (-len(item), item))
     pattern = "|".join(_bounded_variant(variant, re.escape(variant)) for variant in variants)
     return lexicon, re.compile(pattern or r"(?!)", re.IGNORECASE | re.ASCII)
+
+
+@cache
+def _joined_form_rules(gap: str) -> re.Pattern[str]:
+    """사전의 한글 변형·원형 사이에 지정한 삽입 문자만 허용하는 규칙을 만든다."""
+    lexicon = _load_lexicon()
+    forms = {
+        form
+        for form in (*lexicon, *lexicon.values())
+        if len(form) > 1 and all("가" <= char <= "힣" or "ㄱ" <= char <= "ㅣ" for char in form)
+    }
+    pattern = "|".join(
+        _bounded_variant(form, gap.join(re.escape(char) for char in form))
+        for form in sorted(forms, key=lambda item: (-len(item), item))
+    )
+    return re.compile(pattern or r"(?!)")
