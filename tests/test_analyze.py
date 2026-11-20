@@ -11,6 +11,12 @@ from clean_chat.modules.analyze import evaluate, impl, judge, model, precedents,
 from helpers import check_module, fixture_pairs
 
 
+@pytest.fixture(autouse=True)
+def _rules_only(monkeypatch, tmp_path):
+    """테스트는 규칙만으로 돈다. 개발 PC 의 `models/analyze-classifier/` 에 모델이 있어도 결과가 달라지지 않게 한다."""
+    monkeypatch.setenv(model.ENV_VAR, str(tmp_path / "no-model"))
+
+
 def _req(text: str, text_norm: str | None = None, hints: tuple[str, ...] = (), **kwargs) -> AnalyzeRequest:
     msg = ChatMessage(
         id="T1",
@@ -316,3 +322,54 @@ def test_judge_runs_in_simulator():
     speakers = {s["speaker"]: s for s in result["output"]["speakers"]}
     assert speakers["얼음땡"]["complaint_candidate"] and speakers["얼음땡"]["legal"][0]["charge"] == "모욕"
     assert speakers["불꽃남자"]["toward_me"] and speakers["달빛고양이"]["evidence"][0]["kind"] == "agree"
+
+
+def test_train_validation_split_and_multiple_files(tmp_path):
+    """학습 CSV 여러 개를 합치고(같은 문장은 한 번), test 행은 빼고, 유형 조합별로 검증용을 뗀다."""
+    a, b = tmp_path / "a.csv", tmp_path / "b.csv"
+    a.write_text("text,harm_types,split\n" + "".join(f"정글 못하네 {i},blame,train\n" for i in range(20)), "utf-8")
+    b.write_text(
+        "text,harm_types,split\n정글 못하네 0,blame,train\n시험 문장,blame,test\n"
+        + "".join(f"용 치자 {i},,train\n" for i in range(20)),
+        "utf-8",
+    )
+    examples = train.load_examples([a, b])
+    assert len(examples) == 40
+    train_part, val_part = train.split_validation(examples, 0.2, seed=1)
+    assert (
+        len(train_part) == 32 and len(val_part) == 8 and sum(y[train.LABELS.index("blame")] for _, y in val_part) == 4
+    )
+    assert train.split_validation(examples[:4], 0.2, seed=1) == (examples[:4], [])  # 너무 적으면 떼지 않는다
+    score, per = train.macro_f1([[0, 0, 0, 1, 0], [0, 0, 0, 0, 0]], [[0, 0, 0, 0.9, 0], [0, 0, 0, 0.8, 0.1]])
+    assert per == {"blame": pytest.approx(2 / 3)} and score == pytest.approx(2 / 3)  # 정답 없는 유형은 평균에서 제외
+
+
+def test_public_data_kmhas_keeps_only_profanity_label(tmp_path):
+    from clean_chat.modules.analyze import public_data
+
+    src, out = tmp_path / "kmhas.txt", tmp_path / "stage1.csv"
+    src.write_text(
+        'document\tlabel\n욕설 댓글\t3\n"욕설 + 정치"\t2,3\n정치 댓글\t2\n평범한 댓글\t8\n', encoding="utf-8"
+    )
+    assert public_data.convert_kmhas(src, out, limit=4) == 4
+    labels = dict(train.load_examples(out))
+    profanity = train.LABELS.index("profanity")
+    assert labels["욕설 + 정치"][profanity] == 1.0 and sum(labels["정치 댓글"]) == 0.0
+
+
+def test_augmented_train_rows_do_not_leak_into_test():
+    """보강 문장(train_aug.csv)은 모두 train 이고, 시험 문장과 겹치지 않는다."""
+    base = evaluate.load_rows(FIXTURES / "analyze" / "labeled_parsed.csv", "test")
+    aug = evaluate.load_rows(FIXTURES / "analyze" / "train_aug.csv")
+    assert aug and {r["split"] for r in aug} == {"train"}
+    assert not {r["text_norm"] for r in base} & {r["text_norm"] for r in aug}
+    assert all(set(r["harm_types"].split("|")) - {""} <= set(train.LABELS) for r in aug)
+
+
+def test_model_profanity_score_is_ignored(monkeypatch):
+    """욕설은 규칙만 쓴다: 모델만 욕설이라고 한 문장은 정상, 규칙이 잡은 욕설은 그대로."""
+    monkeypatch.setattr(model, "predict", lambda _t: {"profanity": 0.99, "blame": 0.1})
+    monkeypatch.setattr(model, "version", lambda: "fake-ft-0.1")
+    assert int(impl.run(_req("나이스 갱")).level) == 0
+    out = impl.run(_req("아 시발 내가 실수함"))
+    assert (int(out.level), out.scores) == (1, {"profanity": 0.9})
