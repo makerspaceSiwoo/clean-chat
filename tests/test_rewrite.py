@@ -587,3 +587,27 @@ def test_wondering_is_not_an_ultimate_ability():
     assert impl._has_term("궁", "궁 써 주세요")
     assert not impl._has_term("용", "아이템 사용을 부탁해요")
     assert not impl._has_term("탑", "스탑해 주세요")
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("템을 왜 그렇게 가", "아이템을 어떤 이유로 그렇게 선택하셨나요?"),
+        ("아이템을 왜 그렇게 가", "템을 그렇게 선택하신 이유가 궁금해요."),
+    ],
+)
+def test_item_abbreviation_is_not_invented_content(monkeypatch, feedback, generated):
+    api(monkeypatch, generated)
+    out = impl.run(request(feedback, [feedback]))
+    assert out.rewritten == generated and out.backend == "api"
+
+
+@pytest.mark.parametrize("text", ["시스템을 바꿔", "템포 좀 맞춰", "템플릿을 바꿔"])
+def test_non_item_words_are_not_item_evidence(text):
+    assert not impl._has_term("아이템", text)
+    assert not impl._acceptable("아이템을 바꿔 주세요.", text, [], [])
+
+
+def test_item_alias_still_rejects_new_game_objective(monkeypatch):
+    api(monkeypatch, "아이템을 바꾸고 바론을 공격해 주세요.")
+    assert impl.run(request("템을 왜 그렇게 가", ["템을 왜 그렇게 가"])).rewritten is None

@@ -169,6 +169,13 @@ def _rule(spans: list[str], original: str) -> str | None:
 
 def _has_term(term: str, text: str) -> bool:
     """짧은 게임 용어를 일반 단어의 일부와 혼동하지 않는다(궁금/사용/스탑 등)."""
+    if term == "아이템":
+        # 게임 약어는 같은 개념으로 비교하되 시스템/템포/템플릿까지 아이템으로 보지 않는다.
+        return "아이템" in text or bool(
+            re.search(
+                r"(?<![가-힣A-Za-z])템(?=$|[^가-힣A-Za-z]|은|는|이|가|을|를|에|도|만|부터|까지|트리|빌드|세팅|좀)", text
+            )
+        )
     if term in {"용", "궁", "탑", "텔", "갱", "킬"}:
         suffix = "(?!금)" if term == "궁" else ""
         return bool(re.search(r"(?<![가-힣A-Za-z])" + re.escape(term) + suffix, text))
