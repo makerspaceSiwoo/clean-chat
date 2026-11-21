@@ -26,7 +26,9 @@ _LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 def version() -> str:
     folder = Path(__file__).parent
     return hashlib.sha256(
-        b"".join((folder / name).read_bytes() for name in ("backend.py", "client.py", "service.py", "impl.py"))
+        b"".join(
+            (folder / name).read_bytes() for name in ("backend.py", "client.py", "service.py", "impl.py", "tracing.py")
+        )
     ).hexdigest()
 
 
@@ -105,6 +107,8 @@ def ensure_started() -> tuple[dict[str, Any] | None, bool]:
         try:
             health = _rpc(state, "/health", None, 0.5)
             if health.get("version") == version():
+                if health.get("setup_error"):
+                    _LOG.warning("[준비 실패] Gemini 작업자 SDK 설치 확인 필요 (%s)", health["setup_error"])
                 return state, bool(health.get("ready"))
             _rpc(state, "/shutdown", {}, 0.5)
         except (OSError, ValueError) as error:

@@ -23,6 +23,7 @@ class WorkerServer(ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), Handler)
         self.token = token
         self.ready = threading.Event()
+        self.setup_error = None
         self.stop_requested = False
         self.last_activity = time.monotonic()
         self.worker_version = client.version()
@@ -57,7 +58,13 @@ class Handler(BaseHTTPRequestHandler):
         if not self._authorized():
             return
         self.server.last_activity = time.monotonic()
-        self._send({"ready": self.server.ready.is_set(), "version": self.server.worker_version})
+        self._send(
+            {
+                "ready": self.server.ready.is_set(),
+                "version": self.server.worker_version,
+                "setup_error": self.server.setup_error,
+            }
+        )
 
     def do_POST(self) -> None:
         if not self._authorized():
@@ -140,7 +147,8 @@ def work(server: WorkerServer) -> None:
         backend._sdk()
         server.ready.set()
     except Exception as error:
-        logging.warning("Gemini SDK setup failed (%s)", type(error).__name__)
+        server.setup_error = type(error).__name__
+        logging.getLogger("clean_chat.modules.rewrite.backend").warning("[준비 실패] Gemini SDK %s", server.setup_error)
         return
     while not server.stop_requested:
         try:
@@ -156,7 +164,9 @@ def work(server: WorkerServer) -> None:
             )
             reply.put({"status": "ok" if result is not None else "failed", "rewritten": result})
         except Exception as error:
-            logging.warning("Gemini request failed (%s)", type(error).__name__)
+            logging.getLogger("clean_chat.modules.rewrite.backend").warning(
+                "[API 실패] %s (키/오류 본문은 출력하지 않음)", type(error).__name__
+            )
             reply.put({"status": "failed", "rewritten": None})
         finally:
             server.api_slot.release()

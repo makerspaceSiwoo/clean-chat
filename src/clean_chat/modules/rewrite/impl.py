@@ -10,49 +10,41 @@ import unicodedata
 
 from clean_chat.core.schemas import Rewrite, RewriteRequest
 from clean_chat.modules.rewrite import backend
+from clean_chat.modules.rewrite.tracing import preview
 
 _LOG = logging.getLogger(__name__)
 # 앱/시뮬레이터가 모듈을 불러오는 준비 단계. 생성 함수의 3초 예산과 구분한다.
 backend.prepare()
 
 _ROLES = ("정글", "미드", "탑", "원딜", "서폿", "서포터")
-_TERMS = (
-    *_ROLES,
-    "용",
-    "바론",
-    "전령",
-    "공허",
-    "유충",
-    "장로",
-    "타워",
-    "포탑",
-    "억제기",
-    "넥서스",
-    "와드",
-    "미니맵",
-    "시야",
-    "갱",
-    "합류",
-    "한타",
-    "라인",
-    "CS",
-    "씨에스",
-    "점멸",
-    "텔",
-    "궁",
-    "스펠",
-    "다이브",
-    "로밍",
-    "리콜",
-    "귀환",
-    "레드",
-    "블루",
-    "스틸",
-    "백도어",
-    "킬",
-    "데스",
-    "아이템",
-)
+# 지원 어휘 목록이 아니라, 명확한 대상 교체만 잡는 소수의 개념 앵커다.
+# 아이템명/CS/골드/미니언 등 임의의 게임 어휘를 허용/거절하는 기준으로 쓰지 않는다.
+_TARGETS = {
+    "baron": r"바론|내셔\s*남작",
+    "dragon": r"(?<![가-힣A-Za-z])(?:용|드래곤)|원소용|장로용",
+    "herald": r"전령",
+    "turret": r"타워|포탑",
+    "inhibitor": r"억제기",
+    "nexus": r"넥서스",
+    "jungle": r"정글",
+    "mid": r"미드",
+    "top": r"(?<![가-힣A-Za-z])탑",
+    "carry": r"원딜",
+    "support": r"서폿|서포터",
+}
+
+
+# 대상의 동의어를 허용하는 것과, 원문에 없는 하위 종류를 추가하는 것을 구분한다.
+_DRAGON_DETAILS = {
+    "ocean": r"바다(?:의)?\s*(?:드래곤|용)|물용|수룡|ocean\s+(?:dragon|drake)",
+    "chemtech": r"(?:화공|화학공학)(?:의)?\s*(?:드래곤|용)|chemtech\s+(?:dragon|drake)",
+    "hextech": r"마법공학(?:의)?\s*(?:드래곤|용)|hextech\s+(?:dragon|drake)",
+    "infernal": r"화염(?:의)?\s*(?:드래곤|용)|불용|infernal\s+(?:dragon|drake)",
+    "mountain": r"대지(?:의)?\s*(?:드래곤|용)|땅용|mountain\s+(?:dragon|drake)",
+    "cloud": r"바람(?:의)?\s*(?:드래곤|용)|cloud\s+(?:dragon|drake)",
+    "elder": r"장로(?:의)?\s*(?:드래곤|용)|elder\s+(?:dragon|drake)",
+}
+
 _ABUSE = (
     "씨발",
     "시발",
@@ -167,43 +159,78 @@ def _rule(spans: list[str], original: str) -> str | None:
     return result
 
 
-def _has_term(term: str, text: str) -> bool:
-    """짧은 게임 용어를 일반 단어의 일부와 혼동하지 않는다(궁금/사용/스탑 등)."""
-    if term == "아이템":
-        # 게임 약어는 같은 개념으로 비교하되 시스템/템포/템플릿까지 아이템으로 보지 않는다.
-        return "아이템" in text or bool(
-            re.search(
-                r"(?<![가-힣A-Za-z])템(?=$|[^가-힣A-Za-z]|은|는|이|가|을|를|에|도|만|부터|까지|트리|빌드|세팅|좀)", text
-            )
+def _dragon_details(text: str) -> set[str]:
+    return {kind for kind, pattern in _DRAGON_DETAILS.items() if re.search(pattern, text, re.IGNORECASE)}
+
+
+def _targets(text: str) -> set[str]:
+    result = {concept for concept, pattern in _TARGETS.items() if re.search(pattern, text, re.IGNORECASE)}
+    if _dragon_details(text):
+        result.add("dragon")
+    return result
+
+
+def _direct_reversal(source: str, rewritten: str) -> bool:
+    """같은 동사의 명백한 금지↔실행 반전만 검출한다. 부정 단어 유무를 강제하지 않는다."""
+
+    def forbidden(text: str) -> set[str]:
+        return set(re.findall(r"([가-힣]+?)지\s*(?:말|마)", text))
+
+    def positive(stem: str, text: str) -> bool:
+        variants = {stem}
+        if stem.endswith("하"):
+            variants.add(stem[:-1] + "해")
+        return any(
+            re.search(re.escape(v) + r"\s*(?:자|세요|주세요|줘|라|라고|아\s*주세요|어\s*주세요)\s*[.!?]?$", text)
+            for v in variants
         )
-    if term in {"용", "궁", "탑", "텔", "갱", "킬"}:
-        suffix = "(?!금)" if term == "궁" else ""
-        return bool(re.search(r"(?<![가-힣A-Za-z])" + re.escape(term) + suffix, text))
-    if term == "CS":
-        return bool(re.search(r"(?<![a-z])cs(?![a-z])", text, re.IGNORECASE))
-    return term.casefold() in text.casefold()
+
+    source_bans, result_bans = forbidden(source), forbidden(rewritten)
+    return any(stem not in result_bans and positive(stem, rewritten) for stem in source_bans) or any(
+        stem not in source_bans and positive(stem, source) for stem in result_bans
+    )
+
+
+def _output_checks(text: str, source: str, names: list[str], profanity: list[str]) -> list[tuple[str, bool, str]]:
+    source_targets, result_targets = _targets(source), _targets(text)
+    new_numbers = set(re.findall(r"\d+", text)) - set(re.findall(r"\d+", source))
+    source_details, result_details = _dragon_details(source), _dragon_details(text)
+    return [
+        ("문장 길이", bool(text) and len(text) <= 180, f"{len(text)}자 / 최대 180자"),
+        (
+            "용 종류·속성",
+            source_details == result_details,
+            f"원문={sorted(source_details)}, 결과={sorted(result_details)} — 없는 종류 추가/교체/삭제 금지",
+        ),
+        ("욕설", not _still_abusive(text, profanity), "사전 및 분석된 욕설 조각 확인"),
+        ("개인정보", not any(_fold(name) in _fold(text) for name in names), "알려진 닉네임 포함 여부"),
+        (
+            "한 문장 형식",
+            not re.search(r"[.!?。！？].*\S", text.rstrip(".!?。！？")) and not any(c in text for c in "\n`{}[]<>:："),
+            "설명/복수 문장/코드 형식 확인",
+        ),
+        ("공손한 표현", bool(re.search(r"(?:요|죠|시다|자|니다)[.!?。！？]?$", text)), "존댓말/청유형/질문형 확인"),
+        ("수치", not new_numbers, "새 숫자=" + repr(sorted(new_numbers))),
+        (
+            "명확한 대상",
+            source_targets == result_targets,
+            f"원문={sorted(source_targets)}, 결과={sorted(result_targets)}",
+        ),
+        ("직접 행동 반전", not _direct_reversal(source, text), "동일 동사의 명백한 실행/금지 반전 확인"),
+    ]
 
 
 def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) -> bool:
-    """욕설·개인정보·복수 문장·새 게임 대상/수치/부정 반전을 보수적으로 거절한다."""
-    if not text or len(text) > 180 or _still_abusive(text, profanity):
-        return False
-    if any(_fold(name) in _fold(text) for name in names):
-        return False
-    if re.search(r"[.!?。！？].*\S", text.rstrip(".!?。！？")) or any(c in text for c in "\n`{}[]<>:："):
-        return False
-    if not re.search(r"(?:요|죠|시다|자|니다)[.!?。！？]?$", text):
-        return False
-    if set(re.findall(r"\d+", text)) - set(re.findall(r"\d+", source)):
-        return False
-    if any(_has_term(term, source) and not _has_term(term, text) for term in _TERMS):
-        return False
-    added = [term for term in _TERMS if _has_term(term, text) and not _has_term(term, source)]
-    # 왜 안 와 → 합류는 명시적인 동의어다.
-    if any(term != "합류" or not re.search(r"왜\s*안\s*와", source) for term in added):
-        return False
-    negative = r"(?:\S+지\s*(?:마|말)|말라고|말아|말자|말고|삼가|자제)"
-    return bool(re.search(negative, source)) == bool(re.search(negative, text))
+    return all(ok for _, ok, _ in _output_checks(text, source, names, profanity))
+
+
+def _log_checks(text: str, source: str, names: list[str], profanity: list[str]) -> list[str]:
+    failures = []
+    for label, ok, detail in _output_checks(text, source, names, profanity):
+        _LOG.info("[로컬 검사/%s] %s — %s", label, "통과" if ok else "거절", detail)
+        if not ok:
+            failures.append(label)
+    return failures
 
 
 def run(req: RewriteRequest) -> Rewrite:
@@ -214,25 +241,45 @@ def run(req: RewriteRequest) -> Rewrite:
     """
     started = time.monotonic()
     empty = Rewrite(msg_id=req.message.id, rewritten=None, backend="rule")
+    _LOG.info(
+        "[입력] 등급=L%s, 원문=%d자, 피드백=%d조각",
+        req.analysis.level,
+        len(req.message.text),
+        len(req.analysis.feedback_spans),
+    )
     if req.analysis.msg_id != req.message.id or req.analysis.level < 2:
+        _LOG.info("[최종] null — 분석 ID 불일치 또는 L2 미만")
         return empty
     spans = list(dict.fromkeys(s.strip() for s in req.analysis.feedback_spans if s.strip()))
     original = req.message.text
     if not spans or len(spans) > 8 or len(original) > 4000 or any(s not in original for s in spans):
+        _LOG.info("[최종] null — 피드백 없음/개수·길이 초과/원문에 없는 조각")
         return empty
     if any(_still_abusive(span, req.analysis.profanity_spans) for span in spans):
+        _LOG.info("[최종] null — 선택된 피드백에 욕설이 포함됨")
         return empty
     names = [
         name for name in (req.message.speaker, req.analysis.target) if name and name not in {*_ROLES, "나", "본인"}
     ]
     # 개인정보가 들어간 피드백은 안전하게 포기하고, 맥락 본문의 이름만 익명화한다.
     if any(_fold(name) in _fold(span) for name in names for span in spans):
+        _LOG.info("[최종] null — 피드백에 알려진 닉네임이 포함됨")
         return empty
     for name in sorted(names, key=len, reverse=True):
         original = original.replace(name, "[플레이어]")
     config = backend.options()
     mode = config["LLM_BACKEND"]
+    secrets = (config.get("LLM_API_KEY", ""), config.get("GEMINI_API_KEY", ""))
+    _LOG.info("[피드백] %s", preview(spans, secrets=secrets, names=names))
+    _LOG.info(
+        "[설정] backend=%s, model=%s, 키=%s",
+        preview(mode, secrets=secrets),
+        preview(config.get("LLM_MODEL", ""), secrets=secrets),
+        "설정됨" if config.get("LLM_API_KEY") else "없음",
+    )
+    _LOG.info("[검사 방식] 일반 게임 단어 일치 검사는 사용하지 않음. Gemini 의미 확인 + 독립 안전 검사 사용")
     if mode not in {"api", "rule"}:
+        _LOG.info("[최종] null — 지원하지 않는 백엔드 설정")
         return empty.model_copy(update={"backend": mode if mode == "local" else "rule"})
     source = " ".join(spans)
     if re.search(r"왜\s*안\s*와", source):
@@ -241,14 +288,25 @@ def run(req: RewriteRequest) -> Rewrite:
         generated = backend.generate(_build_prompt(spans, source), max(0, 2.7 - (time.monotonic() - started)), config)
         if generated is not None:
             clean = _clean_output(generated)
-            if time.monotonic() - started < 3 and _acceptable(clean, source, names, req.analysis.profanity_spans):
-                _LOG.info("[rewrite] Gemini API 순화 문장을 반환합니다.")
+            _LOG.info("[초안] %s", preview(generated, secrets=secrets, names=names))
+            _LOG.info("[출력 정리] %s", preview(clean, secrets=secrets, names=names))
+            failures = _log_checks(clean, source, names, req.analysis.profanity_spans)
+            elapsed = time.monotonic() - started
+            if elapsed >= 3:
+                failures.append("3초 제한")
+            if not failures:
+                _LOG.info("[최종] backend=api, %.3f초, 결과=%s", elapsed, preview(clean, secrets=secrets, names=names))
                 return Rewrite(msg_id=req.message.id, rewritten=clean, backend="api")
-            _LOG.info("[rewrite] 생성 결과가 안전/의미 검사를 통과하지 못해 null을 반환합니다.")
+            _LOG.info("[최종] null — 거절 사유: %s (%.3f초)", ", ".join(failures), elapsed)
             return empty.model_copy(update={"backend": "api"})
+    _LOG.info("[예비 규칙] API 결과가 없거나 rule 설정이어서 규칙을 확인합니다.")
     result = _rule(spans, original)
-    if result and time.monotonic() - started < 3 and _acceptable(result, source, names, req.analysis.profanity_spans):
-        _LOG.info("[rewrite] AI 생성이 아닌, 등록된 규칙으로 변환했습니다.")
-        return Rewrite(msg_id=req.message.id, rewritten=result, backend="rule")
-    _LOG.info("[rewrite] 규칙에 없는 표현이거나 안전한 변환이 어려워 null을 반환합니다.")
+    if result:
+        _LOG.info("[예비 규칙 초안] %s", preview(result, secrets=secrets, names=names))
+        failures = _log_checks(result, source, names, req.analysis.profanity_spans)
+        if not failures and time.monotonic() - started < 3:
+            _LOG.info("[최종] backend=rule — AI 생성이 아닌 예비 규칙, %.3f초", time.monotonic() - started)
+            return Rewrite(msg_id=req.message.id, rewritten=result, backend="rule")
+        _LOG.info("[예비 규칙] 거절=%s", ", ".join(failures) or "3초 제한")
+    _LOG.info("[최종] null — 규칙에 없는 표현 또는 안전한 변환 불가 (%.3f초)", time.monotonic() - started)
     return empty

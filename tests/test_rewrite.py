@@ -176,7 +176,15 @@ REAL_OPTIONS = backend.options
 def response(content="용 먼저 치자", finish="stop"):
     return {
         "choices": [
-            {"finish_reason": finish, "message": {"content": json.dumps({"rewritten": content}, ensure_ascii=False)}}
+            {
+                "finish_reason": finish,
+                "message": {
+                    "content": json.dumps(
+                        {"rewritten": content, "checks": {key: True for key in backend._MEANING_FIELDS}},
+                        ensure_ascii=False,
+                    )
+                },
+            }
         ]
     }
 
@@ -194,7 +202,8 @@ def test_litellm_gemini_contract(monkeypatch):
     assert data["model"] == "gemini/test-model"
     assert data["api_key"] == "test-key"
     assert data["timeout"] == 0.5 and data["num_retries"] == 0
-    assert data["response_format"] == {"type": "json_object"}
+    assert data["response_format"] == backend._RESPONSE_FORMAT
+    assert data["num_retries"] == 0
     assert json.loads(data["messages"][1]["content"]) == {"text": "용 먼저 치라고"}
 
 
@@ -368,8 +377,11 @@ def test_real_litellm_mock_response_without_key(monkeypatch):
 import json, logging
 logging.basicConfig(level=logging.WARNING)
 from clean_chat.modules.rewrite import backend
-result = backend._completion(model='gemini/gemini-2.5-flash', messages=[{'role':'user','content':'test'}], mock_response='{"rewritten":"ok"}')
-assert json.loads(result.choices[0].message.content)['rewritten'] == 'ok'
+payload=json.dumps({'rewritten':'ok','checks':{key:True for key in backend._MEANING_FIELDS}})
+sdk=backend._sdk()
+original=sdk.completion
+sdk.completion=lambda **kwargs: original(**kwargs,mock_response=payload)
+assert backend._request('test','dummy-key','gemini/gemini-3.1-flash-lite',1) == 'ok'
 """
     result = subprocess.run([sys.executable, "-c", script], env=env, capture_output=True, text=True, timeout=120)
     assert result.returncode == 0, result.stderr
@@ -582,11 +594,10 @@ def test_question_feedback_has_safe_fallback(monkeypatch):
     assert out.backend == "rule"
 
 
-def test_wondering_is_not_an_ultimate_ability():
-    assert not impl._has_term("궁", "이유가 궁금해요")
-    assert impl._has_term("궁", "궁 써 주세요")
-    assert not impl._has_term("용", "아이템 사용을 부탁해요")
-    assert not impl._has_term("탑", "스탑해 주세요")
+def test_normal_words_are_not_objective_or_position_targets():
+    assert impl._targets("이유가 궁금해요") == set()
+    assert impl._targets("아이템 사용을 부탁해요") == set()
+    assert impl._targets("스탑해 주세요") == set()
 
 
 @pytest.mark.parametrize(
@@ -603,11 +614,181 @@ def test_item_abbreviation_is_not_invented_content(monkeypatch, feedback, genera
 
 
 @pytest.mark.parametrize("text", ["시스템을 바꿔", "템포 좀 맞춰", "템플릿을 바꿔"])
-def test_non_item_words_are_not_item_evidence(text):
-    assert not impl._has_term("아이템", text)
-    assert not impl._acceptable("아이템을 바꿔 주세요.", text, [], [])
+def test_non_item_words_rely_on_semantic_audit_not_a_vocabulary_gate(monkeypatch, text):
+    body = response("아이템을 바꿔 주세요.")
+    value = json.loads(body["choices"][0]["message"]["content"])
+    value["checks"]["target"] = False  # 시스템/템포/템플릿은 아이템과 의미가 다르다.
+    body["choices"][0]["message"]["content"] = json.dumps(value)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    assert backend._request(impl._build_prompt([text], text), "test", "gemini/test", 1) is None
 
 
 def test_item_alias_still_rejects_new_game_objective(monkeypatch):
     api(monkeypatch, "아이템을 바꾸고 바론을 공격해 주세요.")
     assert impl.run(request("템을 왜 그렇게 가", ["템을 왜 그렇게 가"])).rewritten is None
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("수확의 낫을 왜 가", "수확의 낫을 구매하신 이유가 있나요?"),
+        ("cs 좀 먹어", "미니언을 처치해서 골드를 챙겨 주세요."),
+        ("골드 좀 모아", "금화를 조금 더 모아 주세요."),
+        ("타워 먼저 밀라고", "포탑을 먼저 공격해 주세요."),
+        ("전령 왜 쳐", "전령을 공격하시는 이유가 있나요?"),
+        ("빼라고", "후퇴해 주세요."),
+        ("미니언 뺏지 말라고", "미니언은 남겨 주세요."),
+        ("미니언 뺏지 말라고", "씨에스 처치는 자제해 주세요."),
+        ("궁 아껴", "궁극기를 아껴 주세요."),
+        ("템을 왜 그렇게 가", "아이템을 그렇게 선택하신 이유가 궁금합니다."),
+    ],
+)
+def test_semantic_paraphrases_are_not_limited_to_a_word_list(monkeypatch, feedback, generated):
+    api(monkeypatch, generated)
+    out = impl.run(request("야 " + feedback, [feedback]))
+    assert out.rewritten == generated
+    assert out.backend == "api"
+
+
+@pytest.mark.parametrize("field", backend._MEANING_FIELDS)
+def test_model_meaning_check_failure_rejects_response(monkeypatch, field):
+    body = response("미니언은 남겨 주세요.")
+    value = json.loads(body["choices"][0]["message"]["content"])
+    value["checks"][field] = False
+    body["choices"][0]["message"]["content"] = json.dumps(value)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    assert backend._request("test", "test", "gemini/test", 1) is None
+
+
+@pytest.mark.parametrize("checks", [None, {}, {"target": True}, {key: 1 for key in backend._MEANING_FIELDS}])
+def test_missing_or_non_boolean_meaning_audit_is_not_accepted(monkeypatch, checks):
+    body = response()
+    body["choices"][0]["message"]["content"] = json.dumps({"rewritten": "용 먼저 치자", "checks": checks})
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    assert backend._request("test", "test", "gemini/test", 1) is None
+
+
+def test_trace_reports_stages_and_rejection_reason_without_key(monkeypatch, caplog):
+    api(monkeypatch, "바론 먼저 치자")
+    with caplog.at_level("INFO"):
+        out = impl.run(request())
+    assert out.rewritten is None
+    for stage in ("[입력]", "[피드백]", "[설정]", "[초안]", "[출력 정리]", "[로컬 검사/명확한 대상]", "[최종]"):
+        assert stage in caplog.text
+    assert "거절 사유: 명확한 대상" in caplog.text
+    assert "test-secret" not in caplog.text
+
+
+def test_backend_audit_trace_redacts_api_key(monkeypatch, caplog):
+    private_key = "not-a-real-key-12345"
+    body = response("확인 부탁드려요 " + private_key)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    with caplog.at_level("INFO"):
+        backend._request("test", private_key, "gemini/test", 1)
+    assert "[의미 확인/target] 통과" in caplog.text
+    assert private_key not in caplog.text
+    assert "마스킹" in caplog.text
+
+
+def test_trace_preview_masks_names_and_credentials():
+    from clean_chat.modules.rewrite.tracing import preview
+
+    value = preview("비밀닉 AQ." + "x" * 25, names=["비밀닉"])
+    assert "비밀닉" not in value
+    assert "AQ." not in value
+    assert "마스킹" in value
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("수확의 낫을 지금 왜 사는거야", "지금 수확의 낫을 구매하신 이유가 무엇인가요?"),
+        ("미니언 뺏지 말라고", "미니언은 남겨 주세요."),
+        ("용 먼저 치라고", "드래곤을 먼저 공격해 주시겠어요?"),
+        ("화공용 먼저 치라고", "화학공학 드래곤을 먼저 공격해 주세요."),
+        ("바다용 먼저 치라고", "바다의 드래곤을 먼저 공격해 주세요."),
+    ],
+)
+def test_user_reports_preserve_meaning_without_literal_words(monkeypatch, feedback, generated):
+    api(monkeypatch, generated)
+    assert impl.run(request(feedback, [feedback])).rewritten == generated
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("용 먼저 치라고", "바다의 드래곤을 먼저 공격해 주시겠어요?"),
+        ("용 먼저 치라고", "화학공학 드래곤을 먼저 공격해 주세요."),
+        ("용 먼저 치라고", "장로 드래곤을 먼저 공격해 주세요."),
+        ("화공용 먼저 치라고", "바다의 드래곤을 먼저 공격해 주세요."),
+        ("바다용 먼저 치라고", "드래곤을 먼저 공격해 주세요."),
+    ],
+)
+def test_unsourced_or_changed_dragon_kind_is_rejected_even_if_model_claims_safe(
+    monkeypatch, feedback, generated, caplog
+):
+    api(monkeypatch, generated)
+    with caplog.at_level("INFO"):
+        out = impl.run(request(feedback, [feedback]))
+    assert out.rewritten is None
+    assert "용 종류·속성" in caplog.text
+
+
+def test_no_purchased_item_can_be_invented_by_semantic_audit(monkeypatch):
+    body = response("수확의 낫을 지금 구매해 주세요.")
+    value = json.loads(body["choices"][0]["message"]["content"])
+    value["checks"]["specificity"] = False
+    body["choices"][0]["message"]["content"] = json.dumps(value)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    assert backend._request("아이템 사", "test", "gemini/test", 1) is None
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("신규아이템Z를 왜 샀어", "신규아이템Z를 구매하신 이유를 알려 주시겠어요?"),
+        ("골드 300 모아", "금화 300을 모아 주세요."),
+        ("cs 뺏지 말라고", "미니언은 남겨 주세요."),
+    ],
+)
+def test_unknown_vocabulary_and_paraphrase_keep_meaning(monkeypatch, feedback, generated):
+    api(monkeypatch, generated)
+    assert impl.run(request(feedback, [feedback])).rewritten == generated
+
+
+def test_user_minion_feedback_can_exclude_the_extra_complaint(monkeypatch):
+    api(monkeypatch, "미니언은 남겨 주세요.")
+    req = request("미니언 뺏지 말라고 뭐하ㅑ냐고", ["미니언 뺏지 말라고"])
+    assert impl.run(req).rewritten == "미니언은 남겨 주세요."
+
+
+def test_semantic_audit_uses_one_completion_even_when_rejected(monkeypatch):
+    calls = []
+    body = response("바다의 드래곤을 공격해 주세요.")
+    data = json.loads(body["choices"][0]["message"]["content"])
+    data["checks"]["specificity"] = False
+    body["choices"][0]["message"]["content"] = json.dumps(data)
+
+    def complete_once(**kwargs):
+        calls.append(kwargs)
+        return body
+
+    monkeypatch.setattr(backend, "_completion", complete_once)
+    assert backend._request("용 먼저 치라고", "test", "gemini/test", 1) is None
+    assert len(calls) == 1 and calls[0]["num_retries"] == 0
+
+
+def test_trace_includes_reported_token_usage_without_an_extra_call(monkeypatch, caplog):
+    calls = []
+    body = response()
+    body["usage"] = {"prompt_tokens": 100, "completion_tokens": 40, "total_tokens": 140}
+
+    def fake(**kwargs):
+        calls.append(kwargs)
+        return body
+
+    monkeypatch.setattr(backend, "_completion", fake)
+    with caplog.at_level("INFO"):
+        assert backend._request("test", "test-private-key", "gemini/test", 1) == "용 먼저 치자"
+    assert "[사용량] 입력=100, 출력=40, 총계=140" in caplog.text
+    assert len(calls) == 1 and "test-private-key" not in caplog.text
