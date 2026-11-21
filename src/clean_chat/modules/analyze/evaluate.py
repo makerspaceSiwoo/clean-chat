@@ -132,7 +132,12 @@ def evaluate(
         "target_presence_accuracy": _ratio(target["ok"], target["n"]),
         "harm_types": {name: _prf(c) for name, c in types.items()},
         "confusion": {str(g): {str(p): v for p, v in row.items()} for g, row in confusion.items()},
-        "latency_ms": {"median": statistics.median(latency), "p95": _percentile(latency, 0.95), "max": max(latency)},
+        "latency_ms": {
+            "mean": statistics.fmean(latency),
+            "median": statistics.median(latency),
+            "p95": _percentile(latency, 0.95),
+            "max": max(latency),
+        },
         "errors": errors,
     }
 
@@ -160,7 +165,10 @@ def format_report(result: dict[str, Any], max_errors: int = 20) -> str:
     for gold, row in result["confusion"].items():
         lines.append(f"  L{gold}  " + " ".join(f"{v:>5}" for v in row.values()))
     lat = result["latency_ms"]
-    lines.append(f"속도  중앙값 {lat['median']:.2f}ms · p95 {lat['p95']:.2f}ms · 최대 {lat['max']:.2f}ms (기준 200ms)")
+    lines.append(
+        f"속도  평균 {lat['mean']:.2f}ms · 중앙값 {lat['median']:.2f}ms · p95 {lat['p95']:.2f}ms · 최대 {lat['max']:.2f}ms"
+        " (기준 500ms, 최대 1000ms)"
+    )
     if result["errors"]:
         lines.append(f"틀린 예 ({min(max_errors, len(result['errors']))}/{len(result['errors'])})")
         lines += [f"  정답 L{e['gold']} → 예측 L{e['pred']}  {e['text']}" for e in result["errors"][:max_errors]]
