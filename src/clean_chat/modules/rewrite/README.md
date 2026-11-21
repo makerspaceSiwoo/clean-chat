@@ -122,3 +122,11 @@ uv run --extra rewrite pytest tests/test_rewrite.py -v
 피드백 구분자 요청에 따라 `sim/inputs.py`와 `tests/test_sim.py`도 변경했습니다. 리드 리뷰에서 의존성/시뮬레이터 변경을 함께 확인해 주세요.
 
 공식 문서: https://docs.litellm.ai/docs/providers/gemini · https://docs.litellm.ai/docs/completion/input
+
+
+### 앞 단계에서 정리한 피드백
+
+원문과 피드백 조각의 글자가 완전히 같을 필요는 없습니다. 출처 확인 시 띄어쓰기·기호 차이와
+명백한 거친 접두어 `쳐먹→먹` 정리를 허용합니다. 예: 원문 `블루 쳐먹지마라고`, 피드백 `블루 먹지마`.
+원문·분석 데이터는 수정하지 않습니다. 임의의 동의어 치환이나 대상·행동·금지·조건 변경을
+모두 허용하는 것은 아닙니다. 출처 확인 실패 로그에는 해당 조각 번호를 표시합니다.

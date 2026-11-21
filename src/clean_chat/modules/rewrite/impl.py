@@ -108,6 +108,15 @@ def _fold(text: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKC", text).casefold() if c.isalnum())
 
 
+def _feedback_in_original(span: str, original: str) -> bool:
+    """띄어쓰기와 명백한 거친 접두어 정리는 허용하되 행동·부정은 보존한다."""
+
+    def normalized(text: str) -> str:
+        return re.sub(r"쳐(?=먹)", "", _fold(text))
+
+    return normalized(span) in normalized(original)
+
+
 def _build_prompt(spans: list[str], original: str) -> str:
     """본문과 확인된 피드백만 JSON 데이터로 보낸다. raw·닉네임 필드는 넣지 않는다."""
     return json.dumps({"text": original, "feedback_spans": spans}, ensure_ascii=False)
@@ -252,9 +261,17 @@ def run(req: RewriteRequest) -> Rewrite:
         return empty
     spans = list(dict.fromkeys(s.strip() for s in req.analysis.feedback_spans if s.strip()))
     original = req.message.text
-    if not spans or len(spans) > 8 or len(original) > 4000 or any(s not in original for s in spans):
-        _LOG.info("[최종] null — 피드백 없음/개수·길이 초과/원문에 없는 조각")
+    if not spans:
+        _LOG.info("[최종] null — 비어 있지 않은 피드백 조각이 없음")
         return empty
+    if len(spans) > 8 or len(original) > 4000:
+        _LOG.info("[최종] null — 입력 제한 초과 (피드백 최대 8조각, 원문 최대 4000자)")
+        return empty
+    unmatched = [index + 1 for index, span in enumerate(spans) if not _feedback_in_original(span, original)]
+    if unmatched:
+        _LOG.info("[최종] null — 원문에서 확인되지 않는 피드백 조각 번호=%s (띄어쓰기·쳐먹→먹 정리 후 비교)", unmatched)
+        return empty
+    _LOG.info("[입력 검사] 피드백 출처 확인 통과 (띄어쓰기·쳐먹→먹 정리 허용)")
     if any(_still_abusive(span, req.analysis.profanity_spans) for span in spans):
         _LOG.info("[최종] null — 선택된 피드백에 욕설이 포함됨")
         return empty

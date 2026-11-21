@@ -792,3 +792,33 @@ def test_trace_includes_reported_token_usage_without_an_extra_call(monkeypatch, 
         assert backend._request("test", "test-private-key", "gemini/test", 1) == "용 먼저 치자"
     assert "[사용량] 입력=100, 출력=40, 총계=140" in caplog.text
     assert len(calls) == 1 and "test-private-key" not in caplog.text
+
+
+@pytest.mark.parametrize(
+    "original, feedback",
+    [
+        ("블루 쳐먹지마라고", "블루 먹지마"),
+        ("블루 쳐 먹지 마라고", "블루 먹지마"),
+        ("블루 먹지마", "블루 먹지 마"),
+    ],
+)
+def test_cleaned_feedback_is_accepted_without_literal_substring(monkeypatch, original, feedback):
+    expected = "블루는 먹지 말아 주세요"
+    api(monkeypatch, expected)
+    req = request(original, [feedback])
+    before = copy.deepcopy(req.model_dump())
+    assert impl.run(req).rewritten == expected
+    assert req.model_dump() == before
+
+
+@pytest.mark.parametrize("feedback", ["레드 먹지마", "블루 먹어", "블루 먼저 먹지마"])
+def test_cleaned_feedback_cannot_invent_target_action_or_condition(monkeypatch, feedback, caplog):
+    api(monkeypatch, "블루는 먹지 말아 주세요")
+
+    def unexpected_call(*args):
+        pytest.fail("원문에 없는 피드백으로 API를 호출하면 안 됩니다")
+
+    monkeypatch.setattr(backend, "generate", unexpected_call)
+    with caplog.at_level("INFO", logger="clean_chat.modules.rewrite"):
+        assert impl.run(request("블루 쳐먹지마라고", [feedback])).rewritten is None
+    assert "원문에서 확인되지 않는 피드백 조각 번호=[1]" in caplog.text
