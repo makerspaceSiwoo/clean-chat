@@ -59,7 +59,7 @@
 
 ### 열거값
 - `level`: 0 정상 · 1 경미 · 2 악성 · 3 법적 대응 후보 (SPEC 4-2)
-- `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질
+- `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질 · `threat` 협박(ADR-0021)
 - `action` (타 유저): `show` · `show_masked` · `show_rewritten` · `hide`
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
 - `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료. report 는 `post_game` 에서만 실행
