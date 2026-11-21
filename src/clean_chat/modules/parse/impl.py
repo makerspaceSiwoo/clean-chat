@@ -19,6 +19,9 @@ _SYSTEM = re.compile(
 )
 _UI_CLOCK = re.compile(r"(?:게임 시간|남은 시간)[ \t]*[:;：；][ \t]*[0-9]{1,3}[:：][0-9]{2}")
 _NOTICE_LABEL = re.compile(r"^(?:알림|시스템)[ \t]*[:;：；][ \t]*")
+_GAME_CLOCK = r"[0-9]{1,3}:[0-5][0-9]"
+_GAME_TIME = re.compile(rf"^(?:{_GAME_CLOCK}|\[{_GAME_CLOCK}\])[ \t]+")
+_TIME_LIKE = re.compile(r"^\[?[0-9]+[ \t]*[:;：；][0-9]")
 
 
 def run(req: ParseRequest) -> ParseResult:
@@ -29,11 +32,14 @@ def run(req: ParseRequest) -> ParseResult:
         → channel=team, speaker="불꽃남자", champion="징크스", text="야 정글 ㅂㅅ아 용 먼저 치라고",
           text_norm="야 정글 병신아 용 먼저 치라고", hints=["lexicon:ㅂㅅ"], is_me=False
     예) "[팀] 나 (쓰레쉬): 정글 합류 부탁해요" (my_name="나") → is_me=True
+    예) "17:02 [팀] 밤하늘별 (코그모): 합류 부탁해요" → 시간 접두부를 떼고 채널·화자·본문 분리.
+        게임 경과 시간은 raw에만 보존하며, ts는 입력의 캡처 시각 그대로 유지한다.
     예) "초코우유 (리신)님이 점멸 쿨타임 신호를 보냈습니다" → 핑·시스템 메시지라 message=None
     예) "@@ ㅡ ##" → 잡음이라 message=None
     예) source=self_input, text="아 정글 ㅂㅅ 왜 안 와" (내 입력, 흐름 B)
         → channel=team, speaker=my_name, champion=None, is_me=True, raw=입력 그대로
-    순서: (self_input 이면 _split_channel_command) / (아니면 _is_noise → _split_channel → _is_system → _split_speaker)
+    순서: (self_input 이면 _split_channel_command) /
+          (아니면 _is_noise → _strip_game_time → _split_channel → _is_system → _split_speaker)
           → normalize(본문) → ChatMessage(raw=원본 줄 그대로)
     주의: text 와 raw 는 증거라서 절대 고치지 않는다(정규화는 text_norm 에만). OCR 오인식([ ↔ (, : ↔ ;)에 강하게.
     관련: ADR-0002, ADR-0006, OPEN-09
@@ -45,7 +51,10 @@ def run(req: ParseRequest) -> ParseResult:
     else:
         if _is_noise(line.text):
             return ParseResult(line_id=line.id, message=None)
-        channel, rest = _split_channel(line.text)
+        rest = _strip_game_time(line.text)
+        if rest is None:
+            return ParseResult(line_id=line.id, message=None)
+        channel, rest = _split_channel(rest)
         if channel is None and _is_system(rest):
             return ParseResult(line_id=line.id, message=None)
         speaker, champion, body = _split_speaker(rest)
@@ -75,6 +84,15 @@ def run(req: ParseRequest) -> ParseResult:
 
 
 # ── 줄 분해 ──
+def _strip_game_time(text: str) -> str | None:
+    """줄 앞의 M:SS·MM:SS·MMM:SS와 대괄호 표기를 분리한다. 잘못된 시각을 화자로 쓰지 않는다."""
+    stripped = text.lstrip(" \t")
+    match = _GAME_TIME.match(stripped)
+    if match is not None:
+        return stripped[match.end() :]
+    return None if _TIME_LIKE.match(stripped) else stripped
+
+
 def _split_channel(text: str) -> tuple[Channel | None, str]:
     """팀·전체 표기의 괄호 오인식만 허용해 분리한다. 본문에는 치환을 적용하지 않는다."""
     match = _CHANNEL.match(text.lstrip())

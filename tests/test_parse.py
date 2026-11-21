@@ -383,3 +383,67 @@ def test_composed_normalization_is_stable() -> None:
         text = left + separator + right
         normalized, _ = normalize(text)
         assert normalize(normalized) == (normalized, []), text
+
+
+@pytest.mark.parametrize("source", [Source.OCR, Source.DEMO])
+@pytest.mark.parametrize("clock", ["17:02", "[13:23]", "0:00", "123:59"])
+@pytest.mark.parametrize(("tag", "channel"), [("[팀]", Channel.TEAM), ("(전체)", Channel.ALL)])
+def test_game_time_prefix_preserves_evidence(source: Source, clock: str, tag: str, channel: Channel) -> None:
+    body = "합류 부탁해요: 17:02에 ㅅ ㅂ  "
+    raw = f"{clock} {tag} 밤하늘별 (코그모): {body}"
+    req = request(raw, source)
+    before = req.model_dump()
+    message = run(req).message
+    assert message is not None
+    assert (message.channel, message.speaker, message.champion, message.is_me) == (channel, "밤하늘별", "코그모", False)
+    assert (message.raw, message.text) == (raw, body)
+    assert message.text_norm == "합류 부탁해요: 17:02에 시발  "
+    assert (message.id, message.ts, message.source) == (req.line.id, 123.0, source)
+    assert req.model_dump() == before
+
+
+@pytest.mark.parametrize("clock", ["13:35", "[13:35]"])
+def test_game_time_without_channel_or_champion(clock: str) -> None:
+    message = run(request(f"{clock} 나 : ****")).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.UNKNOWN, True)
+    assert (message.text, message.text_norm, message.hints) == ("****", "****", [])
+
+
+@pytest.mark.parametrize("raw", ["17:02 초코우유님이 게임을 떠났습니다", "[17:02] 게임 시간: 12:34"])
+def test_game_time_does_not_turn_notifications_into_chat(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "17:60 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:2 [팀] 밤하늘별 (코그모): 합류해요",
+        "1234:02 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:02[팀] 밤하늘별 (코그모): 합류해요",
+        "[17:02 밤하늘별 (코그모): 합류해요",
+        "17:02:03 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:02",
+        "17:02 [팀] 밤하늘별 (코그모):   ",
+    ],
+)
+def test_invalid_or_incomplete_game_time_is_not_a_speaker(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+def test_numeric_speaker_is_not_mistaken_for_game_time() -> None:
+    message = run(request("17: 합류 부탁해요")).message
+    assert message is not None
+    assert (message.speaker, message.text) == ("17", "합류 부탁해요")
+
+
+@pytest.mark.parametrize("command", ["", "/all "])
+def test_self_input_keeps_game_time_as_body(command: str) -> None:
+    body = "17:02 [팀] 밤하늘별 (코그모): 합류해요"
+    raw = command + body
+    message = run(request(raw, Source.SELF_INPUT)).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.is_me) == ("나", None, True)
+    assert (message.text, message.raw) == (body, raw)
+    assert message.channel == (Channel.ALL if command else Channel.TEAM)
