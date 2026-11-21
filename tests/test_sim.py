@@ -9,9 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from clean_chat.core.modules import MODULE_NAMES, MODULES
+from clean_chat.core.modules import MODULES
 from clean_chat.sim import inputs
 from clean_chat.sim.server import ClientGone, make_server, module_list, resolve_input, run_module
+from clean_chat.sim.views import VIEW_NAMES
 from helpers import fixture_pairs
 
 TESTS = Path(__file__).parent
@@ -134,7 +135,7 @@ def test_unknown_module():
 # ── 화면 · HTTP ──
 def test_module_list_has_forms_and_examples():
     items = module_list()
-    assert [m["name"] for m in items] == list(MODULE_NAMES)
+    assert [m["name"] for m in items] == list(VIEW_NAMES)  # 모듈 5개 + 대화 판단
     for m in items:
         assert m["examples"] and m["schema"]["title"] == m["inputModel"]
     assert next(m for m in items if m["name"] == "ocr")["form"][0]["type"] == "image"
@@ -153,7 +154,7 @@ def test_http_static_api_and_stream():
             with urllib.request.urlopen(base + path, timeout=5) as r:
                 assert r.status == 200
         with urllib.request.urlopen(f"{base}/api/modules", timeout=5) as r:
-            assert len(json.loads(r.read())) == 5
+            assert len(json.loads(r.read())) == 6
         body = json.dumps({"simple": {"text": "[팀] 불꽃남자 (징크스): ㅎㅇ"}}).encode()
         req = urllib.request.Request(f"{base}/api/modules/parse/run", body, {"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=60) as r:
