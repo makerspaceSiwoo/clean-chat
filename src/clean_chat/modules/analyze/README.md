@@ -83,6 +83,9 @@ CLEAN_CHAT_ANALYZE_MODEL=<다른 모델 폴더> uv run python -m clean_chat.modu
 
 후보 모델 라이선스: `beomi/KcELECTRA-base`·`KcELECTRA-small-v2022` 는 MIT, `monologg/koelectra-small-v3-discriminator` 는 모델 카드에 표기가 없고 원 저장소(monologg/KoELECTRA)는 Apache-2.0 입니다.
 
+#### 직접 돌려 보기 (노트북)
+`notebooks/model_demo.ipynb` — 학습률·배치·epoch 로그, 인코더 벡터가 유형 점수가 되는 과정, 유형별 대표 문장과의 코사인 유사도 비교를 실행 결과와 함께 담았습니다. 주피터는 프로젝트 의존성이 아니므로 일회용으로 띄웁니다: `uv run --with jupyterlab jupyter lab src/clean_chat/modules/analyze/notebooks/model_demo.ipynb`
+
 #### 다시 해 보기
 ```bash
 D="fixtures/analyze/labeled_parsed.csv fixtures/analyze/train_aug.csv"    # bash 기준 (zsh 는 $D 를 나누지 않으니 경로를 직접 적기)
@@ -104,6 +107,7 @@ uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_pa
 - K-MHaS 로 학습한 가중치를 배포할 때 CC-BY-SA 의 동일조건변경허락이 어디까지 미치는지는 확인하지 않았습니다(추천 모델은 K-MHaS 를 쓰지 않습니다).
 - 협박("집 주소 안다 찾아간다")은 유형 코드가 없어 라벨이 비어 있습니다. 모델이 패드립·성희롱으로 찍어 L3 이 되기도 합니다 — 유형 추가는 팀 논의가 필요합니다.
 - 예문 유사도 방식(SetFit 류)은 새 패키지가 필요해 비교하지 않았습니다.
+- 지금 받는 `beomi/KcELECTRA-base` 의 토크나이저(어휘 30,000, 바이트 단위 BPE)는 `[CLS]`·`[SEP]` 를 붙이지 않습니다. 그래서 분류 층이 읽는 맨 앞 벡터는 문장의 첫 조각 자리입니다. `[CLS]`·`[SEP]` 를 붙여 같은 조건으로 3회 학습해 봤지만 등급 일치율 93.3~95.0% 로 나아지지 않아 그대로 둡니다.
 - `docs/DATA.md` 의 외부 데이터셋 표(모듈 범위 밖)에 위 라이선스를 옮겨 적는 일이 남았습니다.
 
 ### 판례 준비 (오프라인, 한 번)
