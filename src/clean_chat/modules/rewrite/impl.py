@@ -139,11 +139,42 @@ def _rule(spans: list[str], original: str) -> str | None:
         return None
     span = spans[0].strip().rstrip(".!? ")
     result = _RULES.get(span)
+    if result is None:
+        question = re.fullmatch(
+            r"(바론|용|전령|포탑|타워|억제기|넥서스)(?:을|를)?\s*왜\s*(?:쳐|치냐|치니|치는 거야|공격해)", span
+        )
+        if question:
+            objective = question.group(1)
+            particle = "을" if (ord(objective[-1]) - 0xAC00) % 28 else "를"
+            return f"{objective}{particle} 공격하시는 이유가 있나요?"
+    if result is None:
+        # 제한 시간 안에 API 결과가 없을 때, 확인한 목표/동작만 보존하는 일반 예비 규칙.
+        attack = re.fullmatch(
+            r"(바론|용|전령|포탑|타워|억제기|넥서스)(?:을|를)?\s*"
+            r"(?:(먼저|같이|함께|지금)\s*)?"
+            r"(치라고|치라니까|치자|쳐|치세요|공격해|공격하라고|공격하자|공격해줘|"
+            r"치지 말라고|치지 마|공격하지 말라고|공격하지 마)",
+            span,
+        )
+        if attack:
+            objective, priority, action = attack.groups()
+            verb = "공격하지 말아 주세요" if re.search(r"지\s*(?:마|말)", action) else "공격해 주세요"
+            result = " ".join(part for part in (objective, priority, verb) if part)
     if span in {"왜 안 와", "왜 안와"}:
         roles = [role for role in _ROLES if role in original]
         if len(roles) == 1:
             result = f"{roles[0]} 합류 부탁해요"
     return result
+
+
+def _has_term(term: str, text: str) -> bool:
+    """짧은 게임 용어를 일반 단어의 일부와 혼동하지 않는다(궁금/사용/스탑 등)."""
+    if term in {"용", "궁", "탑", "텔", "갱", "킬"}:
+        suffix = "(?!금)" if term == "궁" else ""
+        return bool(re.search(r"(?<![가-힣A-Za-z])" + re.escape(term) + suffix, text))
+    if term == "CS":
+        return bool(re.search(r"(?<![a-z])cs(?![a-z])", text, re.IGNORECASE))
+    return term.casefold() in text.casefold()
 
 
 def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) -> bool:
@@ -158,9 +189,9 @@ def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) 
         return False
     if set(re.findall(r"\d+", text)) - set(re.findall(r"\d+", source)):
         return False
-    if any(term.casefold() in source.casefold() and term.casefold() not in text.casefold() for term in _TERMS):
+    if any(_has_term(term, source) and not _has_term(term, text) for term in _TERMS):
         return False
-    added = [term for term in _TERMS if term.casefold() in text.casefold() and term.casefold() not in source.casefold()]
+    added = [term for term in _TERMS if _has_term(term, text) and not _has_term(term, source)]
     # 왜 안 와 → 합류는 명시적인 동의어다.
     if any(term != "합류" or not re.search(r"왜\s*안\s*와", source) for term in added):
         return False
@@ -200,7 +231,7 @@ def run(req: RewriteRequest) -> Rewrite:
     if re.search(r"왜\s*안\s*와", source):
         source += " " + " ".join(role for role in _ROLES if role in original)
     if mode == "api":
-        generated = backend.complete(_build_prompt(spans, source), max(0, 2.7 - (time.monotonic() - started)), config)
+        generated = backend.generate(_build_prompt(spans, source), max(0, 2.7 - (time.monotonic() - started)), config)
         if generated is not None:
             clean = _clean_output(generated)
             if time.monotonic() - started < 3 and _acceptable(clean, source, names, req.analysis.profanity_spans):
