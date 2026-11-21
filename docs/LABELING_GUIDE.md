@@ -9,7 +9,7 @@
 |---|---|---|
 | `text` | 채팅 본문 | `야 정글 ㅂㅅ아 용 먼저 치라고` |
 | `level` | 0 / 1 / 2 / 3 | `2` |
-| `harm_types` | `profanity`, `family_insult`, `sexual_harassment`, `blame`, `instigation` 중 해당하는 것을 `|`로 연결 (없으면 빈칸) | `profanity|blame` |
+| `harm_types` | `profanity`, `family_insult`, `sexual_harassment`, `blame`, `instigation`, `threat` 중 해당하는 것을 `|`로 연결 (없으면 빈칸) | `profanity|blame` |
 | `has_feedback` | 0 / 1 | `1` |
 | `feedback` | 피드백만 다듬은 문장 (`has_feedback=1`일 때) | `용 먼저 치자` |
 | `target` | 대상: `me`(나) / `team`(팀원) / `enemy`(상대) / `none`(대상 없음) / `unknown` | `team` |
@@ -43,5 +43,7 @@
 | `아 ㅈㄴ 아프네` | 1 | 대상 없음 |
 | `원딜 개못하네 트롤이냐` | 2 | 특정인 비난, 피드백 없음 |
 | `다들 정글 탓인 거 알지? 정글 신고 ㄱ` | 2 | 정치질 |
+| `너 집 주소 안다 찾아간다` | 3 | 협박(`threat`) — 게임 밖 현실의 해악을 말함 |
+| `바론 죽인다 가자` · `다음 한타 때 너부터 잡는다` | 0 | 게임 안의 행동이라 협박 아님 |
 | `서폿 와드 좀 박아 ㅂㅅ아` | 2 | 피드백 있음 → "시야 좀 잡아 주세요" |
 | (가족을 모욕하는 표현) | 3 | 패드립 |

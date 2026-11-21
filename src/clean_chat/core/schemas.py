@@ -51,6 +51,7 @@ class HarmType(StrEnum):
     SEXUAL_HARASSMENT = "sexual_harassment"  # 성희롱
     BLAME = "blame"  # 비난
     INSTIGATION = "instigation"  # 정치질(팀원 몰이)
+    THREAT = "threat"  # 협박: 게임 밖 현실의 해악을 알리는 말 (찾아간다, 신상 공개, 신체 위협). ADR-0021
 
 
 class Level(IntEnum):
