@@ -16,7 +16,7 @@ from itertools import permutations
 
 from clean_chat.core.schemas import Analysis, AnalyzeRequest, ChatMessage, HarmType, Level, Player
 from clean_chat.modules.analyze import lexicon, model
-from clean_chat.modules.analyze.champions import roles_of
+from clean_chat.modules.analyze.champions import AMBIGUOUS, CHAMPION_ROLES, canonical, names_of, roles_of
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,10 @@ _RULE_SCORE = 0.9  # 규칙이 걸렸을 때 주는 점수
 _RULE_ONLY = frozenset({HarmType.PROFANITY.value})
 _MASKABLE = tuple(sorted({*lexicon.PROFANITY, *lexicon.FAMILY_INSULT, *lexicon.SEXUAL}, key=len, reverse=True))
 _TOKEN = re.compile(r"\S+")
+# 이름 앞에 붙어도 부르는 말로 보는 낱말 ("상대 럭스 …", "다들 야스 신고해")
+_LEAD_WORDS = frozenset(
+    {"우리", "상대", "저", "이", "쟤", "ㅋㅋ", "ㅋㅋㅋ", "와", "다들", "얘들아", "다", "같이", "끝나고"}
+)
 
 
 def run(req: AnalyzeRequest) -> Analysis:
@@ -115,6 +119,8 @@ def _guess_target(message: ChatMessage, history: list[ChatMessage], players: lis
         for prev in reversed(history):
             if prev.speaker != message.speaker:
                 return prev.speaker
+    if not players:  # 명단을 모를 때: 문장에서 부른 챔피언 이름을 그대로 대상으로 둔다 (포지션 단어와 같은 방식)
+        return _champion_token(text)
     return None
 
 
@@ -133,7 +139,8 @@ def _addressed(p: Player, message: ChatMessage, speaker: Player | None) -> bool:
         word = (word or "").replace(" ", "")
         if len(word) >= 2 and word in text and not re.search(re.escape(word) + r"(부터|를|을)", text):
             return True
-    return False
+    # 줄임말("이즈", "케틀")은 짧아서 다른 낱말 속에 들어 있기 쉽다 → 낱말 단위로만 본다
+    return any(_called(alias, message.text_norm) for alias in names_of(p.champion)[1:])
 
 
 def _people(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> list[Player]:
@@ -287,6 +294,32 @@ def _position_token(text: str) -> tuple[str, int] | None:
         for name, aliases in lexicon.POSITIONS.items():
             if any(re.fullmatch(re.escape(a) + lexicon.PARTICLES + r"[!?.,~]*", tok.group()) for a in aliases):
                 return name, tok.start()
+    return None
+
+
+def _called(name: str, text: str) -> bool:
+    """문장이 이 이름을 부르는가: 낱말이 `이름 + 조사` 꼴이고 목적어("이즈를", "이즈부터")가 아닐 때."""
+    pattern = re.compile(re.escape(name) + lexicon.PARTICLES + r"[!?.,~]*")
+    for tok in _TOKEN.finditer(text):
+        m = pattern.fullmatch(tok.group())
+        if m and m.group(1) not in ("을", "를"):
+            return True
+    return False
+
+
+def _champion_token(text: str) -> str | None:
+    """문장 맨 앞에서 부른 챔피언 → 정식 이름. 예) "이즈야 궁 써" → "이즈리얼", "상대 럭스 허접" → "럭스"
+
+    맨 앞(군말·"우리"·"상대" 뒤 포함)에 올 때만 부른 것으로 본다. 문장 중간의 챔피언은 대개 이야기의 소재다
+    ("아 시발 블츠 그랩에 또 끌렸네" 는 혼잣말). 일상 낱말과 겹치는 이름(AMBIGUOUS)은 보지 않는다.
+    """
+    for tok in _TOKEN.finditer(text):
+        word = tok.group()
+        for name in sorted(CHAMPION_ROLES, key=len, reverse=True):
+            if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
+                return canonical(name)
+        if word not in lexicon.INTERJECTIONS and word not in _LEAD_WORDS:
+            return None
     return None
 
 

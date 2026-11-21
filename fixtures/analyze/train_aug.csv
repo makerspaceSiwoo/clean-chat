@@ -369,3 +369,171 @@ gg,gg,,0,,,0,,none,train,AI(claude),보강 · 검수 전
 너 진짜 등신이냐,너 진짜 등신이냐,,2,profanity,등신,0,,unknown,train,AI(claude),보강 · 검수 전
 니가 못해서 진 거야 병신아,니가 못해서 진 거야 병신아,,2,profanity|blame,병신,0,,unknown,train,AI(claude),보강 · 검수 전
 제드 ㅈㄴ 못하네 진짜,제드 존나 못하네 진짜,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,team,train,AI(claude),보강 · 검수 전
+그브 갱 고마워,그브 갱 고마워,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 닻줄 좋았다,노틸 닻줄 좋았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+니달 창 잘 맞히네,니달 창 잘 맞히네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 텔 있어?,레넥 텔 있어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+루시안 점멸 빠졌어,루시안 점멸 빠졌어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 로밍 갔어 조심,블랑 로밍 갔어 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+리산 궁 있으면 한타 열자,리산 궁 있으면 한타 열자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+마오 묘목 깔아줘,마오 묘목 깔아줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁으로 원딜 끌고 가줘,모데 궁으로 원딜 끌고 가줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+문도 앞에서 버텨줘,문도 앞에서 버텨줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+미포 궁 각 나오면 쏴,미포 궁 각 나오면 쏴,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+벨코 포킹 좋다,벨코 포킹 좋다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블라디 후반에 캐리한다,블라디 후반에 캐리한다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 궁 맞히면 다 같이 들어가자,세주 궁 맞히면 다 같이 들어가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+짜오 갱 타이밍 좋았어,짜오 갱 타이밍 좋았어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아솔 별 많이 모았네,아솔 별 많이 모았네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아트 궁 켜고 들어가,아트 궁 켜고 들어가,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 무기 뭐야 지금,아펠 무기 뭐야 지금,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이렐 스택 쌓고 싸워,이렐 스택 쌓고 싸워,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+일라 촉수 있는 데서 싸우지 말자,일라 촉수 있는 데서 싸우지 말자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 깃창으로 이니시 걸어줘,자르반 깃창으로 이니시 걸어줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카사 6렙 찍었어 조심,카사 6렙 찍었어 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카시 궁 조심해 뒤돌아,카시 궁 조심해 뒤돌아,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+칼리 창 뽑아줘,칼리 창 뽑아줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+킨드 표식 떴다 가자,킨드 표식 떴다 가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 삼켜줘서 살았다,탐켄 삼켜줘서 살았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 타워 잘 민다,트타 타워 잘 민다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트린 궁 쿨이야 지금 잡자,트린 궁 쿨이야 지금 잡자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+판테 궁으로 바텀 와줘,판테 궁으로 바텀 와줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피들 궁 조심 부쉬 체크,피들 궁 조심 부쉬 체크,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+하이머 포탑 깔려 있어 들어가지 마,하이머 포탑 깔려 있어 들어가지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 돌진각 보면 따라갈게,헤카 돌진각 보면 따라갈게,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+누누 눈덩이 온다 빼,누누 눈덩이 온다 빼,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+람머스 도발 좋았어,람머스 도발 좋았어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+갱플 화약통 잘 터트리네,갱플 화약통 잘 터트리네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+드븐 도끼 잘 받네 ㄷㄷ,드븐 도끼 잘 받네 ㄷㄷ,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+사일 궁 뭐 뺏었어?,사일 궁 뭐 뺏었어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 케틀 덫 밟지 마,상대 케틀 덫 밟지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 이즈 점멸 없어 물자,상대 이즈 점멸 없어 물자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 야스 궁 조심 띄우지 마,상대 야스 궁 조심 띄우지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 블츠 그랩 빠졌어 싸우자,상대 블츠 그랩 빠졌어 싸우자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 말파 궁 있음 뭉치지 마,상대 말파 궁 있음 뭉치지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+말파 덕분에 한타 이겼다,말파 덕분에 한타 이겼다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이즈 덕분에 편하게 이김,이즈 덕분에 편하게 이김,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+우리 카타 펜타킬 ㄷㄷ 미쳤다,우리 카타 펜타킬 ㄷㄷ 미쳤다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+볼베 진짜 든든하네,볼베 진짜 든든하네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+내 야스오 처음이라 미안,내 야스오 처음이라 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나 케틀인데 내가 못했어 미안,나 케틀인데 내가 못했어 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+베인으로 내가 던졌네 ㅈㅅ,베인으로 내가 던졌네 ㅈㅅ,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트페 궁 내가 잘못 썼다 미안,트페 궁 내가 잘못 썼다 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+오리아나 궁 대박이었다,오리아나 궁 대박이었다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레오나 이니시 걸면 따라갈게,레오나 이니시 걸면 따라갈게,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모르가나 속박 쿨이야,모르가나 속박 쿨이야,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나미 물방울 잘 맞히네,나미 물방울 잘 맞히네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+룰루 궁 고마워 살았다,룰루 궁 고마워 살았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 힐 덕분에 버텼다,소라카 힐 덕분에 버텼다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카이사 진화 됐어?,카이사 진화 됐어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+에코 궁 있어 다이브 가능,에코 궁 있어 다이브 가능,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+비에고 블루 가져가,비에고 블루 가져가,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세나 영혼 잘 먹네,세나 영혼 잘 먹네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 캠프만 도네 갱은 언제 오냐,그브 캠프만 도네 갱은 언제 오냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 닻줄 열 번 던져서 한 번 맞히냐,노틸 닻줄 열 번 던져서 한 번 맞히냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+니달 창 하나도 안 맞네 발로 하냐,니달 창 하나도 안 맞네 발로 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 라인전 또 지네 한심하다,레넥 라인전 또 지네 한심하다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+루시안 딜이 왜 그 모양이냐,루시안 딜이 왜 그 모양이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 로밍은 가는데 킬은 못 먹네,블랑 로밍은 가는데 킬은 못 먹네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+리산 궁을 왜 자기한테 쓰냐 생각이 없네,리산 궁을 왜 자기한테 쓰냐 생각이 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+마오 궁 방향 실화냐,마오 궁 방향 실화냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁으로 서폿을 끌고 가냐 뇌가 없네,모데 궁으로 서폿을 끌고 가냐 뇌가 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+문도 그 실력으로 랭크를 왜 하냐,문도 그 실력으로 랭크를 왜 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+미포 궁을 허공에 쏘네,미포 궁을 허공에 쏘네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+벨코 스킬 다 빗나가네 눈 감았냐,벨코 스킬 다 빗나가네 눈 감았냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블라디 0킬 6데스 사람이냐,블라디 0킬 6데스 사람이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 궁을 미니언한테 쓰네,세주 궁을 미니언한테 쓰네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+짜오 강타 또 뺏기냐,짜오 강타 또 뺏기냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아솔 별만 모으고 한타는 안 오네,아솔 별만 모으고 한타는 안 오네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아트 들어가서 그냥 죽네 뭐 하냐,아트 들어가서 그냥 죽네 뭐 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 무기 쓸 줄은 아냐,아펠 무기 쓸 줄은 아냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이렐 스택도 안 쌓고 들어가냐,이렐 스택도 안 쌓고 들어가냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+일라 혼자 사이드에서 뭐 하냐,일라 혼자 사이드에서 뭐 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 깃창으로 우리를 가두냐 트롤이네,자르반 깃창으로 우리를 가두냐 트롤이네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카사 그 챔 왜 골랐냐,카사 그 챔 왜 골랐냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카시 궁을 뒤에다 쓰네 ㅋㅋ,카시 궁을 뒤에다 쓰네 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+칼리 창을 왜 안 뽑냐 장식이냐,칼리 창을 왜 안 뽑냐 장식이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+킨드 표식 하나를 못 먹네,킨드 표식 하나를 못 먹네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 삼키라고 몇 번을 말하냐,탐켄 삼키라고 몇 번을 말하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 점프로 적진에 들어가서 죽네 과학이다,트타 점프로 적진에 들어가서 죽네 과학이다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트린 궁 켜고도 죽냐,트린 궁 켜고도 죽냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+판테 궁 타고 와서 그냥 죽네,판테 궁 타고 와서 그냥 죽네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피들 궁 타이밍 최악이다,피들 궁 타이밍 최악이다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+하이머 포탑만 깔고 구경하냐,하이머 포탑만 깔고 구경하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 돌진해서 혼자 죽네 생각 좀 해라,헤카 돌진해서 혼자 죽네 생각 좀 해라,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+누누 눈덩이 한 번을 못 맞히네,누누 눈덩이 한 번을 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+람머스 도발을 탱커한테 거냐,람머스 도발을 탱커한테 거냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+갱플 화약통 연결도 못 하냐,갱플 화약통 연결도 못 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+드븐 도끼 다 떨어뜨리네 손이 없냐,드븐 도끼 다 떨어뜨리네 손이 없냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+사일 궁을 그걸 뺏냐 개념이 없네,사일 궁을 그걸 뺏냐 개념이 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+오리아나 궁 혼자 허공에 쓰네,오리아나 궁 혼자 허공에 쓰네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레오나 이니시를 혼자 걸고 혼자 죽냐,레오나 이니시를 혼자 걸고 혼자 죽냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모르가나 속박 하나를 못 맞히네,모르가나 속박 하나를 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카이사 궁 타고 들어가서 바로 죽네,카이사 궁 타고 들어가서 바로 죽네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+에코 궁 쓸 줄 모르냐,에코 궁 쓸 줄 모르냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+비에고 있긴 하냐 안 보인다,비에고 있긴 하냐 안 보인다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 힐을 왜 안 주냐 구경하냐,소라카 힐을 왜 안 주냐 구경하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 케틀 별것도 없으면서 깝치네,상대 케틀 별것도 없으면서 깝치네,,2,blame,,0,,enemy,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 야스 운 좋았네 실력은 아니고,상대 야스 운 좋았네 실력은 아니고,,2,blame,,0,,enemy,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 갱 좀 와라 정신 차려,그브 갱 좀 와라 정신 차려,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 이니시 좀 걸어 구경만 하지 말고,노틸 이니시 좀 걸어 구경만 하지 말고,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 텔 좀 타라 혼자 뭐 하냐,레넥 텔 좀 타라 혼자 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 미아 좀 찍어라 입이 없냐,블랑 미아 좀 찍어라 입이 없냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁 좀 써라 아끼다 지겠다,모데 궁 좀 써라 아끼다 지겠다,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 용 좀 챙겨라 뭐 하는 거야,세주 용 좀 챙겨라 뭐 하는 거야,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 뒤에서 딜 해라 왜 앞에 서냐,아펠 뒤에서 딜 해라 왜 앞에 서냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 바론 시야 좀 잡아 생각이 없냐,자르반 바론 시야 좀 잡아 생각이 없냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 원딜 좀 지켜라 어디 보냐,탐켄 원딜 좀 지켜라 어디 보냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 타워부터 쳐라 뭐 하냐,트타 타워부터 쳐라 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 합류 좀 해라 캠프가 그렇게 좋냐,헤카 합류 좀 해라 캠프가 그렇게 좋냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 와드 좀 박아라 놀러 왔냐,소라카 와드 좀 박아라 놀러 왔냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 병신,그브 병신,,2,profanity,병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 존나 못하네,노틸 존나 못하네,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 미친놈아,블랑 미친놈아,,2,profanity,미친놈,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 시발 용 좀 쳐라,세주 시발 용 좀 쳐라,,2,profanity|blame,시발,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 새끼 진짜,트타 새끼 진짜,,2,profanity,새끼,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 병신아 왜 혼자 들어가,헤카 병신아 왜 혼자 들어가,,2,profanity|blame,병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 개새끼,모데 개새끼,,2,profanity,개새끼,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 존나 못해 진짜,아펠 존나 못해 진짜,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아 시발 노틸 닻줄 또 맞았네,아 시발 노틸 닻줄 또 맞았네,,1,profanity,시발,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+존나 아프네 모데 딜,존나 아프네 모데 딜,,1,profanity,존나,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 그브 신고 부탁,다들 그브 신고 부탁,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 트롤임 다 같이 신고하자,블랑 트롤임 다 같이 신고하자,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+얘들아 모데 차단해 말 섞지 마,얘들아 모데 차단해 말 섞지 마,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이 판 세주 때문에 진 거 다들 알지,이 판 세주 때문에 진 거 다들 알지,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 봤지 트타가 던진 거,다들 봤지 트타가 던진 거,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+끝나고 헤카 리폿 좀 해줘,끝나고 헤카 리폿 좀 해줘,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠이 범인이다 다들 신고 넣어,아펠이 범인이다 다들 신고 넣어,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 탓 맞지 다들 ㅇㅈ?,노틸 탓 맞지 다들 ㅇㅈ?,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 엄마가 그렇게 가르치디,그브 엄마가 그렇게 가르치디,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 니네 부모는 너 이러는 거 아냐,노틸 니네 부모는 너 이러는 거 아냐,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 가정 교육을 못 받았네,블랑 가정 교육을 못 받았네,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 느금마,세주 느금마,,3,family_insult,느금마,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 니애미 병신,트타 니애미 병신,,3,profanity|family_insult,니애미|병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 부모가 그렇게 가르쳤냐 갱 좀 와라,헤카 부모가 그렇게 가르쳤냐 갱 좀 와라,,3,family_insult|blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 하는 거 보니 여자네 사진 보내봐,소라카 하는 거 보니 여자네 사진 보내봐,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나미 유저 몸매는 어떠냐,나미 유저 몸매는 어떠냐,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+룰루 걸레,룰루 걸레,,3,sexual_harassment,걸레,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세나 나랑 한번 자자,세나 나랑 한번 자자,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 궁 있으면 같이 들어가자,로크 궁 있으면 같이 들어가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 로밍 갔어 바텀 조심,로크 로밍 갔어 바텀 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 텔 있어?,자헨 텔 있어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 사이드 잘 미네,자헨 사이드 잘 미네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 로크 점멸 없음,상대 로크 점멸 없음,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 부활 빠졌어 지금 잡자,자헨 부활 빠졌어 지금 잡자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 암살은 언제 하냐 구경만 하네,로크 암살은 언제 하냐 구경만 하네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 스킬을 하나도 못 맞히네,로크 스킬을 하나도 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 로밍 좀 가라 라인에서 뭐 하냐,로크 로밍 좀 가라 라인에서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 또 솔킬 따였네 정신 안 차리냐,자헨 또 솔킬 따였네 정신 안 차리냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 한타 좀 와라 사이드에서 뭐 하냐,자헨 한타 좀 와라 사이드에서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 존나 못하네 진짜,자헨 존나 못하네 진짜,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 로크 신고해 0킬 8데스다,다들 로크 신고해 0킬 8데스다,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 니네 부모가 그렇게 가르쳤냐,자헨 니네 부모가 그렇게 가르쳤냐,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아칼 궁 좋았다,아칼 궁 좋았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카직 정글에 있음 조심,카직 정글에 있음 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피오 그 실력으로 사이드를 왜 가냐,피오 그 실력으로 사이드를 왜 가냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이블 갱을 한 번도 안 오네,이블 갱을 한 번도 안 오네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+스몰 스택 잘 쌓고 있네,스몰 스택 잘 쌓고 있네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+신드 구슬을 하나도 못 맞히냐,신드 구슬을 하나도 못 맞히냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+울곳 궁 조심해,울곳 궁 조심해,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세라 궁을 왜 허공에 쓰냐,세라 궁을 왜 허공에 쓰냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전

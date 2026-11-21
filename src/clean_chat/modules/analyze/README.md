@@ -36,7 +36,7 @@
 uv sync --extra analyze
 uv run python -m clean_chat.modules.analyze.train \
     --data fixtures/analyze/labeled_parsed.csv fixtures/analyze/train_aug.csv \
-    --base beomi/KcELECTRA-base --version kcelectra-base-ft-0.1 --epochs 20 --patience 6 --lr 5e-5 --seed 1
+    --base beomi/KcELECTRA-base --version kcelectra-base-ft-0.2 --epochs 20 --patience 6 --lr 5e-5 --seed 1
 uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test   # 브랜치·모델끼리 같은 명령으로 비교
 CLEAN_CHAT_ANALYZE_MODEL=<다른 모델 폴더> uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test
 ```
@@ -71,13 +71,34 @@ CLEAN_CHAT_ANALYZE_MODEL=<다른 모델 폴더> uv run python -m clean_chat.modu
 3. **크기 419MB 는 부담**이지만 데모에서는 Hugging Face 비공개 저장소로 받으면 됩니다. 라벨 데이터가 수천 문장으로 늘면 KcELECTRA-small(65MB)을 다시 비교할 만합니다.
 4. **K-MHaS 1단계는 base 에 뚜렷한 이득이 없고 소형 모델에는 해로웠습니다.** 그래서 라이선스(CC-BY-SA) 고민이 없는 "바로 학습"을 골랐습니다. 지금 `models/analyze-classifier/` 에 둔 것은 바로 학습·시드 1(검증 F1 평균 0.958)입니다.
 
-남은 오답 3건(악성 재현율이 90%에서 멈춘 이유)은 모두 "제드 ㅁㅊ놈인가"처럼 **챔피언 이름으로 부른 문장**입니다. 평가 CSV 에 명단(players)이 없어 대상을 못 찾아 L1 이 된 것으로, 모델이 아니라 평가 입력의 한계입니다.
+위 표에서 남은 오답 3건(악성 재현율이 90%에서 멈춘 이유)은 모두 "제드 ㅁㅊ놈인가"처럼 **챔피언 이름으로 부른 문장**이었습니다. 평가 CSV 에 명단(players)이 없어 대상을 못 찾아 L1 이 된 것으로, 아래 "챔피언 이름·줄임말" 작업에서 규칙을 고쳤습니다. **위 표는 그 전의 규칙으로 잰 수치**입니다.
+
+### 챔피언 이름·줄임말 (모델 `kcelectra-base-ft-0.2`)
+채팅에서는 포지션보다 챔피언 이름·줄임말("이즈", "케틀", "블츠")으로 부르는 일이 많아 규칙과 데이터를 보강했습니다.
+
+- **챔피언 표**(`champions.py`): 라이엇 Data Dragon 16.23.1 한국어 목록 **173명 전부**(2025-11 자헨, 2026-06 로크까지)와 대조했습니다. 테스트가 개수를 확인합니다. 로크는 미드, 자헨은 탑·정글로 넣었습니다(출시 기사 기준).
+- **줄임말 표**: 챔피언 69명의 줄임말. **AI 초안이라 롤을 하는 팀원의 검수가 필요합니다.** 일상 낱말과 겹치는 것(다리·모르·오리·올라 등)은 넣지 않았습니다.
+- **규칙**(`impl.py`): 줄임말은 낱말 단위로만 인식하고 "이즈를"·"이즈부터" 같은 목적어는 뺍니다. 명단(players)이 비어 있으면 **문장 맨 앞에서 부른** 챔피언의 정식 이름을 대상으로 둡니다("상대"·"다들" 같은 앞머리 낱말은 허용). 문장 중간의 챔피언("아 시발 블츠 그랩에 또 끌렸네")과 일상 낱말과 겹치는 이름(진·바이·세트 등 `AMBIGUOUS`)은 대상으로 보지 않습니다.
+- **데이터**: `train_aug.csv` 에 챔피언 이름 문장 168행 추가(총 538행, note `보강2`), 시험 초안 `champion_eval_draft.csv` 43행(새 파일). 모두 AI 작성·검수 전.
+
+같은 구성(KcELECTRA-base, lr 5e-5, 20 epoch)으로 재학습했습니다(학습 575 · 검증 103문장). 범위는 시드 1·42·2 입니다.
+
+| 구성 (새 규칙 기준) | 기존 60문장: 등급 일치율 / 악성 재현율 / 정상 오탐 | 챔피언 43문장: 등급 일치율 / 악성 재현율 / 정상 오탐 |
+|---|---|---|
+| 규칙만 | 85.0% / 73.3% / 0% | 65.1% / 44.4% / 0% |
+| 규칙 + 이전 모델 0.1 | 100% / 100% / 0% | 97.7% / 100% / 7.1%(1건) |
+| **규칙 + 새 모델 0.2** (3회) | 98.3~100% / 100% / 0% | 100% / 100% / 0% |
+
+- `models/analyze-classifier/` 에는 시드 1(검증 F1 평균 0.959)을 `kcelectra-base-ft-0.2` 로 두었습니다. CPU 중앙값 약 14ms.
+- **이 수치는 낙관적입니다.** 대상 규칙을 두 시험셋의 오답을 보면서 고쳤고(챔피언으로 부른 문장, 문장 중간의 챔피언, "다들 ○○ 신고해"), 챔피언 시험 초안도 학습 문장과 같은 작성자(AI)가 썼습니다. 팀이 쓴 문장으로 다시 재기 전에는 "챔피언 이름 문장이 동작한다" 정도로만 읽어 주세요.
+- 평가 명령: `uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/champion_eval_draft.csv --split test`
 
 #### 데이터
 | 데이터 | 용도 | 출처·라이선스 | 위치 |
 |---|---|---|---|
 | `labeled_parsed.csv` train 140 / test 60 | 학습 / 시험(고정) | AI 작성 가상 문장, 팀 검수 전 | `fixtures/analyze/` |
-| `train_aug.csv` 370문장 (전부 train) | 학습 보강 | **AI(Claude) 작성 가상 문장, 검수 전** (`writer=AI(claude)`). 욕설 없는 비난 162 · 정치질 32 · 패드립 20 · 성희롱 16 · 비난처럼 보이는 정상 문장 144. `feedback` 열(다듬은 문장)은 비어 있음 | `fixtures/analyze/` |
+| `train_aug.csv` 538문장 (전부 train) | 학습 보강 | **AI(Claude) 작성 가상 문장, 검수 전** (`writer=AI(claude)`). 1차 370문장(욕설 없는 비난·정치질·패드립·성희롱, 비난처럼 보이는 정상 문장) + 2차 168문장(챔피언 이름·줄임말, note `보강2`). `feedback` 열(다듬은 문장)은 비어 있음 | `fixtures/analyze/` |
+| `champion_eval_draft.csv` 43문장 (전부 test) | 챔피언 이름 시험 초안 | AI(Claude) 작성 가상 문장, 검수 전 | `fixtures/analyze/` |
 | K-MHaS 뉴스 댓글 10.9만 건 중 2만 건 | 1단계 학습(대조군) | [adlnlp/K-MHaS](https://github.com/adlnlp/K-MHaS), **CC-BY-SA 4.0**. 욕설 라벨만 profanity 로 사용. 받는 법은 `public_data.py` 맨 위 | `data/raw/kmhas/` (git 제외) |
 | Korean UnSmile | **쓰지 않음** | 원문 README 기준 데이터셋 **CC-BY-NC-ND 4.0**(비상업·변경 금지) | - |
 
@@ -91,7 +112,7 @@ CLEAN_CHAT_ANALYZE_MODEL=<다른 모델 폴더> uv run python -m clean_chat.modu
 D="fixtures/analyze/labeled_parsed.csv fixtures/analyze/train_aug.csv"    # bash 기준 (zsh 는 $D 를 나누지 않으니 경로를 직접 적기)
 # 바로 학습 (추천 구성)
 uv run python -m clean_chat.modules.analyze.train --data $D --base beomi/KcELECTRA-base \
-    --version kcelectra-base-ft-0.1 --out models/analyze-classifier --epochs 20 --patience 6 --lr 5e-5 --seed 1
+    --version kcelectra-base-ft-0.2 --out models/analyze-classifier --epochs 20 --patience 6 --lr 5e-5 --seed 1
 # 소형 모델: --base beomi/KcELECTRA-small-v2022 (또는 monologg/koelectra-small-v3-discriminator) --epochs 40 --lr 3e-4
 # K-MHaS 2단계 (대조군): public_data.py 맨 위의 명령으로 1단계 모델을 만든 뒤 --base models/ft/stage1-<이름>
 uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test

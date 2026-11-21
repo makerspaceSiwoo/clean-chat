@@ -373,3 +373,53 @@ def test_model_profanity_score_is_ignored(monkeypatch):
     assert int(impl.run(_req("나이스 갱")).level) == 0
     out = impl.run(_req("아 시발 내가 실수함"))
     assert (int(out.level), out.scores) == (1, {"profanity": 0.9})
+
+
+def test_champion_table_covers_official_list():
+    """챔피언 표는 라이엇 공식 목록(Data Dragon 16.23.1 한국어, 173명 — 2026년 로크까지)과 개수가 같다."""
+    from clean_chat.modules.analyze import champions
+
+    official = set(champions.CHAMPION_ROLES) - set(champions._CANONICAL)  # 줄임말을 뺀 정식 이름
+    assert len(official) == 173 and {"로크", "자헨", "유나라", "멜", "암베사"} <= official
+    assert champions.roles_of("로크") == ("MIDDLE",) and champions.roles_of("자헨") == ("TOP", "JUNGLE")
+    assert all(name in official for name in champions.ALIASES)  # 줄임말의 원형은 모두 표에 있다
+    aliases = [a for names in champions.ALIASES.values() for a in names]
+    assert len(aliases) == len(set(aliases)) and not set(aliases) & official  # 줄임말은 한 챔피언만 가리킨다
+
+
+def test_champion_alias_is_resolved():
+    from clean_chat.modules.analyze import champions
+
+    assert champions.canonical("이즈") == "이즈리얼" and champions.canonical("카사") == "카이사"
+    assert champions.names_of("케틀") == ("케이틀린", "케틀", "케이틀") and champions.roles_of("블츠") == ("UTILITY",)
+    players = [Player(name="화자", champion="아리"), Player(name="불주먹", champion="이즈리얼")]
+    assert impl.run(_req("이즈 트롤이냐", players=players)).target == "불주먹"  # 줄임말로 불러도 닉네임을 찾는다
+    assert impl.run(_req("이즈를 왜 못 잡냐 정글", players=players)).target != "불주먹"  # "이즈를" 은 잡을 상대(목적어)
+
+
+def test_champion_name_is_target_without_roster():
+    """명단(players)을 모르면 문장에서 부른 챔피언의 정식 이름을 대상으로 둔다. 일상 낱말과 겹치는 이름은 보지 않는다."""
+    out = impl.run(_req("블츠 트롤이냐"))
+    assert (out.target, int(out.level)) == ("블리츠크랭크", 2)
+    assert impl.run(_req("자헨 트롤이냐")).target == "자헨"
+    assert impl.run(_req("진 거 같다 트롤 때문에")).target is None  # "진" 은 챔피언 이름이기도 하다
+    assert int(impl.run(_req("이즈 궁 좋았어")).level) == 0
+
+
+def test_champion_eval_draft_does_not_overlap_train():
+    """챔피언 이름 시험 초안은 모두 test 이고, 학습 문장과 겹치지 않는다."""
+    draft = evaluate.load_rows(FIXTURES / "analyze" / "champion_eval_draft.csv")
+    assert draft and {r["split"] for r in draft} == {"test"}
+    train_texts = {
+        text
+        for text, _ in train.load_examples([FIXTURES / "analyze" / n for n in ("labeled_parsed.csv", "train_aug.csv")])
+    }
+    assert not {r["text_norm"] for r in draft} & train_texts
+
+
+def test_champion_mentioned_mid_sentence_is_not_target():
+    """명단이 없을 때 문장 중간의 챔피언은 부른 것이 아니다 → 대상 없는 욕설은 L1 에 머문다."""
+    out = impl.run(_req("아 시발 리신 발차기에 또 맞았네"))
+    assert (out.target, int(out.level)) == (None, 1)
+    assert impl.run(_req("상대 리신 트롤이냐")).target == "리신"
+    assert impl.run(_req("다들 리신 신고해")).target == "리신"  # 몰이는 "다들"·"얘들아" 뒤에 이름이 온다
