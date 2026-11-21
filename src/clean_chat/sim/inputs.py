@@ -48,7 +48,7 @@ FORMS: dict[str, list[dict[str, Any]]] = {
     ],
     "rewrite": [
         {"key": "text", "type": "textarea", "label": "원래 문장", "default": "야 정글 ㅂㅅ아 용 먼저 치라고"},
-        {"key": "feedback", "type": "text", "label": "피드백 조각 (쉼표로 구분)", "default": "용 먼저 치라고"},
+        {"key": "feedback", "type": "text", "label": "피드백 조각 (/로 구분)", "default": "용 먼저 치라고"},
     ],
     "report": [],  # 게임 기록(세션)이 필요해서 간단 입력 없음 → 예시 JSON 사용
 }
@@ -96,7 +96,7 @@ def build(module: str, simple: dict[str, Any], image_path: str | None = None) ->
         return AnalyzeRequest(message=_message(_text(simple), speaker)).model_dump(mode="json")
     if module == "rewrite":
         msg = _message(_text(simple), "상대")
-        spans = [s.strip() for s in str(simple.get("feedback") or "").split(",") if s.strip()]
+        spans = [s.strip() for s in str(simple.get("feedback") or "").split("/") if s.strip()]
         analysis = Analysis(msg_id=msg.id, level=Level.L2_ABUSIVE, feedback_spans=spans, model_version="sim")
         return RewriteRequest(message=msg, analysis=analysis).model_dump(mode="json")
     raise SimpleInputError(f"'{module}' 모듈은 간단 입력이 없습니다. 예시를 고르고 JSON 으로 실행하세요")

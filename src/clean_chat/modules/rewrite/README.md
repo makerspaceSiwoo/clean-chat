@@ -51,6 +51,8 @@ LLM_BACKEND=api
 실제 앱은 앞 단계 `analyze`가 뽑은 `analysis.feedback_spans`를 받습니다. 시뮬레이터에서만 사람이
 게임 피드백 부분을 원문 그대로 입력합니다. 예: 원문 `야 정글 바론을 왜 쳐`, 피드백 `바론을 왜 쳐`.
 질문은 `바론을 공격하시는 이유가 있나요?`처럼 질문으로 유지하며, 금지 명령으로 단정하지 않습니다.
+여러 조각은 시뮬레이터에서 `/`로 구분합니다. 예: `용 먼저 치라고 / 와드 좀 박아`.
+조각 안의 쉼표는 문장의 일부로 유지하고, 실제 모듈 입력은 기존 문자열 배열 형식을 유지합니다.
 
 ## 반복 초기화 지연 개선
 
@@ -93,6 +95,6 @@ uv run --extra rewrite pytest tests/test_rewrite.py -v
 
 필수 범위 예외: LiteLLM 설치의 `pyproject.toml`/`uv.lock`, 반복 프로세스 시작 제거를 위한
 `sim/server.py`의 rewrite 전용 위임입니다. core 계약과 다른 모듈의 구현은 바꾸지 않았습니다.
-리드 리뷰에서 이 의존성/시뮬레이터 연결 변경을 함께 확인해 주세요.
+피드백 구분자 요청에 따라 `sim/inputs.py`와 `tests/test_sim.py`도 변경했습니다. 리드 리뷰에서 의존성/시뮬레이터 변경을 함께 확인해 주세요.
 
 공식 문서: https://docs.litellm.ai/docs/providers/gemini · https://docs.litellm.ai/docs/completion/input

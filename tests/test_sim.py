@@ -172,3 +172,17 @@ def test_http_static_api_and_stream(monkeypatch):
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+@pytest.mark.parametrize(
+    ("feedback", "expected"),
+    [
+        (" 용 먼저 치라고 / 와드 좀 박아 // ", ["용 먼저 치라고", "와드 좀 박아"]),
+        ("용 먼저 치고, 와드 박아 / 뒤로 빠져", ["용 먼저 치고, 와드 박아", "뒤로 빠져"]),
+    ],
+)
+def test_rewrite_feedback_uses_slash_and_preserves_commas(feedback, expected):
+    data = inputs.build("rewrite", {"text": "용 먼저 치고, 와드 박아 뒤로 빠져", "feedback": feedback})
+    assert data["analysis"]["feedback_spans"] == expected
+    field = next(field for field in inputs.FORMS["rewrite"] if field["key"] == "feedback")
+    assert "/" in field["label"] and "쉼표" not in field["label"]
