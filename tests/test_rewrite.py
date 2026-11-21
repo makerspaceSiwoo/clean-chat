@@ -17,6 +17,7 @@ from helpers import check_module, fixture_pairs
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
+    impl._CACHE.clear()
     # 단위 테스트에서는 외부 작업자 대신 기존 제한 시간 엔진을 직접 검증한다.
     monkeypatch.setattr(backend, "generate", lambda *args: backend.complete(*args))
     monkeypatch.setattr(backend, "options", lambda: {"LLM_BACKEND": "rule", "LLM_MODEL": "test"})
@@ -822,3 +823,51 @@ def test_cleaned_feedback_cannot_invent_target_action_or_condition(monkeypatch, 
     with caplog.at_level("INFO", logger="clean_chat.modules.rewrite"):
         assert impl.run(request("블루 쳐먹지마라고", [feedback])).rewritten is None
     assert "원문에서 확인되지 않는 피드백 조각 번호=[1]" in caplog.text
+
+
+def test_identical_success_reuses_result_with_current_message_id(monkeypatch, caplog):
+    api(monkeypatch, "바론 먼저 공격해 주세요")
+    calls = []
+    monkeypatch.setattr(backend, "generate", lambda *args: calls.append(args) or "바론 먼저 공격해 주세요")
+    req = request("바론 먼저 치라고", ["바론 먼저 치라고"])
+    assert impl.run(req).rewritten == "바론 먼저 공격해 주세요"
+    req.message.id = req.analysis.msg_id = "next-message"
+    with caplog.at_level("INFO", logger="clean_chat.modules.rewrite"):
+        out = impl.run(req)
+    assert out.msg_id == "next-message"
+    assert out.rewritten == "바론 먼저 공격해 주세요"
+    assert len(calls) == 1
+    assert "API 호출 없음" in caplog.text
+
+
+def test_rejected_output_is_not_cached(monkeypatch):
+    api(monkeypatch, "바다의 드래곤 먼저 공격해 주세요")
+    calls = []
+    monkeypatch.setattr(backend, "generate", lambda *args: calls.append(args) or "바다의 드래곤 먼저 공격해 주세요")
+    req = request()
+    assert impl.run(req).rewritten is None
+    assert impl.run(req).rewritten is None
+    assert len(calls) == 2
+    assert not impl._CACHE
+
+
+def test_cache_separates_source_model_key_and_profanity():
+    base = impl._cache_key("prompt", [], [], {"LLM_MODEL": "one", "LLM_API_KEY": "first"})
+    assert base != impl._cache_key("other", [], [], {"LLM_MODEL": "one", "LLM_API_KEY": "first"})
+    assert base != impl._cache_key("prompt", [], [], {"LLM_MODEL": "two", "LLM_API_KEY": "first"})
+    assert base != impl._cache_key("prompt", [], [], {"LLM_MODEL": "one", "LLM_API_KEY": "second"})
+    assert base != impl._cache_key("prompt", [], ["word"], {"LLM_MODEL": "one", "LLM_API_KEY": "first"})
+    assert "first" not in base
+
+
+def test_cache_expires_and_is_bounded(monkeypatch):
+    now = [100.0]
+    monkeypatch.setattr(impl.time, "monotonic", lambda: now[0])
+    impl._remember("key", "text")
+    assert impl._cached("key") == "text"
+    now[0] += impl._CACHE_TTL
+    assert impl._cached("key") is None
+    for i in range(impl._CACHE_LIMIT + 1):
+        impl._remember(str(i), "text")
+    assert len(impl._CACHE) == impl._CACHE_LIMIT
+    assert impl._cached("0") is None

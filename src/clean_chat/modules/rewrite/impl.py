@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import re
+import threading
 import time
 import unicodedata
+from collections import OrderedDict
 
 from clean_chat.core.schemas import Rewrite, RewriteRequest
 from clean_chat.modules.rewrite import backend
@@ -15,6 +18,40 @@ from clean_chat.modules.rewrite.tracing import preview
 _LOG = logging.getLogger(__name__)
 # 앱/시뮬레이터가 모듈을 불러오는 준비 단계. 생성 함수의 3초 예산과 구분한다.
 backend.prepare()
+
+# 현재 프로세스 메모리에만 보관한다. 동일한 입력/모델/키의 검증된 성공 결과만 재사용한다.
+_CACHE_TTL = 120.0
+_CACHE_LIMIT = 128
+_CACHE: OrderedDict[str, tuple[float, str]] = OrderedDict()
+_CACHE_LOCK = threading.Lock()
+
+
+def _cache_key(prompt: str, names: list[str], profanity: list[str], config: dict[str, str]) -> str:
+    payload = json.dumps(
+        [prompt, names, profanity, config, backend._SYSTEM_INSTRUCTION], ensure_ascii=False, sort_keys=True
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _cached(key: str) -> str | None:
+    with _CACHE_LOCK:
+        entry = _CACHE.get(key)
+        if entry is None:
+            return None
+        if time.monotonic() - entry[0] >= _CACHE_TTL:
+            del _CACHE[key]
+            return None
+        _CACHE.move_to_end(key)
+        return entry[1]
+
+
+def _remember(key: str, text: str) -> None:
+    with _CACHE_LOCK:
+        _CACHE[key] = (time.monotonic(), text)
+        _CACHE.move_to_end(key)
+        while len(_CACHE) > _CACHE_LIMIT:
+            _CACHE.popitem(last=False)
+
 
 _ROLES = ("정글", "미드", "탑", "원딜", "서폿", "서포터")
 # 지원 어휘 목록이 아니라, 명확한 대상 교체만 잡는 소수의 개념 앵커다.
@@ -302,7 +339,15 @@ def run(req: RewriteRequest) -> Rewrite:
     if re.search(r"왜\s*안\s*와", source):
         source += " " + " ".join(role for role in _ROLES if role in original)
     if mode == "api":
-        generated = backend.generate(_build_prompt(spans, source), max(0, 2.7 - (time.monotonic() - started)), config)
+        prompt = _build_prompt(spans, source)
+        cache_key = _cache_key(prompt, names, req.analysis.profanity_spans, config)
+        generated = _cached(cache_key)
+        cache_hit = generated is not None
+        if cache_hit:
+            _LOG.info("[캐시] 120초 내 동일 입력의 검증된 결과 재사용 — API 호출 없음, 추가 사용량 0토큰")
+        else:
+            _LOG.info("[캐시] 재사용할 결과 없음 — Gemini 호출")
+            generated = backend.generate(prompt, max(0, 2.7 - (time.monotonic() - started)), config)
         if generated is not None:
             clean = _clean_output(generated)
             _LOG.info("[초안] %s", preview(generated, secrets=secrets, names=names))
@@ -312,6 +357,8 @@ def run(req: RewriteRequest) -> Rewrite:
             if elapsed >= 3:
                 failures.append("3초 제한")
             if not failures:
+                if not cache_hit:
+                    _remember(cache_key, clean)
                 _LOG.info("[최종] backend=api, %.3f초, 결과=%s", elapsed, preview(clean, secrets=secrets, names=names))
                 return Rewrite(msg_id=req.message.id, rewritten=clean, backend="api")
             _LOG.info("[최종] null — 거절 사유: %s (%.3f초)", ", ".join(failures), elapsed)
