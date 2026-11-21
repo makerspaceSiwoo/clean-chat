@@ -7,8 +7,15 @@ import pytest
 from clean_chat.core.config import FIXTURES
 from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.schemas import AnalyzeRequest, ChatMessage, Level, Player, ReportRequest
-from clean_chat.modules.analyze import evaluate, impl, judge, model, precedents, train
+from clean_chat.modules.analyze import evaluate, impl, judge, judge_evaluate, judge_model, model, precedents, train
 from helpers import check_module, fixture_pairs
+
+
+@pytest.fixture(autouse=True)
+def _rules_only(monkeypatch, tmp_path):
+    """테스트는 규칙만으로 돈다. 개발 PC 의 `models/analyze-classifier/` 에 모델이 있어도 결과가 달라지지 않게 한다."""
+    monkeypatch.setenv(model.ENV_VAR, str(tmp_path / "no-model"))
+    monkeypatch.setenv(judge_model.ENV_VAR, str(tmp_path / "no-judge-model"))
 
 
 def _req(text: str, text_norm: str | None = None, hints: tuple[str, ...] = (), **kwargs) -> AnalyzeRequest:
@@ -316,3 +323,214 @@ def test_judge_runs_in_simulator():
     speakers = {s["speaker"]: s for s in result["output"]["speakers"]}
     assert speakers["얼음땡"]["complaint_candidate"] and speakers["얼음땡"]["legal"][0]["charge"] == "모욕"
     assert speakers["불꽃남자"]["toward_me"] and speakers["달빛고양이"]["evidence"][0]["kind"] == "agree"
+
+
+def test_train_validation_split_and_multiple_files(tmp_path):
+    """학습 CSV 여러 개를 합치고(같은 문장은 한 번), test 행은 빼고, 유형 조합별로 검증용을 뗀다."""
+    a, b = tmp_path / "a.csv", tmp_path / "b.csv"
+    a.write_text("text,harm_types,split\n" + "".join(f"정글 못하네 {i},blame,train\n" for i in range(20)), "utf-8")
+    b.write_text(
+        "text,harm_types,split\n정글 못하네 0,blame,train\n시험 문장,blame,test\n"
+        + "".join(f"용 치자 {i},,train\n" for i in range(20)),
+        "utf-8",
+    )
+    examples = train.load_examples([a, b])
+    assert len(examples) == 40
+    train_part, val_part = train.split_validation(examples, 0.2, seed=1)
+    assert (
+        len(train_part) == 32 and len(val_part) == 8 and sum(y[train.LABELS.index("blame")] for _, y in val_part) == 4
+    )
+    assert train.split_validation(examples[:4], 0.2, seed=1) == (examples[:4], [])  # 너무 적으면 떼지 않는다
+    score, per = train.macro_f1([[0, 0, 0, 1, 0], [0, 0, 0, 0, 0]], [[0, 0, 0, 0.9, 0], [0, 0, 0, 0.8, 0.1]])
+    assert per == {"blame": pytest.approx(2 / 3)} and score == pytest.approx(2 / 3)  # 정답 없는 유형은 평균에서 제외
+
+
+def test_public_data_kmhas_keeps_only_profanity_label(tmp_path):
+    from clean_chat.modules.analyze import public_data
+
+    src, out = tmp_path / "kmhas.txt", tmp_path / "stage1.csv"
+    src.write_text(
+        'document\tlabel\n욕설 댓글\t3\n"욕설 + 정치"\t2,3\n정치 댓글\t2\n평범한 댓글\t8\n', encoding="utf-8"
+    )
+    assert public_data.convert_kmhas(src, out, limit=4) == 4
+    labels = dict(train.load_examples(out))
+    profanity = train.LABELS.index("profanity")
+    assert labels["욕설 + 정치"][profanity] == 1.0 and sum(labels["정치 댓글"]) == 0.0
+
+
+def test_augmented_train_rows_do_not_leak_into_test():
+    """보강 문장(train_aug.csv)은 모두 train 이고, 시험 문장과 겹치지 않는다."""
+    base = evaluate.load_rows(FIXTURES / "analyze" / "labeled_parsed.csv", "test")
+    aug = evaluate.load_rows(FIXTURES / "analyze" / "train_aug.csv")
+    assert aug and {r["split"] for r in aug} == {"train"}
+    assert not {r["text_norm"] for r in base} & {r["text_norm"] for r in aug}
+    assert all(set(r["harm_types"].split("|")) - {""} <= set(train.LABELS) for r in aug)
+
+
+def test_model_profanity_score_is_ignored(monkeypatch):
+    """욕설은 규칙만 쓴다: 모델만 욕설이라고 한 문장은 정상, 규칙이 잡은 욕설은 그대로."""
+    monkeypatch.setattr(model, "predict", lambda _t: {"profanity": 0.99, "blame": 0.1})
+    monkeypatch.setattr(model, "version", lambda: "fake-ft-0.1")
+    assert int(impl.run(_req("나이스 갱")).level) == 0
+    out = impl.run(_req("아 시발 내가 실수함"))
+    assert (int(out.level), out.scores) == (1, {"profanity": 0.9})
+
+
+def test_champion_table_covers_official_list():
+    """챔피언 표는 라이엇 공식 목록(Data Dragon 16.23.1 한국어, 173명 — 2026년 로크까지)과 개수가 같다."""
+    from clean_chat.modules.analyze import champions
+
+    official = set(champions.CHAMPION_ROLES) - set(champions._CANONICAL)  # 줄임말을 뺀 정식 이름
+    assert len(official) == 173 and {"로크", "자헨", "유나라", "멜", "암베사"} <= official
+    assert champions.roles_of("로크") == ("MIDDLE",) and champions.roles_of("자헨") == ("TOP", "JUNGLE")
+    assert all(name in official for name in champions.ALIASES)  # 줄임말의 원형은 모두 표에 있다
+    aliases = [a for names in champions.ALIASES.values() for a in names]
+    assert len(aliases) == len(set(aliases)) and not set(aliases) & official  # 줄임말은 한 챔피언만 가리킨다
+
+
+def test_champion_alias_is_resolved():
+    from clean_chat.modules.analyze import champions
+
+    assert champions.canonical("이즈") == "이즈리얼" and champions.canonical("카사") == "카이사"
+    assert champions.names_of("케틀") == ("케이틀린", "케틀", "케이틀") and champions.roles_of("블츠") == ("UTILITY",)
+    players = [Player(name="화자", champion="아리"), Player(name="불주먹", champion="이즈리얼")]
+    assert impl.run(_req("이즈 트롤이냐", players=players)).target == "불주먹"  # 줄임말로 불러도 닉네임을 찾는다
+    assert impl.run(_req("이즈를 왜 못 잡냐 정글", players=players)).target != "불주먹"  # "이즈를" 은 잡을 상대(목적어)
+
+
+def test_champion_name_is_target_without_roster():
+    """명단(players)을 모르면 문장에서 부른 챔피언의 정식 이름을 대상으로 둔다. 일상 낱말과 겹치는 이름은 보지 않는다."""
+    out = impl.run(_req("블츠 트롤이냐"))
+    assert (out.target, int(out.level)) == ("블리츠크랭크", 2)
+    assert impl.run(_req("자헨 트롤이냐")).target == "자헨"
+    assert impl.run(_req("진 거 같다 트롤 때문에")).target is None  # "진" 은 챔피언 이름이기도 하다
+    assert int(impl.run(_req("이즈 궁 좋았어")).level) == 0
+
+
+def test_champion_eval_draft_does_not_overlap_train():
+    """챔피언 이름 시험 초안은 모두 test 이고, 학습 문장과 겹치지 않는다."""
+    draft = evaluate.load_rows(FIXTURES / "analyze" / "champion_eval_draft.csv")
+    assert draft and {r["split"] for r in draft} == {"test"}
+    train_texts = {
+        text
+        for text, _ in train.load_examples([FIXTURES / "analyze" / n for n in ("labeled_parsed.csv", "train_aug.csv")])
+    }
+    assert not {r["text_norm"] for r in draft} & train_texts
+
+
+def test_champion_mentioned_mid_sentence_is_not_target():
+    """명단이 없을 때 문장 중간의 챔피언은 부른 것이 아니다 → 대상 없는 욕설은 L1 에 머문다."""
+    out = impl.run(_req("아 시발 리신 발차기에 또 맞았네"))
+    assert (out.target, int(out.level)) == (None, 1)
+    assert impl.run(_req("상대 리신 트롤이냐")).target == "리신"
+    assert impl.run(_req("다들 리신 신고해")).target == "리신"  # 몰이는 "다들"·"얘들아" 뒤에 이름이 온다
+
+
+def test_train_skips_abusive_rows_without_type(tmp_path):
+    """악성(L2 이상)인데 유형 코드가 없는 행(협박 등)은 "정상"으로 배우지 않게 학습에서 뺀다."""
+    path = tmp_path / "t.csv"
+    path.write_text(
+        "text,level,harm_types,split\n너 집 주소 안다,3,,train\n용 치자,0,,train\n정글 못하네,2,blame,train\n", "utf-8"
+    )
+    assert [t for t, _ in train.load_examples(path)] == ["용 치자", "정글 못하네"]
+
+
+def test_judge_games_are_well_formed():
+    """게임 단위 대화 데이터: 10명(5:5), 상대 팀은 전체 채팅만, 정답은 명단 안의 유저, 고소 후보는 나를 향한 것."""
+    games = judge_evaluate.load_games(FIXTURES / "analyze" / "judge_games.jsonl")
+    assert len(games) >= 50 and {g["split"] for g in games} == {"train", "test"}
+    for g in games:
+        team = {p["name"]: p["team"] for p in g["players"]}
+        assert len(team) == 10 and sum(t == "ORDER" for t in team.values()) == 5, g["id"]
+        assert [p["name"] for p in g["players"] if p["is_me"]] == [g["my_name"]], g["id"]
+        assert all(m["speaker"] in team for m in g["messages"]), g["id"]
+        assert all(m["channel"] == "all" for m in g["messages"] if team[m["speaker"]] == "CHAOS"), g["id"]
+        for name, label in g["labels"].items():
+            assert name in team and name != g["my_name"], g["id"]
+            assert not label.get("complaint") or (label["report"] and label["toward_me"]), g["id"]
+    assert sum(len(judge_evaluate.transcripts(g)) for g in games) == 9 * len(games)  # 유저별로 모으면 한 판에 9명
+
+
+def test_judge_report_needs_more_than_one_rough_remark():
+    """욕설 없는 거친 말 한 번은 신고 권고가 아니다. 반복되거나 욕설이 섞이면 권고한다."""
+    once = judge.judge(
+        judge.JudgeRequest(messages=[_chat(0, 0, "불꽃남자", "정글 뭐하냐")], players=ROSTER, my_name="나")
+    )
+    assert [(s.speaker, s.report) for s in once.speakers] == [("불꽃남자", False)]
+    twice = [_chat(0, 0, "불꽃남자", "정글 뭐하냐"), _chat(1, 600, "불꽃남자", "정글 트롤이냐")]
+    assert judge.judge(judge.JudgeRequest(messages=twice, players=ROSTER, my_name="나")).speakers[0].report
+    swear = [_chat(0, 0, "불꽃남자", "정글 개새끼")]
+    assert judge.judge(judge.JudgeRequest(messages=swear, players=ROSTER, my_name="나")).speakers[0].report
+
+
+def test_judge_context_agreement_with_words_and_defender():
+    """ "ㅇㅈ 정글 차이 심하네" 처럼 말이 붙은 맞장구는 가담, 공격하던 사람에게 하는 "그만해라" 는 가해가 아니다."""
+    messages = [
+        _chat(0, 0, "불꽃남자", "정글 트롤이냐"),
+        _chat(1, 5, "달빛고양이", "ㅇㅈ 정글 차이 심하네"),
+        _chat(2, 9, "밤하늘별", "징크스 그만해라 트롤 아니야"),
+    ]
+    result = judge.judge(judge.JudgeRequest(messages=messages, players=ROSTER, my_name="나"))
+    by_name = {s.speaker: s for s in result.speakers}
+    assert by_name["달빛고양이"].report and by_name["달빛고양이"].evidence[0].kind == "agree"
+    assert "밤하늘별" not in by_name
+    assert by_name["불꽃남자"].total_messages == 1
+
+
+def test_judge_model_document_marks_target_and_me():
+    """judge 모델 입력: 판단 대상의 말은 ▶, 내 말은 나(...), 길면 대상에서 먼 다른 사람의 말부터 뺀다."""
+    messages = [
+        _chat(0, 0, "밤하늘별", "다들 화이팅"),
+        _chat(1, 5, "불꽃남자", "서폿 뭐하냐"),
+        _chat(2, 9, "나", "미안 와드 박을게"),
+        _chat(3, 12, "얼음땡", "ez", channel="all"),
+    ]
+    doc = judge_model.build_document(messages, ROSTER, "나", "불꽃남자")
+    assert "▶ 징크스: 서폿 뭐하냐" in doc and "나(쓰레쉬): 미안 와드 박을게" in doc and "· 가렌" in doc
+    short = judge_model.build_document(messages, ROSTER, "나", "불꽃남자", max_chars=40)
+    assert "▶ 징크스" in short and "나(쓰레쉬)" in short and "다들 화이팅" not in short
+    assert judge_model.speakers(messages, "나") == ["밤하늘별", "불꽃남자", "얼음땡"]
+    assert judge_model.predict(messages, ROSTER, "나") == {}  # 모델이 없으면 빈 값 → 규칙만
+
+
+def test_judge_merges_model_scores(monkeypatch):
+    """hybrid: 규칙으로는 근거가 없어도 모델이 신고 권고라고 하면 권고한다. rules 는 모델을 쓰지 않는다."""
+    messages = [_chat(0, 0, "불꽃남자", "탑 0/6/0 ㅋㅋ"), _chat(1, 30, "밤하늘별", "다들 화이팅")]
+    fake = {"불꽃남자": {"report": 0.91, "complaint": 0.02}, "밤하늘별": {"report": 0.03, "complaint": 0.01}}
+    monkeypatch.setattr(judge_model, "predict", lambda *_a: fake)
+    monkeypatch.setattr(judge_model, "version", lambda: "fake-judge-0.1")
+    req = judge.JudgeRequest(messages=messages, players=ROSTER, my_name="나")
+    hybrid = judge.judge(req, mode="hybrid")
+    assert [(s.speaker, s.report, s.complaint_candidate) for s in hybrid.speakers] == [("불꽃남자", True, False)]
+    assert hybrid.speakers[0].model_scores["report"] == 0.91 and hybrid.version.endswith("+fake-judge-0.1")
+    assert judge.judge(req).speakers == []  # 기본은 규칙만
+
+
+def test_judge_evaluate_counts_users(tmp_path):
+    game = {
+        "id": "T1", "split": "test", "my_name": "나",
+        "players": [p.model_dump() for p in ROSTER],
+        "messages": [{"t": 0, "channel": "team", "speaker": "불꽃남자", "text": "서폿 개새끼", "text_norm": "서폿 개새끼"}],
+        "labels": {"불꽃남자": {"report": True, "complaint": False, "toward_me": True, "targets": ["나"]}},
+    }  # fmt: skip
+    result = judge_evaluate.evaluate([game])
+    assert (result["users"], result["report"]["accuracy"], result["report"]["recall"]) == (len(ROSTER) - 1, 1.0, 1.0)
+    assert result["latency_sec"]["mean"] >= 0 and not result["errors"]
+
+
+def test_judge_follow_up_threat_and_untargeted_swearing():
+    """흐름으로 이어지는 말: 나를 공격하던 사람의 협박은 고소 후보, 대상을 생략한 욕설도 같은 대상으로 쌓인다."""
+    threat = [_chat(0, 0, "불꽃남자", "서폿 뭐하냐"), _chat(1, 60, "불꽃남자", "끝나고 보자 어디 사는지 찾아낸다")]
+    who = judge.judge(judge.JudgeRequest(messages=threat, players=ROSTER, my_name="나")).speakers[0]
+    assert who.complaint_candidate and who.evidence[1].level == 3 and who.evidence[1].toward_me
+    swearing = [
+        _chat(0, 0, "불꽃남자", "서폿 개새끼"),
+        _chat(1, 100, "불꽃남자", "꺼져 그냥"),
+        _chat(2, 200, "불꽃남자", "존나 답답하네"),
+        _chat(4, 260, "불꽃남자", "병신같네 진짜"),
+        _chat(3, 5000, "불꽃남자", "아 시발 내 실수"),  # 자책이고 한참 뒤 → 쌓이지 않는다
+    ]
+    who = judge.judge(judge.JudgeRequest(messages=swearing, players=ROSTER, my_name="나")).speakers[0]
+    assert len(who.evidence) == 4 and who.complaint_candidate
+    alone = [_chat(0, 0, "밤하늘별", "아 시발 렉"), _chat(1, 9, "밤하늘별", "바론 죽인다 가자")]
+    assert judge.judge(judge.JudgeRequest(messages=alone, players=ROSTER, my_name="나")).speakers == []

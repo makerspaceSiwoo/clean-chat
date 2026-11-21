@@ -21,25 +21,163 @@
 
 ## 폴더 구성 — 용도 2개
 
-| 용도 | 언제 | 파일 | 하는 일 |
-|---|---|---|---|
-| **실시간 필터** | 게임 중, 메시지마다 (CPU 0.2초) | `impl.py` `run()` | 가릴 욕설 조각, 등급, 대상(닉네임), 피드백 조각 → 정책표·rewrite 로 |
-| **대화 판단** | 게임 종료 후, 전체 대화에 1번 | `judge.py` `judge()` · `judge_session()` | 화자별로 누가 누구에게(특히 나에게) 무엇을 했는지, 신고 권고, 고소 후보 |
+두 용도는 **과제가 다르다.** 데이터·모델·평가 도구·속도 기준을 따로 둔다.
+
+| 용도 | 언제 | 파일 | 하는 일 | 속도 기준 |
+|---|---|---|---|---|
+| **실시간 필터 (impl)** | 게임 중, 메시지마다 | `impl.py` `run()` | 문장 1개 → 숨길 욕설 조각, 비난·패드립·성희롱·정치질 여부, 피드백 조각 (원본과 숨김 문장을 보여 주기 위한 값) | 0.5초 미만 (최대 1초 미만) |
+| **대화 판단 (judge)** | 게임 종료 후, 한 판에 1번 | `judge.py` `judge()` · `judge_session()` | 한 판(최대 10명)의 채팅을 **유저별로 모아** 누적 점수와 흐름으로 신고 권고 · 고소 후보 | 1~5초 (5초 이상이면 로딩 창) |
 | └ 판례 대조 | 대화 판단의 마지막 단계 | `precedents.py` `review()` | 고소 후보에 죄목별 요건 점검표(충족/불명/미충족) + 비슷한 판례 |
 
 - 신고·고소처럼 무거운 결정은 한 문장이 아니라 **대화 흐름**(반복, "ㅇㅈ" 같은 동조, 여러 명의 몰이)으로 판단합니다.
-- 내부 파일: `lexicon.py`(사전), `champions.py`(챔피언 → 주 라인), `model.py`(파인튜닝 모델 연결), `train.py`(학습), `evaluate.py`(평가).
+- impl 쪽 파일: `lexicon.py`(사전), `champions.py`(챔피언 → 주 라인·줄임말), `model.py`(impl 모델 연결), `train.py`(학습), `public_data.py`(공개 데이터 → 학습 CSV), `evaluate.py`(impl 평가).
+- judge 쪽 파일: `judge.py`(누적 점수·흐름 규칙), `judge_model.py`(judge 전용 모델: 입력 문서·학습·추론), `judge_evaluate.py`(게임 단위 평가), `precedents.py`(판례 대조).
+- 노트북(`notebooks/`): `demo_impl.ipynb` · `demo_judge.ipynb` — 각 과제의 데이터, 파인튜닝, 정답률·오답률, 응답 시간을 실행 결과와 함께 본다. `model_demo.ipynb` 는 인코더·분류 층·벡터 유사도 설명.
+
+### 지금 상태 한눈에 (2026-11-21)
+| | impl | judge |
+|---|---|---|
+| 데이터 | 학습 문장 1,043행(`labeled_parsed.csv` train 140 + `train_aug.csv` 903), 시험 60 + 43문장 | 게임 54판 · 채팅 1,067줄(`judge_games.jsonl`: 학습 36판 / 시험 18판), 유저별 정답 |
+| 모델 | `kcelectra-base-ft-0.3` (문장 64토큰 → 유형 점수) | 기본은 **규칙만** (`judge-0.2`). 전용 모델(문서 512토큰 → report·complaint)은 학습해 봤지만 규칙보다 낫지 않아 옵션(`mode="hybrid"`)으로만 둠 |
+| 시험 결과 | 등급 정답률 100% · 악성 재현율 100% · 정상 오탐 0% (두 시험셋, 시드 3개 동일) | 신고 권고 정밀도 94.4% / 재현율 85.0%, 고소 후보 정밀도 100% / 재현율 83.3% (시험 18판, 유저 162명) |
+| 응답 시간 (Apple M5 CPU) | 1문장 약 20~30ms, 첫 로딩 약 3초 | 1판 평균 0.40초 · 최대 0.57초 |
+
+**수치는 낙관적이다.** 모든 문장·대화를 AI 가 썼고, 시험 데이터가 적으며, 규칙 일부는 시험 오답을 본 뒤 고쳤다(아래 각 절의 주의 참고).
 
 ### 파인튜닝 모델 넣기
 `models/analyze-classifier/`(git 제외)에 모델이 있으면 `run()` 이 자동으로 씁니다. 없으면 규칙만으로 돕니다.
 ```bash
 uv sync --extra analyze
-uv run python -m clean_chat.modules.analyze.train --data <라벨 CSV> --base beomi/KcELECTRA-base --version kcelectra-base-ft-0.1
-uv run python -m clean_chat.modules.analyze.evaluate <라벨 CSV> --split test     # 브랜치·모델끼리 같은 명령으로 비교
+uv run python -m clean_chat.modules.analyze.train \
+    --data fixtures/analyze/labeled_parsed.csv fixtures/analyze/train_aug.csv \
+    --base beomi/KcELECTRA-base --version kcelectra-base-ft-0.2 --epochs 20 --patience 6 --lr 5e-5 --seed 1
+uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test   # 브랜치·모델끼리 같은 명령으로 비교
+CLEAN_CHAT_ANALYZE_MODEL=<다른 모델 폴더> uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test
 ```
-- 모델은 유형 5개의 점수만 냅니다. 규칙 점수와 유형별로 큰 값을 쓰고, 등급·대상·조각은 규칙이 정합니다.
+- 모델은 유형 점수만 냅니다. 규칙 점수와 유형별로 큰 값을 쓰고(기준 0.5), 등급·대상·조각은 규칙이 정합니다.
+- **욕설(profanity)은 모델 점수를 쓰지 않고 규칙만 씁니다**(`impl.py` `_RULE_ONLY`). 사전이 이미 정확하고, 모델만 걸린 욕설은 가릴 조각이 없으며, 정상 문장 오탐이 여기서 나왔기 때문입니다(아래 비교 참고).
 - 라벨 CSV 열: `text`, `text_norm`, `hints`, `level`, `harm_types`, `profanity_spans`, `split`(`train`/`test`). `test` 행은 학습에 쓰지 않습니다.
+- `train.py` 는 train 행의 15%를 검증용으로 떼어 가장 좋은 epoch 의 가중치를 저장하고(조기 종료), 드문 유형은 양성 가중치로 보정합니다. 결과는 `meta.json` 에 남습니다.
 - `Analysis.model_version` 은 `rule-0.2+<모델 버전>` 으로 남습니다.
+
+### 모델 비교와 추천 (2026-11-21, Apple M5 · MPS 학습 / CPU 추론)
+**추천: `beomi/KcELECTRA-base` 를 우리 데이터로 바로 파인튜닝** (학습률 5e-5, 최대 20 epoch, 버전 `kcelectra-base-ft-0.1`).
+
+시험 60문장(`labeled_parsed.csv` 의 `split=test`, 고정) · 규칙 + 모델 · 욕설은 규칙만 쓰는 현재 코드 기준. 범위는 시드(42·1·2)별 최솟값~최댓값입니다.
+
+| 구성 | 학습 횟수 | 등급 일치율 | 악성(L2↑) 재현율 | 정상 오탐률 | blame F1 | family F1 | 조각 일치율 | CPU 중앙값 / p95 | 크기 |
+|---|---|---|---|---|---|---|---|---|---|
+| 규칙만 | - | 80.0% | 63.3% | 0.0% | 57.1 | 80.0 | 95.0% | 0.05 / 0.08ms | - |
+| **KcELECTRA-base, 바로 학습** (lr 5e-5) | 3 | **95.0%** | **90.0%** | **0.0%** | 88.9~91.9 | 80.0~92.3 | 95.0% | 12.4 / 13.0ms | 419MB |
+| KcELECTRA-base, K-MHaS 1단계 → 우리 데이터 (lr 5e-5) | 3 | 95.0% | 90.0% | 0.0% | 89.5~91.9 | 92.3~100 | 95.0% | 12.6 / 13.5ms | 419MB |
+| KcELECTRA-small-v2022, 바로 학습 (lr 3e-4) | 4 | 78.3~95.0% | 86.7~90.0% | 0.0~42.9% | 65.1~89.5 | 80.0~92.3 | 95.0% | 2.8 / 3.2ms | 65MB |
+| KcELECTRA-small-v2022, K-MHaS 1단계 → (lr 3e-5~5e-4) | 5 | 71.7~76.7% | 86.7~93.3% | 42.9% | 53.1~64.3 | 66.7~80.0 | 95.0% | 2.8 / 3.2ms | 65MB |
+| KoELECTRA-small-v3, 바로 학습 (lr 1e-4·3e-4) | 2 | 76.7~78.3% | 90.0% | 42.9% | 59.1~61.9 | 75.0~85.7 | 95.0% | 2.8 / 3.1ms | 55MB |
+| KoELECTRA-small-v3, K-MHaS 1단계 → (lr 3e-5~5e-4) | 5 | 46.7~78.3% | 86.7~90.0% | 42.9~100% | 53.1~61.9 | 23.8~85.7 | 95.0% | 2.8 / 3.2ms | 55MB |
+
+- profanity F1 은 모든 구성에서 100(규칙). instigation(시험 정답 1건)·sexual_harassment(2건)은 건수가 적어 F1 을 표에 넣지 않았습니다(base: instigation 40~100, sexual 57~80).
+- 모델 첫 로딩은 따로입니다: 프로세스 시작 후 import + 로딩 + 첫 추론이 세 후보 모두 약 3.1초(대부분 torch import). 그 뒤 1문장 12ms 안팎으로 0.2초 기준을 지킵니다.
+- `uv run sim analyze` 는 실행마다 새 프로세스라 매번 로딩이 들어가 **1회 약 3.4초**가 걸립니다(모델 없이는 수십 ms). 앱은 프로세스가 하나라 첫 문장만 느립니다 — 게임 시작 전에 한 번 미리 불러 두는 것이 좋습니다(구성 쪽 작업).
+
+추천 이유
+1. **안정성.** base 는 학습률·시드·1단계 여부를 바꾼 8회 모두 95.0% / 90.0% / 오탐 0% 였습니다. KcELECTRA-small 은 잘 될 때는 base 와 같지만(4회 중 2회) 시드에 따라 포지션 낱말만 보고 비난으로 찍어 정상 오탐 42.9%까지 떨어졌습니다. 510문장으로는 소형 모델 학습이 흔들립니다.
+2. **속도는 충분.** 12ms 는 기준 200ms 의 1/16 입니다. small 의 3ms 는 여기서 이득이 없습니다.
+3. **크기 419MB 는 부담**이지만 데모에서는 Hugging Face 비공개 저장소로 받으면 됩니다. 라벨 데이터가 수천 문장으로 늘면 KcELECTRA-small(65MB)을 다시 비교할 만합니다.
+4. **K-MHaS 1단계는 base 에 뚜렷한 이득이 없고 소형 모델에는 해로웠습니다.** 그래서 라이선스(CC-BY-SA) 고민이 없는 "바로 학습"을 골랐습니다. 지금 `models/analyze-classifier/` 에 둔 것은 바로 학습·시드 1(검증 F1 평균 0.958)입니다.
+
+위 표에서 남은 오답 3건(악성 재현율이 90%에서 멈춘 이유)은 모두 "제드 ㅁㅊ놈인가"처럼 **챔피언 이름으로 부른 문장**이었습니다. 평가 CSV 에 명단(players)이 없어 대상을 못 찾아 L1 이 된 것으로, 아래 "챔피언 이름·줄임말" 작업에서 규칙을 고쳤습니다. **위 표는 그 전의 규칙으로 잰 수치**입니다.
+
+### 챔피언 이름·줄임말 (모델 `kcelectra-base-ft-0.2`)
+채팅에서는 포지션보다 챔피언 이름·줄임말("이즈", "케틀", "블츠")으로 부르는 일이 많아 규칙과 데이터를 보강했습니다.
+
+- **챔피언 표**(`champions.py`): 라이엇 Data Dragon 16.23.1 한국어 목록 **173명 전부**(2025-11 자헨, 2026-06 로크까지)와 대조했습니다. 테스트가 개수를 확인합니다. 로크는 미드, 자헨은 탑·정글로 넣었습니다(출시 기사 기준).
+- **줄임말 표**: 챔피언 69명의 줄임말. **AI 초안이라 롤을 하는 팀원의 검수가 필요합니다.** 일상 낱말과 겹치는 것(다리·모르·오리·올라 등)은 넣지 않았습니다.
+- **규칙**(`impl.py`): 줄임말은 낱말 단위로만 인식하고 "이즈를"·"이즈부터" 같은 목적어는 뺍니다. 명단(players)이 비어 있으면 **문장 맨 앞에서 부른** 챔피언의 정식 이름을 대상으로 둡니다("상대"·"다들" 같은 앞머리 낱말은 허용). 문장 중간의 챔피언("아 시발 블츠 그랩에 또 끌렸네")과 일상 낱말과 겹치는 이름(진·바이·세트 등 `AMBIGUOUS`)은 대상으로 보지 않습니다.
+- **데이터**: `train_aug.csv` 에 챔피언 이름 문장 168행 추가(총 538행, note `보강2`), 시험 초안 `champion_eval_draft.csv` 43행(새 파일). 모두 AI 작성·검수 전.
+
+같은 구성(KcELECTRA-base, lr 5e-5, 20 epoch)으로 재학습했습니다(학습 575 · 검증 103문장). 범위는 시드 1·42·2 입니다.
+
+| 구성 (새 규칙 기준) | 기존 60문장: 등급 일치율 / 악성 재현율 / 정상 오탐 | 챔피언 43문장: 등급 일치율 / 악성 재현율 / 정상 오탐 |
+|---|---|---|
+| 규칙만 | 85.0% / 73.3% / 0% | 65.1% / 44.4% / 0% |
+| 규칙 + 이전 모델 0.1 | 100% / 100% / 0% | 97.7% / 100% / 7.1%(1건) |
+| **규칙 + 새 모델 0.2** (3회) | 98.3~100% / 100% / 0% | 100% / 100% / 0% |
+
+- `models/analyze-classifier/` 에는 시드 1(검증 F1 평균 0.959)을 `kcelectra-base-ft-0.2` 로 두었습니다. CPU 중앙값 약 14ms.
+- **이 수치는 낙관적입니다.** 대상 규칙을 두 시험셋의 오답을 보면서 고쳤고(챔피언으로 부른 문장, 문장 중간의 챔피언, "다들 ○○ 신고해"), 챔피언 시험 초안도 학습 문장과 같은 작성자(AI)가 썼습니다. 팀이 쓴 문장으로 다시 재기 전에는 "챔피언 이름 문장이 동작한다" 정도로만 읽어 주세요.
+- 평가 명령: `uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/champion_eval_draft.csv --split test`
+
+### impl 모델 `kcelectra-base-ft-0.3` (학습 문장 1,043행)
+3차 보강(365행)을 더해 같은 구성으로 재학습했다(학습 883 · 검증 154문장, 협박처럼 유형 코드가 없는 악성 6행은 학습에서 제외).
+
+| 구성 | 기존 60문장: 등급 정답률 / 악성 재현율 / 정상 오탐 | 챔피언 43문장: 등급 정답률 / 악성 재현율 / 정상 오탐 |
+|---|---|---|
+| 규칙 + 모델 0.2 | 100% / 100% / 0% | 100% / 100% / 0% |
+| **규칙 + 모델 0.3** (시드 1·42·2) | 100% / 100% / 0% | 100% / 100% / 0% |
+
+- 두 시험셋에서는 0.2 와 차이가 없다(이미 천장). 0.3 의 이득은 시험셋 밖에 있다: judge 학습 게임에서 0.2 가 말리는 말("드븐 말 좀 곱게 하자", "제드 그만해라")을 비난으로 보던 것을 3차 보강(말리는 말 30행)으로 줄였고, 킬뎃 조롱·정상 언급을 배웠다. 이 효과를 재는 문장 단위 시험셋은 아직 없다.
+- 유형 코드가 없는 협박 행을 "정상"으로 가르치면 모델이 협박을 L0 으로 본다(처음 0.3 을 돌렸을 때 시험 1문장이 그렇게 틀렸다). 그래서 `train.py` 가 그런 행을 학습에서 뺀다.
+- `models/analyze-classifier/` 에는 시드 1(검증 F1 평균 0.972)을 두었다. 1문장 약 20~30ms.
+
+#### 데이터 (impl)
+| 데이터 | 용도 | 출처·라이선스 | 위치 |
+|---|---|---|---|
+| `labeled_parsed.csv` train 140 / test 60 | 학습 / 시험(고정) | AI 작성 가상 문장, 팀 검수 전 | `fixtures/analyze/` |
+| `train_aug.csv` 903문장 (전부 train) | 학습 보강 | **AI(Claude) 작성 가상 문장, 검수 전** (`writer=AI(claude)`). 1차 370문장(욕설 없는 비난·정치질·패드립·성희롱, 비난처럼 보이는 정상 문장) + 2차 168문장(챔피언 이름·줄임말, note `보강2`) + 3차 365문장(가릴 조각과 피드백이 함께 있는 문장, 킬뎃 언급의 조롱·정상, 우회 표기, 말리는 말, note `보강3`). `feedback` 열(다듬은 문장)은 비어 있음 | `fixtures/analyze/` |
+| `champion_eval_draft.csv` 43문장 (전부 test) | 챔피언 이름 시험 초안 | AI(Claude) 작성 가상 문장, 검수 전 | `fixtures/analyze/` |
+| K-MHaS 뉴스 댓글 10.9만 건 중 2만 건 | 1단계 학습(대조군) | [adlnlp/K-MHaS](https://github.com/adlnlp/K-MHaS), **CC-BY-SA 4.0**. 욕설 라벨만 profanity 로 사용. 받는 법은 `public_data.py` 맨 위 | `data/raw/kmhas/` (git 제외) |
+| Korean UnSmile | **쓰지 않음** | 원문 README 기준 데이터셋 **CC-BY-NC-ND 4.0**(비상업·변경 금지) | - |
+
+후보 모델 라이선스: `beomi/KcELECTRA-base`·`KcELECTRA-small-v2022` 는 MIT, `monologg/koelectra-small-v3-discriminator` 는 모델 카드에 표기가 없고 원 저장소(monologg/KoELECTRA)는 Apache-2.0 입니다.
+
+#### 직접 돌려 보기 (노트북)
+`notebooks/model_demo.ipynb` — 학습률·배치·epoch 로그, 인코더 벡터가 유형 점수가 되는 과정, 유형별 대표 문장과의 코사인 유사도 비교를 실행 결과와 함께 담았습니다. 주피터는 프로젝트 의존성이 아니므로 일회용으로 띄웁니다: `uv run --with jupyterlab jupyter lab src/clean_chat/modules/analyze/notebooks/model_demo.ipynb`
+
+#### 다시 해 보기
+```bash
+D="fixtures/analyze/labeled_parsed.csv fixtures/analyze/train_aug.csv"    # bash 기준 (zsh 는 $D 를 나누지 않으니 경로를 직접 적기)
+# 바로 학습 (추천 구성)
+uv run python -m clean_chat.modules.analyze.train --data $D --base beomi/KcELECTRA-base \
+    --version kcelectra-base-ft-0.2 --out models/analyze-classifier --epochs 20 --patience 6 --lr 5e-5 --seed 1
+# 소형 모델: --base beomi/KcELECTRA-small-v2022 (또는 monologg/koelectra-small-v3-discriminator) --epochs 40 --lr 3e-4
+# K-MHaS 2단계 (대조군): public_data.py 맨 위의 명령으로 1단계 모델을 만든 뒤 --base models/ft/stage1-<이름>
+uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/labeled_parsed.csv --split test
+```
+
+#### 확인하지 못한 것 · 주의
+- **시험 문장이 60개뿐이고, 학습·보강·시험 문장을 모두 AI 가 썼습니다.** 말투가 비슷해 수치가 실제보다 좋게 나왔을 가능성이 큽니다. 팀이 직접 쓴 문장으로 시험셋을 다시 만들어 재야 합니다. 시드 간 차이도 60문장에서는 1문장 = 1.7%p 입니다.
+- 보강 문장을 쓰기 전에 규칙만 돌린 평가의 오답 목록(시험 문장 9개)을 봤습니다. 그 문장과 표현은 피해서 썼고 같은 문장이 없는지는 테스트(`test_augmented_train_rows_do_not_leak_into_test`)가 확인하지만, 완전히 모르는 상태에서 쓴 것은 아닙니다.
+- "욕설은 규칙만" 결정은 검증 문장(train 에서 뗀 15%)의 오탐 양상과 설계 이유로 정했지만, 그 전에 시험 오답 목록도 봤습니다. 이 수정 전 base 의 시험 수치는 등급 일치율 91.7~95.0%, 정상 오탐률 0~9.5% 였습니다("나이스 갱", "아 렉 걸렸네" 가 욕설로 찍힘).
+- 유형별 기준값은 0.5 그대로입니다. 검증 문장에서 0.5~0.9 로 바꿔 봐도 정상 오탐이 줄지 않아(점수가 0.9 이상으로 확신하며 틀림) 조정하지 않았습니다.
+- 지연은 Apple M5 CPU(torch 2.15, 4 스레드)에서만 쟀습니다. **실제 대상인 Windows PC 에서는 재지 않았습니다.**
+- `text_norm` 은 parse 가 이상적으로 동작한다고 가정한 값입니다(`--with-parse` 로는 평가하지 않음).
+- K-MHaS 로 학습한 가중치를 배포할 때 CC-BY-SA 의 동일조건변경허락이 어디까지 미치는지는 확인하지 않았습니다(추천 모델은 K-MHaS 를 쓰지 않습니다).
+- 협박("집 주소 안다 찾아간다")은 유형 코드가 없어 라벨이 비어 있습니다. 모델이 패드립·성희롱으로 찍어 L3 이 되기도 합니다 — 유형 추가는 팀 논의가 필요합니다.
+- 예문 유사도 방식(SetFit 류)은 새 패키지가 필요해 비교하지 않았습니다.
+- 지금 받는 `beomi/KcELECTRA-base` 의 토크나이저(어휘 30,000, 바이트 단위 BPE)는 `[CLS]`·`[SEP]` 를 붙이지 않습니다. 그래서 분류 층이 읽는 맨 앞 벡터는 문장의 첫 조각 자리입니다. `[CLS]`·`[SEP]` 를 붙여 같은 조건으로 3회 학습해 봤지만 등급 일치율 93.3~95.0% 로 나아지지 않아 그대로 둡니다.
+- `docs/DATA.md` 의 외부 데이터셋 표(모듈 범위 밖)에 위 라이선스를 옮겨 적는 일이 남았습니다.
+
+### 대화 판단(judge) — 데이터 · 규칙 · 전용 모델
+```bash
+uv run python -m clean_chat.modules.analyze.judge_evaluate fixtures/analyze/judge_games.jsonl --split test            # 규칙만 (기본)
+uv run python -m clean_chat.modules.analyze.judge_evaluate fixtures/analyze/judge_games.jsonl --split test --mode hybrid   # 규칙 + 전용 모델 (models/analyze-judge 가 있을 때)
+uv run python -m clean_chat.modules.analyze.judge_model --data fixtures/analyze/judge_games.jsonl \
+    --base models/analyze-classifier --version judge-kcelectra-0.1 --epochs 30 --patience 10 --lr 3e-5   # 전용 모델 학습 → models/analyze-judge
+```
+- **데이터** `fixtures/analyze/judge_games.jsonl`: 한 줄이 게임 한 판. 명단 10명(나 포함, 팀마다 5명), 채팅(시각·팀/전체 채널·화자·원문·정규화), **문제 있는 유저에게만** 붙인 정답(`report` 신고 권고, `complaint` 고소 후보, `toward_me`, `targets`, `types`, `reason`). 상대 팀의 말은 전체 채팅으로만 보인다. 킬뎃을 들먹이는 조롱과 정상 킬뎃 언급, 맞장구 가담, 반복 누적, 친한 사이의 장난, 말리는 말, 협박 등 **흐름을 봐야 하는 상황**을 넣었다. 54판 모두 AI(Claude) 작성 가상 대화·검수 전이고, 세 묶음을 따로 썼다. 학습 36판은 규칙 조정과 모델 학습에, 시험 18판은 채점에 쓴다.
+- **규칙 (`judge-0.2`)**: 메시지마다 impl 결과로 근거를 모아 유저별로 점수를 쌓는다(악성 1건 1.0, 패드립·성희롱·협박 3.0, 정치질 +0.5, 맞장구 0.5, 여러 명의 몰이 ×1.25, 감쇠 30분). 신고 권고 = 욕설·고강도 표현·맞장구 가담이 있거나 누적 1.5 이상(욕설 없는 거친 말 한 번은 제외). 고소 후보 = 나를 향한 패드립·성희롱·협박, 또는 나를 향한 누적 3.0 이상(욕설 없으면 4.0). 말리는 말("그만해라")은 근거에서 빼고, 나를 공격하던 사람이 대상을 생략하고 이어 한 욕설은 같은 대상으로 쌓는다.
+- **전용 모델 (`judge_model.py`)**: 유저마다 그 판의 대화를 문서 하나(대상의 말 `▶`, 내 말 `나(...)`, 그 밖 `·`)로 만들어 512토큰으로 읽고 `report`·`complaint` 점수를 낸다. impl 모델과 입력·출력이 달라 따로 학습한다.
+
+| 방식 (시험 18판 · 유저 162명) | 신고 권고: 정밀도 / 재현율 | 고소 후보: 정밀도 / 재현율 | 1판 평균 |
+|---|---|---|---|
+| 규칙 `judge-0.1` (이전) | 64.5% / 90.9% (A 묶음 18판 기준) | 100% / 50.0% (A 묶음) | 약 0.4초 |
+| **규칙 `judge-0.2` (기본)** | **94.4% / 85.0%** | **100% / 83.3%** | 0.40초 |
+| 전용 모델만 (`demo_judge.ipynb` 실행분) | 76.9% / 100% | 42.9% / 50.0% | 0.85초 |
+| 규칙 + 전용 모델 (같은 실행분) | 74.1% / 100% | 55.6% / 83.3% | 0.84초 |
+
+- **전용 모델은 지금 쓰지 않는다.** 학습 문서가 169개(고소 후보 양성 8개)뿐이라 학습이 불안정했다: 원래 KcELECTRA-base 에서 출발하면 배우지 못했고(15·30 epoch), impl 모델에서 출발해도 학습률 5e-5 는 실패, 3e-5 만 배웠다(검증 F1 0.79, 검증 문서 29개). 배운 모델도 규칙보다 낫지 않았다: 신고 권고는 놓치는 것이 없어지는 대신 오탐이 1명 → 6~7명으로 늘고, 고소 후보는 오탐이 4명 생긴다. 같은 설정을 다시 돌려도 결과가 달라졌다(다른 실행에서는 신고 93.3% / 70.0%, 고소 0% / 0%). 규칙이 못 잡는 것(욕설 없는 비꼼의 반복, 킬뎃만 던지는 조롱)이 모델의 몫이므로 게임 데이터가 늘면 다시 비교한다.
+- **주의:** 협박 감지와 이어받기 규칙은 시험 게임의 오답을 본 뒤 넣었다. 그 전의 `judge-0.2` 시험 수치는 신고 94.1% / 80.0%, 고소 100% / 33.3% 였다. 고소 후보 정답은 시험에 6명뿐이라 1명이 17%p 다.
+- 고소 후보는 **후보**일 뿐이고 법률 자문이 아니다. judge 는 아직 앱 흐름에 연결되어 있지 않다(아래 "다음 단계").
 
 ### 판례 준비 (오프라인, 한 번)
 ```bash

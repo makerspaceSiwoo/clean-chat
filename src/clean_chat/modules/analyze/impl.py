@@ -4,7 +4,7 @@
 모든 채팅에 실행되므로 빠른 소형 모델(KcBERT/KcELECTRA 계열) 또는 사전 규칙을 쓴다(ADR-0005).
 모델 로딩처럼 무거운 준비는 functools.cache 로 한 번만, 무거운 import(torch 등)는 함수 안에서 한다.
 
-지금은 **규칙만** 쓴다(사전: lexicon.py). 모델을 붙일 때는 `_predict_harm` 만 바꾸면 된다 —
+규칙(사전: lexicon.py)에 파인튜닝 모델 점수(model.py, 없으면 규칙만)를 더한다. 모델은 `_predict_harm` 에서만 쓰고 —
 대상·등급·조각은 모델과 상관없이 아래 규칙이 정한다.
 """
 
@@ -16,15 +16,22 @@ from itertools import permutations
 
 from clean_chat.core.schemas import Analysis, AnalyzeRequest, ChatMessage, HarmType, Level, Player
 from clean_chat.modules.analyze import lexicon, model
-from clean_chat.modules.analyze.champions import roles_of
+from clean_chat.modules.analyze.champions import AMBIGUOUS, CHAMPION_ROLES, canonical, names_of, roles_of
 
 logger = logging.getLogger(__name__)
 
 MODEL_VERSION = "rule-0.2"  # 규칙 버전. 파인튜닝 모델이 있으면 "rule-0.2+<모델 버전>" 으로 기록된다
 THRESHOLD = 0.5  # 이 점수 이상이면 해당 유형으로 본다
 _RULE_SCORE = 0.9  # 규칙이 걸렸을 때 주는 점수
+# 모델 점수를 쓰지 않는 유형. 욕설은 사전이 정확하고(가릴 조각도 사전이 찾는다), 모델만 걸린 욕설은 가릴 조각이 없는 데다
+# 검증 문장에서 정상 문장 오탐("와 개쩐다 방금")의 대부분이 여기서 나왔다 (README "모델 비교" 참고).
+_RULE_ONLY = frozenset({HarmType.PROFANITY.value})
 _MASKABLE = tuple(sorted({*lexicon.PROFANITY, *lexicon.FAMILY_INSULT, *lexicon.SEXUAL}, key=len, reverse=True))
 _TOKEN = re.compile(r"\S+")
+# 이름 앞에 붙어도 부르는 말로 보는 낱말 ("상대 럭스 …", "다들 야스 신고해")
+_LEAD_WORDS = frozenset(
+    {"우리", "상대", "저", "이", "쟤", "ㅋㅋ", "ㅋㅋㅋ", "와", "다들", "얘들아", "다", "같이", "끝나고"}
+)
 
 
 def run(req: AnalyzeRequest) -> Analysis:
@@ -67,11 +74,11 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
     """유해 유형별 점수 0~1. 예) {"profanity": 0.9, "blame": 0.9}
 
     규칙 점수와 파인튜닝 모델 점수(model.py, 모델이 없으면 빈 값) 중 유형별 큰 값.
-    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질은 모델이 잡는 것을 기대한다.
+    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질·패드립·성희롱은 모델이 잡는다. 욕설(profanity)은 규칙 점수만 쓴다.
     """
     scores = _rule_scores(text_norm)
     for name, score in model.predict(text_norm).items():
-        if score > scores.get(name, 0.0):
+        if name not in _RULE_ONLY and score > scores.get(name, 0.0):
             scores[name] = round(score, 4)
     return scores
 
@@ -112,6 +119,8 @@ def _guess_target(message: ChatMessage, history: list[ChatMessage], players: lis
         for prev in reversed(history):
             if prev.speaker != message.speaker:
                 return prev.speaker
+    if not players:  # 명단을 모를 때: 문장에서 부른 챔피언 이름을 그대로 대상으로 둔다 (포지션 단어와 같은 방식)
+        return _champion_token(text)
     return None
 
 
@@ -130,7 +139,8 @@ def _addressed(p: Player, message: ChatMessage, speaker: Player | None) -> bool:
         word = (word or "").replace(" ", "")
         if len(word) >= 2 and word in text and not re.search(re.escape(word) + r"(부터|를|을)", text):
             return True
-    return False
+    # 줄임말("이즈", "케틀")은 짧아서 다른 낱말 속에 들어 있기 쉽다 → 낱말 단위로만 본다
+    return any(_called(alias, message.text_norm) for alias in names_of(p.champion)[1:])
 
 
 def _people(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> list[Player]:
@@ -284,6 +294,32 @@ def _position_token(text: str) -> tuple[str, int] | None:
         for name, aliases in lexicon.POSITIONS.items():
             if any(re.fullmatch(re.escape(a) + lexicon.PARTICLES + r"[!?.,~]*", tok.group()) for a in aliases):
                 return name, tok.start()
+    return None
+
+
+def _called(name: str, text: str) -> bool:
+    """문장이 이 이름을 부르는가: 낱말이 `이름 + 조사` 꼴이고 목적어("이즈를", "이즈부터")가 아닐 때."""
+    pattern = re.compile(re.escape(name) + lexicon.PARTICLES + r"[!?.,~]*")
+    for tok in _TOKEN.finditer(text):
+        m = pattern.fullmatch(tok.group())
+        if m and m.group(1) not in ("을", "를"):
+            return True
+    return False
+
+
+def _champion_token(text: str) -> str | None:
+    """문장 맨 앞에서 부른 챔피언 → 정식 이름. 예) "이즈야 궁 써" → "이즈리얼", "상대 럭스 허접" → "럭스"
+
+    맨 앞(군말·"우리"·"상대" 뒤 포함)에 올 때만 부른 것으로 본다. 문장 중간의 챔피언은 대개 이야기의 소재다
+    ("아 시발 블츠 그랩에 또 끌렸네" 는 혼잣말). 일상 낱말과 겹치는 이름(AMBIGUOUS)은 보지 않는다.
+    """
+    for tok in _TOKEN.finditer(text):
+        word = tok.group()
+        for name in sorted(CHAMPION_ROLES, key=len, reverse=True):
+            if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
+                return canonical(name)
+        if word not in lexicon.INTERJECTIONS and word not in _LEAD_WORDS:
+            return None
     return None
 
 

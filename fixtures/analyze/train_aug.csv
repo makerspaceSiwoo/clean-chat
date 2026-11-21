@@ -1,0 +1,904 @@
+text,text_norm,hints,level,harm_types,profanity_spans,has_feedback,feedback,target,split,writer,note
+정글 용 먼저 치자,정글 용 먼저 치자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 탑 한 번만 와줄 수 있어?,정글 탑 한 번만 와줄 수 있어?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서폿 와드 하나만 박아줘,서폿 와드 하나만 박아줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 로밍 가면 핑 찍어줄게,미드 로밍 가면 핑 찍어줄게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+원딜 뒤에서 딜만 넣어줘,원딜 뒤에서 딜만 넣어줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 텔 타줄 수 있어?,탑 텔 타줄 수 있어?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 바위게 싸움 도와줄게,정글 바위게 싸움 도와줄게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서폿 로밍 갔다 와도 돼,서폿 로밍 갔다 와도 돼,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 미아 조심해,미드 미아 조심해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+원딜 점멸 돌면 말해줘,원딜 점멸 돌면 말해줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 라인 밀고 합류해줘,탑 라인 밀고 합류해줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 전령 풀 거야?,정글 전령 풀 거야?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+바텀 용 싸움 준비하자,바텀 용 싸움 준비하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 블루 줄까?,미드 블루 줄까?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+리신 갱 타이밍 좋았어,리신 갱 타이밍 좋았어,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+징크스 포지션 좋다 그대로 가자,징크스 포지션 좋다 그대로 가자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+제드 사이드 밀어줘 우리가 버틸게,제드 사이드 밀어줘 우리가 버틸게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+가렌 텔 있으면 용 쪽으로,가렌 텔 있으면 용 쪽으로,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+쓰레쉬 랜턴 고마워,쓰레쉬 랜턴 고마워,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 정글 탑에 보임 조심,상대 정글 탑에 보임 조심,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 미드 점멸 없음 지금 잡자,상대 미드 점멸 없음 지금 잡자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 원딜 먼저 물자,상대 원딜 먼저 물자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 서폿 로밍 갔어 바텀 조심,상대 서폿 로밍 갔어 바텀 조심,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다리우스 궁 빠졌어 들어가도 돼,다리우스 궁 빠졌어 들어가도 돼,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 왜 거기 있어? 무슨 일 있어?,정글 왜 거기 있어? 무슨 일 있어?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 왜 안 와? 텔 없어?,미드 왜 안 와? 텔 없어?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+원딜 뭐 하고 있어? 같이 가자,원딜 뭐 하고 있어? 같이 가자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 지금 뭐 사는 중이야?,탑 지금 뭐 사는 중이야?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서폿 몇 렙이야?,서폿 몇 렙이야?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 몇 번 캠프 돌았어?,정글 몇 번 캠프 돌았어?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+우리 정글 잘 크고 있네,우리 정글 잘 크고 있네,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+원딜 캐리 가자 믿는다,원딜 캐리 가자 믿는다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 잘 버텼어 고생했다,탑 잘 버텼어 고생했다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 방금 궁 진짜 좋았다,미드 방금 궁 진짜 좋았다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서폿 그랩 미쳤다 ㄷㄷ,서폿 그랩 미쳤다 ㄷㄷ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 덕분에 이겼다,정글 덕분에 이겼다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+원딜 덕분에 한타 이김,원딜 덕분에 한타 이김,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 차이 난다 우리 탑 잘하네,탑 차이 난다 우리 탑 잘하네,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 차이 ㄷㄷ 캐리해줘,미드 차이 ㄷㄷ 캐리해줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+이번 판은 정글이 다 했다 ㄳ,이번 판은 정글이 다 했다 ㄳ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+내가 던졌네 미안,내가 던졌네 미안,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+내가 트롤했다 ㅈㅅ,내가 트롤했다 ㅈㅅ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+나 때문에 졌다 미안해,나 때문에 졌다 미안해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+내가 범인이네 ㅋㅋ 미안,내가 범인이네 ㅋㅋ 미안,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+방금 건 내가 못했어,방금 건 내가 못했어,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+내 판단이 별로였다 미안,내 판단이 별로였다 미안,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+아 내가 왜 들어갔지,아 내가 왜 들어갔지,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+내가 노답이었네 다음 판 잘할게,내가 노답이었네 다음 판 잘할게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+신고하지 말고 그냥 하자,신고하지 말고 그냥 하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서로 탓하지 말고 다음 한타 보자,서로 탓하지 말고 다음 한타 보자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+남 탓 그만하고 집중하자,남 탓 그만하고 집중하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+트롤 아니야 렉 걸렸어,트롤 아니야 렉 걸렸어,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 정글 못 봤어 미안,상대 정글 못 봤어 미안,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+와드 못 박았어 쿨이라,와드 못 박았어 쿨이라,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+지금은 못 가 궁 없어,지금은 못 가 궁 없어,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+바론 못 먹을 듯 빼자,바론 못 먹을 듯 빼자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+이 한타는 못 이겨 빼,이 한타는 못 이겨 빼,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+나 죽었어 30초,나 죽었어 30초,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 원딜 죽이면 이긴다,상대 원딜 죽이면 이긴다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+미드 죽었다 바론 가자,미드 죽었다 바론 가자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+제드 잡았다 용 치자,제드 잡았다 용 치자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+탑 죽기 전에 텔 타,탑 죽기 전에 텔 타,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+던지지 말고 천천히 하자 우리가 유리해,던지지 말고 천천히 하자 우리가 유리해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+끝났네 수고했어,끝났네 수고했어,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+졌지만 잘 싸웠다,졌지만 잘 싸웠다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+항복할까? 투표 올릴게,항복할까? 투표 올릴게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+서렌 치지 말고 한 번만 더 해보자,서렌 치지 말고 한 번만 더 해보자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+엄마가 밥 먹으래 잠깐만,엄마가 밥 먹으래 잠깐만,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+아빠 와서 잠깐 자리 비움,아빠 와서 잠깐 자리 비움,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+동생이 불러서 1분만,동생이 불러서 1분만,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+집에 손님 와서 잠깐 멈춤,집에 손님 와서 잠깐 멈춤,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+수준 높은 판이네 재밌다,수준 높은 판이네 재밌다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 실력 좋네 인정,상대 실력 좋네 인정,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+우리 팀 손발 잘 맞는다,우리 팀 손발 잘 맞는다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+연습 더 해야겠다 나,연습 더 해야겠다 나,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+나 이 챔 처음 해봐 양해 부탁,나 이 챔 처음 해봐 양해 부탁,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+배치라서 긴장된다,배치라서 긴장된다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+초보라 미안 알려주면 따라갈게,초보라 미안 알려주면 따라갈게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+눈 감고도 이기겠다 이 판,눈 감고도 이기겠다 이 판,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+손 풀리는 중 조금만 기다려,손 풀리는 중 조금만 기다려,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+뇌절하지 말고 여기서 끊자,뇌절하지 말고 여기서 끊자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+차단은 안 했어 걱정 마,차단은 안 했어 걱정 마,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+리폿 얘기 그만하고 겜 하자,리폿 얘기 그만하고 겜 하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다 같이 용 가자,다 같이 용 가자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다들 바론 쪽으로 모여,다들 바론 쪽으로 모여,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+얘들아 미드로 뭉치자,얘들아 미드로 뭉치자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다들 원딜 지켜주자,다들 원딜 지켜주자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다 같이 정글 도와주자,다 같이 정글 도와주자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다들 탑 좀 봐줘 다이브 온다,다들 탑 좀 봐줘 다이브 온다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+우리 서폿 칭찬해,우리 서폿 칭찬해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다들 잘하고 있어 이대로만,다들 잘하고 있어 이대로만,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅇㅋ,ㅇㅋ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㄱㄱ,ㄱㄱ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅇㅈ,ㅇㅈ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㄴㄴ 빼,ㄴㄴ 빼,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅈㅅ,ㅈㅅ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㄳㄳ,ㄳㄳ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅋㅋㅋㅋㅋ,ㅋㅋㅋㅋㅋ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅎㅇ,ㅎㅇ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+gg,gg,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㅅㄱ,ㅅㄱ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+ㄷㄷ,ㄷㄷ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+?,?,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+아 아깝다,아 아깝다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+오 나이스,오 나이스,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+굿굿,굿굿,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+괜찮아 괜찮아,괜찮아 괜찮아,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+천천히 해도 돼,천천히 해도 돼,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+실수할 수도 있지 뭐,실수할 수도 있지 뭐,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+다음 용 2분 뒤,다음 용 2분 뒤,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+바론 버프 있을 때 밀자,바론 버프 있을 때 밀자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+억제기 밀고 귀환,억제기 밀고 귀환,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+시야 없으니까 들어가지 말자,시야 없으니까 들어가지 말자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 궁 다 빠짐 지금 싸우자,상대 궁 다 빠짐 지금 싸우자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+나 점멸 없어 봐줘,나 점멸 없어 봐줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+쌍둥이 포탑만 치고 빠지자,쌍둥이 포탑만 치고 빠지자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+장로 뜨기 전에 시야 잡자,장로 뜨기 전에 시야 잡자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+라인 정리하고 모이자,라인 정리하고 모이자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+한 명 끊고 바론 치자,한 명 끊고 바론 치자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+집 갔다가 템 사고 올게,집 갔다가 템 사고 올게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+핑 찍은 데로 와줘,핑 찍은 데로 와줘,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+개꿀 킬 먹었다,개꿀 킬 먹었다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+와 개쩐다 방금,와 개쩐다 방금,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 조합 개세네 조심하자,상대 조합 개세네 조심하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+이 챔 진짜 사기다,이 챔 진짜 사기다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+아리 너프 좀 해야 됨 ㅋㅋ,아리 너프 좀 해야 됨 ㅋㅋ,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+야스오 밴 할걸,야스오 밴 할걸,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+티모 버섯 조심해,티모 버섯 조심해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+상대 유미 귀찮네,상대 유미 귀찮네,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+밤하늘별 잘한다,밤하늘별 잘한다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+초코우유 갱 고마워,초코우유 갱 고마워,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+달빛고양이 캐리 부탁해,달빛고양이 캐리 부탁해,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+불꽃남자 같이 가자,불꽃남자 같이 가자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+얼음땡 잘하네 인정,얼음땡 잘하네 인정,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+너 진짜 잘한다,너 진짜 잘한다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+너 덕분에 살았다,너 덕분에 살았다,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+니가 콜 해줘 따라갈게,니가 콜 해줘 따라갈게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+넌 사이드 밀어 우린 미드 있을게,넌 사이드 밀어 우린 미드 있을게,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+야 방금 봤어? 대박,야 방금 봤어? 대박,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+이길 수 있다 포기하지 말자,이길 수 있다 포기하지 말자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+우리 후반 조합이니까 버티자,우리 후반 조합이니까 버티자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+화내지 말고 하자,화내지 말고 하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+싸우지 말자 얘들아,싸우지 말자 얘들아,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+채팅 그만 치고 게임하자,채팅 그만 치고 게임하자,,0,,,0,,none,train,AI(claude),보강 · 검수 전
+정글 뭐 하는 거야 진짜,정글 뭐 하는 거야 진짜,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 캠프만 도네 갱은 안 와,정글 캠프만 도네 갱은 안 와,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 있긴 하냐,정글 있긴 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 유령이냐,정글 유령이냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+우리 정글 관광 왔나,우리 정글 관광 왔나,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 차이 심하다 우리 정글은 구경만 함,정글 차이 심하다 우리 정글은 구경만 함,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 강타 싸움 한 번을 못 이기네,정글 강타 싸움 한 번을 못 이기네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 동선이 이게 뭐냐,정글 동선이 이게 뭐냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 생각이 없네,정글 생각이 없네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 손으로 하는 거 맞냐,정글 손으로 하는 거 맞냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 이 정도면 고의지,정글 이 정도면 고의지,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 그냥 나가라,정글 그냥 나가라,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 겜 꺼라 그냥,정글 겜 꺼라 그냥,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 한 게 뭐가 있냐,정글 한 게 뭐가 있냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 또 죽냐,탑 또 죽냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 혼자 솔킬 세 번 따이네,탑 혼자 솔킬 세 번 따이네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 라인전 구경하러 왔냐,탑 라인전 구경하러 왔냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 진짜 한심하다,탑 진짜 한심하다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 텔은 장식이냐,탑 텔은 장식이냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 버스 타려고 왔네,탑 버스 타려고 왔네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 0인분 하네,탑 0인분 하네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 상대한테 킬 배달하네,탑 상대한테 킬 배달하네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 그렇게 할 거면 하지 마,탑 그렇게 할 거면 하지 마,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+우리 탑 봇전 하다 왔나,우리 탑 봇전 하다 왔나,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 손이 없냐,탑 손이 없냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 티어 어떻게 올렸냐,탑 티어 어떻게 올렸냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 로밍 한 번을 안 가네,미드 로밍 한 번을 안 가네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 반응 속도 실화냐,미드 반응 속도 실화냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 cs도 지고 킬도 지고 잘하는 게 뭐냐,미드 cs도 지고 킬도 지고 잘하는 게 뭐냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 미아 핑도 못 찍냐,미드 미아 핑도 못 찍냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 초딩이냐,미드 초딩이냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 접속만 해놓은 듯,미드 접속만 해놓은 듯,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 개념이 없네,미드 개념이 없네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 스킬 다 빗나가네 눈 감고 하냐,미드 스킬 다 빗나가네 눈 감고 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 숙제 하면서 겜 하냐,미드 숙제 하면서 겜 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 그 챔 왜 골랐냐,미드 그 챔 왜 골랐냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드 챔 폭이 그것밖에 안 되냐,미드 챔 폭이 그것밖에 안 되냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 딜이 서폿보다 안 나오네,원딜 딜이 서폿보다 안 나오네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 또 짤렸네 학습이 안 되냐,원딜 또 짤렸네 학습이 안 되냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 포지션 감이 없네,원딜 포지션 감이 없네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 카이팅을 모르냐,원딜 카이팅을 모르냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 손가락 몇 개냐,원딜 손가락 몇 개냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 봇 아니냐 이거,원딜 봇 아니냐 이거,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 발로 하냐,원딜 발로 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 있으나 마나네,원딜 있으나 마나네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 캐리는 바라지도 않는다 죽지만 마라,원딜 캐리는 바라지도 않는다 죽지만 마라,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 cs 반도 못 먹네,원딜 cs 반도 못 먹네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 한타 때마다 제일 먼저 죽네,원딜 한타 때마다 제일 먼저 죽네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 하는 게 없네,서폿 하는 게 없네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 와드를 안 사냐,서폿 와드를 안 사냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 스킬 한 번을 못 맞히네,서폿 스킬 한 번을 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 혼자 딴 겜 하냐,서폿 혼자 딴 겜 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 그럴 거면 왜 서폿 함,서폿 그럴 거면 왜 서폿 함,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 원딜 버리고 어디 가냐,서폿 원딜 버리고 어디 가냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 킬 뺏어 먹기만 하네,서폿 킬 뺏어 먹기만 하네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 잠수냐,서폿 잠수냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 눈치가 없네,서폿 눈치가 없네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 그랩 열 번 던져서 한 번 맞히냐,서폿 그랩 열 번 던져서 한 번 맞히냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 수준 알 만하다,서폿 수준 알 만하다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+바텀 둘 다 왜 그러냐 진짜,바텀 둘 다 왜 그러냐 진짜,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+바텀 터졌네 니들 뭐 했냐,바텀 터졌네 니들 뭐 했냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+우리 바텀 겜 포기했냐,우리 바텀 겜 포기했냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글 갱 좀 와라 뭐 하는 거야,정글 갱 좀 와라 뭐 하는 거야,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+정글 용 줄 거면 전령이라도 먹어 생각 좀 해,정글 용 줄 거면 전령이라도 먹어 생각 좀 해,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+정글 바론 시야도 안 잡냐 와드 좀 사,정글 바론 시야도 안 잡냐 와드 좀 사,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+정글 강타 좀 제대로 써라 또 뺏기냐,정글 강타 좀 제대로 써라 또 뺏기냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+정글 제발 합류 좀 해 혼자 뭐 하냐,정글 제발 합류 좀 해 혼자 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 텔 좀 타라 구경만 하지 말고,탑 텔 좀 타라 구경만 하지 말고,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 사이드만 밀지 말고 한타 와 눈치 없냐,탑 사이드만 밀지 말고 한타 와 눈치 없냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 그만 죽고 포탑 안에 있어 한심하다,탑 그만 죽고 포탑 안에 있어 한심하다,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 라인 좀 당겨라 몇 번을 죽냐,탑 라인 좀 당겨라 몇 번을 죽냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 한타 좀 와라 어디서 놀고 있냐,탑 한타 좀 와라 어디서 놀고 있냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+미드 로밍 좀 가라 라인에서 뭐 하냐,미드 로밍 좀 가라 라인에서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+미드 미아 좀 찍어라 입 뒀다 뭐 하냐,미드 미아 좀 찍어라 입 뒀다 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+미드 궁 아끼다 죽냐 좀 써라,미드 궁 아끼다 죽냐 좀 써라,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+미드 와드 하나를 안 박네 시야 좀 잡아,미드 와드 하나를 안 박네 시야 좀 잡아,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+미드 용 싸움 합류해라 혼자 겜 하냐,미드 용 싸움 합류해라 혼자 겜 하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+원딜 앞으로 가지 말라고 몇 번 말하냐,원딜 앞으로 가지 말라고 몇 번 말하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+원딜 뒤에서 딜 좀 해라 생각이 없냐,원딜 뒤에서 딜 좀 해라 생각이 없냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+원딜 점멸 좀 써라 아끼다 뭐 되냐,원딜 점멸 좀 써라 아끼다 뭐 되냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+원딜 타워부터 쳐라 뭐 하는 거야,원딜 타워부터 쳐라 뭐 하는 거야,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+원딜 cs 좀 챙겨 그게 뭐냐,원딜 cs 좀 챙겨 그게 뭐냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+서폿 시야 좀 잡아라 놀러 왔냐,서폿 시야 좀 잡아라 놀러 왔냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+서폿 원딜 좀 지켜라 어디 보냐,서폿 원딜 좀 지켜라 어디 보냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+서폿 이니시 좀 걸어 구경하냐,서폿 이니시 좀 걸어 구경하냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+서폿 로밍 그만 가라 바텀 다 터졌잖아,서폿 로밍 그만 가라 바텀 다 터졌잖아,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+서폿 핑크 와드 좀 사라 돈 아끼냐,서폿 핑크 와드 좀 사라 돈 아끼냐,,2,blame,,1,,team,train,AI(claude),보강 · 검수 전
+리신 큐 맞히는 걸 못 봤다,리신 큐 맞히는 걸 못 봤다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+리신 눈 감고 하냐,리신 눈 감고 하냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+리신 이 정도면 돈 받고 지는 거지,리신 이 정도면 돈 받고 지는 거지,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+징크스 또 물렸네 정신 안 차리냐,징크스 또 물렸네 정신 안 차리냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+징크스 딜 그래프 꼴찌네,징크스 딜 그래프 꼴찌네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+제드 궁 쓰고 죽기만 하네,제드 궁 쓰고 죽기만 하네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+제드 혼자 뭐 하냐 계속,제드 혼자 뭐 하냐 계속,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+가렌 돌기만 하면 다냐,가렌 돌기만 하면 다냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+가렌 하는 애가 이렇게 죽냐,가렌 하는 애가 이렇게 죽냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+쓰레쉬 그랩 실화냐 하나도 안 맞네,쓰레쉬 그랩 실화냐 하나도 안 맞네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+쓰레쉬 랜턴 줄 줄도 모르냐,쓰레쉬 랜턴 줄 줄도 모르냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+야스오 또 0킬 10데스 과학이다,야스오 또 0킬 10데스 과학이다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+티모 고른 것부터가 문제다,티모 고른 것부터가 문제다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+우리 이즈리얼 스킬 다 허공에 쏘네,우리 이즈리얼 스킬 다 허공에 쏘네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+럭스 궁으로 미니언만 잡네,럭스 궁으로 미니언만 잡네,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+상대 다리우스 별것도 없네 허접,상대 다리우스 별것도 없네 허접,,2,blame,,0,,enemy,train,AI(claude),보강 · 검수 전
+상대 미드 실력 없으면서 입만 살았네,상대 미드 실력 없으면서 입만 살았네,,2,blame,,0,,enemy,train,AI(claude),보강 · 검수 전
+상대 정글 운으로 이기는 주제에,상대 정글 운으로 이기는 주제에,,2,blame,,0,,enemy,train,AI(claude),보강 · 검수 전
+초코우유 진짜 한심하다,초코우유 진짜 한심하다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+불꽃남자 너 때문에 다 망했다,불꽃남자 너 때문에 다 망했다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+달빛고양이 겜 그렇게 하는 거 아니다,달빛고양이 겜 그렇게 하는 거 아니다,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+밤하늘별 그 실력으로 랭크 돌리냐,밤하늘별 그 실력으로 랭크 돌리냐,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+너 진짜 못한다,너 진짜 못한다,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+니가 제일 문제야,니가 제일 문제야,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+너 때문에 졌잖아,너 때문에 졌잖아,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+넌 그냥 가만히 있어 도움이 안 돼,넌 그냥 가만히 있어 도움이 안 돼,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+니 실력에 무슨 랭크냐,니 실력에 무슨 랭크냐,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+야 너 게임 왜 하냐,야 너 게임 왜 하냐,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+너 같은 애랑 같은 팀인 게 벌이다,너 같은 애랑 같은 팀인 게 벌이다,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+니가 뭘 안다고 훈수냐,니가 뭘 안다고 훈수냐,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+너는 입 다물고 겜이나 해,너는 입 다물고 겜이나 해,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+왜 그렇게밖에 못 하냐,왜 그렇게밖에 못 하냐,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+그걸 왜 못 잡냐 진짜,그걸 왜 못 잡냐 진짜,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+이걸 지네 한심하다 진짜,이걸 지네 한심하다 진짜,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+하는 꼬라지 봐라,하는 꼬라지 봐라,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+손이 없으면 머리라도 써라,손이 없으면 머리라도 써라,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+겜 그따위로 할 거면 꺼라,겜 그따위로 할 거면 꺼라,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+진짜 수준 떨어져서 못 해 먹겠다 니들이랑,진짜 수준 떨어져서 못 해 먹겠다 니들이랑,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+니들 다 트롤이네,니들 다 트롤이네,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+생각 좀 하고 살아라,생각 좀 하고 살아라,,2,blame,,0,,unknown,train,AI(claude),보강 · 검수 전
+와 우리 정글 대단하다 용 네 개 다 줌 ㅋㅋ,와 우리 정글 대단하다 용 네 개 다 줌 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 잘한다 잘해 또 죽었네 ㅋㅋ,원딜 잘한다 잘해 또 죽었네 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 프로게이머인 줄 ㅋㅋ 5데스,탑 프로게이머인 줄 ㅋㅋ 5데스,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+미드님 캐리 감사합니다 0킬 7데스,미드님 캐리 감사합니다 0킬 7데스,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 덕분에 잘 죽었다 고맙다 ㅋㅋ,서폿 덕분에 잘 죽었다 고맙다 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+정글님 언제 오시나요 게임 끝나고 오시나,정글님 언제 오시나요 게임 끝나고 오시나,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+우리 원딜 상대편 아니냐 ㅋㅋ,우리 원딜 상대편 아니냐 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+탑 상대 스파이지 이 정도면,탑 상대 스파이지 이 정도면,,2,blame,,0,,team,train,AI(claude),보강 · 검수 전
+다들 정글 신고 부탁,다들 정글 신고 부탁,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+끝나고 탑 리폿 좀 해줘,끝나고 탑 리폿 좀 해줘,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 트롤임 다 같이 신고하자,원딜 트롤임 다 같이 신고하자,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+얘들아 미드 차단해 말 섞지 마,얘들아 미드 차단해 말 섞지 마,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+이 판 서폿 때문에 진 거 다들 알지,이 판 서폿 때문에 진 거 다들 알지,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+다들 봤지 정글이 던진 거,다들 봤지 정글이 던진 거,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+다들 탑 탓인 거 인정하지,다들 탑 탓인 거 인정하지,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+우리 넷이서 원딜 신고 넣자,우리 넷이서 원딜 신고 넣자,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+미드 리포트 ㄱㄱ 다들,미드 리포트 ㄱㄱ 다들,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+정글 고의 트롤 신고 좀 해주세요 상대분들도,정글 고의 트롤 신고 좀 해주세요 상대분들도,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+상대팀도 우리 탑 신고 좀 해줘 던짐,상대팀도 우리 탑 신고 좀 해줘 던짐,,2,blame|instigation,,0,,enemy,train,AI(claude),보강 · 검수 전
+다 같이 서폿 무시하자,다 같이 서폿 무시하자,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+쟤 말 듣지 마 다들 원딜 채팅 차단해,쟤 말 듣지 마 다들 원딜 채팅 차단해,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+범인 정글인 거 다들 동의하지,범인 정글인 거 다들 동의하지,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+솔직히 이 판 미드 빼고 다 잘했다 그치,솔직히 이 판 미드 빼고 다 잘했다 그치,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+다들 원딜한테 한마디씩 해라 정신 차리게,다들 원딜한테 한마디씩 해라 정신 차리게,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+리신 신고 넣을 사람 손,리신 신고 넣을 사람 손,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+징크스 9데스 신고 각이다 다들 넣어,징크스 9데스 신고 각이다 다들 넣어,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+제드 차단 박고 겜 하자 다들,제드 차단 박고 겜 하자 다들,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+가렌이 겜 터트렸다 다들 리폿,가렌이 겜 터트렸다 다들 리폿,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+얘들아 탑이 범인이다 신고 꼭 해,얘들아 탑이 범인이다 신고 꼭 해,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 하나 때문에 넷이 고생한다 그치 얘들아,서폿 하나 때문에 넷이 고생한다 그치 얘들아,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+우리끼리만 하자 정글은 없는 셈 쳐,우리끼리만 하자 정글은 없는 셈 쳐,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+다들 정글한테 뭐라고 좀 해봐 나만 답답하냐,다들 정글한테 뭐라고 좀 해봐 나만 답답하냐,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+끝나고 다 같이 미드 신고 약속,끝나고 다 같이 미드 신고 약속,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 탓 맞지 다들 ㅇㅈ?,원딜 탓 맞지 다들 ㅇㅈ?,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+초코우유 신고 좀 같이 해줘,초코우유 신고 좀 같이 해줘,,2,instigation,,0,,team,train,AI(claude),보강 · 검수 전
+불꽃남자가 던졌음 다들 리포트 부탁,불꽃남자가 던졌음 다들 리포트 부탁,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+정글 병신이라 졌다 다들 신고해,정글 병신이라 졌다 다들 신고해,,2,profanity|blame|instigation,병신,0,,team,train,AI(claude),보강 · 검수 전
+탑 새끼 다 같이 신고하자,탑 새끼 다 같이 신고하자,,2,profanity|instigation,새끼,0,,team,train,AI(claude),보강 · 검수 전
+다들 서폿 욕 좀 해라 정신 차리게,다들 서폿 욕 좀 해라 정신 차리게,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+이거 미드가 범인이지 투표하자 ㅋㅋ,이거 미드가 범인이지 투표하자 ㅋㅋ,,2,blame|instigation,,0,,team,train,AI(claude),보강 · 검수 전
+탑 엄마가 그렇게 가르치디,탑 엄마가 그렇게 가르치디,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+미드 집에서 그렇게 배웠냐 부모가 누구냐,미드 집에서 그렇게 배웠냐 부모가 누구냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 니 아빠도 그렇게 못하냐,원딜 니 아빠도 그렇게 못하냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 가정 교육을 못 받았네,서폿 가정 교육을 못 받았네,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+정글 부모 없이 컸냐,정글 부모 없이 컸냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+탑 니네 부모는 너 이러는 거 아냐,탑 니네 부모는 너 이러는 거 아냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+미드 니 엄마도 너 포기했지,미드 니 엄마도 너 포기했지,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 너네 집안 꼴 알 만하다,원딜 너네 집안 꼴 알 만하다,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 엄마 아빠가 낳고 후회했겠다,서폿 엄마 아빠가 낳고 후회했겠다,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+니 부모도 너처럼 멍청하냐,니 부모도 너처럼 멍청하냐,,3,family_insult,,0,,unknown,train,AI(claude),보강 · 검수 전
+너네 엄마 안부 전해라,너네 엄마 안부 전해라,,3,family_insult,,0,,unknown,train,AI(claude),보강 · 검수 전
+니 애비가 누군지는 아냐,니 애비가 누군지는 아냐,,3,family_insult,,0,,unknown,train,AI(claude),보강 · 검수 전
+부모 욕 먹이고 다니네,부모 욕 먹이고 다니네,,3,family_insult,,0,,unknown,train,AI(claude),보강 · 검수 전
+니 엄마 오늘 밤 조심하라 해라,니 엄마 오늘 밤 조심하라 해라,,3,family_insult,,0,,unknown,train,AI(claude),보강 · 검수 전
+미드 부모가 그렇게 가르쳤냐 로밍 좀 가라,미드 부모가 그렇게 가르쳤냐 로밍 좀 가라,,3,family_insult|blame,,1,,team,train,AI(claude),보강 · 검수 전
+탑 니 애미 시발,탑 니 애미 시발,,3,profanity|family_insult,애미|시발,0,,team,train,AI(claude),보강 · 검수 전
+원딜 느금마 병신,원딜 느금마 병신,,3,profanity|family_insult,느금마|병신,0,,team,train,AI(claude),보강 · 검수 전
+리신 엄마 없이 자랐냐,리신 엄마 없이 자랐냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+징크스 니네 가족 다 그 모양이냐,징크스 니네 가족 다 그 모양이냐,,3,family_insult,,0,,team,train,AI(claude),보강 · 검수 전
+상대 미드 느그 아빠 뭐 하시냐,상대 미드 느그 아빠 뭐 하시냐,,3,family_insult,,0,,enemy,train,AI(claude),보강 · 검수 전
+서폿 여자냐 목소리 좀 들려줘 봐,서폿 여자냐 목소리 좀 들려줘 봐,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 여자면 사진 보내봐,원딜 여자면 사진 보내봐,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+미드 너 몸매는 어떠냐,미드 너 몸매는 어떠냐,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+서폿 나랑 한번 자자,서폿 나랑 한번 자자,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+원딜 벗고 겜 하냐,원딜 벗고 겜 하냐,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+너 가슴 크냐,너 가슴 크냐,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+밤에 뭐 하냐 나랑 놀자 야한 거,밤에 뭐 하냐 나랑 놀자 야한 거,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+여자가 겜 하지 말고 몸이나 팔아라,여자가 겜 하지 말고 몸이나 팔아라,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+너 같은 건 한번 대줘야 정신 차리지,너 같은 건 한번 대줘야 정신 차리지,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+정글 섹스나 하러 가라,정글 섹스나 하러 가라,,3,sexual_harassment,섹스,0,,team,train,AI(claude),보강 · 검수 전
+서폿 걸레년아,서폿 걸레년아,,3,profanity|sexual_harassment,걸레,0,,team,train,AI(claude),보강 · 검수 전
+미드 창녀냐,미드 창녀냐,,3,sexual_harassment,창녀,0,,team,train,AI(claude),보강 · 검수 전
+속옷 무슨 색이냐,속옷 무슨 색이냐,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+너 처음이냐 내가 가르쳐 줄까 침대에서,너 처음이냐 내가 가르쳐 줄까 침대에서,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강 · 검수 전
+서폿 몸이나 팔지 겜은 왜 하냐 와드나 박아,서폿 몸이나 팔지 겜은 왜 하냐 와드나 박아,,3,sexual_harassment|blame,,1,,team,train,AI(claude),보강 · 검수 전
+유미 하는 거 보니 여자네 번호 줘 벗겨 보게,유미 하는 거 보니 여자네 번호 줘 벗겨 보게,,3,sexual_harassment,,0,,team,train,AI(claude),보강 · 검수 전
+아 시발 또 끊겼네,아 시발 또 끊겼네,,1,profanity,시발,0,,none,train,AI(claude),보강 · 검수 전
+존나 어렵다 이 판,존나 어렵다 이 판,,1,profanity,존나,0,,none,train,AI(claude),보강 · 검수 전
+아 좆됐네 바론 뺏김,아 좆됐네 바론 뺏김,,1,profanity,좆,0,,none,train,AI(claude),보강 · 검수 전
+씨발 렉 뭐야,씨발 렉 뭐야,,1,profanity,씨발,0,,none,train,AI(claude),보강 · 검수 전
+하 지랄 같은 핑,하 지랄 같은 핑,,1,profanity,지랄,0,,none,train,AI(claude),보강 · 검수 전
+아 ㅅㅂ 손 꼬임,아 시발 손 꼬임,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,none,train,AI(claude),보강 · 검수 전
+ㅈㄴ 아깝다 한 대 차이,존나 아깝다 한 대 차이,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,train,AI(claude),보강 · 검수 전
+와 시발 깜짝아,와 시발 깜짝아,,1,profanity,시발,0,,none,train,AI(claude),보강 · 검수 전
+내가 병신이다 미안,내가 병신이다 미안,,1,profanity,병신,0,,none,train,AI(claude),보강 · 검수 전
+개같은 인터넷,개같은 인터넷,,1,profanity,개같,0,,none,train,AI(claude),보강 · 검수 전
+정글 병신,정글 병신,,2,profanity,병신,0,,team,train,AI(claude),보강 · 검수 전
+탑 미친놈아,탑 미친놈아,,2,profanity,미친놈,0,,team,train,AI(claude),보강 · 검수 전
+미드 새끼 진짜,미드 새끼 진짜,,2,profanity,새끼,0,,team,train,AI(claude),보강 · 검수 전
+원딜 존나 못하네,원딜 존나 못하네,,2,profanity|blame,존나,0,,team,train,AI(claude),보강 · 검수 전
+서폿 시발 뭐 하냐,서폿 시발 뭐 하냐,,2,profanity|blame,시발,0,,team,train,AI(claude),보강 · 검수 전
+리신 개새끼,리신 개새끼,,2,profanity,개새끼,0,,team,train,AI(claude),보강 · 검수 전
+정글 시발 용 좀 쳐라 뭐 하냐,정글 시발 용 좀 쳐라 뭐 하냐,,2,profanity|blame,시발,1,,team,train,AI(claude),보강 · 검수 전
+탑 병신아 텔 타라고,탑 병신아 텔 타라고,,2,profanity|blame,병신,1,,team,train,AI(claude),보강 · 검수 전
+미드 닥쳐,미드 닥쳐,,2,profanity,닥쳐,0,,team,train,AI(claude),보강 · 검수 전
+원딜 꺼져 그냥,원딜 꺼져 그냥,,2,profanity,꺼져,0,,team,train,AI(claude),보강 · 검수 전
+너 진짜 등신이냐,너 진짜 등신이냐,,2,profanity,등신,0,,unknown,train,AI(claude),보강 · 검수 전
+니가 못해서 진 거야 병신아,니가 못해서 진 거야 병신아,,2,profanity|blame,병신,0,,unknown,train,AI(claude),보강 · 검수 전
+제드 ㅈㄴ 못하네 진짜,제드 존나 못하네 진짜,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,team,train,AI(claude),보강 · 검수 전
+그브 갱 고마워,그브 갱 고마워,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 닻줄 좋았다,노틸 닻줄 좋았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+니달 창 잘 맞히네,니달 창 잘 맞히네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 텔 있어?,레넥 텔 있어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+루시안 점멸 빠졌어,루시안 점멸 빠졌어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 로밍 갔어 조심,블랑 로밍 갔어 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+리산 궁 있으면 한타 열자,리산 궁 있으면 한타 열자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+마오 묘목 깔아줘,마오 묘목 깔아줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁으로 원딜 끌고 가줘,모데 궁으로 원딜 끌고 가줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+문도 앞에서 버텨줘,문도 앞에서 버텨줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+미포 궁 각 나오면 쏴,미포 궁 각 나오면 쏴,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+벨코 포킹 좋다,벨코 포킹 좋다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블라디 후반에 캐리한다,블라디 후반에 캐리한다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 궁 맞히면 다 같이 들어가자,세주 궁 맞히면 다 같이 들어가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+짜오 갱 타이밍 좋았어,짜오 갱 타이밍 좋았어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아솔 별 많이 모았네,아솔 별 많이 모았네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아트 궁 켜고 들어가,아트 궁 켜고 들어가,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 무기 뭐야 지금,아펠 무기 뭐야 지금,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이렐 스택 쌓고 싸워,이렐 스택 쌓고 싸워,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+일라 촉수 있는 데서 싸우지 말자,일라 촉수 있는 데서 싸우지 말자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 깃창으로 이니시 걸어줘,자르반 깃창으로 이니시 걸어줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카사 6렙 찍었어 조심,카사 6렙 찍었어 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카시 궁 조심해 뒤돌아,카시 궁 조심해 뒤돌아,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+칼리 창 뽑아줘,칼리 창 뽑아줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+킨드 표식 떴다 가자,킨드 표식 떴다 가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 삼켜줘서 살았다,탐켄 삼켜줘서 살았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 타워 잘 민다,트타 타워 잘 민다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트린 궁 쿨이야 지금 잡자,트린 궁 쿨이야 지금 잡자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+판테 궁으로 바텀 와줘,판테 궁으로 바텀 와줘,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피들 궁 조심 부쉬 체크,피들 궁 조심 부쉬 체크,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+하이머 포탑 깔려 있어 들어가지 마,하이머 포탑 깔려 있어 들어가지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 돌진각 보면 따라갈게,헤카 돌진각 보면 따라갈게,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+누누 눈덩이 온다 빼,누누 눈덩이 온다 빼,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+람머스 도발 좋았어,람머스 도발 좋았어,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+갱플 화약통 잘 터트리네,갱플 화약통 잘 터트리네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+드븐 도끼 잘 받네 ㄷㄷ,드븐 도끼 잘 받네 ㄷㄷ,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+사일 궁 뭐 뺏었어?,사일 궁 뭐 뺏었어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 케틀 덫 밟지 마,상대 케틀 덫 밟지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 이즈 점멸 없어 물자,상대 이즈 점멸 없어 물자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 야스 궁 조심 띄우지 마,상대 야스 궁 조심 띄우지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 블츠 그랩 빠졌어 싸우자,상대 블츠 그랩 빠졌어 싸우자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 말파 궁 있음 뭉치지 마,상대 말파 궁 있음 뭉치지 마,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+말파 덕분에 한타 이겼다,말파 덕분에 한타 이겼다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이즈 덕분에 편하게 이김,이즈 덕분에 편하게 이김,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+우리 카타 펜타킬 ㄷㄷ 미쳤다,우리 카타 펜타킬 ㄷㄷ 미쳤다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+볼베 진짜 든든하네,볼베 진짜 든든하네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+내 야스오 처음이라 미안,내 야스오 처음이라 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나 케틀인데 내가 못했어 미안,나 케틀인데 내가 못했어 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+베인으로 내가 던졌네 ㅈㅅ,베인으로 내가 던졌네 ㅈㅅ,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트페 궁 내가 잘못 썼다 미안,트페 궁 내가 잘못 썼다 미안,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+오리아나 궁 대박이었다,오리아나 궁 대박이었다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레오나 이니시 걸면 따라갈게,레오나 이니시 걸면 따라갈게,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모르가나 속박 쿨이야,모르가나 속박 쿨이야,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나미 물방울 잘 맞히네,나미 물방울 잘 맞히네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+룰루 궁 고마워 살았다,룰루 궁 고마워 살았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 힐 덕분에 버텼다,소라카 힐 덕분에 버텼다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카이사 진화 됐어?,카이사 진화 됐어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+에코 궁 있어 다이브 가능,에코 궁 있어 다이브 가능,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+비에고 블루 가져가,비에고 블루 가져가,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세나 영혼 잘 먹네,세나 영혼 잘 먹네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 캠프만 도네 갱은 언제 오냐,그브 캠프만 도네 갱은 언제 오냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 닻줄 열 번 던져서 한 번 맞히냐,노틸 닻줄 열 번 던져서 한 번 맞히냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+니달 창 하나도 안 맞네 발로 하냐,니달 창 하나도 안 맞네 발로 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 라인전 또 지네 한심하다,레넥 라인전 또 지네 한심하다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+루시안 딜이 왜 그 모양이냐,루시안 딜이 왜 그 모양이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 로밍은 가는데 킬은 못 먹네,블랑 로밍은 가는데 킬은 못 먹네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+리산 궁을 왜 자기한테 쓰냐 생각이 없네,리산 궁을 왜 자기한테 쓰냐 생각이 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+마오 궁 방향 실화냐,마오 궁 방향 실화냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁으로 서폿을 끌고 가냐 뇌가 없네,모데 궁으로 서폿을 끌고 가냐 뇌가 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+문도 그 실력으로 랭크를 왜 하냐,문도 그 실력으로 랭크를 왜 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+미포 궁을 허공에 쏘네,미포 궁을 허공에 쏘네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+벨코 스킬 다 빗나가네 눈 감았냐,벨코 스킬 다 빗나가네 눈 감았냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블라디 0킬 6데스 사람이냐,블라디 0킬 6데스 사람이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 궁을 미니언한테 쓰네,세주 궁을 미니언한테 쓰네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+짜오 강타 또 뺏기냐,짜오 강타 또 뺏기냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아솔 별만 모으고 한타는 안 오네,아솔 별만 모으고 한타는 안 오네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아트 들어가서 그냥 죽네 뭐 하냐,아트 들어가서 그냥 죽네 뭐 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 무기 쓸 줄은 아냐,아펠 무기 쓸 줄은 아냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이렐 스택도 안 쌓고 들어가냐,이렐 스택도 안 쌓고 들어가냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+일라 혼자 사이드에서 뭐 하냐,일라 혼자 사이드에서 뭐 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 깃창으로 우리를 가두냐 트롤이네,자르반 깃창으로 우리를 가두냐 트롤이네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카사 그 챔 왜 골랐냐,카사 그 챔 왜 골랐냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카시 궁을 뒤에다 쓰네 ㅋㅋ,카시 궁을 뒤에다 쓰네 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+칼리 창을 왜 안 뽑냐 장식이냐,칼리 창을 왜 안 뽑냐 장식이냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+킨드 표식 하나를 못 먹네,킨드 표식 하나를 못 먹네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 삼키라고 몇 번을 말하냐,탐켄 삼키라고 몇 번을 말하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 점프로 적진에 들어가서 죽네 과학이다,트타 점프로 적진에 들어가서 죽네 과학이다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트린 궁 켜고도 죽냐,트린 궁 켜고도 죽냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+판테 궁 타고 와서 그냥 죽네,판테 궁 타고 와서 그냥 죽네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피들 궁 타이밍 최악이다,피들 궁 타이밍 최악이다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+하이머 포탑만 깔고 구경하냐,하이머 포탑만 깔고 구경하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 돌진해서 혼자 죽네 생각 좀 해라,헤카 돌진해서 혼자 죽네 생각 좀 해라,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+누누 눈덩이 한 번을 못 맞히네,누누 눈덩이 한 번을 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+람머스 도발을 탱커한테 거냐,람머스 도발을 탱커한테 거냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+갱플 화약통 연결도 못 하냐,갱플 화약통 연결도 못 하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+드븐 도끼 다 떨어뜨리네 손이 없냐,드븐 도끼 다 떨어뜨리네 손이 없냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+사일 궁을 그걸 뺏냐 개념이 없네,사일 궁을 그걸 뺏냐 개념이 없네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+오리아나 궁 혼자 허공에 쓰네,오리아나 궁 혼자 허공에 쓰네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레오나 이니시를 혼자 걸고 혼자 죽냐,레오나 이니시를 혼자 걸고 혼자 죽냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모르가나 속박 하나를 못 맞히네,모르가나 속박 하나를 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카이사 궁 타고 들어가서 바로 죽네,카이사 궁 타고 들어가서 바로 죽네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+에코 궁 쓸 줄 모르냐,에코 궁 쓸 줄 모르냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+비에고 있긴 하냐 안 보인다,비에고 있긴 하냐 안 보인다,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 힐을 왜 안 주냐 구경하냐,소라카 힐을 왜 안 주냐 구경하냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 케틀 별것도 없으면서 깝치네,상대 케틀 별것도 없으면서 깝치네,,2,blame,,0,,enemy,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 야스 운 좋았네 실력은 아니고,상대 야스 운 좋았네 실력은 아니고,,2,blame,,0,,enemy,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 갱 좀 와라 정신 차려,그브 갱 좀 와라 정신 차려,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 이니시 좀 걸어 구경만 하지 말고,노틸 이니시 좀 걸어 구경만 하지 말고,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+레넥 텔 좀 타라 혼자 뭐 하냐,레넥 텔 좀 타라 혼자 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 미아 좀 찍어라 입이 없냐,블랑 미아 좀 찍어라 입이 없냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 궁 좀 써라 아끼다 지겠다,모데 궁 좀 써라 아끼다 지겠다,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 용 좀 챙겨라 뭐 하는 거야,세주 용 좀 챙겨라 뭐 하는 거야,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 뒤에서 딜 해라 왜 앞에 서냐,아펠 뒤에서 딜 해라 왜 앞에 서냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자르반 바론 시야 좀 잡아 생각이 없냐,자르반 바론 시야 좀 잡아 생각이 없냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+탐켄 원딜 좀 지켜라 어디 보냐,탐켄 원딜 좀 지켜라 어디 보냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 타워부터 쳐라 뭐 하냐,트타 타워부터 쳐라 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 합류 좀 해라 캠프가 그렇게 좋냐,헤카 합류 좀 해라 캠프가 그렇게 좋냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 와드 좀 박아라 놀러 왔냐,소라카 와드 좀 박아라 놀러 왔냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 병신,그브 병신,,2,profanity,병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 존나 못하네,노틸 존나 못하네,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 미친놈아,블랑 미친놈아,,2,profanity,미친놈,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 시발 용 좀 쳐라,세주 시발 용 좀 쳐라,,2,profanity|blame,시발,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 새끼 진짜,트타 새끼 진짜,,2,profanity,새끼,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 병신아 왜 혼자 들어가,헤카 병신아 왜 혼자 들어가,,2,profanity|blame,병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+모데 개새끼,모데 개새끼,,2,profanity,개새끼,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠 존나 못해 진짜,아펠 존나 못해 진짜,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아 시발 노틸 닻줄 또 맞았네,아 시발 노틸 닻줄 또 맞았네,,1,profanity,시발,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+존나 아프네 모데 딜,존나 아프네 모데 딜,,1,profanity,존나,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 그브 신고 부탁,다들 그브 신고 부탁,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 트롤임 다 같이 신고하자,블랑 트롤임 다 같이 신고하자,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+얘들아 모데 차단해 말 섞지 마,얘들아 모데 차단해 말 섞지 마,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이 판 세주 때문에 진 거 다들 알지,이 판 세주 때문에 진 거 다들 알지,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 봤지 트타가 던진 거,다들 봤지 트타가 던진 거,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+끝나고 헤카 리폿 좀 해줘,끝나고 헤카 리폿 좀 해줘,,2,instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아펠이 범인이다 다들 신고 넣어,아펠이 범인이다 다들 신고 넣어,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 탓 맞지 다들 ㅇㅈ?,노틸 탓 맞지 다들 ㅇㅈ?,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+그브 엄마가 그렇게 가르치디,그브 엄마가 그렇게 가르치디,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+노틸 니네 부모는 너 이러는 거 아냐,노틸 니네 부모는 너 이러는 거 아냐,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+블랑 가정 교육을 못 받았네,블랑 가정 교육을 못 받았네,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세주 느금마,세주 느금마,,3,family_insult,느금마,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+트타 니애미 병신,트타 니애미 병신,,3,profanity|family_insult,니애미|병신,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+헤카 부모가 그렇게 가르쳤냐 갱 좀 와라,헤카 부모가 그렇게 가르쳤냐 갱 좀 와라,,3,family_insult|blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+소라카 하는 거 보니 여자네 사진 보내봐,소라카 하는 거 보니 여자네 사진 보내봐,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+나미 유저 몸매는 어떠냐,나미 유저 몸매는 어떠냐,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+룰루 걸레,룰루 걸레,,3,sexual_harassment,걸레,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세나 나랑 한번 자자,세나 나랑 한번 자자,,3,sexual_harassment,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 궁 있으면 같이 들어가자,로크 궁 있으면 같이 들어가자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 로밍 갔어 바텀 조심,로크 로밍 갔어 바텀 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 텔 있어?,자헨 텔 있어?,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 사이드 잘 미네,자헨 사이드 잘 미네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+상대 로크 점멸 없음,상대 로크 점멸 없음,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 부활 빠졌어 지금 잡자,자헨 부활 빠졌어 지금 잡자,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 암살은 언제 하냐 구경만 하네,로크 암살은 언제 하냐 구경만 하네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 스킬을 하나도 못 맞히네,로크 스킬을 하나도 못 맞히네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+로크 로밍 좀 가라 라인에서 뭐 하냐,로크 로밍 좀 가라 라인에서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 또 솔킬 따였네 정신 안 차리냐,자헨 또 솔킬 따였네 정신 안 차리냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 한타 좀 와라 사이드에서 뭐 하냐,자헨 한타 좀 와라 사이드에서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 존나 못하네 진짜,자헨 존나 못하네 진짜,,2,profanity|blame,존나,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+다들 로크 신고해 0킬 8데스다,다들 로크 신고해 0킬 8데스다,,2,blame|instigation,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+자헨 니네 부모가 그렇게 가르쳤냐,자헨 니네 부모가 그렇게 가르쳤냐,,3,family_insult,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+아칼 궁 좋았다,아칼 궁 좋았다,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+카직 정글에 있음 조심,카직 정글에 있음 조심,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+피오 그 실력으로 사이드를 왜 가냐,피오 그 실력으로 사이드를 왜 가냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+이블 갱을 한 번도 안 오네,이블 갱을 한 번도 안 오네,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+스몰 스택 잘 쌓고 있네,스몰 스택 잘 쌓고 있네,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+신드 구슬을 하나도 못 맞히냐,신드 구슬을 하나도 못 맞히냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+울곳 궁 조심해,울곳 궁 조심해,,0,,,0,,none,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+세라 궁을 왜 허공에 쓰냐,세라 궁을 왜 허공에 쓰냐,,2,blame,,0,,team,train,AI(claude),보강2 · 챔피언 이름 · 검수 전
+정글 ㅅㅂ 전령 좀 풀어라,정글 시발 전령 좀 풀어라,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 ㅂㅅ아 텔 좀 아껴 써,탑 병신아 텔 좀 아껴 써,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 ㅈㄴ 답답하네 라인 좀 밀어,미드 존나 답답하네 라인 좀 밀어,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 ㅆㅂ 귀환 좀 해 피 없잖아,원딜 시발 귀환 좀 해 피 없잖아,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 ㅄ아 부쉬에 와드 박으라고,서폿 병신아 부쉬에 와드 박으라고,lexicon:ㅄ,2,profanity|blame,ㅄ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 시1발 장로 시야 잡아,정글 시발 장로 시야 잡아,noise_removed,2,profanity|blame,시1발,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 tlqkf 억제기 좀 지켜,탑 시발 억제기 좀 지켜,lexicon:tlqkf,2,profanity|blame,tlqkf,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 qudtls아 점멸 좀 써,미드 병신아 점멸 좀 써,lexicon:qudtls,2,profanity|blame,qudtls,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 ㅁㅊ놈아 타워 안에 있어,원딜 미친놈아 타워 안에 있어,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 ㅈㄹ하지 말고 이니시 걸어,서폿 지랄하지 말고 이니시 걸어,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 씨@발 바위게 좀 먹어,정글 시발 바위게 좀 먹어,noise_removed|lexicon:씨발,2,profanity|blame,씨@발,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 새1끼야 스플릿 그만하고 합류해,탑 새끼야 스플릿 그만하고 합류해,noise_removed,2,profanity|blame,새1끼,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 ㅅ ㅂ 블루 좀 양보해,미드 시발 블루 좀 양보해,lexicon:ㅅ ㅂ,2,profanity|blame,ㅅ ㅂ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 병1신아 뒤로 빠져,원딜 병신아 뒤로 빠져,noise_removed,2,profanity|blame,병1신,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 ㅈ같이 하지 말고 핑 좀 찍어,서폿 좆같이 하지 말고 핑 좀 찍어,lexicon:ㅈ같,2,profanity|blame,ㅈ같,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 ㅅㅂ 와드 타고 들어가지 마,리신 시발 와드 타고 들어가지 마,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 ㅂㅅ아 궁 좀 아껴,징크스 병신아 궁 좀 아껴,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 ㅈㄴ 못하네 그냥 라인만 받아,가렌 존나 못하네 그냥 라인만 받아,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 시이발 로밍 갈 때 핑 찍어,제드 시발 로밍 갈 때 핑 찍어,lexicon:시이발,2,profanity|blame,시이발,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+야 ㅅㅂ 바론 버프 들고 왜 집 가 밀어,야 시발 바론 버프 들고 왜 집 가 밀어,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 병신아 역갱 좀 봐줘라,정글 병신아 역갱 좀 봐줘라,,2,profanity|blame,병신,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 시발 포탑 방패 좀 챙겨,탑 시발 포탑 방패 좀 챙겨,,2,profanity|blame,시발,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 새끼야 사이드 밀고 텔 타,미드 새끼야 사이드 밀고 텔 타,,2,profanity|blame,새끼,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 존나 답답하네 평타 좀 쳐,원딜 존나 답답하네 평타 좀 쳐,,2,profanity|blame,존나,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 미친놈아 원딜 옆에 붙어 있어,서폿 미친놈아 원딜 옆에 붙어 있어,,2,profanity|blame,미친놈,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 개새끼야 블루 좀 줘라,정글 개새끼야 블루 좀 줘라,,2,profanity|blame,개새끼,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 등신아 다이브 오는 거 안 보이냐 빼,탑 등신아 다이브 오는 거 안 보이냐 빼,,2,profanity|blame,등신,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 지랄 말고 용 싸움 와,미드 지랄 말고 용 싸움 와,,2,profanity|blame,지랄,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 씨발 템 좀 맞춰 사,원딜 씨발 템 좀 맞춰 사,,2,profanity|blame,씨발,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 병신아 그랩 좀 맞혀,서폿 병신아 그랩 좀 맞혀,,2,profanity|blame,병신,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 좆도 못하면 말이라도 들어 유충 쳐,정글 좆도 못하면 말이라도 들어 유충 쳐,,2,profanity|blame,좆,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 닥치고 라인이나 밀어,탑 닥치고 라인이나 밀어,,2,profanity|blame,닥치,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 꺼져 그냥 따라오지 마,서폿 꺼져 그냥 따라오지 마,,2,profanity|blame,꺼져,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 빡대가리냐 궁 쿨 좀 봐,미드 빡대가리냐 궁 쿨 좀 봐,,2,profanity|blame,빡대가리,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 염병하지 말고 뒤에서 쏴,원딜 염병하지 말고 뒤에서 쏴,,2,profanity|blame,염병,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 전령 좀 써라 들고만 다니냐,정글 전령 좀 써라 들고만 다니냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 역갱 좀 봐줘 맨날 늦냐,정글 역갱 좀 봐줘 맨날 늦냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 카정 그만 가고 라인 좀 봐줘라 답답하다,정글 카정 그만 가고 라인 좀 봐줘라 답답하다,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 유충 줄 거면 용이라도 챙겨 생각이 있냐,정글 유충 줄 거면 용이라도 챙겨 생각이 있냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 장로 시야 좀 잡아라 맨날 뺏기잖아,정글 장로 시야 좀 잡아라 맨날 뺏기잖아,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 포탑 방패 좀 챙겨라 그것도 못 먹냐,탑 포탑 방패 좀 챙겨라 그것도 못 먹냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 텔 아껴 쓰라고 했지 말을 안 듣네,탑 텔 아껴 쓰라고 했지 말을 안 듣네,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 다이브 오면 빼라 왜 맞고 있냐,탑 다이브 오면 빼라 왜 맞고 있냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 억제기 지켜라 혼자 뭐 하러 가냐,탑 억제기 지켜라 혼자 뭐 하러 가냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 스플릿 할 거면 시야라도 보고 해라 한심하다,탑 스플릿 할 거면 시야라도 보고 해라 한심하다,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 라인 밀고 로밍 가라 순서도 모르냐,미드 라인 밀고 로밍 가라 순서도 모르냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 블루 받았으면 값 좀 해라,미드 블루 받았으면 값 좀 해라,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 점멸 좀 아껴라 그걸 왜 거기서 쓰냐,미드 점멸 좀 아껴라 그걸 왜 거기서 쓰냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 바위게 싸움 좀 와줘라 구경하냐,미드 바위게 싸움 좀 와줘라 구경하냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 핑 좀 봐라 눈이 없냐,미드 핑 좀 봐라 눈이 없냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 귀환 타이밍 좀 맞춰라 혼자 남아서 죽냐,원딜 귀환 타이밍 좀 맞춰라 혼자 남아서 죽냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 평타 좀 쳐라 스킬만 쓰냐,원딜 평타 좀 쳐라 스킬만 쓰냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 타워 안에서 받아먹어 왜 나가서 죽냐,원딜 타워 안에서 받아먹어 왜 나가서 죽냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 템 좀 맞춰 사라 그게 뭐냐,원딜 템 좀 맞춰 사라 그게 뭐냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 서폿 옆에 붙어 있어라 혼자 다니다 짤리잖아,원딜 서폿 옆에 붙어 있어라 혼자 다니다 짤리잖아,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 부쉬에 와드 좀 박아라 맨날 물리잖아,서폿 부쉬에 와드 좀 박아라 맨날 물리잖아,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 원딜 옆에 있어라 어디 돌아다니냐,서폿 원딜 옆에 있어라 어디 돌아다니냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 탈진 좀 써라 장식이냐,서폿 탈진 좀 써라 장식이냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 이니시 걸 거면 핑이라도 찍어라,서폿 이니시 걸 거면 핑이라도 찍어라,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 제어 와드 좀 사라 돈 모아서 뭐 하냐,서폿 제어 와드 좀 사라 돈 모아서 뭐 하냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 와드 방호 좀 제대로 써라 맨날 헛발질이냐,리신 와드 방호 좀 제대로 써라 맨날 헛발질이냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 궁 좀 아껴라 미니언한테 쓰냐,징크스 궁 좀 아껴라 미니언한테 쓰냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 라인만 받아라 싸우다 계속 죽잖아,가렌 라인만 받아라 싸우다 계속 죽잖아,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 로밍 갈 때 핑 좀 찍어라 말도 없이 가냐,제드 로밍 갈 때 핑 좀 찍어라 말도 없이 가냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+쓰레쉬 사형선고 좀 맞혀라 그게 그렇게 어렵냐,쓰레쉬 사형선고 좀 맞혀라 그게 그렇게 어렵냐,,2,blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 궁 좀 써라 아끼다 죽잖아,너 궁 좀 써라 아끼다 죽잖아,,2,blame,,1,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+니가 시야 좀 잡아라 맨날 남 탓만 하냐,니가 시야 좀 잡아라 맨날 남 탓만 하냐,,2,blame,,1,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+야 합류 좀 해라 혼자 겜 하냐,야 합류 좀 해라 혼자 겜 하냐,,2,blame,,1,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+넌 제발 뒤에 있어라 앞에 서지 말고,넌 제발 뒤에 있어라 앞에 서지 말고,,2,blame,,1,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너는 cs나 먹어라 싸우지 말고,너는 cs나 먹어라 싸우지 말고,,2,blame,,1,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 전령 풀어줄 수 있어?,정글 전령 풀어줄 수 있어?,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 텔 아껴 두면 용 싸움 때 좋을 듯,탑 텔 아껴 두면 용 싸움 때 좋을 듯,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 라인 밀고 로밍 와줄 수 있어?,미드 라인 밀고 로밍 와줄 수 있어?,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 귀환하고 템 사 오자,원딜 귀환하고 템 사 오자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 부쉬에 와드 하나만 부탁해,서폿 부쉬에 와드 하나만 부탁해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 역갱 봐줄 수 있으면 봐줘,정글 역갱 봐줄 수 있으면 봐줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 포탑 방패 챙기자,탑 포탑 방패 챙기자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 블루 필요하면 말해,미드 블루 필요하면 말해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 타워 안에서 받아먹자 무리하지 말고,원딜 타워 안에서 받아먹자 무리하지 말고,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 탈진 쿨 돌면 말해줘,서폿 탈진 쿨 돌면 말해줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 유충 같이 치자,정글 유충 같이 치자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 다이브 올 것 같아 조심해,탑 다이브 올 것 같아 조심해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 점멸 없으면 사려줘,미드 점멸 없으면 사려줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 평타 사거리 유지하면서 싸우자,원딜 평타 사거리 유지하면서 싸우자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 제어 와드 하나 사줄래?,서폿 제어 와드 하나 사줄래?,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 궁으로 원딜 차주면 내가 잡을게,리신 궁으로 원딜 차주면 내가 잡을게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 궁 아껴뒀다가 바론 스틸 보자,징크스 궁 아껴뒀다가 바론 스틸 보자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 사이드 밀다가 텔 타줘,가렌 사이드 밀다가 텔 타줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 로밍 갈 때 핑 한 번만 찍어줘,제드 로밍 갈 때 핑 한 번만 찍어줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+쓰레쉬 랜턴 타이밍 좋으니까 그대로 가자,쓰레쉬 랜턴 타이밍 좋으니까 그대로 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+장로 시야 같이 잡자,장로 시야 같이 잡자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+억제기 재생되기 전에 끝내자,억제기 재생되기 전에 끝내자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+바위게 싸움 도와줄게 핑 찍어,바위게 싸움 도와줄게 핑 찍어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+역갱 가능하면 봐줄게,역갱 가능하면 봐줄게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+카정 들어오는 것 같아 와드 박았어,카정 들어오는 것 같아 와드 박았어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+스플릿 하는 동안 우리는 버틸게,스플릿 하는 동안 우리는 버틸게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+방금 건 아쉬웠다 다음엔 같이 들어가자,방금 건 아쉬웠다 다음엔 같이 들어가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+괜찮아 방금 건 상대가 잘한 거야,괜찮아 방금 건 상대가 잘한 거야,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+내 콜이 늦었네 미안,내 콜이 늦었네 미안,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다음 한타는 원딜부터 지키자,다음 한타는 원딜부터 지키자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 제드 7/0 이야 조심해,상대 제드 7/0 이야 조심해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+나 0/3 이라 미안 사릴게,나 0/3 이라 미안 사릴게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 원딜 8/1 이니까 지켜주자,우리 원딜 8/1 이니까 지켜주자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 5킬 먹었어 시야 잡자,상대 정글 5킬 먹었어 시야 잡자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+나 1킬 4데스네 정신 차릴게,나 1킬 4데스네 정신 차릴게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 팀 킬 스코어 15대 10 유리해,우리 팀 킬 스코어 15대 10 유리해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 탑 0/4 니까 탑 위주로 풀자,상대 탑 0/4 니까 탑 위주로 풀자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+내 cs 왜 이러냐 ㅋㅋ 연습해야겠다,내 cs 왜 이러냐 ㅋㅋ 연습해야겠다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 cs 200개 넘었네 잘 크고 있다,원딜 cs 200개 넘었네 잘 크고 있다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 미드 10킬 넘음 혼자 다니지 마,상대 미드 10킬 넘음 혼자 다니지 마,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+내가 0킬이라 딜이 안 나오네 미안,내가 0킬이라 딜이 안 나오네 미안,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 정글 킬 관여 높다 굿,우리 정글 킬 관여 높다 굿,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+딜량 1등 누구야 대단하네,딜량 1등 누구야 대단하네,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+나 딜량 꼴찌네 ㅋㅋ 분발할게,나 딜량 꼴찌네 ㅋㅋ 분발할게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 원딜 3코어 떴어 한타 조심,상대 원딜 3코어 떴어 한타 조심,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+골드 차이 3천 정도 나 아직 할 만해,골드 차이 3천 정도 나 아직 할 만해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 용 3스택이야 다음 용 꼭 먹자,우리 용 3스택이야 다음 용 꼭 먹자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 타워 2개 밀었어 좋아,상대 타워 2개 밀었어 좋아,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+내가 5데스나 했네 미안하다 진짜,내가 5데스나 했네 미안하다 진짜,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+킬은 못 먹었어도 타워는 밀었다,킬은 못 먹었어도 타워는 밀었다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 블츠 그랩 적중률 높다 조심,상대 블츠 그랩 적중률 높다 조심,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+레벨 차이 나니까 싸우지 말자,레벨 차이 나니까 싸우지 말자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 미드 6렙 먼저 찍었어 갱 가자,우리 미드 6렙 먼저 찍었어 갱 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 0/3 이라 카정 가도 될 듯,상대 정글 0/3 이라 카정 가도 될 듯,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+내 실수로 2킬 줬다 미안,내 실수로 2킬 줬다 미안,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 0/6 실화냐 ㅋㅋ,탑 0/6 실화냐 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 킬 관여 0 인 거 봐라,정글 킬 관여 0 인 거 봐라,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 딜량 서폿보다 낮네 ㅋㅋ,원딜 딜량 서폿보다 낮네 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 0킬 7데스 사람이냐,미드 0킬 7데스 사람이냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 데스가 원딜 킬보다 많네,서폿 데스가 원딜 킬보다 많네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 cs 봐라 10분에 40개 ㅋㅋ,탑 cs 봐라 10분에 40개 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 0/5/0 인데 말은 제일 많네,정글 0/5/0 인데 말은 제일 많네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 20분에 1코어 실화냐,원딜 20분에 1코어 실화냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 데스 수가 레벨보다 높겠다,미드 데스 수가 레벨보다 높겠다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 와드 점수 0점이네 대단하다,서폿 와드 점수 0점이네 대단하다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 혼자 9데스 했네 기록 세우냐,탑 혼자 9데스 했네 기록 세우냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 강타 싸움 0승 4패 ㅋㅋ,정글 강타 싸움 0승 4패 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 킬 하나 없이 30분 버티네,원딜 킬 하나 없이 30분 버티네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 딜량 꼴찌가 훈수 두네,미드 딜량 꼴찌가 훈수 두네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 0/8 찍고 채팅은 잘 치네,리신 0/8 찍고 채팅은 잘 치네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 딜량 5천 실화냐 30분인데,징크스 딜량 5천 실화냐 30분인데,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 1킬 10데스가 캐리하겠다고 ㅋㅋ,가렌 1킬 10데스가 캐리하겠다고 ㅋㅋ,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 킬 다 받아먹고 0/6 이네,제드 킬 다 받아먹고 0/6 이네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 탑 0/7 ㅋㅋ 겜 접어라,상대 탑 0/7 ㅋㅋ 겜 접어라,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 킬 관여 0 ㅋㅋ 뭐 하냐,상대 정글 킬 관여 0 ㅋㅋ 뭐 하냐,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 0/9 인데 아직도 입 여냐,너 0/9 인데 아직도 입 여냐,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+니 딜량 보고 말해라,니 딜량 보고 말해라,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+데스 수 보고도 그런 말이 나오냐,데스 수 보고도 그런 말이 나오냐,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 0/8 이다 다들 봐라 이게 범인이지,탑 0/8 이다 다들 봐라 이게 범인이지,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 킬 관여 0 인 거 다들 스코어판 봐라,정글 킬 관여 0 인 거 다들 스코어판 봐라,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 딜량 꼴찌 인증이다 다들 신고해,원딜 딜량 꼴찌 인증이다 다들 신고해,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 7데스 한 사람이 누군지 다들 알지,미드 7데스 한 사람이 누군지 다들 알지,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 와드 0개 박았다 스샷 찍어둔다 다들 리폿,서폿 와드 0개 박았다 스샷 찍어둔다 다들 리폿,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 원딜 손이 없네 ㅋㅋ,상대 원딜 손이 없네 ㅋㅋ,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 미드 그 실력으로 솔킬 따이네,상대 미드 그 실력으로 솔킬 따이네,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 서폿 그랩 하나도 안 맞네 허접,상대 서폿 그랩 하나도 안 맞네 허접,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 동선 다 읽히네 초보냐,상대 정글 동선 다 읽히네 초보냐,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 탑 라인전 0점짜리네,상대 탑 라인전 0점짜리네,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 원딜 병신 ㅋㅋ,상대 원딜 병신 ㅋㅋ,,2,profanity,병신,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 미드 존나 못하네 ㅋㅋ,상대 미드 존나 못하네 ㅋㅋ,,2,profanity|blame,존나,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다리우스 그렇게 해서 이기겠냐 ㅋㅋ,다리우스 그렇게 해서 이기겠냐 ㅋㅋ,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 야스오 0/5 주제에 깝치네,상대 야스오 0/5 주제에 깝치네,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 팀 수준 알겠다 ㅋㅋ 다 허접,상대 팀 수준 알겠다 ㅋㅋ 다 허접,,2,blame,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ez,ez,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+gg wp,gg wp,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ㅈㅈ 잘했다,ㅈㅈ 잘했다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 잘하네 인정,상대 잘하네 인정,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 차이 났네 우리 탑 고생했어,탑 차이 났네 우리 탑 고생했어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 동선 좋다 배워야겠다,상대 정글 동선 좋다 배워야겠다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ㅋㅋ 방금 거 웃겼다,ㅋㅋ 방금 거 웃겼다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아깝다 한 대만 더 쳤으면,아깝다 한 대만 더 쳤으면,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다음 판에 또 만나자,다음 판에 또 만나자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+수고하셨습니다,수고하셨습니다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 ㅅㅂ 스킬 잘못 눌렀네,아 시발 스킬 잘못 눌렀네,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ㅈㄴ 아쉽다 바론 한 대 차이,존나 아쉽다 바론 한 대 차이,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 시발 점멸 벽에 박았네,아 시발 점멸 벽에 박았네,,1,profanity,시발,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+존나 억울하다 방금 판정,존나 억울하다 방금 판정,,1,profanity,존나,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+씨발 핑 200 뭐냐,씨발 핑 200 뭐냐,,1,profanity,씨발,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 ㅈ됐다 텔 잘못 탔다,아 좆됐다 텔 잘못 탔다,lexicon:ㅈ됐,1,profanity,ㅈ됐,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ㅁㅊ 저걸 살아가네,미친 저걸 살아가네,lexicon:ㅁㅊ,1,profanity,ㅁㅊ,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 지랄 같은 패치,아 지랄 같은 패치,,1,profanity,지랄,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+시1발 마우스 고장났나,시발 마우스 고장났나,noise_removed,1,profanity,시1발,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+하 병신같이 죽었네 내가,하 병신같이 죽었네 내가,,1,profanity,병신,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 씨발 궁 쿨 1초 남았는데,아 씨발 궁 쿨 1초 남았는데,,1,profanity,씨발,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+존나 무섭네 상대 딜,존나 무섭네 상대 딜,,1,profanity,존나,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+tlqkf 또 팅겼어,시발 또 팅겼어,lexicon:tlqkf,1,profanity,tlqkf,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 ㅅㅂ 내가 왜 거길 갔지,아 시발 내가 왜 거길 갔지,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+개같이 졌네 이 한타,개같이 졌네 이 한타,,1,profanity,개같,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+염병 서버 또 터졌나,염병 서버 또 터졌나,,1,profanity,염병,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 좆같은 렉,아 좆같은 렉,,1,profanity,좆,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+ㅈㄹ 맞네 이 게임 밸런스,지랄 맞네 이 게임 밸런스,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 ㅅㅂ놈,정글 시발놈,lexicon:ㅅㅂ,2,profanity,ㅅㅂ놈,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 ㅄ이네,탑 병신이네,lexicon:ㅄ,2,profanity,ㅄ,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 ㅁㅊ놈,미드 미친놈,lexicon:ㅁㅊ,2,profanity,ㅁㅊ놈,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 새1끼,원딜 새끼,noise_removed,2,profanity,새1끼,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 qudtls,서폿 병신,lexicon:qudtls,2,profanity,qudtls,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 ㅈㄴ 못한다 진짜,정글 존나 못한다 진짜,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 ㅂㅅ새끼,리신 병신새끼,lexicon:ㅂㅅ,2,profanity,ㅂㅅ새끼,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 시1발놈아,가렌 시발놈아,noise_removed,2,profanity,시1발놈,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 ㅂㅅ이냐,너 병신이냐,lexicon:ㅂㅅ,2,profanity,ㅂㅅ,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+야 ㅅㅂ 너 뭐 하냐,야 시발 너 뭐 하냐,lexicon:ㅅㅂ,2,profanity,ㅅㅂ,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다들 탑 채팅 무시해,다들 탑 채팅 무시해,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글이 겜 망쳤다 다들 인정하지,정글이 겜 망쳤다 다들 인정하지,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 신고 넣고 다음 판 가자 다들,서폿 신고 넣고 다음 판 가자 다들,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 고의로 죽는 거 다들 봤지 리폿,미드 고의로 죽는 거 다들 봤지 리폿,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 차단하고 넷이서 하자,원딜 차단하고 넷이서 하자,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 때문에 터진 거 맞지 얘들아,탑 때문에 터진 거 맞지 얘들아,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+끝나면 정글 신고 다 같이 넣자 약속,끝나면 정글 신고 다 같이 넣자 약속,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿이 트롤인 거 상대도 알 걸 다들 신고해줘,서폿이 트롤인 거 상대도 알 걸 다들 신고해줘,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 고의 트롤이다 다 같이 리폿 부탁,리신 고의 트롤이다 다 같이 리폿 부탁,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 말 들어주지 마 다들 무시해,징크스 말 들어주지 마 다들 무시해,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌이 범인이다 얘들아 신고 잊지 마,가렌이 범인이다 얘들아 신고 잊지 마,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 던지는 거 녹화했다 다들 신고해,제드 던지는 거 녹화했다 다들 신고해,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대분들 우리 원딜 신고 좀 해주세요 트롤이에요,상대분들 우리 원딜 신고 좀 해주세요 트롤이에요,,2,blame|instigation,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다 같이 미드한테 한마디씩 해라,다 같이 미드한테 한마디씩 해라,,2,instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+이 판 진 건 전부 서폿 탓 다들 동의?,이 판 진 건 전부 서폿 탓 다들 동의?,,2,blame|instigation,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+신고는 끝나고 생각하고 일단 하자,신고는 끝나고 생각하고 일단 하자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다들 정글 탓 그만해 내가 못한 것도 있어,다들 정글 탓 그만해 내가 못한 것도 있어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서로 차단하지 말고 콜은 듣자,서로 차단하지 말고 콜은 듣자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리폿 얘기는 그만 넥서스 지키자,리폿 얘기는 그만 넥서스 지키자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다들 스코어판 말고 미니맵 보자,다들 스코어판 말고 미니맵 보자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+누가 범인인지 따지지 말고 다음 한타 준비하자,누가 범인인지 따지지 말고 다음 한타 준비하자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 탓 아니야 상대 정글이 탑만 팠어,탑 탓 아니야 상대 정글이 탑만 팠어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 잘못 아님 내가 못 지켰어,원딜 잘못 아님 내가 못 지켰어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+다들 미드 도와주자 힘들어 보인다,다들 미드 도와주자 힘들어 보인다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+얘들아 싸우지 말고 용 가자,얘들아 싸우지 말고 용 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 엄마가 너 낳고 미역국 드셨냐,정글 엄마가 너 낳고 미역국 드셨냐,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 니 부모님도 게임 그렇게 하시냐,탑 니 부모님도 게임 그렇게 하시냐,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 너네 아버지 뭐 하시는 분이냐 이렇게 키우게,미드 너네 아버지 뭐 하시는 분이냐 이렇게 키우게,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 부모한테 배운 게 그거냐,원딜 부모한테 배운 게 그거냐,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 니 엄마한테 가서 일러라,서폿 니 엄마한테 가서 일러라,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너희 부모가 불쌍하지도 않냐,너희 부모가 불쌍하지도 않냐,,3,family_insult,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+니 가족도 다 너 같냐,니 가족도 다 너 같냐,,3,family_insult,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 니 애비한테 겜 다시 배워 와라,리신 니 애비한테 겜 다시 배워 와라,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 니 엄마 ㅂㅅ,징크스 니 엄마 병신,lexicon:ㅂㅅ,3,profanity|family_insult,ㅂㅅ,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 엄마 없는 애처럼 하네,가렌 엄마 없는 애처럼 하네,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 부모가 그렇게 가르쳤냐 바론 좀 쳐라,정글 부모가 그렇게 가르쳤냐 바론 좀 쳐라,,3,family_insult|blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 니 엄마도 와드는 박겠다 시야 좀 잡아,서폿 니 엄마도 와드는 박겠다 시야 좀 잡아,,3,family_insult|blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 탑 느그 엄마 잘 계시냐,상대 탑 느그 엄마 잘 계시냐,,3,family_insult,,0,,enemy,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 ㄴㄱㅁ ㅅㅂ,미드 느금마 시발,lexicon:ㄴㄱㅁ|lexicon:ㅅㅂ,3,profanity|family_insult,ㄴㄱㅁ|ㅅㅂ,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 애미가 가르친 게 그거냐,원딜 애미가 가르친 게 그거냐,,3,family_insult,애미,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 여자면 목소리 좀 까봐라,서폿 여자면 목소리 좀 까봐라,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 오늘 밤에 뭐 하냐 나랑 한잔하고 자자,원딜 오늘 밤에 뭐 하냐 나랑 한잔하고 자자,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 여자 유저지 치마 입고 겜 하냐,미드 여자 유저지 치마 입고 겜 하냐,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 몇 살이냐 몸은 좋냐,너 몇 살이냐 몸은 좋냐,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+여자면 가슴 사이즈나 말해봐,여자면 가슴 사이즈나 말해봐,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+유미 유저 번호 줘 벗은 사진도,유미 유저 번호 줘 벗은 사진도,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+겜 지면 나한테 몸으로 갚아라,겜 지면 나한테 몸으로 갚아라,,3,sexual_harassment,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 같이 모텔 가자,서폿 같이 모텔 가자,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+소나 하는 거 보니 밤일도 잘하겠네,소나 하는 거 보니 밤일도 잘하겠네,,3,sexual_harassment,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 창녀 같은 년,원딜 창녀 같은 년,,3,profanity|sexual_harassment,창녀,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 너 아이디 기억했다 찾아가서 죽인다,탑 너 아이디 기억했다 찾아가서 죽인다,,3,,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 니 얼굴 한번 보자 가만 안 둔다,정글 니 얼굴 한번 보자 가만 안 둔다,,3,,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 신상 다 털어서 인터넷에 올린다,너 신상 다 털어서 인터넷에 올린다,,3,,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+집 앞에서 기다린다 각오해라,집 앞에서 기다린다 각오해라,,3,,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 정글 방금 탑에 보였어,상대 정글 방금 탑에 보였어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 텔 없음 바텀 다이브 가능,미드 텔 없음 바텀 다이브 가능,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 궁 돌았어 싸워도 돼,원딜 궁 돌았어 싸워도 돼,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 점화 들었으니까 2렙 싸움 가자,서폿 점화 들었으니까 2렙 싸움 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 순간이동 3분 뒤에 돌아,탑 순간이동 3분 뒤에 돌아,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 나 레드 먹고 바로 갈게,정글 나 레드 먹고 바로 갈게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 서폿 로밍 중 미드 조심,상대 서폿 로밍 중 미드 조심,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+바텀 라인 밀렸어 갱 조심해,바텀 라인 밀렸어 갱 조심해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 우리 정글이랑 같이 카정 가자,미드 우리 정글이랑 같이 카정 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 한타 때 원딜만 물어줘,탑 한타 때 원딜만 물어줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 나 들어가면 바로 따라와,원딜 나 들어가면 바로 따라와,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 내가 그랩 맞히면 다 같이 치자,서폿 내가 그랩 맞히면 다 같이 치자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 리신 궁 없어 지금 바론 가자,상대 리신 궁 없어 지금 바론 가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 징크스 잘 컸다 지켜주면 이긴다,우리 징크스 잘 컸다 지켜주면 이긴다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 스플릿 갈 테니까 넷이 버텨줘,제드 스플릿 갈 테니까 넷이 버텨줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 플 있어? 있으면 들어가자,가렌 플 있어? 있으면 들어가자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+쓰레쉬 랜턴 줄게 타고 와,쓰레쉬 랜턴 줄게 타고 와,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 다리우스 유체화 빠졌어,상대 다리우스 유체화 빠졌어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아리 매혹 조심해 맞으면 죽어,아리 매혹 조심해 맞으면 죽어,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 케틀 사거리 길다 포킹 조심,상대 케틀 사거리 길다 포킹 조심,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+이즈 궁 쿨이면 말해줘 용 싸움 보자,이즈 궁 쿨이면 말해줘 용 싸움 보자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+블츠 그랩 쿨 16초야 지금 들어가도 돼,블츠 그랩 쿨 16초야 지금 들어가도 돼,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+말파 궁 있을 때만 싸우자,말파 궁 있을 때만 싸우자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+야스 궁 연계할게 내가 띄울게,야스 궁 연계할게 내가 띄울게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+트페 궁 타고 바텀 와줄 수 있어?,트페 궁 타고 바텀 와줄 수 있어?,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 그브 정글 동선 아래쪽이야,상대 그브 정글 동선 아래쪽이야,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+우리 모데 궁으로 원딜 격리해줘,우리 모데 궁으로 원딜 격리해줘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 로크 6렙 됐어 미드 조심,상대 로크 6렙 됐어 미드 조심,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+자헨 사이드에서 압박해줘 우린 용 칠게,자헨 사이드에서 압박해줘 우린 용 칠게,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+카사 진화할 때까지만 버티자,카사 진화할 때까지만 버티자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 진짜 아깝다,아 진짜 아깝다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+와 방금 건 인정,와 방금 건 인정,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+헐 저게 죽네,헐 저게 죽네,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아이고 또 물렸네 내가,아이고 또 물렸네 내가,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+하 손이 안 풀리네 오늘,하 손이 안 풀리네 오늘,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미치겠다 ㅋㅋ 너무 웃겨,미치겠다 ㅋㅋ 너무 웃겨,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+대박 역전했다,대박 역전했다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+죽을 뻔했네 휴,죽을 뻔했네 휴,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+상대 진짜 독하게 하네 ㅋㅋ,상대 진짜 독하게 하네 ㅋㅋ,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+이 판 빡세다 집중하자,이 판 빡세다 집중하자,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 배고프다 끝나고 밥 먹어야지,아 배고프다 끝나고 밥 먹어야지,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+오늘 연패 중이라 살살 부탁해,오늘 연패 중이라 살살 부탁해,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+아 깜짝이야 부쉬에 있었네,아 깜짝이야 부쉬에 있었네,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미쳤다 저 플레이 뭐냐 ㄷㄷ,미쳤다 저 플레이 뭐냐 ㄷㄷ,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+죽여주는 한타였다,죽여주는 한타였다,,0,,,0,,none,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 오늘 처음 해보냐,정글 오늘 처음 해보냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 그렇게 해서 어떻게 이 티어 왔냐,탑 그렇게 해서 어떻게 이 티어 왔냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 양심이 있으면 말을 하지 마라,미드 양심이 있으면 말을 하지 마라,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 니 차례에 맨날 터지네,원딜 니 차례에 맨날 터지네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 차라리 없는 게 낫겠다,서폿 차라리 없는 게 낫겠다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 너 하나 때문에 넷이 고생이다,정글 너 하나 때문에 넷이 고생이다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 하는 짓이 딱 트롤이네,탑 하는 짓이 딱 트롤이네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 그 챔 하지 말라니까 고집은 세네,미드 그 챔 하지 말라니까 고집은 세네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 또 혼자 죽고 남 탓하네,원딜 또 혼자 죽고 남 탓하네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 머리는 장식으로 달고 다니냐,서폿 머리는 장식으로 달고 다니냐,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 그냥 랭크 접어라,리신 그냥 랭크 접어라,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 실력도 없으면서 입만 살았네,징크스 실력도 없으면서 입만 살았네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+가렌 버스 타는 주제에 말이 많다,가렌 버스 타는 주제에 말이 많다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+제드 캐리는커녕 짐이네,제드 캐리는커녕 짐이네,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+쓰레쉬 서폿 맞냐 원딜이 혼자 싸운다,쓰레쉬 서폿 맞냐 원딜이 혼자 싸운다,,2,blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 같은 애들 때문에 겜이 망한다,너 같은 애들 때문에 겜이 망한다,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+니가 못해서 진 걸 왜 남 탓 하냐,니가 못해서 진 걸 왜 남 탓 하냐,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+넌 양심도 없냐,넌 양심도 없냐,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+한심해서 말이 안 나온다 진짜 너,한심해서 말이 안 나온다 진짜 너,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+니 수준에 맞는 티어로 내려가라,니 수준에 맞는 티어로 내려가라,,2,blame,,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 시발 진짜 못하네,정글 시발 진짜 못하네,,2,profanity|blame,시발,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 병신같이 또 죽냐,탑 병신같이 또 죽냐,,2,profanity|blame,병신,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 존나 한심하다,미드 존나 한심하다,,2,profanity|blame,존나,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 개새끼 또 던지네,원딜 개새끼 또 던지네,,2,profanity|blame,개새끼,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 미친놈이 트롤하네,서폿 미친놈이 트롤하네,,2,profanity|blame,미친놈,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+리신 좆같은 새끼,리신 좆같은 새끼,,2,profanity,좆같|새끼,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+징크스 지랄하네 못하면서,징크스 지랄하네 못하면서,,2,profanity|blame,지랄,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+닥쳐 너,닥쳐 너,,2,profanity,닥쳐,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+너 존나 못한다 진짜,너 존나 못한다 진짜,,2,profanity|blame,존나,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+꺼져라 좀,꺼져라 좀,,2,profanity,꺼져,0,,unknown,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+탑 시발 니 애미도 그렇게 하냐,탑 시발 니 애미도 그렇게 하냐,,3,profanity|family_insult,시발|애미,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+미드 엄마가 로밍 가지 말라디 좀 와라,미드 엄마가 로밍 가지 말라디 좀 와라,,3,family_insult|blame,,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 걸레야 와드나 박아,서폿 걸레야 와드나 박아,,3,profanity|sexual_harassment,걸레,1,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+원딜 너 고아지 티 난다,원딜 너 고아지 티 난다,,3,family_insult,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+서폿 겜 못하면 몸으로 때워라,서폿 겜 못하면 몸으로 때워라,,3,sexual_harassment|blame,,0,,team,train,AI(claude),보강3 · 숨김·피드백·킬뎃 · 검수 전
+정글 그만 좀 해라 다들 힘들어,정글 그만 좀 해라 다들 힘들어,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+탑 말 좀 예쁘게 하자,탑 말 좀 예쁘게 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+미드 적당히 해 듣기 안 좋다,미드 적당히 해 듣기 안 좋다,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+원딜 선 넘지 말자,원딜 선 넘지 말자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+서폿 그만해 싸워서 뭐 하냐,서폿 그만해 싸워서 뭐 하냐,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+리신 채팅 그만 치고 겜 하자,리신 채팅 그만 치고 겜 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+징크스 그 말은 좀 심했다,징크스 그 말은 좀 심했다,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+가렌 그런 말은 하지 말자,가렌 그런 말은 하지 말자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+제드 진정해 아직 안 졌어,제드 진정해 아직 안 졌어,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+쓰레쉬 욕은 하지 말자,쓰레쉬 욕은 하지 말자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+이즈 그만해라 좀,이즈 그만해라 좀,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+블츠 말 좀 곱게 하자,블츠 말 좀 곱게 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+야스오 선 넘네 그만해,야스오 선 넘네 그만해,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+케틀 신경 쓰지 마 쟤 원래 저래,케틀 신경 쓰지 마 쟤 원래 저래,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+둘 다 그만 싸워,둘 다 그만 싸워,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+욕하는 사람은 차단할게 게임이나 하자,욕하는 사람은 차단할게 게임이나 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+나는 신고 안 해 그냥 하자,나는 신고 안 해 그냥 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+쟤 말 신경 쓰지 말고 우리 할 거 하자,쟤 말 신경 쓰지 말고 우리 할 거 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+그 정도면 됐어 그만하자,그 정도면 됐어 그만하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+부모님 얘기는 하지 말자 선 넘었다,부모님 얘기는 하지 말자 선 넘었다,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+조용히 하고 겜에 집중하자,조용히 하고 겜에 집중하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+너무 뭐라 하지 마 처음 해보는 챔이래,너무 뭐라 하지 마 처음 해보는 챔이래,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+원딜한테 그만 좀 해 열심히 하잖아,원딜한테 그만 좀 해 열심히 하잖아,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+정글 탓 그만해라 다 같이 못했어,정글 탓 그만해라 다 같이 못했어,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+진짜 왜 저러냐 서폿 신경 쓰지 마,진짜 왜 저러냐 서폿 신경 쓰지 마,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+욕먹어도 괜찮아 네 잘못 아니야,욕먹어도 괜찮아 네 잘못 아니야,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+채팅 차단했어 이제 조용하네,채팅 차단했어 이제 조용하네,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+그런 말 하면 신고당한다 적당히 해,그런 말 하면 신고당한다 적당히 해,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+말 심하게 하지 말고 콜만 하자,말 심하게 하지 말고 콜만 하자,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
+싸우지 말고 한 판만 집중하자 얘들아,싸우지 말고 한 판만 집중하자 얘들아,,0,,,0,,none,train,AI(claude),보강3 · 말리는 말 · 검수 전
