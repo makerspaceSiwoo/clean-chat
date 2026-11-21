@@ -386,3 +386,18 @@ def test_prepare_loads_sdk_without_completion(monkeypatch):
     monkeypatch.setattr(backend, "_sdk", lambda: calls.append(True))
     backend.prepare()
     assert calls == [True]
+
+
+@pytest.mark.parametrize(
+    ("feedback", "generated"),
+    [
+        ("미니맵 좀 보라고", "미니맵을 조금 더 신경 써주시면 감사하겠습니다."),
+        ("혼자 들어가지 말라고", "무리하게 혼자 들어가는 것은 자제해 주세요."),
+        ("용 먼저 치라고", "용 먼저 쳐 주시겠어요?"),
+    ],
+)
+def test_polite_live_response_regressions(monkeypatch, feedback, generated):
+    api(monkeypatch, generated)
+    result = impl.run(request("야 ㅂㅅ아 " + feedback, [feedback]))
+    assert result.rewritten == generated
+    assert result.backend == "api"

@@ -29,6 +29,7 @@ _TERMS = (
     "억제기",
     "넥서스",
     "와드",
+    "미니맵",
     "시야",
     "갱",
     "합류",
@@ -153,7 +154,7 @@ def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) 
         return False
     if re.search(r"[.!?。！？].*\S", text.rstrip(".!?。！？")) or any(c in text for c in "\n`{}[]<>:："):
         return False
-    if not re.search(r"(?:요|죠|시다|자)[.!。！]?$", text):
+    if not re.search(r"(?:요|죠|시다|자|니다)[.!?。！？]?$", text):
         return False
     if set(re.findall(r"\d+", text)) - set(re.findall(r"\d+", source)):
         return False
@@ -163,7 +164,7 @@ def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) 
     # 왜 안 와 → 합류는 명시적인 동의어다.
     if any(term != "합류" or not re.search(r"왜\s*안\s*와", source) for term in added):
         return False
-    negative = r"(?:\S+지\s*(?:마|말)|말라고|말아|말자|말고)"
+    negative = r"(?:\S+지\s*(?:마|말)|말라고|말아|말자|말고|삼가|자제)"
     return bool(re.search(negative, source)) == bool(re.search(negative, text))
 
 
