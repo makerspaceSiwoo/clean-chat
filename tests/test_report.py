@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from clean_chat.core.schemas import ReportKind, ReportRequest
+from clean_chat.core.schemas import HarmType, ReportKind, ReportRequest
+from clean_chat.modules.report import impl
 from clean_chat.modules.report.impl import run
 from helpers import fixture_pairs
 
@@ -34,6 +35,31 @@ def test_complaint_without_credentials(complaint, tmp_path):
     path = Path(draft.pdf_path)
     assert path.parent == tmp_path
     assert path.read_bytes().startswith(b"%PDF-")
+
+
+def test_threat_in_report_and_complaint(complaint, monkeypatch):
+    incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
+    incident.analysis.harm_types = [HarmType.THREAT, HarmType.FAMILY_INSULT]
+    report = run(complaint.model_copy(update={"kind": ReportKind.REPORT}))
+    assert "(협박, 패드립)" in report.text
+
+    documents = []
+
+    def capture_document(document, output_dir, speaker):
+        documents.append(document)
+        return "complaint.pdf"
+
+    monkeypatch.setattr(impl, "_render_pdf", capture_document)
+    draft = run(complaint)
+    assert draft.incident_ids == ["L5"]
+    assert "가족을 언급한 비하 표현, 게임 밖에서 해악을 가하겠다고 고지하는 표현" in draft.text
+    (document,) = documents
+    sections = dict(document)
+    assert sections["협박 관련 기록 (1건)"] == "증거 ID: L5"
+    assert "형법 제283조 제1항(협박)" in sections["고소이유"]
+    assert "일반적으로 공포심을 일으키기에 충분하였는지" in sections["고소이유"]
+    assert "상대방에게 도달하여 상대방이 그 의미를 인식하였는지" in sections["고소이유"]
+    assert incident.msg.text in sections["증거자료"]
 
 
 def test_complaint_litellm_and_fallback(complaint, monkeypatch):

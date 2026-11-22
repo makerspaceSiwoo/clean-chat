@@ -21,6 +21,7 @@ HARM_LABELS = {
     HarmType.SEXUAL_HARASSMENT: "성희롱",
     HarmType.BLAME: "비난",
     HarmType.INSTIGATION: "정치질",
+    HarmType.THREAT: "협박",
 }
 COMPLAINT_DESCRIPTIONS = {
     HarmType.PROFANITY: "비속어를 사용한 표현",
@@ -28,6 +29,7 @@ COMPLAINT_DESCRIPTIONS = {
     HarmType.SEXUAL_HARASSMENT: "성적 발언으로 분류된 표현",
     HarmType.BLAME: "상대를 비난하거나 비하하는 표현",
     HarmType.INSTIGATION: "특정 참가자에 대한 비난을 유도하는 표현",
+    HarmType.THREAT: "게임 밖에서 해악을 가하겠다고 고지하는 표현",
 }
 CHANNEL_LABELS = {Channel.ALL: "전체 채팅", Channel.TEAM: "팀 채팅", Channel.UNKNOWN: "채널 미확인 채팅"}
 
@@ -142,6 +144,10 @@ def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) 
         f"({CHANNEL_LABELS[incident.msg.channel]}) {incident.msg.text}"
         for index, incident in enumerate(incidents, 1)
     )
+    threat_ids = [incident.msg.id for incident in incidents if HarmType.THREAT in incident.analysis.harm_types]
+    threat_sections = (
+        [(f"협박 관련 기록 ({len(threat_ids)}건)", f"증거 ID: {', '.join(threat_ids)}")] if threat_ids else []
+    )
     blank = "________________________________"
     return [
         (
@@ -171,6 +177,7 @@ def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) 
             f"당시 열람할 수 있었던 참가자 및 대상이 드러나는 정황: {blank}\n"
             f"구체적인 피해 내용 및 추가 경위: {blank}",
         ),
+        *threat_sections,
         ("증거자료", f"채팅 기록 {len(incidents)}건\n{evidence}"),
         ("작성 및 제출", f"작성일: ______년 ____월 ____일\n고소인 서명: {blank}\n제출처: {blank}"),
         ("", "이 문서는 법률 자문이 아니며 실제 제출 전 전문가 검토가 필요합니다."),
@@ -195,6 +202,12 @@ def _investigation_points(incidents: list[Incident]) -> str:
         points.append(
             "성폭력처벌법 제13조(통신매체를 이용한 음란행위) 관련: 발언의 내용과 경위, "
             "상대방에게 도달한 정황 및 발언 목적을 확인하여 적용 여부를 검토하여 주시기 바랍니다."
+        )
+    if HarmType.THREAT in harms:
+        points.append(
+            "형법 제283조 제1항(협박) 관련: 고지된 해악의 내용이 발언 당사자의 관계와 "
+            "당시 대화의 전후 사정을 고려할 때 일반적으로 공포심을 일으키기에 충분하였는지, "
+            "그 고지가 상대방에게 도달하여 상대방이 그 의미를 인식하였는지 확인하여 주시기 바랍니다."
         )
     return "\n".join(f"{index}. {point}" for index, point in enumerate(points, 1)) or (
         "채팅 원문, 발언의 대상 및 당시 대화의 전후 사정을 확인하여 주시기 바랍니다."
