@@ -8,9 +8,17 @@
 판단하지 않고 Decision / PostGameResult 를 그대로 보여 주기만 한다.
 """
 
+from pathlib import Path
+from shutil import copyfile
+
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
+    QApplication,
+    QFileDialog,
     QLabel,
     QListWidget,
+    QListWidgetItem,
     QMainWindow,
     QPushButton,
     QStackedWidget,
@@ -18,6 +26,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from clean_chat.core.config import resolve_repo_path
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, PostGameResult
 
 
@@ -55,12 +64,14 @@ class ClientWindow(QMainWindow):
         self.complaints = QListWidget()  # 화자별 고소장 초안
         self.btn_copy_report = QPushButton("선택한 신고 문구 복사")
         self.btn_open_complaint = QPushButton("선택한 고소장 PDF 열기")
+        self.btn_save_complaint = QPushButton("선택한 고소장 PDF 다운로드")
+        self.btn_save_complaint.clicked.connect(self.save_selected_complaint)
         self.btn_close_result = QPushButton("닫기")  # → 대기(IDLE)
         lay.addWidget(QLabel("신고 문구 (복사해서 게임 신고창에 붙여넣기, 자동 신고 안 함)"))
         lay.addWidget(self.reports)
         lay.addWidget(QLabel("고소장 초안 (법률 자문이 아닙니다)"))
         lay.addWidget(self.complaints)
-        for b in (self.btn_copy_report, self.btn_open_complaint, self.btn_close_result):
+        for b in (self.btn_copy_report, self.btn_open_complaint, self.btn_save_complaint, self.btn_close_result):
             lay.addWidget(b)
 
         self._page_for = {GamePhase.IDLE: idle, GamePhase.IN_GAME: in_game, GamePhase.POST_GAME: post}
@@ -80,19 +91,65 @@ class ClientWindow(QMainWindow):
         raise NotImplementedError("ui 담당: add_incident")
 
     def show_result(self, result: PostGameResult) -> None:
-        """'이번 게임 결과' 화면 채우기: reports 목록(화자 + 문구 앞부분), complaints 목록(화자 + PDF 경로).
-
-        예) 신고 2건(불꽃남자, 얼음땡), 고소장 1건(얼음땡)
-        """
-        raise NotImplementedError("ui 담당: show_result")
+        """신고 문구와 고소장 PDF를 별도 목록에 표시한다."""
+        self.reports.clear()
+        self.complaints.clear()
+        for draft in result.reports:
+            item = QListWidgetItem(f"{draft.speaker} · {len(draft.incident_ids)}건")
+            item.setData(Qt.ItemDataRole.UserRole, draft.text)
+            item.setToolTip(draft.text)
+            self.reports.addItem(item)
+        for draft in result.complaints:
+            label = f"{draft.speaker} · {len(draft.incident_ids)}건"
+            if not draft.pdf_path:
+                label += " (PDF 생성 실패)"
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, draft.pdf_path)
+            self.complaints.addItem(item)
+        self.reports.setCurrentRow(0)
+        self.complaints.setCurrentRow(0)
 
     def copy_selected_report(self) -> None:
-        """선택한 신고 문구 전체를 클립보드로 (ADR-0007: 복사만, 자동 신고 금지)."""
-        raise NotImplementedError("ui 담당: copy_selected_report")
+        """선택한 신고 문구를 클립보드에 복사한다."""
+        item = self.reports.currentItem()
+        if item is not None:
+            QApplication.clipboard().setText(item.data(Qt.ItemDataRole.UserRole))
+            self.statusBar().showMessage("신고 문구를 복사했습니다.", 5000)
+
+    def _selected_complaint_path(self) -> Path | None:
+        item = self.complaints.currentItem()
+        value = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if value:
+            path = resolve_repo_path(value)
+            if path.is_file():
+                return path
+        self.statusBar().showMessage("선택한 고소장의 PDF를 찾을 수 없습니다.", 5000)
+        return None
 
     def open_selected_complaint(self) -> None:
-        """선택한 고소장 PDF 를 기본 프로그램으로 열기 (또는 저장 위치 선택)."""
-        raise NotImplementedError("ui 담당: open_selected_complaint")
+        """선택한 고소장 PDF를 기본 프로그램에서 연다."""
+        path = self._selected_complaint_path()
+        if path is not None and not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
+            self.statusBar().showMessage("고소장 PDF를 열 수 없습니다.", 5000)
+
+    def save_selected_complaint(self) -> None:
+        """선택한 고소장 PDF를 사용자가 지정한 위치에 복사한다."""
+        path = self._selected_complaint_path()
+        if path is None:
+            return
+        destination, _ = QFileDialog.getSaveFileName(self, "고소장 PDF 다운로드", path.name, "PDF (*.pdf)")
+        if not destination:
+            return
+        target = Path(destination)
+        if target.suffix.lower() != ".pdf":
+            target = target.with_name(f"{target.name}.pdf")
+        try:
+            if path.resolve() != target.resolve():
+                copyfile(path, target)
+        except OSError:
+            self.statusBar().showMessage("고소장 PDF를 저장하지 못했습니다.", 5000)
+            return
+        self.statusBar().showMessage(f"고소장 PDF를 저장했습니다. {target}", 5000)
 
     def show_engine_error(self, message: str) -> None:
         """엔진이 멈췄다는 안내 (예: "모듈 'parse' 구현이 아직 없습니다 ..."). 상태 표시줄과 게임 중 화면에 보여 준다."""
