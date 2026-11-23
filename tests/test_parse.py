@@ -1,8 +1,9 @@
 """② parse 모듈 (담당자 소유). 규칙 모듈이라 fixtures 기대값과 정확히 같아야 한다."""
 
 import pytest
+from pydantic import ValidationError
 
-from clean_chat.core.schemas import Channel, ParseRequest, RawLine, Source
+from clean_chat.core.schemas import Channel, ParseRequest, ParseResult, RawLine, Source
 from clean_chat.modules.parse.impl import normalize, run
 from helpers import check_module
 
@@ -383,3 +384,160 @@ def test_composed_normalization_is_stable() -> None:
         text = left + separator + right
         normalized, _ = normalize(text)
         assert normalize(normalized) == (normalized, []), text
+
+
+@pytest.mark.parametrize("source", [Source.OCR, Source.DEMO])
+@pytest.mark.parametrize("clock", ["17:02", "[13:23]", "0:00", "123:59"])
+@pytest.mark.parametrize(("tag", "channel"), [("[팀]", Channel.TEAM), ("(전체)", Channel.ALL)])
+def test_game_time_prefix_preserves_evidence(source: Source, clock: str, tag: str, channel: Channel) -> None:
+    body = "합류 부탁해요: 17:02에 ㅅ ㅂ  "
+    raw = f"{clock} {tag} 밤하늘별 (코그모): {body}"
+    req = request(raw, source)
+    before = req.model_dump()
+    message = run(req).message
+    assert message is not None
+    assert (message.channel, message.speaker, message.champion, message.is_me) == (channel, "밤하늘별", "코그모", False)
+    assert (message.raw, message.text) == (raw, body)
+    assert message.text_norm == "합류 부탁해요: 17:02에 시발  "
+    assert (message.id, message.ts, message.source) == (req.line.id, 123.0, source)
+    assert req.model_dump() == before
+
+
+@pytest.mark.parametrize("clock", ["13:35", "[13:35]"])
+def test_game_time_without_channel_or_champion(clock: str) -> None:
+    message = run(request(f"{clock} 나 : ****")).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.UNKNOWN, True)
+    assert (message.text, message.text_norm, message.hints) == ("****", "****", [])
+
+
+@pytest.mark.parametrize("raw", ["17:02 초코우유님이 게임을 떠났습니다", "[17:02] 게임 시간: 12:34"])
+def test_game_time_does_not_turn_notifications_into_chat(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "17:60 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:2 [팀] 밤하늘별 (코그모): 합류해요",
+        "1234:02 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:02[팀] 밤하늘별 (코그모): 합류해요",
+        "[17:02 밤하늘별 (코그모): 합류해요",
+        "17:02:03 [팀] 밤하늘별 (코그모): 합류해요",
+        "17:02",
+        "17:02 [팀] 밤하늘별 (코그모):   ",
+    ],
+)
+def test_invalid_or_incomplete_game_time_is_not_a_speaker(raw: str) -> None:
+    assert run(request(raw)).message is None
+
+
+def test_numeric_speaker_is_not_mistaken_for_game_time() -> None:
+    message = run(request("17: 합류 부탁해요")).message
+    assert message is not None
+    assert (message.speaker, message.text) == ("17", "합류 부탁해요")
+
+
+@pytest.mark.parametrize("command", ["", "/all "])
+def test_self_input_keeps_game_time_as_body(command: str) -> None:
+    body = "17:02 [팀] 밤하늘별 (코그모): 합류해요"
+    raw = command + body
+    message = run(request(raw, Source.SELF_INPUT)).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.is_me) == ("나", None, True)
+    assert (message.text, message.raw) == (body, raw)
+    assert message.channel == (Channel.ALL if command else Channel.TEAM)
+
+
+def test_parse_result_accepts_legacy_output() -> None:
+    result = ParseResult.model_validate_json('{"line_id":"legacy","message":null}')
+    assert result.raw_norm is None
+    assert result.game_time_sec is None
+
+
+@pytest.mark.parametrize("invalid", [-1, 1.5, True, "17:02"])
+def test_parse_result_game_time_requires_nonnegative_integer(invalid: object) -> None:
+    with pytest.raises(ValidationError):
+        ParseResult.model_validate({"line_id": "invalid", "message": None, "game_time_sec": invalid})
+
+
+@pytest.mark.parametrize(
+    ("clock", "seconds", "canonical"),
+    [
+        ("17:02", 1022, "17:02"),
+        ("[13:23]", 803, "13:23"),
+        ("0:00", 0, "00:00"),
+        ("1:05", 65, "01:05"),
+        ("123:59", 7439, "123:59"),
+    ],
+)
+def test_game_time_is_returned_as_elapsed_seconds(clock: str, seconds: int, canonical: str) -> None:
+    result = run(request(f"{clock} (팀) 밤하늘별 （코그모）； 시1발  "))
+    assert result.game_time_sec == seconds
+    assert result.raw_norm == f"{canonical} [팀] 밤하늘별 (코그모): 시1발  "
+    assert result.message is not None
+    assert result.message.text == "시1발  "
+    assert result.message.text_norm == "시발  "
+    assert result.message.ts == 123.0
+    assert ParseResult.model_validate_json(result.model_dump_json()) == result
+
+
+@pytest.mark.parametrize(
+    ("raw", "normalized", "seconds"),
+    [
+        ("[팀) 불꽃남자 (징크스); 합류해요", "[팀] 불꽃남자 (징크스): 합류해요", None),
+        ("[13:35] 나 : ****", "13:35 나: ****", 815),
+        ("[전체] 얼음땡: ㅋㅋㅋㅋㅋ", "[전체] 얼음땡: ㅋㅋㅋㅋㅋ", None),
+        ("밤하늘별: 합류해요", "밤하늘별: 합류해요", None),
+    ],
+)
+def test_raw_norm_repairs_structure_without_inventing_details(raw: str, normalized: str, seconds: int | None) -> None:
+    result = run(request(raw))
+    assert (result.raw_norm, result.game_time_sec) == (normalized, seconds)
+    assert result.message is not None
+    assert result.message.raw == raw
+
+
+@pytest.mark.parametrize(
+    "raw",
+    ["@@ ㅡ ##", "17:60 [팀] 밤하늘별: 합류해요", "17:02 초코우유님이 게임을 떠났습니다", "17:02 [팀] 밤하늘별:   "],
+)
+def test_rejected_lines_do_not_return_reconstructed_chat(raw: str) -> None:
+    result = run(request(raw))
+    assert result.message is None
+    assert result.raw_norm is None
+    assert result.game_time_sec is None
+
+
+def test_self_input_raw_norm_does_not_extract_time_from_body() -> None:
+    raw = "/all 17:02 시1발"
+    result = run(request(raw, Source.SELF_INPUT))
+    assert result.raw_norm == "[전체] 나: 17:02 시1발"
+    assert result.game_time_sec is None
+    assert result.message is not None
+    assert result.message.raw == raw
+    assert result.message.text_norm == "17:02 시발"
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "[00:00] (전체) 얼음땡 : ****",
+        "17:02 [팀) 밤하늘별 （코그모）； 시1발  ",
+        "나: 합류 부탁해요",
+        "17: 합류해요",
+    ],
+)
+def test_reconstructed_line_can_be_parsed_again(raw: str) -> None:
+    result = run(request(raw))
+    assert result.raw_norm is not None
+    reparsed = run(request(result.raw_norm))
+    assert (reparsed.raw_norm, reparsed.game_time_sec) == (result.raw_norm, result.game_time_sec)
+    assert reparsed.message is not None and result.message is not None
+    assert (reparsed.message.speaker, reparsed.message.champion, reparsed.message.channel, reparsed.message.text) == (
+        result.message.speaker,
+        result.message.champion,
+        result.message.channel,
+        result.message.text,
+    )

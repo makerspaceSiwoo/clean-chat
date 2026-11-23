@@ -22,7 +22,8 @@ from enum import IntEnum, StrEnum
 
 from pydantic import BaseModel, Field
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
+# 1.1.0: ParseResult에 raw_norm(복원 줄)과 game_time_sec(게임 경과 초) 추가. 기존 출력은 None 기본값으로 호환.
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
 #        parse 가 내 입력(compose)·정규화(normalize)까지, 정책(policy)은 구성으로. Mock 제거
 # 0.6.0: PostGameResult 추가 (게임 종료 배치 처리 결과)
@@ -156,6 +157,8 @@ class ChatMessage(BaseModel):
 class ParseResult(BaseModel):
     line_id: str
     message: ChatMessage | None  # 채팅이 아닌 줄(시스템 메시지, 핑, 잡음)은 None
+    raw_norm: str | None = None  # 파싱한 정보로 재구성한 채팅 줄. 본문은 message.text 그대로이며 증거 원문은 아님
+    game_time_sec: int | None = Field(default=None, ge=0, strict=True)  # 게임 경과 초. 캡처 시각 message.ts와 별개
 
 
 # ── ③ analyze: 관계·등급·피드백 ──────────────────────────────
