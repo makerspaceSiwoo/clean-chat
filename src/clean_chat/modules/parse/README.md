@@ -38,27 +38,28 @@ uv run python scripts/pack_context.py parse   # 웹 AI 채팅에 첨부할 맥�
 - 시간 접두부만 분리한 뒤 기존 채널·화자·선택적 챔피언·본문 규칙을 적용합니다. 채널이 없으면 `unknown`이며, 임의로 팀 채팅이라고 추정하지 않습니다.
 - 시간 없는 기존 입력도 지원합니다. 본문의 시간 문자열이나 `****`로 가려진 내용은 그대로 보존합니다.
 - `17:60`·`17:2`처럼 잘못되거나 불완전한 시간 표기를 화자로 사용하지 않습니다. 구분자 뒤가 숫자인 닉네임 형식과는 모호할 수 있으므로 이런 줄은 제외합니다. 숫자 닉네임 `17: 합류 부탁해요`는 유지합니다.
-- `message.ts`는 **입력의 유닉스 캡처 시각**입니다. 게임 경과 시간으로 덮어쓰지 않으며, 게임 시간은 별도 `game_time_sec`에 초 단위로 반환합니다. 시간 표기 자체는 `message.raw`에도 남습니다.
+- `message.ts`는 **입력의 유닉스 캡처 시각**입니다. 게임 경과 시간으로 덮어쓰지 않으며, 게임 시간은 별도 `message.game_time_sec`에 초 단위로 반환합니다. 시간 표기 자체는 `message.raw`에도 남습니다.
 - `source=self_input`에서는 시간 접두부를 제거하지 않습니다. `/all` 명령 처리 후 사용자가 쓴 본문 그대로 처리합니다.
 
-## ParseResult 1.1.0: 복원 줄과 게임 시간
+## ParseResult 2.0.0: 메시지 안의 복원 줄과 게임 시간
 
-`ParseResult` 형식 변경 권한을 부여받아 다음 필드를 추가했습니다. 기존 출력 JSON도 읽을 수 있도록 기본값은 `None`입니다.
+복원 줄과 게임 시간은 `ChatMessage`의 속성으로 반환합니다. `ParseResult` 최상위에는 `line_id`와 `message`만 있습니다.
+추가 필드의 기본값은 `None`이므로 예전 ChatMessage·GameSession JSON도 읽을 수 있습니다.
 
 | 접근 경로 | 의미 |
 |---|---|
 | `result.message.raw` | 수정하지 않은 OCR 원본 줄 또는 내 입력 |
 | `result.message.text` | 추출한 본문 원문 |
 | `result.message.text_norm` | 욕설·우회어 분석용 정규화 본문 |
-| `result.raw_norm` | 확인된 시간·채널·화자·챔피언과 본문 원문으로 재구성한 채팅 줄 |
-| `result.game_time_sec` | 게임 시작 후 경과한 정수 초. 예: `17:02` → `1022` |
+| `result.message.raw_norm` | 확인된 시간·채널·화자·챔피언과 본문 원문으로 재구성한 채팅 줄 |
+| `result.message.game_time_sec` | 게임 시작 후 경과한 정수 초. 예: `17:02` → `1022` |
 
 예를 들어 `17:02 (팀) 밤하늘별 （코그모）； 시1발`은 아래처럼 반환합니다.
 
 ```text
 message.raw       = 17:02 (팀) 밤하늘별 （코그모）； 시1발
-raw_norm          = 17:02 [팀] 밤하늘별 (코그모): 시1발
-game_time_sec     = 1022
+message.raw_norm  = 17:02 [팀] 밤하늘별 (코그모): 시1발
+message.game_time_sec = 1022
 message.text      = 시1발
 message.text_norm = 시발
 ```
@@ -66,9 +67,10 @@ message.text_norm = 시발
 - `raw_norm`의 시간 표기는 최소 두 자리 분·두 자리 초입니다. 시간 없는 입력에 `00:00`을 붙이지 않습니다.
 - 채널이 `unknown`이면 채널 표기를 생략하고, 챔피언이 없으면 괄호도 생략합니다. 닉네임 오타나 `****`로 가려진 본문은 추측해서 복원하지 않습니다.
 - 내 입력은 설정된 내 닉네임과 채널로 줄을 구성하며, 본문 속 시간을 게임 시간으로 해석하지 않습니다.
-- 채팅을 추출하지 못하거나 알림·잡음으로 제외하면 `message`·`raw_norm`·`game_time_sec` 모두 `None`입니다.
+- 채팅을 추출하지 못하거나 알림·잡음으로 제외하면 `message=None`입니다. 이때 복원 정보도 없습니다.
 - `raw_norm`은 읽기·분류를 위한 파생 표현입니다. 증거 원문은 `message.raw`와 `message.text`를 사용합니다.
-- **현재 `core/pipeline.py`는 `result.message`만 Incident·세션에 전달합니다.** 새 필드를 게임 종료 기록에서 쓰려면 리드가 저장 계약과 전달 경로를 연동해야 합니다. 이번 변경은 parse 출력까지이며 신고·고소장 판단이나 세션 저장은 변경하지 않습니다.
+- 기존 파이프라인이 `message`를 전달하면 메타데이터도 `Incident.msg` → `GameSession.incidents[].msg` → report의 세션 입력에 함께 포함됩니다. 메모리 세션 저장·조회와 JSON 직렬화 왕복, 게임 종료 report 입력까지 테스트합니다. 미구현 파일 저장소와 실제 report 문서 생성 로직은 변경하지 않습니다.
+- 1.1.0의 최상위 `raw_norm`·`game_time_sec`가 들어 있는 ParseResult JSON도 읽을 때 `message` 내부로 옮깁니다. 새 중첩 값이 명시돼 있으면 이를 우선하며 입력 객체는 수정하지 않습니다. 출력은 항상 2.0.0 형식이므로 호출부의 접근 경로는 위 표로 변경해야 합니다.
 
 ## 마일스톤 2: OCR 헤더 대응
 
