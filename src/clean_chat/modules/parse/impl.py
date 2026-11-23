@@ -27,7 +27,8 @@ _TIME_LIKE = re.compile(r"^\[?[0-9]+[ \t]*[:;：；][0-9]")
 def run(req: ParseRequest) -> ParseResult:
     """줄 1개 → 채팅이면 ChatMessage(채널·화자·챔피언·본문 + text_norm), 채팅이 아니면 None.
 
-    입력: ParseRequest(line, my_name) → 출력: ParseResult(line_id, message, raw_norm, game_time_sec)
+    입력: ParseRequest(line, my_name) → 출력: ParseResult(line_id, message)
+    message 안에 raw_norm(복원 줄), game_time_sec(게임 경과 초)를 함께 반환한다.
     예) "[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"
         → channel=team, speaker="불꽃남자", champion="징크스", text="야 정글 ㅂㅅ아 용 먼저 치라고",
           text_norm="야 정글 병신아 용 먼저 치라고", hints=["lexicon:ㅂㅅ"], is_me=False
@@ -80,13 +81,10 @@ def run(req: ParseRequest) -> ParseResult:
         hints=hints,
         is_me=is_me,
         raw=line.text,
-    )
-    return ParseResult(
-        line_id=line.id,
-        message=message,
-        raw_norm=_format_raw_norm(message, game_time_sec),
         game_time_sec=game_time_sec,
     )
+    message.raw_norm = _format_raw_norm(message)
+    return ParseResult(line_id=line.id, message=message)
 
 
 # ── 줄 분해 ──
@@ -100,11 +98,11 @@ def _split_game_time(text: str) -> tuple[int | None, str] | None:
     return None if _TIME_LIKE.match(stripped) else (None, stripped)
 
 
-def _format_raw_norm(message: ChatMessage, game_time_sec: int | None) -> str:
+def _format_raw_norm(message: ChatMessage) -> str:
     """확인한 헤더 정보만 표준 형식으로 재구성한다. 본문은 text_norm 대신 원문 text를 쓴다."""
     parts: list[str] = []
-    if game_time_sec is not None:
-        minutes, seconds = divmod(game_time_sec, 60)
+    if message.game_time_sec is not None:
+        minutes, seconds = divmod(message.game_time_sec, 60)
         parts.append(f"{minutes:02d}:{seconds:02d}")
     tag = {Channel.TEAM: "[팀]", Channel.ALL: "[전체]"}.get(message.channel)
     if tag is not None:
