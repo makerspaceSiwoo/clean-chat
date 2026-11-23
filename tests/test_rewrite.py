@@ -14,12 +14,15 @@ from clean_chat.core.schemas import RewriteRequest
 from clean_chat.modules.rewrite import backend, impl
 from helpers import check_module, fixture_pairs
 
+REAL_SDK = backend._sdk
+
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
     impl._CACHE.clear()
-    # 단위 테스트에서는 외부 작업자 대신 기존 제한 시간 엔진을 직접 검증한다.
-    monkeypatch.setattr(backend, "generate", lambda *args: backend.complete(*args))
+    # 실제 generate 경로를 사용하며 SDK와 네트워크 경계만 차단한다.
+    monkeypatch.setattr(backend, "_sdk", lambda: None)
+    monkeypatch.setattr(backend, "_completion", lambda **_: pytest.fail("테스트에서 실제 API 호출 금지"))
     monkeypatch.setattr(backend, "options", lambda: {"LLM_BACKEND": "rule", "LLM_MODEL": "test"})
     monkeypatch.setattr(backend, "_SLOT", threading.BoundedSemaphore(1))
 
@@ -35,7 +38,7 @@ def api(monkeypatch, output):
     monkeypatch.setattr(
         backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_API_KEY": "test-secret", "LLM_MODEL": "test"}
     )
-    monkeypatch.setattr(backend, "complete", lambda *args: output)
+    monkeypatch.setattr(backend, "_request", lambda *args: output)
 
 
 def test_rewrite_fixtures():
@@ -111,38 +114,41 @@ def test_api_success_cleaning_and_backend(monkeypatch):
         "불꽃남자 용 먼저 치자",
     ],
 )
-def test_unsafe_or_invented_api_output_is_null(monkeypatch, generated):
+def test_unsafe_api_output_is_rejected_and_safe_rule_is_used(monkeypatch, generated):
     api(monkeypatch, generated)
     result = impl.run(request())
-    assert result.rewritten is None
-    assert result.backend == "api"
+    assert not impl._acceptable(impl._clean_output(generated), "용 먼저 치라고", ["불꽃남자", "초코우유"], ["ㅂㅅ"])
+    assert result.rewritten == "용 먼저 치자"
+    assert result.backend == "rule"
 
 
 def test_api_cannot_restore_unselected_context(monkeypatch):
     api(monkeypatch, "바론 먼저 치자")
-    assert impl.run(request("바론도 치고 용 먼저 치라고", ["용 먼저 치라고"])).rewritten is None
+    out = impl.run(request("바론도 치고 용 먼저 치라고", ["용 먼저 치라고"]))
+    assert out.rewritten == "용 먼저 치자" and out.backend == "rule"
 
 
 def test_negative_feedback_cannot_become_positive(monkeypatch):
     api(monkeypatch, "용 먼저 치자")
-    assert impl.run(request("용 치지 말라고", ["용 치지 말라고"])).rewritten is None
+    out = impl.run(request("용 치지 말라고", ["용 치지 말라고"]))
+    assert out.rewritten == "용 치지 말아 주세요" and out.backend == "rule"
 
 
 def test_known_names_are_redacted_before_network(monkeypatch):
     api(monkeypatch, "용 먼저 치자")
     prompts = []
-    monkeypatch.setattr(backend, "complete", lambda prompt, *_: prompts.append(prompt) or "용 먼저 치자")
+    monkeypatch.setattr(backend, "_request", lambda prompt, *_: prompts.append(prompt) or "용 먼저 치자")
     req = request("불꽃남자야 초코우유한테 용 먼저 치라고", ["용 먼저 치라고"])
     impl.run(req)
     payload = json.loads(prompts[0])
-    assert set(payload) == {"text", "feedback_spans"}
+    assert set(payload) == {"original", "cleaned", "feedback_spans"}
     assert "불꽃남자" not in prompts[0] and "초코우유" not in prompts[0]
     assert "speaker" not in prompts[0] and req.message.raw not in prompts[0]
 
 
 def test_name_inside_feedback_is_not_sent(monkeypatch):
     api(monkeypatch, "용 먼저 치자")
-    monkeypatch.setattr(backend, "complete", lambda *_: pytest.fail("닉네임을 전송하면 안 됨"))
+    monkeypatch.setattr(backend, "_request", lambda *_: pytest.fail("닉네임을 전송하면 안 됨"))
     assert impl.run(request("초코우유 용 먼저 치라고", ["초코우유 용 먼저 치라고"])).rewritten is None
 
 
@@ -222,7 +228,7 @@ def test_litellm_gemini_contract(monkeypatch):
 )
 def test_bad_litellm_response_does_not_crash(monkeypatch, body):
     monkeypatch.setattr(backend, "_completion", lambda **_kwargs: body)
-    assert backend.complete("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
+    assert backend.generate("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
 
 
 @pytest.mark.parametrize("error", [TimeoutError(), ConnectionError("offline"), ValueError("bad")])
@@ -231,7 +237,7 @@ def test_network_failure_is_safe(monkeypatch, error):
         raise error
 
     monkeypatch.setattr(backend, "_request", fail)
-    assert backend.complete("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "test"}) is None
+    assert backend.generate("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "test"}) is None
 
 
 def test_deadline_and_busy_worker(monkeypatch):
@@ -247,11 +253,11 @@ def test_deadline_and_busy_worker(monkeypatch):
     config = {"LLM_API_KEY": "test", "LLM_MODEL": "test"}
     try:
         started = time.monotonic()
-        assert backend.complete("test", 0.05, config) is None
+        assert backend.generate("test", 0.05, config) is None
         assert entered.is_set()
         assert time.monotonic() - started < 0.5
         started = time.monotonic()
-        assert backend.complete("test", 0.5, config) is None
+        assert backend.generate("test", 0.5, config) is None
         assert time.monotonic() - started < 0.2
     finally:
         release.set()
@@ -259,7 +265,7 @@ def test_deadline_and_busy_worker(monkeypatch):
 
 def test_no_key_never_calls_network(monkeypatch):
     monkeypatch.setattr(backend, "_request", lambda *_: pytest.fail("키 없이 호출하면 안 됨"))
-    assert backend.complete("test", 0.1, {"LLM_MODEL": "test"}) is None
+    assert backend.generate("test", 0.1, {"LLM_MODEL": "test"}) is None
 
 
 def test_simulator_worker_returns_ok(monkeypatch, tmp_path):
@@ -275,17 +281,20 @@ def test_simulator_worker_returns_ok(monkeypatch, tmp_path):
     assert data["durationMs"] < 3000
 
 
-def test_only_selected_feedback_goes_to_api(monkeypatch):
+def test_context_and_selected_feedback_go_to_api_without_restoring_other_instructions(monkeypatch):
     api(monkeypatch, "용 먼저 치자")
     prompts = []
-    monkeypatch.setattr(backend, "complete", lambda prompt, *_: prompts.append(prompt) or "용 먼저 치자")
-    impl.run(request("달빛고양이한테 비밀 얘기하고 바론도 치고 용 먼저 치라고", ["용 먼저 치라고"]))
-    assert json.loads(prompts[0]) == {"text": "용 먼저 치라고", "feedback_spans": ["용 먼저 치라고"]}
+    monkeypatch.setattr(backend, "_request", lambda prompt, *_: prompts.append(prompt) or "용 먼저 치자")
+    impl.run(request("다른 얘기도 하고 바론도 치고 용 먼저 치라고", ["용 먼저 치라고"]))
+    payload = json.loads(prompts[0])
+    assert "바론도 치고" in payload["original"]
+    assert payload["feedback_spans"] == ["용 먼저 치라고"]
 
 
 def test_api_cannot_drop_feedback_objective(monkeypatch):
     api(monkeypatch, "잘하자")
-    assert impl.run(request()).rewritten is None
+    out = impl.run(request())
+    assert out.rewritten == "용 먼저 치자" and out.backend == "rule"
 
 
 def test_full_run_returns_before_three_seconds(monkeypatch):
@@ -324,7 +333,7 @@ def test_simulator_subprocess_with_simple_input(monkeypatch, tmp_path):
 def test_model_not_ready_never_calls_sdk(monkeypatch, caplog):
     monkeypatch.setattr(backend, "_completion", lambda **_: pytest.fail("모델 없이 호출하면 안 됨"))
     with caplog.at_level("INFO"):
-        assert backend.complete("test", 0.1, {"LLM_API_KEY": "test", "LLM_MODEL": ""}) is None
+        assert backend.generate("test", 0.1, {"LLM_API_KEY": "test", "LLM_MODEL": ""}) is None
     assert "키/모델이 준비되지" in caplog.text
 
 
@@ -388,23 +397,6 @@ assert backend._request('test','dummy-key','gemini/gemini-3.1-flash-lite',1) == 
     assert result.returncode == 0, result.stderr
 
 
-def test_prepare_requires_model_and_key(monkeypatch):
-    monkeypatch.setattr(backend, "_sdk", lambda: pytest.fail("설정 없이 로딩하면 안 됨"))
-    backend.prepare()
-
-
-def test_prepare_loads_sdk_without_completion(monkeypatch):
-    calls = []
-    monkeypatch.setattr(
-        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}
-    )
-    from clean_chat.modules.rewrite import client
-
-    monkeypatch.setattr(client, "ensure_started", lambda: (calls.append(True), True))
-    backend.prepare()
-    assert calls == [True]
-
-
 @pytest.mark.parametrize(
     ("feedback", "generated"),
     [
@@ -446,142 +438,6 @@ def test_objective_fallback_does_not_guess_complex_instructions(feedback):
     assert impl.run(request(feedback, [feedback])).rewritten is None
 
 
-@pytest.fixture
-def local_worker(monkeypatch, tmp_path):
-    from clean_chat.modules.rewrite import client, service
-
-    monkeypatch.setattr(client, "STATE_DIR", tmp_path)
-    server = service.WorkerServer("a" * 64)
-    monkeypatch.setattr(backend, "_sdk", lambda: None)
-    monkeypatch.setattr(
-        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}
-    )
-    api_thread = threading.Thread(target=service.work, args=(server,), daemon=True)
-    api_thread.start()
-    assert server.ready.wait(timeout=1)
-    state = {"port": server.server_port, "token": server.token, "version": server.worker_version}
-    client.state_path().write_text(json.dumps(state), encoding="utf-8")
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    try:
-        yield client, server, state
-    finally:
-        server.stop_requested = True
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
-
-
-def test_repeated_process_clients_reuse_worker_without_sdk_import(local_worker, monkeypatch):
-    client, server, _ = local_worker
-    prompts = []
-    monkeypatch.setattr(backend, "_sdk", lambda: pytest.fail("클라이언트에서 SDK를 로딩하면 안 됨"))
-    monkeypatch.setattr(backend, "_request", lambda prompt, *_: prompts.append(prompt) or "바론 먼저 공격해 주세요")
-    config = {"LLM_API_KEY": "test-private-key", "LLM_MODEL": "gemini/test"}
-    for _ in range(2):
-        assert client.generate("feedback", 1, config) == "바론 먼저 공격해 주세요"
-    assert prompts == ["feedback", "feedback"]
-    assert server.server_port == client._read_state()["port"]
-
-
-def test_worker_rpc_does_not_send_api_key(local_worker, monkeypatch):
-    client, _, _ = local_worker
-    bodies = []
-    real_rpc = client._rpc
-
-    def capture(state, path, body, timeout):
-        bodies.append(body)
-        return real_rpc(state, path, body, timeout)
-
-    monkeypatch.setattr(client, "_rpc", capture)
-    monkeypatch.setattr(backend, "_request", lambda *_: "바론 먼저 공격해 주세요")
-    client.generate("feedback", 1, {"LLM_API_KEY": "test-private-key", "LLM_MODEL": "gemini/test"})
-    assert "test-private-key" not in json.dumps(bodies)
-    assert set(bodies[-1]) == {"prompt", "timeout"}
-
-
-def test_preparing_worker_returns_immediately(local_worker, monkeypatch, caplog):
-    client, server, _ = local_worker
-    server.ready.clear()
-    monkeypatch.setattr(backend, "_request", lambda *_: pytest.fail("준비 중 생성 금지"))
-    started = time.monotonic()
-    with caplog.at_level("INFO"):
-        assert client.generate("test", 2.7, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
-    assert time.monotonic() - started < 0.5
-    assert "최초 준비 중" in caplog.text
-
-
-def test_worker_rejects_unauthenticated_requests(local_worker, monkeypatch):
-    import urllib.error
-
-    client, _, state = local_worker
-    monkeypatch.setattr(backend, "_request", lambda *_: pytest.fail("인증 안 된 생성 금지"))
-    with pytest.raises(urllib.error.HTTPError) as error:
-        client._rpc({**state, "token": "b" * 64}, "/generate", {"prompt": "test", "timeout": 1}, 1)
-    assert error.value.code == 403
-
-
-def test_local_worker_timeout_is_bounded(local_worker, monkeypatch):
-    client, _, _ = local_worker
-    monkeypatch.setattr(backend, "_request", lambda *_: time.sleep(0.3) or "바론 먼저 공격해 주세요")
-    started = time.monotonic()
-    assert client.generate("test", 0.05, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
-    assert time.monotonic() - started < 0.3
-
-
-def test_missing_worker_starts_without_waiting(monkeypatch, tmp_path):
-    from clean_chat.modules.rewrite import client
-
-    monkeypatch.setattr(client, "STATE_DIR", tmp_path)
-    starts = []
-    monkeypatch.setattr(client, "_start", lambda: starts.append(True))
-    started = time.monotonic()
-    assert client.ensure_started() == (None, False)
-    assert starts == [True]
-    assert time.monotonic() - started < 0.2
-
-
-def test_changed_worker_code_restarts_service(local_worker, monkeypatch):
-    client, server, _ = local_worker
-    starts = []
-    monkeypatch.setattr(client, "version", lambda: "new-version")
-    monkeypatch.setattr(client, "_start", lambda: starts.append(True))
-    assert client.ensure_started() == (None, False)
-    assert server.stop_requested and starts == [True]
-
-
-def test_slow_health_check_does_not_spawn_duplicate_worker(local_worker, monkeypatch):
-    client, _, _ = local_worker
-
-    def timeout(*_):
-        raise TimeoutError()
-
-    monkeypatch.setattr(client, "_rpc", timeout)
-    monkeypatch.setattr(client, "_start", lambda: pytest.fail("느린 준비 중 중복 작업자 금지"))
-    state, ready = client.ensure_started()
-    assert state is not None and not ready
-
-
-def test_simulator_uses_prepared_worker_without_spawning_python(local_worker, monkeypatch):
-    from clean_chat.sim.server import run_module
-
-    client, _, _ = local_worker
-    monkeypatch.delenv("CLEAN_CHAT_SIM_TARGET", raising=False)
-    monkeypatch.setattr(backend, "_request", lambda *_: "바론 먼저 공격해 주세요")
-    # 서비스의 run()에서 API 호출은 같은 로컬 작업자로 보낸다.
-    monkeypatch.setattr(backend, "generate", client.generate)
-    monkeypatch.setattr(
-        client.subprocess, "Popen", lambda *_args, **_kwargs: pytest.fail("실행마다 Python을 띄우면 안 됨")
-    )
-    events = []
-    run_module("rewrite", {"simple": {"text": "야 바론 먼저 치라고", "feedback": "바론 먼저 치라고"}}, events.append)
-    (output,) = [e for e in events if e["type"] == "result"]
-    assert output["status"] == "ok"
-    assert output["output"]["rewritten"] == "바론 먼저 공격해 주세요"
-    assert output["output"]["backend"] == "api"
-    assert output["durationMs"] < 1000
-
-
 @pytest.mark.parametrize("generated", ["바론을 공격하시는 이유가 있나요?", "바론을 치시는 이유가 궁금해요."])
 def test_question_feedback_preserves_question(monkeypatch, generated):
     api(monkeypatch, generated)
@@ -621,7 +477,7 @@ def test_non_item_words_rely_on_semantic_audit_not_a_vocabulary_gate(monkeypatch
     value["checks"]["target"] = False  # 시스템/템포/템플릿은 아이템과 의미가 다르다.
     body["choices"][0]["message"]["content"] = json.dumps(value)
     monkeypatch.setattr(backend, "_completion", lambda **_: body)
-    assert backend._request(impl._build_prompt([text], text), "test", "gemini/test", 1) is None
+    assert backend._request(impl._build_prompt(text, text, [text]), "test", "gemini/test", 1) is None
 
 
 def test_item_alias_still_rejects_new_game_objective(monkeypatch):
@@ -673,10 +529,10 @@ def test_trace_reports_stages_and_rejection_reason_without_key(monkeypatch, capl
     api(monkeypatch, "바론 먼저 치자")
     with caplog.at_level("INFO"):
         out = impl.run(request())
-    assert out.rewritten is None
+    assert out.rewritten == "용 먼저 치자" and out.backend == "rule"
     for stage in ("[입력]", "[피드백]", "[설정]", "[초안]", "[출력 정리]", "[로컬 검사/명확한 대상]", "[최종]"):
         assert stage in caplog.text
-    assert "거절 사유: 명확한 대상" in caplog.text
+    assert "[API 결과 거절] 사유: 명확한 대상" in caplog.text
     assert "test-secret" not in caplog.text
 
 
@@ -731,7 +587,11 @@ def test_unsourced_or_changed_dragon_kind_is_rejected_even_if_model_claims_safe(
     api(monkeypatch, generated)
     with caplog.at_level("INFO"):
         out = impl.run(request(feedback, [feedback]))
-    assert out.rewritten is None
+    assert out.rewritten != generated
+    assert not impl._acceptable(generated, feedback, [], [])
+    if out.rewritten is not None:
+        assert out.backend == "rule"
+        assert impl._acceptable(out.rewritten, feedback, [], [])
     assert "용 종류·속성" in caplog.text
 
 
@@ -845,8 +705,8 @@ def test_rejected_output_is_not_cached(monkeypatch):
     calls = []
     monkeypatch.setattr(backend, "generate", lambda *args: calls.append(args) or "바다의 드래곤 먼저 공격해 주세요")
     req = request()
-    assert impl.run(req).rewritten is None
-    assert impl.run(req).rewritten is None
+    assert impl.run(req).rewritten == "용 먼저 치자"
+    assert impl.run(req).rewritten == "용 먼저 치자"
     assert len(calls) == 2
     assert not impl._CACHE
 
@@ -871,3 +731,148 @@ def test_cache_expires_and_is_bounded(monkeypatch):
         impl._remember(str(i), "text")
     assert len(impl._CACHE) == impl._CACHE_LIMIT
     assert impl._cached("0") is None
+
+
+@pytest.mark.parametrize("text", ["죽어도 괜찮으니 합류해 주세요", "라인 못하겠으면 말해 주세요", "혼자서는 못해요"])
+def test_contextual_feedback_words_are_not_automatically_abusive(text):
+    assert not impl._still_abusive(text)
+
+
+@pytest.mark.parametrize("text", ["못하네", "못함ㅋ", "너 트롤", "그냥 죽어", "tlqkf", "qudtls"])
+def test_explicit_blame_and_shared_lexicon_profanity_are_still_rejected(text):
+    assert impl._still_abusive(text)
+
+
+def test_prompt_carries_redacted_original_and_profanity_removed_context(monkeypatch):
+    api(monkeypatch, "용 먼저 치자")
+    captured = []
+    monkeypatch.setattr(backend, "_request", lambda prompt, *_: captured.append(json.loads(prompt)) or "용 먼저 치자")
+    req = request("불꽃남자야 정글 ㅂㅅ아 용 먼저 치라고", ["용 먼저 치라고"])
+    before = copy.deepcopy(req.model_dump())
+    out = impl.run(req)
+    assert out.rewritten == "용 먼저 치자" and out.backend == "api"
+    assert captured == [
+        {
+            "original": "[플레이어]야 정글 ㅂㅅ아 용 먼저 치라고",
+            "cleaned": "[플레이어]야 정글 아 용 먼저 치라고",
+            "feedback_spans": ["용 먼저 치라고"],
+        }
+    ]
+    assert req.model_dump() == before
+
+
+def test_fallback_is_also_validated(monkeypatch):
+    api(monkeypatch, "용 먼저 쳐")
+    monkeypatch.setattr(impl, "_rule", lambda *_: "바론 먼저 치자 병신")
+    assert impl.run(request()).rewritten is None
+
+
+def test_meaning_audit_failure_also_falls_back_through_production_generate(monkeypatch):
+    monkeypatch.setattr(
+        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}
+    )
+    body = response("바다의 드래곤 공격해 주세요")
+    parsed = json.loads(body["choices"][0]["message"]["content"])
+    parsed["checks"]["specificity"] = False
+    body["choices"][0]["message"]["content"] = json.dumps(parsed)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    out = impl.run(request())
+    assert out.rewritten == "용 먼저 치자" and out.backend == "rule"
+
+
+def test_sdk_preparation_timeout_never_starts_late_paid_request(monkeypatch):
+    release = threading.Event()
+    done = threading.Event()
+
+    def slow_sdk():
+        release.wait(2)
+        done.set()
+
+    monkeypatch.setattr(backend, "_sdk", slow_sdk)
+    calls = []
+    monkeypatch.setattr(backend, "_request", lambda *args: calls.append(args))
+    assert backend.generate("test", 0.03, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
+    release.set()
+    assert done.wait(1)
+    deadline = time.monotonic() + 1
+    while not backend._SLOT.acquire(blocking=False):
+        assert time.monotonic() < deadline
+        time.sleep(0.005)
+    backend._SLOT.release()
+    assert not calls
+
+
+def test_import_with_key_does_not_load_sdk_spawn_process_or_start_thread(tmp_path):
+    import os
+    import subprocess
+    import sys
+
+    script = """
+import subprocess,threading,sys
+from pathlib import Path
+
+def forbidden(*args,**kwargs): raise AssertionError('import side effect')
+subprocess.Popen=forbidden
+threading.Thread.start=forbidden
+from clean_chat.modules.rewrite import impl
+assert 'litellm' not in sys.modules
+assert not Path('.clean-chat').exists()
+"""
+    env = dict(
+        os.environ, GEMINI_API_KEY="test-key", LLM_API_KEY="test-key", LLM_MODEL="gemini/test", LLM_BACKEND="api"
+    )
+    env["PYTHONPATH"] = str(__import__("pathlib").Path(impl.__file__).resolve().parents[3])
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=tmp_path, env=env, capture_output=True, text=True, timeout=15
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_sdk_is_cached_in_process_without_process_management(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+
+    sdk = SimpleNamespace()
+    monkeypatch.setitem(sys.modules, "litellm", sdk)
+    REAL_SDK.cache_clear()
+    try:
+        assert REAL_SDK() is sdk
+        assert REAL_SDK() is sdk
+        assert REAL_SDK.cache_info().misses == 1
+        assert REAL_SDK.cache_info().hits == 1
+    finally:
+        REAL_SDK.cache_clear()
+
+
+def test_context_changes_do_not_reuse_previous_result(monkeypatch):
+    api(monkeypatch, "미드로 가겠습니다.")
+    prompts = []
+    monkeypatch.setattr(
+        backend, "_request", lambda prompt, *_: prompts.append(json.loads(prompt)) or "미드로 가겠습니다."
+    )
+    assert impl.run(request("다비켜나미드갈라니까", ["나미드갈라니까"])).rewritten == "미드로 가겠습니다."
+    assert impl.run(request("잠깐나미드갈라니까", ["나미드갈라니까"])).rewritten == "미드로 가겠습니다."
+    assert len(prompts) == 2
+    assert prompts[0]["original"] != prompts[1]["original"]
+
+
+def test_shared_profanity_lexicon_is_loaded_as_source(monkeypatch, tmp_path):
+    folder = tmp_path / "data" / "lexicon"
+    folder.mkdir(parents=True)
+    (folder / "bypass.csv").write_text(
+        "variant,canonical,harm_type,note\n금지단어테스트,금지단어원형,profanity,test\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(backend, "ROOT", tmp_path)
+    impl._profanity_words.cache_clear()
+    try:
+        assert impl._still_abusive("금지단어테스트")
+        assert impl._still_abusive("금지단어원형")
+    finally:
+        impl._profanity_words.cache_clear()
+
+
+@pytest.mark.parametrize("text", ["죽어도 괜찮으니 합류해 주세요", "라인 못하겠으면 말해 주세요"])
+def test_review_normal_feedback_passes_entire_run(monkeypatch, text):
+    api(monkeypatch, text)
+    out = impl.run(request(text, [text]))
+    assert out.rewritten == text and out.backend == "api"

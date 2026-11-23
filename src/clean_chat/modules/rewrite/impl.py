@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 import logging
@@ -10,14 +11,14 @@ import threading
 import time
 import unicodedata
 from collections import OrderedDict
+from functools import cache
+from pathlib import Path
 
 from clean_chat.core.schemas import Rewrite, RewriteRequest
 from clean_chat.modules.rewrite import backend
 from clean_chat.modules.rewrite.tracing import preview
 
 _LOG = logging.getLogger(__name__)
-# 앱/시뮬레이터가 모듈을 불러오는 준비 단계. 생성 함수의 3초 예산과 구분한다.
-backend.prepare()
 
 # 현재 프로세스 메모리에만 보관한다. 동일한 입력/모델/키의 검증된 성공 결과만 재사용한다.
 _CACHE_TTL = 120.0
@@ -82,7 +83,7 @@ _DRAGON_DETAILS = {
     "elder": r"장로(?:의)?\s*(?:드래곤|용)|elder\s+(?:dragon|drake)",
 }
 
-_ABUSE = (
+_EXPLICIT_ABUSE = (
     "씨발",
     "시발",
     "씨팔",
@@ -107,14 +108,8 @@ _ABUSE = (
     "니애미",
     "뒤져",
     "뒤지",
-    "죽어",
     "자살",
     "멍청",
-    "쓰레기",
-    "트롤",
-    "못하",
-    "못해",
-    "못함",
     "노답",
     "fuck",
     "bitch",
@@ -154,9 +149,24 @@ def _feedback_in_original(span: str, original: str) -> bool:
     return normalized(span) in normalized(original)
 
 
-def _build_prompt(spans: list[str], original: str) -> str:
-    """본문과 확인된 피드백만 JSON 데이터로 보낸다. raw·닉네임 필드는 넣지 않는다."""
-    return json.dumps({"text": original, "feedback_spans": spans}, ensure_ascii=False)
+def _build_prompt(original: str, cleaned: str, spans: list[str]) -> str:
+    """알려진 닉네임을 익명화한 원문·욕설 제거 원문·선택된 피드백을 데이터로 전송한다."""
+    return json.dumps({"original": original, "cleaned": cleaned, "feedback_spans": spans}, ensure_ascii=False)
+
+
+@cache
+def _profanity_words() -> tuple[str, ...]:
+    """공용 우회어 사전을 첫 검사 때 읽고, 명백한 비속어만 보완한다."""
+    words = set(_EXPLICIT_ABUSE)
+    path = Path(backend.ROOT) / "data" / "lexicon" / "bypass.csv"
+    try:
+        with path.open(encoding="utf-8-sig", newline="") as stream:
+            for row in csv.DictReader(stream):
+                if row.get("harm_type") in {"profanity", "family_insult", "sexual_harassment"}:
+                    words.update(row.get(key, "") for key in ("variant", "canonical"))
+    except (OSError, UnicodeError, csv.Error):
+        _LOG.warning("[욕설 사전] 공용 사전을 읽지 못해 내장 비속어 목록으로 검사합니다.")
+    return tuple(sorted(word for word in words if word))
 
 
 def _clean_output(generated: str) -> str:
@@ -168,7 +178,18 @@ def _clean_output(generated: str) -> str:
 
 def _still_abusive(text: str, profanity: list[str] | None = None) -> bool:
     folded = _fold(text)
-    return any(_fold(word) in folded for word in (*_ABUSE, *(profanity or [])) if _fold(word))
+    if any(_fold(word) in folded for word in (*_profanity_words(), *(profanity or [])) if _fold(word)):
+        return True
+    # 문맥이 필요한 비난/위협은 단어 전체를 금지하지 않고 명확한 표현만 검사한다.
+    return bool(
+        re.search(
+            unicodedata.normalize(
+                "NFKC",
+                r"못하네|못함[ㅋㅎ]|트롤(?:이네|이냐|새끼|놈)|(?:너|넌|니가)트롤|^(?:너|넌|그냥)?죽어(?:라|버려)?$",
+            ),
+            folded,
+        )
+    )
 
 
 def _rule(spans: list[str], original: str) -> str | None:
@@ -280,10 +301,15 @@ def _log_checks(text: str, source: str, names: list[str], profanity: list[str]) 
 
 
 def run(req: RewriteRequest) -> Rewrite:
-    """피드백만 순화. 예: 용 먼저 치라고 → 용 먼저 치자. 실패하면 None.
+    """악성 문장의 피드백 조각만 롤 용어를 살린 공손한 문장 1개로 다듬는다.
 
-    입력/출력 계약은 유지한다. 전체 대기는 2.7초로 제한하고 API 실패 시 검토된 규칙만 쓴다.
-    닉네임·raw는 보내지 않으며 원문/분석/정책을 변경하지 않는다.
+    입력: RewriteRequest(message, analysis) → 출력: Rewrite(msg_id, rewritten, backend)
+    예) "야 정글 ㅂㅅ아 용 먼저 치라고", feedback_spans=["용 먼저 치라고"] → "용 먼저 치자"
+    예) "아 정글 ㅂㅅ 왜 안 와", feedback_spans=["왜 안 와"] → "정글 합류 부탁해요"
+    순서: 입력 검사 → 원문/욕설 제거 본문/피드백 전송 → 생성/출력 검사 → 실패 시 예비 규칙
+    주의: 3초 제한. 원문/분석을 수정하지 않고, 알려진 닉네임·raw는 전송하지 않는다.
+          API 실패·거절·지연 시 안전한 예비 규칙 또는 None. 원문에 없는 내용을 지어내지 않는다.
+    관련: ADR-0005, ADR-0017, OPEN-04, SPEC 8장(리라이트 3초)
     """
     started = time.monotonic()
     empty = Rewrite(msg_id=req.message.id, rewritten=None, backend="rule")
@@ -339,7 +365,12 @@ def run(req: RewriteRequest) -> Rewrite:
     if re.search(r"왜\s*안\s*와", source):
         source += " " + " ".join(role for role in _ROLES if role in original)
     if mode == "api":
-        prompt = _build_prompt(spans, source)
+        cleaned = original
+        for word in sorted(req.analysis.profanity_spans, key=len, reverse=True):
+            if word:
+                cleaned = cleaned.replace(word, "")
+        cleaned = " ".join(cleaned.split())
+        prompt = _build_prompt(original, cleaned, spans)
         cache_key = _cache_key(prompt, names, req.analysis.profanity_spans, config)
         generated = _cached(cache_key)
         cache_hit = generated is not None
@@ -361,9 +392,8 @@ def run(req: RewriteRequest) -> Rewrite:
                     _remember(cache_key, clean)
                 _LOG.info("[최종] backend=api, %.3f초, 결과=%s", elapsed, preview(clean, secrets=secrets, names=names))
                 return Rewrite(msg_id=req.message.id, rewritten=clean, backend="api")
-            _LOG.info("[최종] null — 거절 사유: %s (%.3f초)", ", ".join(failures), elapsed)
-            return empty.model_copy(update={"backend": "api"})
-    _LOG.info("[예비 규칙] API 결과가 없거나 rule 설정이어서 규칙을 확인합니다.")
+            _LOG.info("[API 결과 거절] 사유: %s (%.3f초) — 예비 규칙을 확인합니다.", ", ".join(failures), elapsed)
+    _LOG.info("[예비 규칙] API 실패/거절 또는 rule 설정 — 안전한 규칙을 확인합니다.")
     result = _rule(spans, original)
     if result:
         _LOG.info("[예비 규칙 초안] %s", preview(result, secrets=secrets, names=names))

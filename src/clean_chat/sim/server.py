@@ -137,13 +137,6 @@ def run_module(name: str, body: Any, emit: Emit, uploads_dir: Path | None = None
         data = resolve_input(name, body, uploads_dir or settings.uploads_dir)
     except Exception as e:  # 간단 입력 비어 있음, 이미지 깨짐, 형식 오류
         return result("invalid_input", error=str(e))
-
-    if name == "rewrite" and not os.environ.get("CLEAN_CHAT_SIM_TARGET"):
-        # rewrite는 SDK를 재사용하는 전용 작업자로 실행한다. 다른 모듈/테스트 타깃은 기존 방식.
-        from clean_chat.modules.rewrite.client import simulate
-
-        return simulate(data, emit, result)
-
     emit({"type": "log", "stream": "system", "text": f"$ python -m clean_chat.sim.worker {name}  (새 프로세스)"})
 
     with tempfile.TemporaryDirectory(prefix="clean-chat-sim-") as tmp:
