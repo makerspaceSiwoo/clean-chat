@@ -38,7 +38,7 @@
    OcrResult      { frame_id, lines: RawLine[] }                ← 보이는 줄 전부 (프레임 사이 중복 제거는 구성)
    RawLine        { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
 ② ParseRequest   { line: RawLine, my_name }                     ← 내 입력은 source=self_input (본문만)
-   ParseResult    { line_id, message: ChatMessage | null }       ← 시스템 메시지·핑·잡음은 null
+   ParseResult    { line_id, message: ChatMessage | null, raw_norm?, game_time_sec? }
    ChatMessage    { id, ts, source, channel: team|all|unknown, speaker, champion?, text, text_norm, hints[], is_me, raw }
 ③ AnalyzeRequest { message: ChatMessage, history: ChatMessage[], players: Player[] }
    Analysis       { msg_id, target?, level: 0~3, harm_types[], profanity_spans[], feedback_spans[], scores{}, model_version }
@@ -68,6 +68,13 @@
 ### 조각(span) 규칙
 - `profanity_spans`, `feedback_spans` 는 `message.text`(원문)에 **그대로 있는** 조각입니다. 정책표가 비속어를 `**` 로 가리고(L1), rewrite 가 피드백 조각을 다듬습니다.
 
+### ParseResult 추가 필드 (1.1.0)
+- 사용자에게 부여된 ParseResult 변경 권한에 따라 `raw_norm: str | None`과 `game_time_sec: int | None`을 추가했습니다. 두 필드의 기본값은 `None`이며 기존 JSON도 읽을 수 있습니다.
+- `raw_norm`은 `[시간 ]채널 닉네임 (챔피언): 본문` 형태의 복원 줄입니다. 시간·채널·챔피언은 확인된 경우에만 넣고, 본문은 `message.text` 그대로 사용합니다. `message.raw`·`message.text`·`message.text_norm`은 기존 역할을 유지합니다.
+- `game_time_sec`는 음수가 아닌 정수 게임 경과 초입니다. 예: `17:02` → `1022`, `00:00` → `0`. 입력에 시간이 없거나 내 입력인 경우 `None`이며 `message.ts`의 유닉스 캡처 시각과 다릅니다.
+- 채팅을 추출하지 못하면 `message`와 추가 필드 모두 `None`입니다. 복원한 닉네임의 실제 인물 확인이나 가려진 욕설 추정은 수행하지 않습니다.
+- 게임 종료 기능에서 사용하려면 후속 연동이 필요합니다. 현재 파이프라인은 `ParseResult.message`만 세션에 전달하므로, 이번 추가 필드가 자동으로 GameSession·report 입력에 저장되지는 않습니다.
+
 ### 게임 세션
 - `GameSession.incidents` 에는 **다른 유저 채팅(흐름 A)만** 기록합니다. 내 채팅(흐름 B)은 복사/차단으로 끝납니다.
 - 저장 위치: `.clean-chat/sessions/<id>.jsonl` (로컬 전용, git 제외)
@@ -77,7 +84,7 @@
 // input.jsonl
 {"line":{"id":"L3","ts":1762920003.0,"text":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","source":"ocr","ocr_confidence":0.95},"my_name":"나"}
 // expected.jsonl
-{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"불꽃남자","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","text_norm":"야 정글 병신아 용 먼저 치라고","hints":["lexicon:ㅂㅅ"],"is_me":false,"raw":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"}}
+{"line_id":"L3","message":{"id":"L3","ts":1762920003.0,"source":"ocr","channel":"team","speaker":"불꽃남자","champion":"징크스","text":"야 정글 ㅂㅅ아 용 먼저 치라고","text_norm":"야 정글 병신아 용 먼저 치라고","hints":["lexicon:ㅂㅅ"],"is_me":false,"raw":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고"},"raw_norm":"[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고","game_time_sec":null}
 ```
 
 ## 5. 모듈 개별 테스트 방법

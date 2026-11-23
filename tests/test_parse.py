@@ -518,3 +518,26 @@ def test_self_input_raw_norm_does_not_extract_time_from_body() -> None:
     assert result.message is not None
     assert result.message.raw == raw
     assert result.message.text_norm == "17:02 시발"
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "[00:00] (전체) 얼음땡 : ****",
+        "17:02 [팀) 밤하늘별 （코그모）； 시1발  ",
+        "나: 합류 부탁해요",
+        "17: 합류해요",
+    ],
+)
+def test_reconstructed_line_can_be_parsed_again(raw: str) -> None:
+    result = run(request(raw))
+    assert result.raw_norm is not None
+    reparsed = run(request(result.raw_norm))
+    assert (reparsed.raw_norm, reparsed.game_time_sec) == (result.raw_norm, result.game_time_sec)
+    assert reparsed.message is not None and result.message is not None
+    assert (reparsed.message.speaker, reparsed.message.champion, reparsed.message.channel, reparsed.message.text) == (
+        result.message.speaker,
+        result.message.champion,
+        result.message.channel,
+        result.message.text,
+    )
