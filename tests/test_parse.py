@@ -460,3 +460,61 @@ def test_parse_result_accepts_legacy_output() -> None:
 def test_parse_result_game_time_requires_nonnegative_integer(invalid: object) -> None:
     with pytest.raises(ValidationError):
         ParseResult.model_validate({"line_id": "invalid", "message": None, "game_time_sec": invalid})
+
+
+@pytest.mark.parametrize(
+    ("clock", "seconds", "canonical"),
+    [
+        ("17:02", 1022, "17:02"),
+        ("[13:23]", 803, "13:23"),
+        ("0:00", 0, "00:00"),
+        ("1:05", 65, "01:05"),
+        ("123:59", 7439, "123:59"),
+    ],
+)
+def test_game_time_is_returned_as_elapsed_seconds(clock: str, seconds: int, canonical: str) -> None:
+    result = run(request(f"{clock} (팀) 밤하늘별 （코그모）； 시1발  "))
+    assert result.game_time_sec == seconds
+    assert result.raw_norm == f"{canonical} [팀] 밤하늘별 (코그모): 시1발  "
+    assert result.message is not None
+    assert result.message.text == "시1발  "
+    assert result.message.text_norm == "시발  "
+    assert result.message.ts == 123.0
+    assert ParseResult.model_validate_json(result.model_dump_json()) == result
+
+
+@pytest.mark.parametrize(
+    ("raw", "normalized", "seconds"),
+    [
+        ("[팀) 불꽃남자 (징크스); 합류해요", "[팀] 불꽃남자 (징크스): 합류해요", None),
+        ("[13:35] 나 : ****", "13:35 나: ****", 815),
+        ("[전체] 얼음땡: ㅋㅋㅋㅋㅋ", "[전체] 얼음땡: ㅋㅋㅋㅋㅋ", None),
+        ("밤하늘별: 합류해요", "밤하늘별: 합류해요", None),
+    ],
+)
+def test_raw_norm_repairs_structure_without_inventing_details(raw: str, normalized: str, seconds: int | None) -> None:
+    result = run(request(raw))
+    assert (result.raw_norm, result.game_time_sec) == (normalized, seconds)
+    assert result.message is not None
+    assert result.message.raw == raw
+
+
+@pytest.mark.parametrize(
+    "raw",
+    ["@@ ㅡ ##", "17:60 [팀] 밤하늘별: 합류해요", "17:02 초코우유님이 게임을 떠났습니다", "17:02 [팀] 밤하늘별:   "],
+)
+def test_rejected_lines_do_not_return_reconstructed_chat(raw: str) -> None:
+    result = run(request(raw))
+    assert result.message is None
+    assert result.raw_norm is None
+    assert result.game_time_sec is None
+
+
+def test_self_input_raw_norm_does_not_extract_time_from_body() -> None:
+    raw = "/all 17:02 시1발"
+    result = run(request(raw, Source.SELF_INPUT))
+    assert result.raw_norm == "[전체] 나: 17:02 시1발"
+    assert result.game_time_sec is None
+    assert result.message is not None
+    assert result.message.raw == raw
+    assert result.message.text_norm == "17:02 시발"
