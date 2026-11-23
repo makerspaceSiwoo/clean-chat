@@ -1,8 +1,9 @@
 """② parse 모듈 (담당자 소유). 규칙 모듈이라 fixtures 기대값과 정확히 같아야 한다."""
 
 import pytest
+from pydantic import ValidationError
 
-from clean_chat.core.schemas import Channel, ParseRequest, RawLine, Source
+from clean_chat.core.schemas import Channel, ParseRequest, ParseResult, RawLine, Source
 from clean_chat.modules.parse.impl import normalize, run
 from helpers import check_module
 
@@ -447,3 +448,15 @@ def test_self_input_keeps_game_time_as_body(command: str) -> None:
     assert (message.speaker, message.champion, message.is_me) == ("나", None, True)
     assert (message.text, message.raw) == (body, raw)
     assert message.channel == (Channel.ALL if command else Channel.TEAM)
+
+
+def test_parse_result_accepts_legacy_output() -> None:
+    result = ParseResult.model_validate_json('{"line_id":"legacy","message":null}')
+    assert result.raw_norm is None
+    assert result.game_time_sec is None
+
+
+@pytest.mark.parametrize("invalid", [-1, 1.5, True, "17:02"])
+def test_parse_result_game_time_requires_nonnegative_integer(invalid: object) -> None:
+    with pytest.raises(ValidationError):
+        ParseResult.model_validate({"line_id": "invalid", "message": None, "game_time_sec": invalid})
