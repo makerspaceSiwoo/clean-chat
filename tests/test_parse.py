@@ -452,14 +452,17 @@ def test_self_input_keeps_game_time_as_body(command: str) -> None:
 
 def test_parse_result_accepts_legacy_output() -> None:
     result = ParseResult.model_validate_json('{"line_id":"legacy","message":null}')
-    assert result.raw_norm is None
-    assert result.game_time_sec is None
+    assert result.model_dump() == {"line_id": "legacy", "message": None}
 
 
 @pytest.mark.parametrize("invalid", [-1, 1.5, True, "17:02"])
 def test_parse_result_game_time_requires_nonnegative_integer(invalid: object) -> None:
+    message = run(request("밤하늘별: 합류해요")).message
+    assert message is not None
+    data = message.model_dump()
+    data["game_time_sec"] = invalid
     with pytest.raises(ValidationError):
-        ParseResult.model_validate({"line_id": "invalid", "message": None, "game_time_sec": invalid})
+        ParseResult.model_validate({"line_id": "invalid", "message": data})
 
 
 @pytest.mark.parametrize(
@@ -474,9 +477,9 @@ def test_parse_result_game_time_requires_nonnegative_integer(invalid: object) ->
 )
 def test_game_time_is_returned_as_elapsed_seconds(clock: str, seconds: int, canonical: str) -> None:
     result = run(request(f"{clock} (팀) 밤하늘별 （코그모）； 시1발  "))
-    assert result.game_time_sec == seconds
-    assert result.raw_norm == f"{canonical} [팀] 밤하늘별 (코그모): 시1발  "
     assert result.message is not None
+    assert result.message.game_time_sec == seconds
+    assert result.message.raw_norm == f"{canonical} [팀] 밤하늘별 (코그모): 시1발  "
     assert result.message.text == "시1발  "
     assert result.message.text_norm == "시발  "
     assert result.message.ts == 123.0
@@ -494,8 +497,8 @@ def test_game_time_is_returned_as_elapsed_seconds(clock: str, seconds: int, cano
 )
 def test_raw_norm_repairs_structure_without_inventing_details(raw: str, normalized: str, seconds: int | None) -> None:
     result = run(request(raw))
-    assert (result.raw_norm, result.game_time_sec) == (normalized, seconds)
     assert result.message is not None
+    assert (result.message.raw_norm, result.message.game_time_sec) == (normalized, seconds)
     assert result.message.raw == raw
 
 
@@ -506,16 +509,15 @@ def test_raw_norm_repairs_structure_without_inventing_details(raw: str, normaliz
 def test_rejected_lines_do_not_return_reconstructed_chat(raw: str) -> None:
     result = run(request(raw))
     assert result.message is None
-    assert result.raw_norm is None
-    assert result.game_time_sec is None
+    assert result.model_dump() == {"line_id": "parse-test", "message": None}
 
 
 def test_self_input_raw_norm_does_not_extract_time_from_body() -> None:
     raw = "/all 17:02 시1발"
     result = run(request(raw, Source.SELF_INPUT))
-    assert result.raw_norm == "[전체] 나: 17:02 시1발"
-    assert result.game_time_sec is None
     assert result.message is not None
+    assert result.message.raw_norm == "[전체] 나: 17:02 시1발"
+    assert result.message.game_time_sec is None
     assert result.message.raw == raw
     assert result.message.text_norm == "17:02 시발"
 
@@ -531,13 +533,102 @@ def test_self_input_raw_norm_does_not_extract_time_from_body() -> None:
 )
 def test_reconstructed_line_can_be_parsed_again(raw: str) -> None:
     result = run(request(raw))
-    assert result.raw_norm is not None
-    reparsed = run(request(result.raw_norm))
-    assert (reparsed.raw_norm, reparsed.game_time_sec) == (result.raw_norm, result.game_time_sec)
-    assert reparsed.message is not None and result.message is not None
+    assert result.message is not None and result.message.raw_norm is not None
+    reparsed = run(request(result.message.raw_norm))
+    assert reparsed.message is not None
+    assert (reparsed.message.raw_norm, reparsed.message.game_time_sec) == (
+        result.message.raw_norm,
+        result.message.game_time_sec,
+    )
     assert (reparsed.message.speaker, reparsed.message.champion, reparsed.message.channel, reparsed.message.text) == (
         result.message.speaker,
         result.message.champion,
         result.message.channel,
         result.message.text,
     )
+
+
+@pytest.mark.parametrize("typed_message", [False, True])
+def test_legacy_top_level_metadata_moves_into_message_without_mutation(typed_message: bool) -> None:
+    from copy import deepcopy
+
+    from clean_chat.core.schemas import ChatMessage
+
+    current = run(request("17:02 [팀] 밤하늘별 (코그모): 합류해요"))
+    assert current.message is not None
+    old_message = current.message.model_dump(exclude={"raw_norm", "game_time_sec"})
+    payload = {
+        "line_id": current.line_id,
+        "message": ChatMessage.model_validate(old_message) if typed_message else old_message,
+        "raw_norm": current.message.raw_norm,
+        "game_time_sec": 1022,
+    }
+    before = deepcopy(payload)
+    migrated = ParseResult.model_validate(payload)
+    assert migrated == current
+    assert payload == before
+    assert set(migrated.model_dump()) == {"line_id", "message"}
+
+
+def test_nested_metadata_takes_precedence_over_legacy_top_level_values() -> None:
+    result = run(request("00:00 [팀] 밤하늘별 (코그모): 합류해요"))
+    payload = result.model_dump()
+    payload.update(raw_norm="이전 형식의 값", game_time_sec=1022)
+    assert ParseResult.model_validate(payload) == result
+
+
+def test_old_chat_message_defaults_metadata_to_none() -> None:
+    from clean_chat.core.schemas import ChatMessage
+
+    current = run(request("밤하늘별: 합류해요")).message
+    assert current is not None
+    old_message = current.model_dump(exclude={"raw_norm", "game_time_sec"})
+    restored = ChatMessage.model_validate(old_message)
+    assert restored.raw_norm is None and restored.game_time_sec is None
+
+
+def test_message_metadata_reaches_session_serialization_and_report_input() -> None:
+    from clean_chat.core.game import GameStateMachine, MemorySessionRepository, PostGameBatch
+    from clean_chat.core.modules import ModuleSet
+    from clean_chat.core.pipeline import Pipelines
+    from clean_chat.core.schemas import (
+        Analysis,
+        AnalyzeRequest,
+        GamePhase,
+        GameSession,
+        Level,
+        PhaseEvent,
+        ReportDraft,
+        ReportRequest,
+    )
+
+    captured: list[ReportRequest] = []
+
+    def analyze(req: AnalyzeRequest) -> Analysis:
+        # 분류 정확도가 아니라 신고 대상으로 선택된 채팅의 전달 경로만 검증한다.
+        return Analysis(msg_id=req.message.id, level=Level.L2_ABUSIVE, model_version="metadata-test")
+
+    def report(req: ReportRequest) -> ReportDraft:
+        captured.append(req)
+        return ReportDraft(kind=req.kind, speaker=req.speaker, text="합성 보고서", incident_ids=["metadata-flow"])
+
+    modules = ModuleSet({"parse": run, "analyze": analyze, "report": report})
+    raw = "17:02 [팀] 밤하늘별 (코그모): 합성 채팅입니다"
+    line = RawLine(id="metadata-flow", ts=1122.0, text=raw, source=Source.OCR)
+    incident = Pipelines(modules).incoming.process_line(line)
+    assert incident is not None
+
+    game = GameStateMachine()
+    game.handle(PhaseEvent(ts=100.0, phase=GamePhase.IN_GAME))
+    assert game.record(incident)
+    game.handle(PhaseEvent(ts=1200.0, phase=GamePhase.POST_GAME))
+    assert game.session is not None
+    repository = MemorySessionRepository()
+    repository.save(game.session)
+    stored = repository.load(game.session.id)
+    restored = GameSession.model_validate_json(stored.model_dump_json())
+    PostGameBatch(modules).run(restored)
+
+    assert len(captured) == 1
+    message = captured[0].session.incidents[0].msg
+    assert (message.raw_norm, message.game_time_sec, message.ts, message.raw) == (raw, 1022, 1122.0, raw)

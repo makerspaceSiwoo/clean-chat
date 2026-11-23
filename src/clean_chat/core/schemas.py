@@ -19,10 +19,12 @@
 from __future__ import annotations
 
 from enum import IntEnum, StrEnum
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
-SCHEMA_VERSION = "1.1.0"
+SCHEMA_VERSION = "2.0.0"
+# 2.0.0: raw_norm・game_time_sec를 ChatMessage 내부로 이동. 1.1.0 ParseResult 입력은 읽을 때 변환한다.
 # 1.1.0: ParseResult에 raw_norm(복원 줄)과 game_time_sec(게임 경과 초) 추가. 기존 출력은 None 기본값으로 호환.
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
 #        parse 가 내 입력(compose)·정규화(normalize)까지, 정책(policy)은 구성으로. Mock 제거
@@ -152,13 +154,32 @@ class ChatMessage(BaseModel):
     hints: list[str] = Field(default_factory=list)  # 어떤 보정을 했나. 예: ["lexicon:ㅂㅅ", "noise_removed"]
     is_me: bool = False
     raw: str  # 원본 줄 (증거용)
+    raw_norm: str | None = None  # 헤더를 표준 형식으로 복원한 줄. 본문은 text 그대로이며 증거 원문은 아님
+    game_time_sec: int | None = Field(default=None, ge=0, strict=True)  # 게임 경과 초. 유닉스 캡처 시각 ts와 별개
 
 
 class ParseResult(BaseModel):
     line_id: str
     message: ChatMessage | None  # 채팅이 아닌 줄(시스템 메시지, 핑, 잡음)은 None
-    raw_norm: str | None = None  # 파싱한 정보로 재구성한 채팅 줄. 본문은 message.text 그대로이며 증거 원문은 아님
-    game_time_sec: int | None = Field(default=None, ge=0, strict=True)  # 게임 경과 초. 캡처 시각 message.ts와 별개
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_legacy_metadata(cls, data: Any) -> Any:
+        """1.1.0의 최상위 메타데이터를 읽되, 입력을 수정하거나 새 message 값을 덮어쓰지 않는다."""
+        fields = ("raw_norm", "game_time_sec")
+        if not isinstance(data, dict) or not any(field in data for field in fields):
+            return data
+        original = data.get("message")
+        if isinstance(original, ChatMessage):
+            message = original.model_dump(exclude_unset=True)
+        elif isinstance(original, dict):
+            message = dict(original)
+        else:
+            return data
+        for field in fields:
+            if field in data:
+                message.setdefault(field, data[field])
+        return {**data, "message": message}
 
 
 # ── ③ analyze: 관계·등급·피드백 ──────────────────────────────
