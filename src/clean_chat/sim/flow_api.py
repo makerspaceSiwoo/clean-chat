@@ -68,6 +68,7 @@ def resolve_request(body: Any, uploads_dir: Path) -> FlowRequest:
         image_path=image_path,
         ocr_text=str(body.get("ocrText") or ""),
         use_fallback=bool(body.get("useFallback", True)),
+        step_delay_ms=max(0, min(3000, int(body.get("stepDelayMs") or 0))),
         sample_id=sample_id if isinstance(sample_id, str) else None,
     )
 

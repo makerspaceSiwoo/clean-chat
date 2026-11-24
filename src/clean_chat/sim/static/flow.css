@@ -28,6 +28,14 @@ h3 { font-size: 14px; margin: 18px 0 8px; }
 .stages li.mixed { border-color: var(--warn); background: var(--warn-bg); }
 .stages li.stopped { border-color: var(--err); background: var(--err-bg); }
 .stages li.phase { border-style: dashed; }
+.stages li.running { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .stages li.running { animation: none; } }
+.now { margin: 6px 0 0; padding: 6px 10px; border-radius: 8px; background: var(--code-bg); font-size: 13px; }
+.now.live { border-left: 3px solid var(--accent); }
+.lines tr.active td { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.lines td .wait { color: var(--muted); font-size: 11px; }
+.lines td .spin { color: var(--accent); font-size: 11px; font-weight: 600; }
 .stages li .why { max-width: 220px; margin-top: 2px; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .screens { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

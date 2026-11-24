@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import traceback
@@ -23,13 +24,13 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from clean_chat.core import modules
-from clean_chat.core.config import FIXTURES, settings
+from clean_chat.core.config import FIXTURES, ROOT, settings
 from clean_chat.core.game import GameStateMachine, PostGameBatch
 from clean_chat.core.jsonl import read_jsonl
 from clean_chat.core.modules import MODULE_NAMES, ModuleSet
 from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.platform import use_utf8_console
-from clean_chat.core.schemas import Frame, GamePhase, Incident, PhaseEvent, Player, Region
+from clean_chat.core.schemas import Frame, GamePhase, Incident, OcrResult, PhaseEvent, Player, Region
 from clean_chat.sim import fallback
 
 FLOW_DIR = FIXTURES / "flow"
@@ -45,6 +46,9 @@ class FlowRequest(BaseModel):
     players: list[Player] = Field(default_factory=list)
     use_fallback: bool = True  # False 면 구현 전·오류 모듈에서 멈춘다 (실제 앱과 같음)
     sample_id: str | None = None
+    step_delay_ms: int = Field(
+        default=0, ge=0, le=3000
+    )  # 단계 사이 쉬는 시간 (화면에서 한 단계씩 보려고). 계산은 그대로
 
 
 class FlowStopped(RuntimeError):
@@ -68,6 +72,10 @@ class TracingModules:
         self.status: dict[str, set[str]] = {name: set() for name in MODULE_NAMES}
         self._real: dict[str, Callable[[Any], Any] | Exception] = {}
 
+    def pause(self) -> None:
+        if self.req.step_delay_ms:
+            time.sleep(self.req.step_delay_ms / 1000)
+
     def module_set(self) -> ModuleSet:
         return ModuleSet({name: self._wrap(name) for name in MODULE_NAMES})
 
@@ -88,6 +96,8 @@ class TracingModules:
     def _wrap(self, name: str) -> Callable[[BaseModel], BaseModel]:
         def call(item: BaseModel) -> BaseModel:
             self.seq += 1
+            self.emit({"event": "call_start", "seq": self.seq, "module": name, "input": _dump(item)})
+            self.pause()  # 화면에 "지금 실행 중" 을 먼저 보여 준다
             started = time.perf_counter()
             fn = self._load(name)
             mode, reason = "real", ""
@@ -147,11 +157,20 @@ def run_flow(req: FlowRequest, emit: Emit) -> dict[str, Any]:
 
     frame = Frame(id="F0", ts=now, image_path=req.image_path, region=REGION)
     print(f"▶ 흐름 A: 캡처 이미지 1장 ({req.image_path})", flush=True)
-    incidents: list[Incident] = pipes.incoming.process_frame(frame)
-    for inc in incidents:
+    # IncomingPipeline.process_frame 과 같은 순서 (ocr → 줄 중복 제거 → 줄마다 process_line).
+    # 줄 하나가 끝날 때마다 바로 화면에 보내려고 풀어서 부른다.
+    incoming = pipes.incoming
+    ocr: OcrResult = incoming.modules.run("ocr", frame)
+    incidents: list[Incident] = []
+    for line in incoming.dedup.new_lines(ocr.lines):
+        inc = incoming.process_line(line)
+        if inc is None:
+            continue
+        incidents.append(inc)
         game.record(inc)
         emit({"event": "incident", "incident": _dump(inc)})
     print(f"  채팅 {len(incidents)}건 처리", flush=True)
+    tracer.pause()
 
     game.handle(PhaseEvent(ts=time.time(), phase=GamePhase.POST_GAME, raw="sim"))
     emit({"event": "phase", "phase": GamePhase.POST_GAME.value, "sessionId": game.session.id if game.session else None})
@@ -168,10 +187,24 @@ def _emit_stdout(event: dict[str, Any]) -> None:
     print(MARKER + json.dumps(event, ensure_ascii=False), flush=True)
 
 
+def _module_files() -> dict[str, dict[str, Any]]:
+    """이번 실행이 불러올 모듈 파일과 수정 시각 → 화면에서 "지금 디스크에 있는 코드를 돌렸다"를 확인."""
+    out = {}
+    for name in MODULE_NAMES:
+        path = modules.MODULES[name].path
+        try:
+            mtime = os.path.getmtime(ROOT / path)
+        except OSError:
+            mtime = None
+        out[name] = {"path": path, "mtime": mtime}
+    return out
+
+
 def main(argv: list[str]) -> int:
     use_utf8_console()
     with open(argv[0], encoding="utf-8") as f:
         req = FlowRequest.model_validate(json.load(f))
+    _emit_stdout({"event": "start", "pid": os.getpid(), "files": _module_files(), "stepDelayMs": req.step_delay_ms})
     print(
         f"▶ 전체 흐름 시작 (가정 응답 {'켬' if req.use_fallback else '끔'}, 내 닉네임 '{settings.my_name}')", flush=True
     )

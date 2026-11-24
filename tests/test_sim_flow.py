@@ -129,7 +129,8 @@ def test_run_flow_request_streams_steps_in_subprocess(tmp_path):
     )
     assert events[-1]["type"] == "result" and events[-1]["status"] == "ok"
     kinds = [e.get("event") for e in events if e["type"] == "flow"]
-    assert kinds[0] == "phase" and "post_game" in kinds and kinds[-1] == "done"
+    assert kinds[:2] == ["start", "phase"] and "post_game" in kinds and kinds[-1] == "done"
+    assert isinstance(events[1]["pid"], int)  # 매번 새 프로세스
 
 
 def test_run_flow_request_input_errors(tmp_path):
@@ -176,3 +177,25 @@ def test_missing_package_error_hints_extra(monkeypatch):
     monkeypatch.setattr(modules, "load", lambda name: needs_pkg)
     ocr = next(e for e in _run("clean") if e["event"] == "call")
     assert "uv run --extra ocr sim flow" in ocr["reason"]
+
+
+def test_steps_stream_in_order_one_line_at_a_time(all_fallback):
+    events = _run("abusive")
+    kinds = [(e["event"], e.get("module")) for e in events if e["event"] in ("call_start", "call", "incident")]
+    # 모든 호출은 call_start → call 짝으로, 다른 호출과 겹치지 않는다
+    calls = [k for k in kinds if k[0] != "incident"]
+    assert calls[0::2] == [("call_start", m) for _, m in calls[1::2]]
+    assert [m for _, m in calls[1::2]] == [m for _, m in calls[0::2]]
+    # 줄 하나가 끝나면 바로 incident 가 나온다 (모든 줄을 다 처리한 뒤 한꺼번에가 아니라)
+    first_incident = kinds.index(("incident", None))
+    assert ("call_start", "parse") in kinds[first_incident:]
+
+
+def test_step_delay_pauses_between_calls(all_fallback):
+    import time
+
+    started = time.perf_counter()
+    events = _run("clean", step_delay_ms=20)
+    n_calls = sum(e["event"] == "call" for e in events)
+    assert time.perf_counter() - started >= n_calls * 0.02
+    assert all(e["ms"] < 1000 for e in events if e["event"] == "call")  # 멈춤은 계산 시간(ms)에 넣지 않는다

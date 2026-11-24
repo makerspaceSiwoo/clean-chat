@@ -131,7 +131,7 @@ function renderPlayers() {
 
 // ── 실행 결과 상태 ─────────────────────────────────────
 function newRun() {
-  return { calls: [], incidents: {}, postGame: null, phase: "idle", done: false, stopped: null, summary: null };
+  return { calls: [], incidents: {}, postGame: null, phase: "idle", done: false, stopped: null, summary: null, current: null, proc: null };
 }
 function callsOf(name) {
   return state.run.calls.filter((c) => c.module === name);
@@ -162,6 +162,7 @@ function renderStages() {
     else if (modes.has("real")) [cls, status] = ["real", "실제 모듈"];
     else if (modes.has("fallback")) [cls, status] = ["fallback", fallbackStatus(callsOf(name))];
     if (r.stopped && r.stopped.includes(`[${name}]`)) [cls, status] = ["stopped", "여기서 멈춤"];
+    if (r.current && r.current.module === name) [cls, status] = [cls + " running", "실행 중…"];
     const n = callsOf(name).length;
     // 가정 응답으로 바꾼 이유 (구현 전 / Windows 전용 / 패키지 없음 등) — 처음 하나만, 전체는 마우스를 올리면
     const why = (callsOf(name).find((c) => c.mode === "fallback") || {}).reason || "";
@@ -178,6 +179,49 @@ function renderStages() {
   const phaseKo = { idle: "대기", in_game: "게임 중", post_game: "게임 종료" }[r.phase] || r.phase;
   items.unshift(el("li", { class: "phase" }, el("b", {}, "게임 단계"), el("span", { class: "muted" }, "core/game.py"), el("span", {}, phaseKo)));
   $("stages").replaceChildren(...items);
+}
+
+// 지금 실행 중인 호출이 몇 번째 줄을 처리하는지 (parse 는 줄 id, analyze·rewrite 는 메시지 id → 줄 id)
+function lineIdOf(call) {
+  if (!call) return null;
+  if (call.module === "parse") return call.input.line.id;
+  if (call.module === "analyze" || call.module === "rewrite") {
+    const msgId = call.input.message.id;
+    const p = callsOf("parse").find((c) => c.output.message && c.output.message.id === msgId);
+    return p ? p.input.line.id : msgId;
+  }
+  return null;
+}
+
+function renderNow() {
+  const r = state.run;
+  const box = $("now");
+  const c = r.current;
+  box.classList.toggle("live", Boolean(c));
+  if (c) {
+    const [, num] = MODULES.find(([n]) => n === c.module);
+    const lines = (callsOf("ocr")[0] || { output: { lines: [] } }).output.lines;
+    const idx = lines.findIndex((l) => l.id === lineIdOf(c)) + 1;
+    const what = {
+      ocr: () => "캡처 이미지에서 채팅 줄을 읽는 중",
+      parse: () => `줄 ${idx}/${lines.length} — 채팅인지 시스템 메시지인지 나누는 중`,
+      analyze: () => `줄 ${idx}/${lines.length} — ${c.input.message.speaker}: "${c.input.message.text}" 대상·등급 판단 중`,
+      rewrite: () => `줄 ${idx}/${lines.length} — 피드백 조각 "${c.input.analysis.feedback_spans.join(" / ")}" 순화 중`,
+      report: () => `${c.input.speaker} — ${c.input.kind === "report" ? "신고 문구" : "고소장 초안"} 만드는 중`,
+    }[c.module]();
+    box.textContent = `▶ ${num} ${c.module} 실행 중 · ${what}`;
+  } else if (r.done) {
+    const real = r.calls.filter((x) => x.mode === "real").length;
+    box.textContent = `■ 끝 — 모듈 호출 ${r.calls.length}번 (실제 ${real}번 · 가정 응답 ${r.calls.length - real}번)`;
+  } else if (r.stopped) {
+    box.textContent = `✖ 멈춤 — ${r.stopped}`;
+  }
+  const p = r.proc;
+  $("proc").textContent = p
+    ? `새 프로세스 PID ${p.pid} 에서 디스크의 모듈 코드를 불러 실제 run() 을 호출합니다 (저장된 결과 아님)` +
+      (p.stepDelayMs ? ` · 단계 사이 ${p.stepDelayMs / 1000}초 멈춤 (보여 주기용, 계산 시간은 각 단계 ms 로 따로 표시)` : "")
+    : "";
+  $("proc").title = p ? Object.entries(p.files).map(([n, f]) => `${n}: ${f.path} (수정 ${f.mtime ? new Date(f.mtime * 1000).toLocaleString() : "?"})`).join("\n") : "";
 }
 
 function renderOverlay() {
@@ -234,6 +278,11 @@ function renderRows() {
   const analyze = byKey("analyze", (c) => c.input.message.id);
   const rewrite = byKey("rewrite", (c) => c.input.message.id);
   const rows = [];
+  const r = state.run;
+  const finished = r.done || Boolean(r.stopped);
+  const activeLine = lineIdOf(r.current);
+  const spin = (module, id) => (r.current && r.current.module === module && activeLine === id ? el("span", { class: "spin" }, "실행 중…") : null);
+  const wait = () => (finished ? "" : el("span", { class: "wait" }, "대기"));
   for (const line of ocr.output.lines) {
     const p = parse[line.id];
     const msg = p && p.output.message;
@@ -241,7 +290,7 @@ function renderRows() {
     const rw = msg && rewrite[msg.id];
     const inc = msg && state.run.incidents[msg.id];
     const parseCell = !p
-      ? chip("중복 줄 · 건너뜀", "muted")
+      ? spin("parse", line.id) || (finished ? chip("중복 줄 · 건너뜀", "muted") : wait())
       : msg
         ? [el("div", {}, `${msg.speaker} · ${msg.channel === "all" ? "전체" : "팀"}${msg.is_me ? " · 나" : ""}`), el("div", { class: "muted" }, msg.text), fbChip(p)]
         : [chip("채팅 아님 (시스템)", "muted"), fbChip(p)];
@@ -251,12 +300,12 @@ function renderRows() {
     const decision = inc ? [el("b", {}, ACTION_KO[inc.decision.action] || inc.decision.action), el("div", { class: "muted small" }, inc.decision.reason)] : "";
     const tr = el(
       "tr",
-      { class: "row" + (msg ? "" : " skip"), title: "눌러서 모듈 입력·출력 보기" },
+      { class: "row" + (p && !msg ? " skip" : "") + (activeLine === line.id ? " active" : ""), title: "눌러서 모듈 입력·출력 보기" },
       el("td", { class: "raw" }, line.text, " ", fbChip(ocr)),
       el("td", {}, parseCell),
-      el("td", {}, analysisCell(a)),
-      el("td", {}, rwCell),
-      el("td", {}, decision),
+      el("td", {}, a ? analysisCell(a) : msg ? spin("analyze", line.id) || wait() : ""),
+      el("td", {}, rwCell || (msg ? spin("rewrite", line.id) : "")),
+      el("td", {}, decision || (msg ? wait() : "")),
     );
     const detail = detailRow([p, a, rw]);
     tr.onclick = () => (detail.hidden = !detail.hidden);
@@ -296,6 +345,7 @@ function renderReports() {
 
 function renderAll() {
   renderStages();
+  renderNow();
   renderOverlay();
   renderRows();
   renderReports();
@@ -317,24 +367,30 @@ function setRunning(on) {
 }
 function onFlow(ev) {
   const r = state.run;
-  if (ev.event === "call") r.calls.push(ev);
+  if (ev.event === "start") r.proc = ev;
+  else if (ev.event === "call_start") r.current = ev;
+  else if (ev.event === "call") [r.calls, r.current] = [[...r.calls, ev], null];
   else if (ev.event === "incident") r.incidents[ev.incident.msg.id] = ev.incident;
   else if (ev.event === "phase") r.phase = ev.phase;
   else if (ev.event === "post_game") r.postGame = ev.result;
   else if (ev.event === "done") [r.done, r.summary] = [true, ev.summary];
-  else if (ev.event === "stopped") r.stopped = ev.error;
+  else if (ev.event === "stopped") [r.stopped, r.current] = [ev.error, null];
   renderAll();
+  const active = document.querySelector(".lines tr.active");
+  if (active) active.scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 
 async function run() {
   $("input-error").textContent = "";
   $("result-error").textContent = "";
-  const body = { ocrText: $("ocr-text").value, useFallback: $("use-fallback").checked };
+  const body = { ocrText: $("ocr-text").value, useFallback: $("use-fallback").checked, stepDelayMs: Number($("speed").value) };
   if (state.upload) body.image = { name: state.upload.name, base64: state.upload.base64 };
   else if (state.sample) body.sample = state.sample.id;
   else return ($("input-error").textContent = "예시 이미지를 고르거나 이미지를 첨부하세요");
 
   state.run = newRun();
+  $("now").textContent = "▶ 새 프로세스를 띄우는 중…";
+  $("proc").textContent = "";
   $("console").textContent = "";
   $("rows").replaceChildren(el("tr", {}, el("td", { colspan: "5", class: "muted" }, "실행 중…")));
   $("overlay").replaceChildren(el("span", { class: "muted" }, "실행 중…"));
@@ -377,6 +433,9 @@ async function run() {
     }
   } catch (e) {
     if (controller.signal.aborted) {
+      state.run.current = null;
+      renderAll();
+      $("now").textContent = "■ 중지했습니다";
       setBadge("stopped");
       log("■ 중지했습니다 (실행 중이던 프로세스를 끝냈습니다)", "sys");
     } else {

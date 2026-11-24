@@ -37,6 +37,14 @@
           <input id="use-fallback" type="checkbox" checked>
           <label for="use-fallback">구현 전·오류 모듈은 가정 응답으로 대신 (끄면 실제 앱처럼 그 자리에서 멈춤)</label>
         </div>
+        <div class="field">
+          <label for="speed">실행 속도 — 모듈은 매번 새로 실행하고, 단계 사이에만 잠깐 멈춰서 순서를 보여 줍니다</label>
+          <select id="speed">
+            <option value="500" selected>단계별 (0.5초씩)</option>
+            <option value="1200">천천히 (1.2초씩)</option>
+            <option value="0">바로 (멈춤 없음)</option>
+          </select>
+        </div>
         <details>
           <summary>이번 게임 명단 (fixtures/flow/players.jsonl)</summary>
           <table class="players" id="players"></table>
@@ -58,6 +66,8 @@
       </div>
       <div class="panel-body">
         <ol id="stages" class="stages" aria-label="모듈 상태"></ol>
+        <p id="now" class="now" aria-live="polite">▶ 전체 실행을 누르면 모듈이 순서대로 실행됩니다.</p>
+        <p id="proc" class="small muted"></p>
         <p id="result-error" class="error"></p>
 
         <h3>게임 화면 <span class="muted small">— 원본 캡처 | 오버레이에 보이는 채팅 (정책 결과)</span></h3>
