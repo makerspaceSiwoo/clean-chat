@@ -30,6 +30,9 @@ analyze = [
     "scikit-learn>=1.5",
 ]
 report = ["reportlab>=4.2"]
+rewrite = [
+    "litellm>=1.110.2",
+]
 
 [dependency-groups]
 dev = [
