@@ -143,6 +143,15 @@ function byKey(name, key) {
 }
 
 // ── 그리기 ─────────────────────────────────────────────
+// 왜 가정 응답으로 바꿨는지 짧게: 구현 전 / Windows 전용 / 패키지 없음 / 모듈 오류 (구현된 모듈을 "구현 안 됨"으로 읽지 않게)
+function fallbackStatus(calls) {
+  const reason = (calls.find((c) => c.mode === "fallback") || {}).reason || "";
+  if (reason.startsWith("구현 전")) return "구현 전 → 가정 응답";
+  if (reason.includes("PlatformNotSupported")) return "구현됨 · Windows 전용 → 가정 응답";
+  if (reason.includes("ModuleNotFoundError")) return "구현됨 · 패키지 없음 → 가정 응답";
+  return "구현됨 · 실행 오류 → 가정 응답";
+}
+
 function renderStages() {
   const r = state.run;
   const items = MODULES.map(([name, num, title]) => {
@@ -151,7 +160,7 @@ function renderStages() {
       status = r.done || r.stopped ? NOT_CALLED[name] : "대기";
     if (modes.size === 2) [cls, status] = ["mixed", "실제 + 가정 응답"];
     else if (modes.has("real")) [cls, status] = ["real", "실제 모듈"];
-    else if (modes.has("fallback")) [cls, status] = ["fallback", "가정 응답 (구현 전·오류)"];
+    else if (modes.has("fallback")) [cls, status] = ["fallback", fallbackStatus(callsOf(name))];
     if (r.stopped && r.stopped.includes(`[${name}]`)) [cls, status] = ["stopped", "여기서 멈춤"];
     const n = callsOf(name).length;
     // 가정 응답으로 바꾼 이유 (구현 전 / Windows 전용 / 패키지 없음 등) — 처음 하나만, 전체는 마우스를 올리면
