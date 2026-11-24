@@ -100,7 +100,7 @@ class TracingModules:
             except Exception as e:  # 모듈 안 오류, 출력 형식 오류, Windows 전용 등
                 if not isinstance(fn, Exception):
                     traceback.print_exc()
-                mode, reason = "fallback", f"오류: {type(e).__name__}: {e}"
+                mode, reason = "fallback", f"오류: {type(e).__name__}: {e}{_hint(name, e)}"
             if mode == "fallback":
                 if not self.req.use_fallback:
                     raise FlowStopped(f"[{name}] {reason}")
@@ -122,6 +122,13 @@ class TracingModules:
             return out
 
         return call
+
+
+def _hint(name: str, e: Exception) -> str:
+    """모듈 추가 패키지가 없어서 난 오류면 설치 방법을 덧붙인다 (pyproject.toml 의 모듈 extra)."""
+    if isinstance(e, ModuleNotFoundError):
+        return f" → 모듈 패키지가 없습니다: uv run --extra {name} sim flow (또는 uv sync --extra {name})"
+    return ""
 
 
 def run_flow(req: FlowRequest, emit: Emit) -> dict[str, Any]:

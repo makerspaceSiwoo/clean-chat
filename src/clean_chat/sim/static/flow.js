@@ -154,7 +154,17 @@ function renderStages() {
     else if (modes.has("fallback")) [cls, status] = ["fallback", "가정 응답 (구현 전·오류)"];
     if (r.stopped && r.stopped.includes(`[${name}]`)) [cls, status] = ["stopped", "여기서 멈춤"];
     const n = callsOf(name).length;
-    return el("li", { class: cls, title: status }, el("b", {}, `${num} ${name}`), el("span", { class: "muted" }, title + (n ? ` · ${n}번` : "")), el("span", {}, status));
+    // 가정 응답으로 바꾼 이유 (구현 전 / Windows 전용 / 패키지 없음 등) — 처음 하나만, 전체는 마우스를 올리면
+    const why = (callsOf(name).find((c) => c.mode === "fallback") || {}).reason || "";
+    const backends = [...new Set(callsOf(name).filter((c) => c.mode === "real").map((c) => c.output.backend).filter(Boolean))];
+    return el(
+      "li",
+      { class: cls, title: why || status },
+      el("b", {}, `${num} ${name}`),
+      el("span", { class: "muted" }, title + (n ? ` · ${n}번` : "")),
+      el("span", {}, status + (backends.length ? ` · backend=${backends.join(",")}` : "")),
+      why ? el("span", { class: "why" }, why.replace(/^(구현 전|오류): /, "")) : null,
+    );
   });
   const phaseKo = { idle: "대기", in_game: "게임 중", post_game: "게임 종료" }[r.phase] || r.phase;
   items.unshift(el("li", { class: "phase" }, el("b", {}, "게임 단계"), el("span", { class: "muted" }, "core/game.py"), el("span", {}, phaseKo)));
@@ -226,7 +236,9 @@ function renderRows() {
       : msg
         ? [el("div", {}, `${msg.speaker} · ${msg.channel === "all" ? "전체" : "팀"}${msg.is_me ? " · 나" : ""}`), el("div", { class: "muted" }, msg.text), fbChip(p)]
         : [chip("채팅 아님 (시스템)", "muted"), fbChip(p)];
-    const rwCell = rw ? [rw.output.rewritten ? el("div", {}, rw.output.rewritten) : chip("순화 실패", "L2"), fbChip(rw)] : "";
+    const rwCell = rw
+      ? [rw.output.rewritten ? el("div", {}, rw.output.rewritten) : chip("순화 실패 → 숨김", "L2"), fbChip(rw), el("div", { class: "muted small" }, `backend=${rw.output.backend}`)]
+      : "";
     const decision = inc ? [el("b", {}, ACTION_KO[inc.decision.action] || inc.decision.action), el("div", { class: "muted small" }, inc.decision.reason)] : "";
     const tr = el(
       "tr",

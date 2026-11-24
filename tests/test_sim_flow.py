@@ -167,3 +167,12 @@ def test_http_flow_page_samples_and_images():
     finally:
         httpd.shutdown()
         httpd.server_close()
+
+
+def test_missing_package_error_hints_extra(monkeypatch):
+    def needs_pkg(item):
+        raise ModuleNotFoundError("No module named 'reportlab'")
+
+    monkeypatch.setattr(modules, "load", lambda name: needs_pkg)
+    ocr = next(e for e in _run("clean") if e["event"] == "call")
+    assert "uv run --extra ocr sim flow" in ocr["reason"]
