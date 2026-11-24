@@ -1,0 +1,65 @@
+/* 전체 흐름 화면 (flow.html). 공통 색·버튼은 style.css */
+:root { --l0: #1b7f3b; --l1: #8a5a00; --l2: #c4510a; --l3: #c62828; --fb: #6b4fbb; --fb-bg: #efeafd; }
+@media (prefers-color-scheme: dark) { :root { --l0: #7bd88f; --l1: #ffcc66; --l2: #ffa25c; --l3: #ff8a80; --fb: #b9a6ff; --fb-bg: #2a2340; } }
+
+body.flow { min-height: 100%; }
+.flow-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 12px; padding: 12px; }
+@media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; } }
+.results .panel-body { gap: 4px; }
+.flow-grid .panel-body > * { flex-shrink: 0; } /* 세로 flex 안에서 표·콘솔이 0 높이로 줄어들지 않게 */
+h3 { font-size: 14px; margin: 18px 0 8px; }
+
+.samples { display: grid; gap: 8px; margin: 8px 0 12px; }
+.sample { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: center; text-align: left; padding: 8px; }
+.sample img { width: 96px; height: 56px; object-fit: cover; object-position: top; border-radius: 6px; }
+.sample b { display: block; }
+.sample span { font-size: 12px; color: var(--muted); }
+.sample[aria-checked="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.preview { max-width: 100%; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; }
+#ocr-text { font-size: 12px; }
+.players { width: 100%; font-size: 12px; border-collapse: collapse; }
+.players td { padding: 2px 6px; border-bottom: 1px solid var(--border); }
+
+.stages { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0 0 4px; }
+.stages li { display: flex; flex-direction: column; min-width: 112px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; }
+.stages li b { font-size: 13px; }
+.stages li.real { border-color: var(--ok); background: var(--ok-bg); }
+.stages li.fallback { border-color: var(--fb); background: var(--fb-bg); }
+.stages li.mixed { border-color: var(--warn); background: var(--warn-bg); }
+.stages li.stopped { border-color: var(--err); background: var(--err-bg); }
+.stages li.phase { border-style: dashed; }
+
+.screens { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 1200px) { .screens { grid-template-columns: 1fr; } }
+.screens figure { margin: 0; }
+.screens img { width: 100%; border-radius: 8px; display: block; }
+.overlay { min-height: 120px; padding: 8px 10px; border-radius: 8px; background: rgba(10, 14, 22, .92); color: #e8e8e8; font-size: 13px; line-height: 1.6; }
+.overlay .who { color: #7fb2ff; }
+.overlay .all .who { color: #ff7b7b; }
+.overlay .me .who { color: #9be39b; }
+.overlay .masked .txt { color: #ffd27a; }
+.overlay .rewritten .txt { color: #8fe0c6; }
+.overlay .hidden { color: #8b98a5; font-style: italic; }
+.overlay .tag { font-size: 11px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: #2c333b; color: #c9d1d9; }
+
+.table-wrap { overflow-x: auto; }
+.lines { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.lines th { text-align: left; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.lines td { vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.lines tr.row { cursor: pointer; }
+.lines tr.row:hover td { background: var(--code-bg); }
+.lines tr.skip td { color: var(--muted); }
+.lines td.raw { max-width: 260px; word-break: break-all; }
+.lines tr.detail td { background: var(--code-bg); }
+.lines tr.detail pre { margin: 0 0 8px; font-size: 11.5px; white-space: pre-wrap; word-break: break-all; max-height: 260px; overflow: auto; }
+.chip { display: inline-block; padding: 0 7px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid currentColor; margin: 0 4px 2px 0; white-space: nowrap; }
+.chip.L0 { color: var(--l0); } .chip.L1 { color: var(--l1); } .chip.L2 { color: var(--l2); } .chip.L3 { color: var(--l3); }
+.chip.fb { color: var(--fb); background: var(--fb-bg); border-color: transparent; }
+.chip.muted { color: var(--muted); }
+
+.reports { display: grid; gap: 8px; }
+.report { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.report header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.report header b { flex: 1; }
+.report pre { margin: 0; white-space: pre-wrap; font-size: 12.5px; background: var(--code-bg); padding: 8px; border-radius: 6px; }
+.flow-console { max-height: 360px; border-radius: 8px; }
