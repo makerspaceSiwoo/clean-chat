@@ -14,13 +14,38 @@
 
 - **구현 방식: 템플릿 + 외부 LLM API**. 고정 양식·원문 인용은 템플릿, 사건 경위 문장만 API 로 만듭니다. API 가 실패해도 템플릿만으로 결과를 돌려줍니다. 닉네임 등 개인정보는 API 에 보내지 않고 템플릿에서 채웁니다.
 - 출력 형식을 자동 검사합니다.
-- `kind=report` 는 복사용 신고 문구(자동 신고 금지), `kind=complaint` 는 고소장 초안 + 한글 PDF(`uv sync --extra report`). PDF 는 git 에 올리지 않습니다.
+- `kind=report` 는 복사용 신고 문구(자동 신고 금지), `kind=complaint` 는 고소장 초안 + 한글 PDF(`uv sync --extra report`). PDF는 기본적으로 저장소 루트의 `pdf/`에 저장합니다. 요청에 `output_dir`이 있으면 해당 경로를 사용합니다. 생성한 PDF는 Git에 올리지 않습니다.
 - 브랜치는 `report/<작업 내용>` 으로 만듭니다(예: `report/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
 - 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
 
 ```bash
-uv run sim report                         # 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
-uv run pytest tests/test_report.py        # 자동 테스트 (구현 전이면 skip)
-uv run python scripts/pack_context.py report   # 웹 AI 채팅에 첨부할 맥락 묶음
+uv run --no-env-file sim report                         # 브라우저: 입력 | 디버깅 콘솔(print·logging·오류) | 반환값
+uv run --no-env-file pytest tests/test_report.py        # 자동 테스트 (구현 전이면 skip)
+uv run --no-env-file python scripts/pack_context.py report   # 웹 AI 채팅에 첨부할 맥락 묶음
 ```
 모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).
+
+### 사건 경위 생성 설정
+
+```bash
+uv sync --extra report
+uv run --no-env-file --extra report sim report
+uv run --no-env-file --extra report pytest tests/test_report.py
+```
+
+모델이나 키가 비어 있으면 채널·분류·건수로 사건 경위를 작성합니다. 테스트는 LiteLLM의
+`mock_response`로 키 없이 Gemini 연결 경로를 검증합니다.
+
+Gemini 모델과 키가 준비되면 실행 프로세스의 환경 변수에 `LLM_MODEL`과
+`LLM_API_KEY`를 설정합니다. `report` 모듈은 두 값을 프로세스 환경에서만 읽습니다.
+키는 비밀번호 관리자나 터미널의 숨김 입력으로 환경에 주입하세요.
+
+```bash
+export LLM_MODEL='gemini/<모델 ID>'
+uv run --no-env-file --extra report sim report
+# 앱 실행
+uv run --no-env-file --extra report app
+```
+
+요약 요청에는 채널, 분류, 집계 건수만 포함됩니다. 신고 문구와 PDF 증거 목록에는 로컬 기록의
+채팅 원문과 한국 시간을 사용합니다.

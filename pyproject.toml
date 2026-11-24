@@ -29,7 +29,10 @@ analyze = [
     "transformers>=4.44",
     "scikit-learn>=1.5",
 ]
-report = ["reportlab>=4.2"]
+report = [
+    "litellm>=1.110.2",
+    "reportlab>=4.2",
+]
 rewrite = [
     "litellm>=1.110.2",
 ]

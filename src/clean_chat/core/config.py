@@ -16,9 +16,7 @@ class Settings(BaseModel):
     llm_backend: str = "none"  # rewrite/report 모듈용: "local" | "api" (OPEN-04)
     store_dir: Path = ROOT / ".clean-chat"  # 처리 내역 로컬 저장 (git 제외)
     sessions_dir: Path = ROOT / ".clean-chat" / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
-    complaint_output_dir: str = (
-        ".clean-chat/complaints"  # 고소장 PDF 저장 폴더. 상대 경로 → resolve_repo_path 로 풀어 씀
-    )
+    complaint_output_dir: str = "pdf"  # 저장소 루트 기준 고소장 PDF 저장 폴더
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
     capture_interval_sec: float = 0.4
