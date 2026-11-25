@@ -85,3 +85,8 @@
 uv run sim parse                                      # 브라우저: 입력 → 디버깅 콘솔 → 반환값 (예시 입력 = fixtures)
 uv run pytest tests/test_parse.py                     # 구현하면 자동 검사 (구현 전은 skip)
 ```
+
+
+### 데스크톱의 시스템 메시지
+
+`ParseResult.system_text`는 인식된 핑·시스템 이벤트를 사용자에게 보여 줄 문구입니다. 유저 채팅은 기존의 `message`로 전달합니다. `system_text`의 기본값은 `None`이며 JSON에서는 생략합니다. 예전 모듈에서 `message=None`만 반환하면 인식 가능한 정형 알림만 복원합니다.

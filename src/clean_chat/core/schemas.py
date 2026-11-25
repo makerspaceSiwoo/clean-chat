@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from enum import IntEnum, StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer
 
 SCHEMA_VERSION = "1.0.0"
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
@@ -155,8 +155,16 @@ class ChatMessage(BaseModel):
 
 
 class ParseResult(BaseModel):
+    system_text: str | None = None  # parse가 식별해 재구성한 시스템 문구. 판독 불명은 None.
     line_id: str
     message: ChatMessage | None  # 채팅이 아닌 줄(시스템 메시지, 핑, 잡음)은 None
+
+    @model_serializer(mode="wrap")
+    def _serialize(self, handler):
+        fields = handler(self)
+        if self.system_text is None:
+            fields.pop("system_text", None)
+        return fields
 
 
 # ── ③ analyze: 관계·등급·피드백 ──────────────────────────────

@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
+import os
+import sys
 from pathlib import Path
 
 from pydantic import BaseModel
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[3]))
+STORE = ROOT / ".clean-chat"
+if getattr(sys, "frozen", False):
+    if sys.platform == "darwin":
+        STORE = Path.home() / "Library" / "Application Support" / "Clean Chat"
+    else:
+        STORE = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Clean Chat"
 DATA = ROOT / "data"
 FIXTURES = ROOT / "fixtures"
 
@@ -14,15 +22,13 @@ FIXTURES = ROOT / "fixtures"
 class Settings(BaseModel):
     my_name: str = "나"  # 내 소환사명 (클라이언트 설정에서 변경)
     llm_backend: str = "none"  # rewrite/report 모듈용: "local" | "api" (OPEN-04)
-    store_dir: Path = ROOT / ".clean-chat"  # 처리 내역 로컬 저장 (git 제외)
-    sessions_dir: Path = ROOT / ".clean-chat" / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
-    complaint_output_dir: str = (
-        ".clean-chat/complaints"  # 고소장 PDF 저장 폴더. 상대 경로 → resolve_repo_path 로 풀어 씀
-    )
+    store_dir: Path = STORE  # 처리 내역 로컬 저장 (git 제외)
+    sessions_dir: Path = STORE / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
+    complaint_output_dir: str = str(STORE / "complaints") if getattr(sys, "frozen", False) else ".clean-chat/complaints"
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
-    capture_interval_sec: float = 0.4
-    uploads_dir: Path = ROOT / ".clean-chat" / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
+    capture_interval_sec: float = 0.4  # 고정 주기 비교 기준
+    uploads_dir: Path = STORE / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
     sim_timeout_sec: float = 120.0  # 시뮬레이터에서 모듈 1번 실행 제한 시간 (모델 로딩 포함)
 
 
