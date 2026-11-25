@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from collections import Counter
 from collections.abc import Callable, Iterator
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -59,7 +61,10 @@ def run(req: ReportRequest) -> ReportDraft:
     if incidents:
         try:
             draft.pdf_path = _render_pdf(
-                _fill_template(req, incidents, draft.text), req.output_dir or settings.complaint_output_dir, req.speaker
+                _fill_template(req, incidents, draft.text),
+                req.output_dir or settings.complaint_output_dir,
+                req.speaker,
+                req.session.id,
             )
         except Exception:
             # PDF 저장에 실패해도 사건 경위와 증거 ID는 결과 화면에 돌려준다.
@@ -111,6 +116,7 @@ def _summarize(incidents: list[Incident]) -> str:
                     "content": (
                         "게임 채팅 기록의 사건 경위를 한국어 한 문단으로 작성하세요. "
                         "제공된 채널, 표현의 성격, 건수만 사용하고, 수사기관에 제출하는 문체를 사용하세요. "
+                        "입력 순서를 유지하고 각 건수를 아라비아 숫자와 단위 건으로 한 번씩 쓰세요. "
                         "은어, 원문 인용, 피해자 특정, 발언 목적 추정, 죄명과 범죄 성립 판단을 쓰지 마세요."
                     ),
                 },
@@ -120,7 +126,10 @@ def _summarize(incidents: list[Incident]) -> str:
         content = result.choices[0].message.content
         if content:
             summary = " ".join(content.split())
-            if summary and not any(label in summary for label in ("욕설", "패드립", "정치질")):
+            reported_counts = re.findall(r"(?<![\d.,+-])([\d.,]+)\s*건", summary)
+            if reported_counts == [str(count) for count in counts.values()] and not any(
+                label in summary for label in ("욕설", "패드립", "정치질")
+            ):
                 logger.info("Gemini 사건 경위 생성 성공")
                 return summary
         logger.warning("Gemini 응답이 비어 있거나 사건 경위 형식에 맞지 않아 로컬 문장을 사용합니다.")
@@ -214,7 +223,7 @@ def _investigation_points(incidents: list[Incident]) -> str:
     )
 
 
-def _render_pdf(sections: list[tuple[str, str]], output_dir: str, speaker: str) -> str:
+def _render_pdf(sections: list[tuple[str, str]], output_dir: str, speaker: str, session_id: str) -> str:
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.cidfonts import UnicodeCIDFont
@@ -239,7 +248,8 @@ def _render_pdf(sections: list[tuple[str, str]], output_dir: str, speaker: str) 
         pdfmetrics.registerFont(UnicodeCIDFont(font))
 
     safe_speaker = "".join(char if char.isalnum() or char in "-_#" else "_" for char in speaker)[:60]
-    relative_path = Path(output_dir) / f"complaint_{safe_speaker or 'player'}.pdf"
+    session_key = sha256(session_id.encode()).hexdigest()
+    relative_path = Path(output_dir) / f"complaint_{safe_speaker or 'player'}_{session_key}.pdf"
     path = resolve_repo_path(relative_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 

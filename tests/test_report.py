@@ -37,6 +37,28 @@ def test_complaint_without_credentials(complaint, tmp_path):
     assert path.read_bytes().startswith(b"%PDF-")
 
 
+def test_complaint_pdfs_are_separate_by_session(complaint):
+    pytest.importorskip("reportlab")
+    first_draft = run(complaint)
+    assert first_draft.pdf_path is not None
+    first_path = Path(first_draft.pdf_path)
+    first_pdf = first_path.read_bytes()
+
+    second = complaint.model_copy(deep=True)
+    second.session.id = "second-match"
+    incident = next(incident for incident in second.session.incidents if incident.msg.id == "L5")
+    incident.msg.id = "second-evidence"
+    incident.msg.text = "두 번째 경기의 증거"
+    second_draft = run(second)
+
+    assert second_draft.incident_ids == ["second-evidence"]
+    assert second_draft.pdf_path is not None
+    second_path = Path(second_draft.pdf_path)
+    assert second_path != first_path
+    assert second_path.read_bytes().startswith(b"%PDF-")
+    assert first_path.read_bytes() == first_pdf
+
+
 def test_threat_in_report_and_complaint(complaint, monkeypatch):
     incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
     incident.analysis.harm_types = [HarmType.THREAT, HarmType.FAMILY_INSULT]
@@ -45,7 +67,7 @@ def test_threat_in_report_and_complaint(complaint, monkeypatch):
 
     documents = []
 
-    def capture_document(document, output_dir, speaker):
+    def capture_document(document, output_dir, speaker, session_id):
         documents.append(document)
         return "complaint.pdf"
 
@@ -85,6 +107,9 @@ def test_complaint_litellm_and_fallback(complaint, monkeypatch):
     assert call["messages"][-1]["content"] == (
         "전체 채팅에서 가족을 언급한 비하 표현, 비속어를 사용한 표현에 해당하는 것으로 분류된 메시지 1건"
     )
+
+    summary = "전체 채팅에서 메시지 9건이 확인됩니다."
+    assert run(complaint).text == fallback
 
     def failed_completion(**_kwargs):
         raise TimeoutError
