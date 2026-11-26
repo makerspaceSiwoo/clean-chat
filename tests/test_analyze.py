@@ -341,7 +341,10 @@ def test_train_validation_split_and_multiple_files(tmp_path):
         len(train_part) == 32 and len(val_part) == 8 and sum(y[train.LABELS.index("blame")] for _, y in val_part) == 4
     )
     assert train.split_validation(examples[:4], 0.2, seed=1) == (examples[:4], [])  # 너무 적으면 떼지 않는다
-    score, per = train.macro_f1([[0, 0, 0, 1, 0], [0, 0, 0, 0, 0]], [[0, 0, 0, 0.9, 0], [0, 0, 0, 0.8, 0.1]])
+    labels = ["profanity", "family_insult", "sexual_harassment", "blame", "instigation"]
+    score, per = train.macro_f1(
+        [[0, 0, 0, 1, 0], [0, 0, 0, 0, 0]], [[0, 0, 0, 0.9, 0], [0, 0, 0, 0.8, 0.1]], labels=labels
+    )
     assert per == {"blame": pytest.approx(2 / 3)} and score == pytest.approx(2 / 3)  # 정답 없는 유형은 평균에서 제외
 
 
@@ -534,3 +537,84 @@ def test_judge_follow_up_threat_and_untargeted_swearing():
     assert len(who.evidence) == 4 and who.complaint_candidate
     alone = [_chat(0, 0, "밤하늘별", "아 시발 렉"), _chat(1, 9, "밤하늘별", "바론 죽인다 가자")]
     assert judge.judge(judge.JudgeRequest(messages=alone, players=ROSTER, my_name="나")).speakers == []
+
+
+def test_threat_is_l3_and_game_talk_is_not(monkeypatch):
+    """협박(ADR-0021): 게임 밖 현실의 해악을 말하면 threat · L3. 게임 안의 "죽인다"·"찾아가서 잡자" 는 아니다."""
+    out = impl.run(_req("정글 너 집 주소 안다 찾아간다"))
+    assert (int(out.level), [t.value for t in out.harm_types]) == (3, ["threat"])
+    assert int(impl.run(_req("끝나고 보자 어디 사는지 알아낸다")).level) == 3  # 대상 낱말이 없어도 L3
+    for clean in ("바론 죽인다 다 와", "상대 정글 찾아가서 잡자", "원딜 먼저 죽여 그럼 이긴다"):
+        assert int(impl.run(_req(clean)).level) == 0, clean
+    monkeypatch.setattr(model, "predict", lambda _t: {"threat": 0.93})  # 사전에 없는 협박은 모델 점수로
+    monkeypatch.setattr(model, "version", lambda: "fake-ft")
+    out = impl.run(_req("미드 만나면 반 죽여놓는다"))
+    assert (int(out.level), out.scores) == (3, {"threat": 0.93})
+
+
+def test_threat_gets_its_own_legal_review():
+    """나를 향한 협박 → 고소 후보, 죄목은 협박(형법 제283조)으로 따로 점검한다."""
+    messages = [_chat(0, 0, "불꽃남자", "서폿 뭐하냐"), _chat(1, 60, "불꽃남자", "끝나고 보자 집 주소 안다")]
+    who = judge.judge(judge.JudgeRequest(messages=messages, players=ROSTER, my_name="나")).speakers[0]
+    assert who.complaint_candidate and "threat" in [t.value for t in who.harm_types]
+    charges = {r.charge: r for r in who.legal}
+    assert charges["협박"].statute == "형법 제283조"
+    assert [(r.name, r.status) for r in charges["협박"].requirements] == [
+        ("해악의 고지", "충족"),
+        ("상대방에게 도달", "충족"),
+        ("공포심을 일으킬 정도", "불명"),
+    ]
+
+
+def test_no_abusive_row_is_left_without_type():
+    """협박 유형이 생겼으니 악성(L2 이상)인데 유형이 빈 학습·시험 행은 없어야 한다."""
+    for name in ("labeled_parsed.csv", "train_aug.csv", "champion_eval_draft.csv"):
+        rows = evaluate.load_rows(FIXTURES / "analyze" / name)
+        assert not [r["text"] for r in rows if r["level"] in ("2", "3") and not r["harm_types"].strip()], name
+
+
+def test_threat_criteria_three_tiers(monkeypatch):
+    """협박 기준: ① 명시적(현실 표지) = 문장만으로 L3 · ② 모델 = 게임 표지가 없을 때만 · ③ 암시적 = 흐름(judge)에서만."""
+    monkeypatch.setattr(model, "predict", lambda _t: {"threat": 0.97})  # 모델이 무엇이든 협박이라고 하는 상황
+    monkeypatch.setattr(model, "version", lambda: "fake-ft")
+    for game_call in (
+        "다음 용 때 다 죽인다 모여",
+        "상대 원딜 찾아가서 죽이자 혼자 있음",
+        "제드 보이면 바로 물어서 죽여",
+    ):
+        assert int(impl.run(_req(game_call)).level) == 0, game_call  # ② 게임 표지가 있으면 모델 점수를 받지 않는다
+    assert int(impl.run(_req("미드 니 인스타 찾았다 다 뿌려줄게")).level) == 3  # ② 게임 표지 없음 → 모델 점수로 협박
+    assert int(impl.run(_req("다음에 오프라인에서 보면 진짜 때린다")).level) == 3  # "오프라인"은 게임의 "라인"이 아니다
+    assert (
+        int(impl.run(_req("용 한타 지면 집 주소 안다 찾아간다")).level) == 3
+    )  # ① 명시적 협박은 게임 낱말이 섞여도 협박
+
+
+def test_veiled_threat_needs_context():
+    """③ "끝나고 보자"·"각오해라" 는 문장만으로는 협박이 아니고, 그 사람을 공격하던 유저가 이어서 했을 때만 협박이다."""
+    assert int(impl.run(_req("끝나고 보자 누가 딜량 높은지 ㅋㅋ")).level) == 0
+    assert "threat" not in [t.value for t in impl.run(_req("서폿 끝나고 보자")).harm_types]
+    alone = [_chat(0, 0, "밤하늘별", "끝나고 보자 ㅋㅋ 한 판 더")]
+    assert judge.judge(judge.JudgeRequest(messages=alone, players=ROSTER, my_name="나")).speakers == []
+    after_abuse = [_chat(0, 0, "불꽃남자", "서폿 개새끼"), _chat(1, 120, "불꽃남자", "끝나고 보자 각오해라")]
+    who = judge.judge(judge.JudgeRequest(messages=after_abuse, players=ROSTER, my_name="나")).speakers[0]
+    assert who.complaint_candidate and who.evidence[1].level == 3 and "threat" in [t.value for t in who.harm_types]
+    assert "threat" in [t.value for t in who.evidence[1].harm_types] and who.evidence[1].toward_me
+
+
+def test_threat_eval_draft_does_not_overlap_train():
+    draft = evaluate.load_rows(FIXTURES / "analyze" / "threat_eval_draft.csv")
+    assert len(draft) >= 40 and {r["split"] for r in draft} == {"test"}
+    train_texts = {
+        t for t, _ in train.load_examples([FIXTURES / "analyze" / n for n in ("labeled_parsed.csv", "train_aug.csv")])
+    }
+    assert not {r["text_norm"] for r in draft} & train_texts
+
+
+def test_named_person_beats_lane_word():
+    """이름으로 부른 사람이 대상이다. 문장 속 포지션 낱말이 라인 이름일 뿐일 때(말한 사람 자신의 라인 등)."""
+    team = [("화자", "티모"), ("불주먹", "세주아니"), ("가운데", "아리"), ("아래", "징크스"), ("도우미", "쓰레쉬")]
+    players = [Player(name=n, champion=c, team="ORDER") for n, c in team]
+    assert impl.run(_req("세주 너 일부러 탑 안 오지 트롤이냐", players=players)).target == "불주먹"
+    assert impl.run(_req("정글 트롤이냐", players=players)).target == "불주먹"  # 포지션 낱말만 있으면 그대로 포지션으로
+    assert impl.run(_req("정글 트롤이냐 아리 좀 봐줘라", players=players)).target == "불주먹"  # 먼저 나온 쪽이 대상

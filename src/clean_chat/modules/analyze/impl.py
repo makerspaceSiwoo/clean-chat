@@ -74,10 +74,12 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
     """유해 유형별 점수 0~1. 예) {"profanity": 0.9, "blame": 0.9}
 
     규칙 점수와 파인튜닝 모델 점수(model.py, 모델이 없으면 빈 값) 중 유형별 큰 값.
-    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질·패드립·성희롱은 모델이 잡는다. 욕설(profanity)은 규칙 점수만 쓴다.
+    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질·패드립·성희롱·협박은 모델이 잡는다. 욕설(profanity)은 규칙 점수만 쓴다.
     """
     scores = _rule_scores(text_norm)
     for name, score in model.predict(text_norm).items():
+        if name == HarmType.THREAT.value and lexicon.GAME_TALK.search(text_norm):
+            continue  # 게임 안의 말("다음 용 때 다 죽인다")은 모델이 협박이라 해도 받지 않는다. 명시적 협박은 규칙이 잡는다
         if name not in _RULE_ONLY and score > scores.get(name, 0.0):
             scores[name] = round(score, 4)
     return scores
@@ -91,6 +93,7 @@ def _rule_scores(text_norm: str) -> dict[str, float]:
         HarmType.SEXUAL_HARASSMENT: any(w in text_norm for w in lexicon.SEXUAL),
         HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)),
         HarmType.INSTIGATION: bool(lexicon.INSTIGATION.search(text_norm)),
+        HarmType.THREAT: bool(lexicon.THREAT.search(text_norm)),
     }
     return {t.value: _RULE_SCORE for t, hit in checks.items() if hit}
 
@@ -110,11 +113,16 @@ def _guess_target(message: ChatMessage, history: list[ChatMessage], players: lis
     speaker = next((p for p in players if p.name == message.speaker or (p.is_me and message.is_me)), None)
     people = _people(message, history, players)
     found = _position_token(text)
+    named = next((p for p in people if _addressed(p, message, speaker)), None)
     if found:
-        return _resolve_position(found[0], message, speaker, people) or found[0]
-    for p in people:
-        if _addressed(p, message, speaker):
-            return p.name
+        resolved = _resolve_position(found[0], message, speaker, people)
+        # 이름으로 부른 사람이 있으면 포지션 낱말보다 먼저다: 포지션을 한 명으로 못 좁혔거나(말한 사람 자신의 라인 등),
+        # 이름이 문장에서 먼저 나올 때. 예) 탑이 한 말 "세주 너 일부러 탑 안 오지" → 대상은 세주아니, "탑" 은 라인 이름
+        if named is not None and (resolved is None or _name_index(named, text) < found[1]):
+            return named.name
+        return resolved or found[0]
+    if named is not None:
+        return named.name
     if lexicon.SECOND_PERSON.search(text):
         for prev in reversed(history):
             if prev.speaker != message.speaker:
@@ -141,6 +149,12 @@ def _addressed(p: Player, message: ChatMessage, speaker: Player | None) -> bool:
             return True
     # 줄임말("이즈", "케틀")은 짧아서 다른 낱말 속에 들어 있기 쉽다 → 낱말 단위로만 본다
     return any(_called(alias, message.text_norm) for alias in names_of(p.champion)[1:])
+
+
+def _name_index(p: Player, text: str) -> int:
+    """문장에서 이 사람의 이름(닉네임·챔피언·줄임말)이 처음 나오는 위치. 못 찾으면 문장 끝."""
+    spots = [text.find(w) for w in (p.name, *names_of(p.champion)) if w and text.find(w) >= 0]
+    return min(spots, default=len(text))
 
 
 def _people(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> list[Player]:
@@ -200,9 +214,9 @@ def _lineup_holders(team: list[Player], role: str) -> set[str]:
 
 
 def _decide_level(scores: dict[str, float], target: str | None) -> tuple[Level, list[HarmType]]:
-    """점수 + 대상 여부 → 등급과 유형 목록. 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱 = L3)."""
+    """점수 + 대상 여부 → 등급과 유형 목록. 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱·협박 = L3)."""
     hit = [t for t in HarmType if scores.get(t.value, 0.0) >= THRESHOLD]
-    if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit:
+    if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit or HarmType.THREAT in hit:
         return Level.L3_LEGAL, hit
     if target and hit:
         return Level.L2_ABUSIVE, hit

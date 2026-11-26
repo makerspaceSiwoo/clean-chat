@@ -167,7 +167,38 @@ def review(facts: CaseFacts, index: PrecedentIndex | None = None, k: int = 3) ->
                 similar=index.search(query, "통신매체이용음란", k),
             )
         )
+    if HarmType.THREAT in types:
+        reviews.append(
+            LegalReview(
+                charge="협박",
+                statute="형법 제283조",
+                requirements=_threat(facts),
+                similar=index.search(query, "협박", k),
+            )
+        )
     return reviews
+
+
+def _threat(f: CaseFacts) -> list[Requirement]:
+    """협박 요건 점검 (ADR-0021). 초안이며 법률가 검토가 필요하다."""
+    reach = (
+        Requirement(name="상대방에게 도달", status="충족", reason="나를 향한 채팅으로 화면에 표시됨")
+        if f.toward_me
+        else Requirement(name="상대방에게 도달", status="미충족", reason="나를 향한 표현이 확인되지 않음")
+    )
+    return [
+        Requirement(
+            name="해악의 고지",
+            status="충족",
+            reason="현실의 해악(찾아감·신상 공개·신체 위협 등)을 알리는 표현이 감지됨",
+        ),
+        reach,
+        Requirement(
+            name="공포심을 일으킬 정도",
+            status="불명",
+            reason="게임 중 감정적인 욕설·과장인지, 실제로 실행할 것처럼 구체적인지(주소·신상을 아는지 등) 판단 필요",
+        ),
+    ]
 
 
 def _insult(f: CaseFacts) -> list[Requirement]:

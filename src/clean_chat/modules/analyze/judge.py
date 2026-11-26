@@ -48,12 +48,8 @@ AGREE_WINDOW_SEC = 20.0
 AGREE = re.compile(r"^(ㅇㅈ|ㄹㅇ|인정|맞음|맞네|맞말|그니까|그러니까|동의|팩트)([ㅋㅎ!?.~\s].*)?$")
 AGREE_SHORT = re.compile(r"^(ㅇㅇ)[ㅋㅎ!?.~\s]*$")  # "ㅇㅇ" 은 대답으로도 쓰여서 단독일 때만
 # 말리는 말: 이미 남을 공격한 사람에게 하는 "그만해라", "선 넘지 마라" 는 가해가 아니다
-# 협박: 유형 코드는 없지만 고소 후보 사유다 (SPEC 4-2 의 L3). 게임 안의 "죽인다"(콜)와 겹치지 않게 현실을 가리키는 말만.
-THREAT = re.compile(
-    r"찾아(간다|갈|낸다|내서|가서)|집\s?주소|어디\s?사는지|사는\s?(곳|동네|데)|신상|현실에서|현피|끝나고\s?보자"
-    r"|가만\s?안\s?(둔|두)|부러뜨|따라다닐|각오해"
-)
 SELF_TALK = re.compile(r"(^|\s)(내가|내|나|제가)(\s|$)|내\s?(실수|잘못|탓)")
+VEILED_THREAT_SEC = 900.0  # 암시적 협박을 "앞서 공격하던 사람에게 한 말"로 보는 시간
 FOLLOW_UP_SEC = 600.0  # 대상을 생략한 욕설을 "앞서 공격하던 사람에게 이어서 한 말"로 보는 시간
 MODEL_THRESHOLD = 0.5  # judge 모델 점수가 이 이상이면 그 판단(신고 권고·고소 후보)으로 본다
 Mode = Literal["rules", "hybrid", "model"]  # rules: 규칙만(기본) / hybrid: 규칙 또는 모델 / model: 모델만 (비교용)
@@ -129,9 +125,7 @@ def judge(req: JudgeRequest, index: precedents.PrecedentIndex | None = None, mod
         analysis = req.analyses.get(msg.id) or impl.run(
             AnalyzeRequest(message=msg, history=req.messages[max(0, i - HISTORY) : i], players=req.players)
         )
-        found = _direct(msg, analysis, me) or _follow_up(msg, analysis, by_speaker.get(msg.speaker, []), me)
-        if found is not None and found.level < Level.L3_LEGAL and THREAT.search(msg.text_norm):
-            found = found.model_copy(update={"level": int(Level.L3_LEGAL)})  # 대상이 있는 협박은 고강도로 올린다
+        found = _follow_up(msg, analysis, by_speaker.get(msg.speaker, []), me) or _direct(msg, analysis, me)
         if found is not None and _defending(msg, found, aggressors, recent):
             found = None
         agreed = _agreement(msg, recent, speakers_of, me)
@@ -243,17 +237,20 @@ def _direct(msg: ChatMessage, analysis: Analysis, me: Player) -> Evidence | None
 
 
 def _follow_up(msg: ChatMessage, analysis: Analysis, earlier: list[Evidence], me: Player) -> Evidence | None:
-    """한 문장으로는 대상이 없지만 흐름으로는 이어지는 말: 협박, 그리고 앞서 공격하던 사람에게 대상을 생략하고 한 욕설.
+    """한 문장으로는 대상이 없지만 흐름으로는 이어지는 말: 대상을 생략한 협박과, 나를 공격하던 사람이 이어서 한 욕설.
 
-    예) "서폿 병신" 뒤의 "꺼져 쓰레기야", "끝나고 보자 찾아간다". 자책("아 시발 내 실수")은 뺀다.
+    예) "서폿 병신" 뒤의 "꺼져 쓰레기야", "끝나고 보자 어디 사는지 찾아낸다". 자책("아 시발 내 실수")은 뺀다.
     """
     last = next((e for e in reversed(earlier) if e.kind == "direct" and e.target), None)
     text = msg.text_norm
-    if THREAT.search(text) and not SELF_TALK.search(text):
-        target = analysis.target or (last.target if last else None)
-        toward_me = _is_me(target, me) or bool(last and last.toward_me)
-        if target or toward_me:
-            return _evidence(msg, int(Level.L3_LEGAL), analysis.harm_types, target or me.name, toward_me)
+    if HarmType.THREAT in analysis.harm_types and analysis.target is None and last is not None:
+        # 협박(ADR-0021)인데 문장에 대상이 없으면 앞서 공격하던 사람에게 한 말로 본다
+        return _evidence(msg, int(Level.L3_LEGAL), analysis.harm_types, last.target, last.toward_me)
+    veiled = lexicon.THREAT_VEILED.search(text) and not lexicon.GAME_TALK.search(text) and not SELF_TALK.search(text)
+    if veiled and last is not None and msg.ts - last.ts <= VEILED_THREAT_SEC:
+        # 암시적 협박("끝나고 보자", "각오해라"): 문장만으로는 알 수 없고, 그 사람을 공격하던 유저가 이어서 했을 때만 협박
+        types = [t for t in HarmType if t in analysis.harm_types or t == HarmType.THREAT]
+        return _evidence(msg, int(Level.L3_LEGAL), types, last.target, last.toward_me)
     if last is None or not last.toward_me or msg.ts - last.ts > FOLLOW_UP_SEC or SELF_TALK.search(text):
         return None  # 이어받기는 나를 향하던 말에만 쓴다 (친한 사이의 장난까지 쌓지 않게)
     if analysis.level == Level.L1_MILD and analysis.target is None:
