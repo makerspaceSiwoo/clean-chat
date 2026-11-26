@@ -59,6 +59,31 @@ def test_complaint_pdfs_are_separate_by_session(complaint):
     assert first_path.read_bytes() == first_pdf
 
 
+def test_complaint_pdfs_are_separate_when_speaker_filenames_match(complaint):
+    pytest.importorskip("reportlab")
+    first_incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
+    first_incident.msg.speaker = "달빛 고양이"
+    second_incident = first_incident.model_copy(deep=True)
+    second_incident.msg.id = "L6"
+    second_incident.msg.speaker = "달빛_고양이"
+    second_incident.msg.text = "두 번째 화자의 증거"
+    complaint.session.incidents = [first_incident, second_incident]
+
+    first_draft = run(complaint.model_copy(update={"speaker": first_incident.msg.speaker}))
+    assert first_draft.incident_ids == ["L5"]
+    assert first_draft.pdf_path is not None
+    first_path = Path(first_draft.pdf_path)
+    first_pdf = first_path.read_bytes()
+
+    second_draft = run(complaint.model_copy(update={"speaker": second_incident.msg.speaker}))
+    assert second_draft.incident_ids == ["L6"]
+    assert second_draft.pdf_path is not None
+    second_path = Path(second_draft.pdf_path)
+    assert second_path != first_path
+    assert second_path.read_bytes().startswith(b"%PDF-")
+    assert first_path.read_bytes() == first_pdf
+
+
 def test_threat_in_report_and_complaint(complaint, monkeypatch):
     incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
     incident.analysis.harm_types = [HarmType.THREAT, HarmType.FAMILY_INSULT]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -248,8 +249,8 @@ def _render_pdf(sections: list[tuple[str, str]], output_dir: str, speaker: str, 
         pdfmetrics.registerFont(UnicodeCIDFont(font))
 
     safe_speaker = "".join(char if char.isalnum() or char in "-_#" else "_" for char in speaker)[:60]
-    session_key = sha256(session_id.encode()).hexdigest()
-    relative_path = Path(output_dir) / f"complaint_{safe_speaker or 'player'}_{session_key}.pdf"
+    file_key = sha256(json.dumps((session_id, speaker)).encode()).hexdigest()
+    relative_path = Path(output_dir) / f"complaint_{safe_speaker or 'player'}_{file_key}.pdf"
     path = resolve_repo_path(relative_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
