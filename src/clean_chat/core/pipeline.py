@@ -92,7 +92,9 @@ class MessageFilters:
             self.history.append(message)
             rw = None
             if analysis.level >= Level.L2_ABUSIVE and analysis.feedback_spans:
-                rw = self.modules.run("rewrite", RewriteRequest(message=message, analysis=analysis))
+                rw = self.modules.run(
+                    "rewrite", RewriteRequest(message=message, analysis=analysis, players=self.roster.players)
+                )
             return analysis, rw
 
 

@@ -43,7 +43,7 @@
 ③ AnalyzeRequest { message: ChatMessage, history: ChatMessage[], players: Player[] }
    Analysis       { msg_id, target?, level: 0~3, harm_types[], profanity_spans[], feedback_spans[], scores{}, model_version }
                   ← target = 공격 대상의 **닉네임** (한 명으로 못 좁히면 포지션 단어 "정글", 없으면 null) — ADR-0020
-④ RewriteRequest { message: ChatMessage, analysis: Analysis }
+④ RewriteRequest { message: ChatMessage, analysis: Analysis, players: Player[] = [] }
    Rewrite        { msg_id, rewritten?, backend }
 ⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir? }
    ReportDraft    { kind, speaker, text, incident_ids[], pdf_path? }
@@ -93,3 +93,12 @@
 uv run sim parse                                      # 브라우저: 입력 → 디버깅 콘솔 → 반환값 (예시 입력 = fixtures)
 uv run pytest tests/test_parse.py                     # 구현하면 자동 검사 (구현 전은 skip)
 ```
+
+
+### rewrite의 닉네임 보호
+
+`RewriteRequest.players`는 경기 명단이며 기본값은 빈 목록입니다. 기존 fixture/호출과 호환됩니다.
+두 입력 흐름의 공통 호출부가 명단을 넘기고, rewrite의 요청 단위 클래스가 닉네임을 고유한
+`플레이어_랜덤4자리`로 치환합니다. 챔피언명은 그대로 전송하며 대응표는 로컬 메모리에만 둡니다.
+선택된 피드백의 코드가 정확히 보존된 응답만 원래 닉네임으로 복원합니다. 누락·변형·추가는
+로컬 순화 규칙으로 대체하며, 규칙도 코드를 보존하지 못하면 None을 반환합니다.
