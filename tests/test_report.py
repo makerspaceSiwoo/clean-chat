@@ -4,6 +4,10 @@ from html import unescape
 
 import pytest
 
+from clean_chat.core.config import settings
+from clean_chat.core.game import PostGameBatch
+from clean_chat.core.modules import ModuleSet
+from clean_chat.core.policy import decide_incoming
 from clean_chat.core.schemas import HarmType, ReportKind, ReportRequest
 from clean_chat.modules.report.impl import run
 from helpers import fixture_pairs
@@ -71,6 +75,39 @@ def test_complaint_returns_full_styled_html_without_writing_files(complaint, tmp
 
     legacy_destination = tmp_path / "complaints"
     assert run(complaint.model_copy(update={"output_dir": str(legacy_destination)})) == draft
+    assert not list(tmp_path.iterdir())
+
+
+def test_post_game_returns_both_drafts_for_complaint_speaker(complaint, tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "complaint_output_dir", str(tmp_path / "complaints"))
+    for incident in complaint.session.incidents:
+        incident.decision = decide_incoming(incident.msg, incident.analysis, incident.rewrite)
+    evidence = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
+    assert evidence.decision.report and evidence.decision.complaint_candidate
+
+    result = PostGameBatch(ModuleSet()).run(complaint.session)
+    reports = {draft.speaker: draft for draft in result.reports}
+    complaints = {draft.speaker: draft for draft in result.complaints}
+    assert set(reports) == {"불꽃남자", complaint.speaker}
+    assert set(complaints) == {complaint.speaker}
+
+    report = reports[complaint.speaker]
+    assert report.kind == ReportKind.REPORT
+    assert report.incident_ids == ["L5"]
+    assert report.text.splitlines() == [
+        f"신고 대상: {complaint.speaker}",
+        "사유: 언어 폭력 1건",
+        f"[2025-11-12 13:00:05] {evidence.msg.text} (욕설, 패드립)",
+    ]
+
+    draft = complaints[complaint.speaker]
+    assert draft.kind == ReportKind.COMPLAINT
+    assert draft.incident_ids == ["L5"]
+    assert "<h1 " in draft.text and ">고소장</h1>" in draft.text
+    assert "사건 경위:" in draft.text
+    assert f"[L5] 2025-11-12 13:00:05 (전체 채팅) {evidence.msg.text}" in unescape(draft.text)
+    assert "고소인 서명:" in draft.text
+    assert report.pdf_path is None and draft.pdf_path is None
     assert not list(tmp_path.iterdir())
 
 
