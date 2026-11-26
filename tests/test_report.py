@@ -1,112 +1,94 @@
-"""⑤ report 모듈의 신고 문구, 고소장 PDF, 키 없는 LiteLLM 연결 검증."""
+"""⑤ report 모듈의 신고 문구, 고소장 HTML, 키 없는 LiteLLM 연결 검증."""
 
-from pathlib import Path
+from html import unescape
 
 import pytest
 
 from clean_chat.core.schemas import HarmType, ReportKind, ReportRequest
-from clean_chat.modules.report import impl
 from clean_chat.modules.report.impl import run
 from helpers import fixture_pairs
 
 
-@pytest.mark.parametrize(("req", "expected"), fixture_pairs("report")[:2])
-def test_report_fixtures(req, expected):
+@pytest.mark.parametrize(("req", "expected"), fixture_pairs("report"))
+def test_report_fixtures(req, expected, monkeypatch):
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    req = req.model_copy(deep=True)
     req.session.incidents.reverse()
     assert run(req) == expected
 
 
 @pytest.fixture
-def complaint(tmp_path, monkeypatch) -> ReportRequest:
+def complaint(monkeypatch) -> ReportRequest:
     monkeypatch.delenv("LLM_MODEL", raising=False)
     monkeypatch.delenv("LLM_API_KEY", raising=False)
     req, _ = next(pair for pair in fixture_pairs("report") if pair[0].kind == ReportKind.COMPLAINT)
-    return req.model_copy(update={"output_dir": str(tmp_path), "complainant": "테스트 고소인"})
+    return req.model_copy(update={"output_dir": None, "complainant": "테스트 고소인"}, deep=True)
 
 
-def test_complaint_without_credentials(complaint, tmp_path):
-    pytest.importorskip("reportlab")
+def test_complaint_returns_full_styled_html_without_writing_files(complaint, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    complaint.speaker = "달빛 <고양이>&"
+    complaint.complainant = "신고인 <이름>&"
+    incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
+    incident.msg.speaker = complaint.speaker
+    incident.msg.text = "첫 줄 <script>alert(1)</script> &  원문\n둘째 줄"
+
+    assert complaint.output_dir is None
     draft = run(complaint)
-
+    html = draft.text
     assert draft.incident_ids == ["L5"]
-    assert "전체 채팅" in draft.text
-    assert "1건" in draft.text
-    assert draft.pdf_path is not None
-    path = Path(draft.pdf_path)
-    assert path.parent == tmp_path
-    assert path.read_bytes().startswith(b"%PDF-")
+    assert draft.pdf_path is None
+    assert html.startswith('<article lang="ko"')
+    for fragment in (
+        "Gungsuh, AppleMyungjo",
+        "font-size: 25pt",
+        "font-size: 14pt",
+        "font-size: 11pt",
+        "font-weight: bold",
+        "white-space: pre-wrap",
+        "overflow-wrap: anywhere",
+        ">고소장</h1>",
+        ">초안</p>",
+        ">고소인</h2>",
+        ">피고소인</h2>",
+        ">고소취지</h2>",
+        ">범죄사실</h2>",
+        ">고소이유</h2>",
+        ">증거자료</h2>",
+        ">작성 및 제출</h2>",
+        "사건 경위:",
+        "메시지 1건",
+        "채팅 기록 1건\n1. [L5] 2025-11-12 13:00:05 (전체 채팅)",
+        "고소인 서명:",
+        "실제 제출 전 전문가 검토가 필요합니다.",
+    ):
+        assert fragment in html
+    assert "<script>" not in html
+    assert "&lt;script&gt;alert(1)&lt;/script&gt; &amp;" in html
+    for value in (complaint.speaker, complaint.complainant, incident.msg.text):
+        assert value in unescape(html)
+
+    legacy_destination = tmp_path / "complaints"
+    assert run(complaint.model_copy(update={"output_dir": str(legacy_destination)})) == draft
+    assert not list(tmp_path.iterdir())
 
 
-def test_complaint_pdfs_are_separate_by_session(complaint):
-    pytest.importorskip("reportlab")
-    first_draft = run(complaint)
-    assert first_draft.pdf_path is not None
-    first_path = Path(first_draft.pdf_path)
-    first_pdf = first_path.read_bytes()
-
-    second = complaint.model_copy(deep=True)
-    second.session.id = "second-match"
-    incident = next(incident for incident in second.session.incidents if incident.msg.id == "L5")
-    incident.msg.id = "second-evidence"
-    incident.msg.text = "두 번째 경기의 증거"
-    second_draft = run(second)
-
-    assert second_draft.incident_ids == ["second-evidence"]
-    assert second_draft.pdf_path is not None
-    second_path = Path(second_draft.pdf_path)
-    assert second_path != first_path
-    assert second_path.read_bytes().startswith(b"%PDF-")
-    assert first_path.read_bytes() == first_pdf
-
-
-def test_complaint_pdfs_are_separate_when_speaker_filenames_match(complaint):
-    pytest.importorskip("reportlab")
-    first_incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
-    first_incident.msg.speaker = "달빛 고양이"
-    second_incident = first_incident.model_copy(deep=True)
-    second_incident.msg.id = "L6"
-    second_incident.msg.speaker = "달빛_고양이"
-    second_incident.msg.text = "두 번째 화자의 증거"
-    complaint.session.incidents = [first_incident, second_incident]
-
-    first_draft = run(complaint.model_copy(update={"speaker": first_incident.msg.speaker}))
-    assert first_draft.incident_ids == ["L5"]
-    assert first_draft.pdf_path is not None
-    first_path = Path(first_draft.pdf_path)
-    first_pdf = first_path.read_bytes()
-
-    second_draft = run(complaint.model_copy(update={"speaker": second_incident.msg.speaker}))
-    assert second_draft.incident_ids == ["L6"]
-    assert second_draft.pdf_path is not None
-    second_path = Path(second_draft.pdf_path)
-    assert second_path != first_path
-    assert second_path.read_bytes().startswith(b"%PDF-")
-    assert first_path.read_bytes() == first_pdf
-
-
-def test_threat_in_report_and_complaint(complaint, monkeypatch):
+def test_threat_in_report_and_complaint(complaint):
     incident = next(incident for incident in complaint.session.incidents if incident.msg.id == "L5")
     incident.analysis.harm_types = [HarmType.THREAT, HarmType.FAMILY_INSULT]
     report = run(complaint.model_copy(update={"kind": ReportKind.REPORT}))
     assert "(협박, 패드립)" in report.text
 
-    documents = []
-
-    def capture_document(document, output_dir, speaker, session_id):
-        documents.append(document)
-        return "complaint.pdf"
-
-    monkeypatch.setattr(impl, "_render_pdf", capture_document)
     draft = run(complaint)
     assert draft.incident_ids == ["L5"]
     assert "가족을 언급한 비하 표현, 게임 밖에서 해악을 가하겠다고 고지하는 표현" in draft.text
-    (document,) = documents
-    sections = dict(document)
-    assert sections["협박 관련 기록 (1건)"] == "증거 ID: L5"
-    assert "형법 제283조 제1항(협박)" in sections["고소이유"]
-    assert "일반적으로 공포심을 일으키기에 충분하였는지" in sections["고소이유"]
-    assert "상대방에게 도달하여 상대방이 그 의미를 인식하였는지" in sections["고소이유"]
-    assert incident.msg.text in sections["증거자료"]
+    assert "협박 관련 기록 (1건)</h2>" in draft.text
+    assert "증거 ID: L5" in draft.text
+    assert "형법 제283조 제1항(협박)" in draft.text
+    assert "일반적으로 공포심을 일으키기에 충분하였는지" in draft.text
+    assert "상대방에게 도달하여 상대방이 그 의미를 인식하였는지" in draft.text
+    assert incident.msg.text in unescape(draft.text)
 
 
 def test_complaint_litellm_and_fallback(complaint, monkeypatch):
@@ -125,7 +107,7 @@ def test_complaint_litellm_and_fallback(complaint, monkeypatch):
         return completion(**kwargs, mock_response=summary)
 
     monkeypatch.setattr(litellm, "completion", fake_completion)
-    assert run(complaint).text == summary
+    assert f"사건 경위: {summary}" in run(complaint).text
     (call,) = calls
     assert call["model"] == "gemini/test-model"
     assert call["api_key"] == "test-key"
@@ -143,8 +125,10 @@ def test_complaint_litellm_and_fallback(complaint, monkeypatch):
     assert run(complaint).text == fallback
 
 
-def test_complaint_without_evidence(complaint, tmp_path):
+def test_complaint_without_evidence(complaint):
     draft = run(complaint.model_copy(update={"speaker": "기록 없는 화자"}))
     assert draft.incident_ids == []
     assert draft.pdf_path is None
-    assert not list(tmp_path.iterdir())
+    assert "고소장 초안에 포함할 채팅 기록이 없습니다." in draft.text
+    assert "채팅 기록 0건" in draft.text
+    assert "고소인 서명:" in draft.text

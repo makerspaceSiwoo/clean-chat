@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import re
 from collections import Counter
-from collections.abc import Callable, Iterator
 from datetime import datetime, timedelta, timezone
-from hashlib import sha256
-from pathlib import Path
-from tempfile import NamedTemporaryFile
+from html import escape
 
-from clean_chat.core.config import resolve_repo_path, settings
 from clean_chat.core.schemas import Channel, HarmType, Incident, ReportDraft, ReportKind, ReportRequest
 
 logger = logging.getLogger(__name__)
@@ -58,18 +53,7 @@ def run(req: ReportRequest) -> ReportDraft:
         )
         return draft
 
-    draft.text = _summarize(incidents)
-    if incidents:
-        try:
-            draft.pdf_path = _render_pdf(
-                _fill_template(req, incidents, draft.text),
-                req.output_dir or settings.complaint_output_dir,
-                req.speaker,
-                req.session.id,
-            )
-        except Exception:
-            # PDF 저장에 실패해도 사건 경위와 증거 ID는 결과 화면에 돌려준다.
-            logger.warning("고소장 PDF를 생성하지 못했습니다.")
+    draft.text = _render_complaint(_fill_template(req, incidents, _summarize(incidents)))
     return draft
 
 
@@ -146,9 +130,12 @@ def _summarize(incidents: list[Incident]) -> str:
 
 def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) -> list[tuple[str, str]]:
     my_id = next((player.name for player in req.session.players if player.is_me), "")
-    start = _timestamp(incidents[0].msg.ts)
-    end = _timestamp(incidents[-1].msg.ts)
-    when = start if start == end else f"{start} ~ {end}"
+    blank = "________________________________"
+    when = blank
+    if incidents:
+        start = _timestamp(incidents[0].msg.ts)
+        end = _timestamp(incidents[-1].msg.ts)
+        when = start if start == end else f"{start} ~ {end}"
     evidence = "\n".join(
         f"{index}. [{incident.msg.id}] {_timestamp(incident.msg.ts)} "
         f"({CHANNEL_LABELS[incident.msg.channel]}) {incident.msg.text}"
@@ -158,7 +145,6 @@ def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) 
     threat_sections = (
         [(f"협박 관련 기록 ({len(threat_ids)}건)", f"증거 ID: {', '.join(threat_ids)}")] if threat_ids else []
     )
-    blank = "________________________________"
     return [
         (
             "고소인",
@@ -224,99 +210,23 @@ def _investigation_points(incidents: list[Incident]) -> str:
     )
 
 
-def _render_pdf(sections: list[tuple[str, str]], output_dir: str, speaker: str, session_id: str) -> str:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.cidfonts import UnicodeCIDFont
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.pdfgen.canvas import Canvas
-
-    font = "HYSMyeongJo-Medium"
-    windows_fonts = Path(os.getenv("WINDIR", "C:/Windows")) / "Fonts"
-    mac_fonts = Path("/System/Library/Fonts/Supplemental")
-    font_candidates = (
-        (windows_fonts / "batang.ttc", 2),  # Windows 바탕 글꼴 모음의 궁서
-        (mac_fonts / "AppleMyungjo.ttf", 0),
-        (windows_fonts / "malgun.ttf", 0),
-        (mac_fonts / "AppleGothic.ttf", 0),
-    )
-    for font_path, subfont_index in font_candidates:
-        if font_path.is_file():
-            font = "CleanChatKorean"
-            pdfmetrics.registerFont(TTFont(font, str(font_path), subfontIndex=subfont_index))
-            break
-    else:
-        pdfmetrics.registerFont(UnicodeCIDFont(font))
-
-    safe_speaker = "".join(char if char.isalnum() or char in "-_#" else "_" for char in speaker)[:60]
-    file_key = sha256(json.dumps((session_id, speaker)).encode()).hexdigest()
-    relative_path = Path(output_dir) / f"complaint_{safe_speaker or 'player'}_{file_key}.pdf"
-    path = resolve_repo_path(relative_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    # 렌더링 완료 후 교체해 결과 화면에서 불완전한 PDF가 열리지 않게 한다.
-    with NamedTemporaryFile(dir=path.parent, suffix=".pdf", delete=False) as handle:
-        temporary_path = Path(handle.name)
-    try:
-        canvas = Canvas(str(temporary_path), pagesize=A4)
-        canvas.setTitle("고소장 초안")
-        width, height = A4
-        margin, font_size, line_height = 60, 11, 17
-        y = height - margin
-
-        def draw_heading(label: str, x: float, baseline: float, size: int) -> None:
-            # 명조·궁서처럼 굵은 파일이 없는 서체도 글자 외곽선을 더해 제목을 강조한다.
-            canvas.saveState()
-            canvas.setLineWidth(0.35)
-            heading_text = canvas.beginText(x, baseline)
-            heading_text.setFont(font, size)
-            heading_text.setTextRenderMode(2)
-            heading_text.textLine(label)
-            canvas.drawText(heading_text)
-            canvas.restoreState()
-
-        title = "고소장"
-        draw_heading(title, (width - pdfmetrics.stringWidth(title, font, 25)) / 2, y, 25)
-        y -= 21
-        canvas.setFont(font, 10)
-        canvas.drawCentredString(width / 2, y, "초안")
-        y -= 30
-
-        for heading, body in sections:
-            if y < margin + (3 * line_height if heading else 0):
-                canvas.showPage()
-                y = height - margin
-            if heading:
-                draw_heading(heading, margin, y, 14)
-                y -= 22
-            canvas.setFont(font, font_size)
-            for line in body.splitlines():
-                for row in _wrap_line(
-                    line, width - 2 * margin, lambda text: pdfmetrics.stringWidth(text, font, font_size)
-                ):
-                    if y < margin:
-                        canvas.showPage()
-                        canvas.setFont(font, font_size)
-                        y = height - margin
-                    canvas.drawString(margin, y, row)
-                    y -= line_height
-            y -= 15
-        canvas.save()
-        temporary_path.replace(path)
-    finally:
-        temporary_path.unlink(missing_ok=True)
-    return relative_path.as_posix()
-
-
-def _wrap_line(line: str, max_width: float, measure: Callable[[str], float]) -> Iterator[str]:
-    """공백 없는 한글 원문도 페이지 폭에 맞춰 줄바꿈한다."""
-    start = 0
-    width = 0.0
-    for index, character in enumerate(line):
-        character_width = measure(character)
-        if width + character_width > max_width and index > start:
-            yield line[start:index]
-            start = index
-            width = 0.0
-        width += character_width
-    yield line[start:]
+def _render_complaint(sections: list[tuple[str, str]]) -> str:
+    """미리보기와 후속 PDF 변환에서 공통으로 사용할 HTML 본문을 만든다."""
+    html = [
+        '<article lang="ko" style="font-family: Gungsuh, AppleMyungjo, Batang, '
+        "'Malgun Gothic', AppleGothic, serif; font-size: 11pt; line-height: 17pt; "
+        'overflow-wrap: anywhere">',
+        '<h1 style="font-size: 25pt; line-height: 1.2; font-weight: bold; text-align: center; margin: 0">고소장</h1>',
+        '<p style="font-size: 10pt; text-align: center; margin: 4pt 0 20pt">초안</p>',
+    ]
+    for heading, body in sections:
+        html.append('<section style="margin: 0 0 15pt">')
+        if heading:
+            html.append(
+                '<h2 style="font-size: 14pt; line-height: 1.3; font-weight: bold; margin: 0 0 5pt">'
+                f"{escape(heading)}</h2>"
+            )
+        html.append(f'<p style="white-space: pre-wrap; margin: 0">{escape(body)}</p>')
+        html.append("</section>")
+    html.append("</article>")
+    return "\n".join(html)

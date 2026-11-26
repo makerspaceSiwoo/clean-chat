@@ -14,7 +14,7 @@
 
 - **구현 방식: 템플릿 + 외부 LLM API**. 고정 양식·원문 인용은 템플릿, 사건 경위 문장만 API 로 만듭니다. API 가 실패해도 템플릿만으로 결과를 돌려줍니다. 닉네임 등 개인정보는 API 에 보내지 않고 템플릿에서 채웁니다.
 - 출력 형식을 자동 검사합니다.
-- `kind=report` 는 복사용 신고 문구(자동 신고 금지), `kind=complaint` 는 고소장 초안 + 한글 PDF(`uv sync --extra report`). PDF는 기본적으로 저장소 루트의 `pdf/`에 저장합니다. 요청에 `output_dir`이 있으면 해당 경로를 사용합니다. 생성한 PDF는 Git에 올리지 않습니다.
+- `kind=report`는 복사용 평문을, `kind=complaint`는 미리보기와 후속 PDF 변환에 사용할 서식 있는 HTML 전문을 `ReportDraft.text`에 반환합니다. 모듈은 저장 폴더 없이 실행할 수 있으며 파일을 생성하지 않습니다.
 - 브랜치는 `report/<작업 내용>` 으로 만듭니다(예: `report/first-try`). PR 에서 위 표의 범위 밖 파일을 바꾸면 CI `module-scope` 가 실패합니다(CONTRIBUTING.md).
 - 다른 모듈 폴더는 import 하지 않습니다. 함수 이름 `run` 과 입출력 타입은 바꾸지 않습니다(바꿔야 하면 "계약 변경 요청" 이슈).
 
@@ -43,9 +43,7 @@ Gemini 모델과 키가 준비되면 실행 프로세스의 환경 변수에 `LL
 ```bash
 export LLM_MODEL='gemini/<모델 ID>'
 uv run --no-env-file --extra report sim report
-# 앱 실행
-uv run --no-env-file --extra report app
 ```
 
-요약 요청에는 채널, 분류, 집계 건수만 포함됩니다. 신고 문구와 PDF 증거 목록에는 로컬 기록의
+요약 요청에는 채널, 분류, 집계 건수만 포함됩니다. 신고 문구와 고소장 증거 목록에는 로컬 기록의
 채팅 원문과 한국 시간을 사용합니다.
