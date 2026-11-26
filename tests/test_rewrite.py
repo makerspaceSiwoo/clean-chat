@@ -146,10 +146,22 @@ def test_known_names_are_redacted_before_network(monkeypatch):
     assert "speaker" not in prompts[0] and req.message.raw not in prompts[0]
 
 
-def test_name_inside_feedback_is_not_sent(monkeypatch):
-    api(monkeypatch, "용 먼저 치자")
-    monkeypatch.setattr(backend, "_request", lambda *_: pytest.fail("닉네임을 전송하면 안 됨"))
-    assert impl.run(request("초코우유 용 먼저 치라고", ["초코우유 용 먼저 치라고"])).rewritten is None
+def test_name_inside_feedback_is_encoded_and_restored(monkeypatch):
+    import re
+
+    api(monkeypatch, None)
+    seen = []
+
+    def generate(prompt, *_):
+        payload = json.loads(prompt)
+        seen.append(payload)
+        code = re.search(r"플레이어_[0-9]{4}", payload["feedback_spans"][0]).group()
+        return f"{code} 용 먼저 공격해 주세요"
+
+    monkeypatch.setattr(backend, "_request", generate)
+    out = impl.run(request("초코우유 용 먼저 치라고", ["초코우유 용 먼저 치라고"]))
+    assert out.rewritten == "초코우유 용 먼저 공격해 주세요" and out.backend == "api"
+    assert "초코우유" not in json.dumps(seen, ensure_ascii=False)
 
 
 @pytest.mark.parametrize("output", [None])
@@ -751,10 +763,13 @@ def test_prompt_carries_redacted_original_and_profanity_removed_context(monkeypa
     before = copy.deepcopy(req.model_dump())
     out = impl.run(req)
     assert out.rewritten == "용 먼저 치자" and out.backend == "api"
+    import re
+
+    code = re.search(r"플레이어_[0-9]{4}", captured[0]["original"]).group()
     assert captured == [
         {
-            "original": "[플레이어]야 정글 ㅂㅅ아 용 먼저 치라고",
-            "cleaned": "[플레이어]야 정글 아 용 먼저 치라고",
+            "original": f"{code}야 정글 ㅂㅅ아 용 먼저 치라고",
+            "cleaned": f"{code}야 정글 아 용 먼저 치라고",
             "feedback_spans": ["용 먼저 치라고"],
         }
     ]
@@ -876,3 +891,211 @@ def test_review_normal_feedback_passes_entire_run(monkeypatch, text):
     api(monkeypatch, text)
     out = impl.run(request(text, [text]))
     assert out.rewritten == text and out.backend == "api"
+
+
+def test_codec_consistency_uniqueness_case_and_overlapping_names():
+    import re
+
+    from clean_chat.modules.rewrite.nicknames import NicknameCodec
+
+    codec = NicknameCodec(["달빛", "달빛고양이", "BlueWolf", "bluewolf"])
+    original = "달빛고양이 BLUEWOLF 달빛 리신"
+    encoded = codec.encode(original)
+    codes = re.findall(r"플레이어_[0-9]{4}", encoded)
+    assert len(codes) == len(set(codes)) == 3
+    assert encoded.endswith("리신")
+    assert codec.encode("bluewolf") == codec.encode("BLUEWOLF")
+    assert codec.preserves(encoded, [encoded])
+    assert codec.restore(encoded) == "달빛고양이 BlueWolf 달빛 리신"
+    assert not codec.preserves(encoded + " 플레이어_12345", [encoded])
+    assert not codec.preserves(encoded.replace(codes[0], ""), [encoded])
+
+
+def named_request():
+    from clean_chat.core.schemas import Player
+
+    text = "달빛고양이 리신이랑 용 먼저 치자"
+    req = request(text, [text])
+    req.players = [Player(name="달빛고양이", champion="리신"), Player(name="밤하늘별", champion="애쉬")]
+    return req
+
+
+@pytest.mark.parametrize("source", ["self_input", "ocr"])
+def test_roster_is_forwarded_and_nicknames_roundtrip_in_both_actual_pipelines(monkeypatch, source):
+    import re
+
+    from clean_chat.core.pipeline import Pipelines
+    from clean_chat.core.schemas import Analysis, ChatMessage, ParseResult, RawLine
+
+    monkeypatch.setattr(
+        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_MODEL": "gemini/test", "LLM_API_KEY": "test"}
+    )
+    req = named_request()
+    seen = []
+    received = []
+
+    def parse(item):
+        data = req.message.model_dump()
+        data.update(
+            id=item.line.id,
+            text=item.line.text,
+            text_norm=item.line.text,
+            raw=item.line.text,
+            source=item.line.source,
+            is_me=item.line.source == "self_input",
+        )
+        return ParseResult(line_id=item.line.id, message=ChatMessage.model_validate(data))
+
+    def analyze(item):
+        return Analysis(msg_id=item.message.id, level=2, feedback_spans=[item.message.text], model_version="test")
+
+    def rewrite(item):
+        received.append(item)
+        return impl.run(item)
+
+    def completion(**kwargs):
+        prompt = kwargs["messages"][1]["content"]
+        payload = json.loads(prompt)
+        seen.append(payload)
+        code = re.search(r"플레이어_[0-9]{4}", payload["feedback_spans"][0]).group()
+        assert code in payload["original"] and code in payload["cleaned"]
+        assert "달빛고양이" not in prompt and "밤하늘별" not in prompt
+        assert "리신" in prompt
+        return response(f"{code} 리신이랑 용 먼저 공격해 주세요")
+
+    monkeypatch.setattr(backend, "_completion", completion)
+    pipeline = Pipelines(modules.ModuleSet({"parse": parse, "analyze": analyze, "rewrite": rewrite}))
+    pipeline.set_players(req.players)
+    if source == "self_input":
+        incident = pipeline.outgoing.submit(req.message.text, msg_id="named-self")
+    else:
+        incident = pipeline.incoming.process_line(RawLine(id="named-ocr", ts=1, text=req.message.text, source="ocr"))
+    assert received[0].players == req.players
+    assert received[0].message.source == source
+    assert incident.rewrite.rewritten == "달빛고양이 리신이랑 용 먼저 공격해 주세요"
+    assert incident.rewrite.backend == "api"
+    assert "플레이어_" not in incident.rewrite.rewritten
+    assert len(seen) == 1
+
+
+@pytest.mark.parametrize("failure", ["missing", "altered", "extra", "raw_nickname", "champion_missing"])
+def test_bad_codes_or_missing_champion_use_safe_local_rule(monkeypatch, failure, caplog):
+    import re
+
+    api(monkeypatch, None)
+
+    def generate(prompt, *_):
+        code = re.search(r"플레이어_[0-9]{4}", json.loads(prompt)["feedback_spans"][0]).group()
+        text = f"{code} 리신이랑 용 먼저 공격해 주세요"
+        if failure == "missing":
+            return text.replace(code, "")
+        if failure == "altered":
+            return text.replace(code, code + "0")
+        if failure == "raw_nickname":
+            return text.replace(code, "달빛고양이")
+        if failure == "champion_missing":
+            return text.replace("리신이랑", "")
+        other = f"플레이어_{(int(code[-4:]) + 1) % 10000:04d}"
+        return text + " " + other
+
+    monkeypatch.setattr(backend, "_request", generate)
+    with caplog.at_level("INFO", logger="clean_chat.modules.rewrite"):
+        out = impl.run(named_request())
+    assert out.backend == "rule"
+    assert out.rewritten == "달빛고양이 리신이랑 용 먼저 공격해 주세요"
+    assert "[API 결과 거절]" in caplog.text and "[예비 규칙 초안]" in caplog.text
+    assert "달빛고양이" not in caplog.text
+
+
+def test_context_only_nickname_cannot_be_added_to_selected_feedback(monkeypatch):
+    import re
+
+    api(monkeypatch, None)
+    req = named_request()
+    req.analysis.feedback_spans = ["용 먼저 치자"]
+
+    def generate(prompt, *_):
+        code = re.search(r"플레이어_[0-9]{4}", json.loads(prompt)["original"]).group()
+        return f"{code} 용 먼저 공격해 주세요"
+
+    monkeypatch.setattr(backend, "_request", generate)
+    out = impl.run(req)
+    assert out.backend == "rule" and out.rewritten == "용 먼저 공격해 주세요"
+
+
+def test_nickname_cache_reencodes_with_new_request_map(monkeypatch):
+    import re
+
+    api(monkeypatch, None)
+    calls = []
+
+    def generate(prompt, *_):
+        calls.append(prompt)
+        code = re.search(r"플레이어_[0-9]{4}", json.loads(prompt)["feedback_spans"][0]).group()
+        return f"{code} 리신이랑 용 먼저 공격해 주세요"
+
+    monkeypatch.setattr(backend, "_request", generate)
+    req = named_request()
+    assert impl.run(req).backend == "api"
+    req.message.id = req.analysis.msg_id = "next-named"
+    out = impl.run(req)
+    assert out.msg_id == "next-named" and out.rewritten == "달빛고양이 리신이랑 용 먼저 공격해 주세요"
+    assert len(calls) == 1
+
+
+@pytest.mark.parametrize(
+    "nickname,text", [("BlueWolf", "bluewolf ㅂㅅ아 용 먼저 치라고"), ("BlueFox", "bluefox야 용 먼저 치라고")]
+)
+def test_case_variant_nicknames_never_reach_mock_sdk_or_logs(monkeypatch, caplog, nickname, text):
+    monkeypatch.setattr(
+        backend, "options", lambda: {"LLM_BACKEND": "api", "LLM_MODEL": "gemini/test", "LLM_API_KEY": "test"}
+    )
+    req = request(text, ["용 먼저 치라고"])
+    req.analysis.target = nickname
+    seen = []
+
+    def completion(**kwargs):
+        seen.append(json.loads(kwargs["messages"][1]["content"]))
+        return response("용 먼저 치자")
+
+    monkeypatch.setattr(backend, "_completion", completion)
+    with caplog.at_level("INFO", logger="clean_chat.modules.rewrite"):
+        assert impl.run(req).rewritten == "용 먼저 치자"
+    assert nickname.casefold() not in seen[0]["original"].casefold()
+    assert nickname.casefold() not in seen[0]["cleaned"].casefold()
+    assert nickname.casefold() not in caplog.text.casefold()
+
+
+@pytest.mark.parametrize(
+    "output, expected",
+    [
+        ("3초 뒤에 합류해 주세요", "3초 뒤에 합류해 주세요"),
+        ("뒤에 합류해 주세요", None),
+        ("5초 뒤에 합류해 주세요", None),
+    ],
+)
+def test_quantities_cannot_be_dropped_or_changed(monkeypatch, output, expected):
+    api(monkeypatch, output)
+    assert impl.run(request("3초 뒤에 합류해", ["3초 뒤에 합류해"])).rewritten == expected
+
+
+def test_token_digits_are_not_treated_as_game_quantities(monkeypatch):
+    import re
+
+    api(monkeypatch, None)
+    req = named_request()
+    req.message.text = req.message.text_norm = "달빛고양이 3초 뒤에 합류해"
+    req.analysis.feedback_spans = [req.message.text]
+
+    def generate(prompt, *_):
+        code = re.search(r"플레이어_[0-9]{4}", json.loads(prompt)["feedback_spans"][0]).group()
+        return f"{code} 3초 뒤에 합류해 주세요"
+
+    monkeypatch.setattr(backend, "_request", generate)
+    assert impl.run(req).rewritten == "달빛고양이 3초 뒤에 합류해 주세요"
+
+
+def test_old_requests_still_default_to_empty_roster():
+    data = request().model_dump()
+    data.pop("players", None)
+    assert RewriteRequest.model_validate(data).players == []

@@ -10,12 +10,13 @@ import re
 import threading
 import time
 import unicodedata
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from functools import cache
 from pathlib import Path
 
 from clean_chat.core.schemas import Rewrite, RewriteRequest
 from clean_chat.modules.rewrite import backend
+from clean_chat.modules.rewrite.nicknames import NicknameCodec, without_codes
 from clean_chat.modules.rewrite.tracing import preview
 
 _LOG = logging.getLogger(__name__)
@@ -192,11 +193,21 @@ def _still_abusive(text: str, profanity: list[str] | None = None) -> bool:
     )
 
 
-def _rule(spans: list[str], original: str) -> str | None:
+def _rule(spans: list[str], original: str, champions: list[str] | None = None) -> str | None:
     """검토한 표현만 변환한다. 모르는 표현·복수 지시는 새 내용을 만들지 않고 포기한다."""
     if len(spans) != 1:
         return None
     span = spans[0].strip().rstrip(".!? ")
+    # 이름/챔피언으로 이루어진 명확한 참가자 접두어만 기존 단일 지시 규칙 앞에 보존한다.
+    champion_pattern = "|".join(re.escape(c) for c in sorted(champions or [], key=len, reverse=True))
+    participant = r"플레이어_[0-9]{4}(?:님)?"
+    if champion_pattern:
+        participant += rf"|(?:{champion_pattern})"
+    member = rf"(?:{participant})(?:이랑|랑|과|와)?"
+    prefixed = re.fullmatch(rf"({member}(?:\s+{member})*)\s+(.+)", span)
+    if prefixed:
+        tail = _rule([prefixed.group(2)], original, champions)
+        return f"{prefixed.group(1)} {tail}" if tail else None
     result = _RULES.get(span)
     if result is None:
         question = re.fullmatch(
@@ -260,7 +271,8 @@ def _direct_reversal(source: str, rewritten: str) -> bool:
 
 def _output_checks(text: str, source: str, names: list[str], profanity: list[str]) -> list[tuple[str, bool, str]]:
     source_targets, result_targets = _targets(source), _targets(text)
-    new_numbers = set(re.findall(r"\d+", text)) - set(re.findall(r"\d+", source))
+    source_numbers = Counter(re.findall(r"\d+(?:[.,]\d+)*", without_codes(source)))
+    result_numbers = Counter(re.findall(r"\d+(?:[.,]\d+)*", without_codes(text)))
     source_details, result_details = _dragon_details(source), _dragon_details(text)
     return [
         ("문장 길이", bool(text) and len(text) <= 180, f"{len(text)}자 / 최대 180자"),
@@ -277,7 +289,11 @@ def _output_checks(text: str, source: str, names: list[str], profanity: list[str
             "설명/복수 문장/코드 형식 확인",
         ),
         ("공손한 표현", bool(re.search(r"(?:요|죠|시다|자|니다)[.!?。！？]?$", text)), "존댓말/청유형/질문형 확인"),
-        ("수치", not new_numbers, "새 숫자=" + repr(sorted(new_numbers))),
+        (
+            "수치",
+            source_numbers == result_numbers,
+            f"원문={dict(source_numbers)}, 결과={dict(result_numbers)} — 추가/누락/변경 금지",
+        ),
         (
             "명확한 대상",
             source_targets == result_targets,
@@ -297,6 +313,28 @@ def _log_checks(text: str, source: str, names: list[str], profanity: list[str]) 
         _LOG.info("[로컬 검사/%s] %s — %s", label, "통과" if ok else "거절", detail)
         if not ok:
             failures.append(label)
+    return failures
+
+
+def _request_checks(
+    text: str,
+    source: str,
+    names: list[str],
+    profanity: list[str],
+    codec: NicknameCodec,
+    spans: list[str],
+    champions: list[str],
+) -> list[str]:
+    failures = _log_checks(text, source, names, profanity)
+    code_ok = codec.preserves(text, spans)
+    _LOG.info("[로컬 검사/닉네임 코드] %s — 선택된 코드 누락/변형/추가 검사", "통과" if code_ok else "거절")
+    if not code_ok:
+        failures.append("닉네임 코드")
+    champion_ok = {c for c in champions if c in source} == {c for c in champions if c in text}
+    if not champion_ok:
+        failures.append("챔피언명")
+    if len(codec.restore(text)) > 180:
+        failures.append("복원 후 문장 길이")
     return failures
 
 
@@ -335,18 +373,20 @@ def run(req: RewriteRequest) -> Rewrite:
         _LOG.info("[최종] null — 원문에서 확인되지 않는 피드백 조각 번호=%s (띄어쓰기·쳐먹→먹 정리 후 비교)", unmatched)
         return empty
     _LOG.info("[입력 검사] 피드백 출처 확인 통과 (띄어쓰기·쳐먹→먹 정리 허용)")
-    if any(_still_abusive(span, req.analysis.profanity_spans) for span in spans):
-        _LOG.info("[최종] null — 선택된 피드백에 욕설이 포함됨")
-        return empty
-    names = [
+    raw_original, raw_spans = original, spans
+    roster_names = [player.name for player in req.players if player.name not in {"나", "본인"}]
+    known = [
         name for name in (req.message.speaker, req.analysis.target) if name and name not in {*_ROLES, "나", "본인"}
     ]
-    # 개인정보가 들어간 피드백은 안전하게 포기하고, 맥락 본문의 이름만 익명화한다.
-    if any(_fold(name) in _fold(span) for name in names for span in spans):
-        _LOG.info("[최종] null — 피드백에 알려진 닉네임이 포함됨")
+    codec = NicknameCodec([*roster_names, *known], [original, *spans])
+    names = codec.names
+    champions = list(dict.fromkeys(p.champion for p in req.players if p.champion))
+    original = codec.encode(original)
+    spans = [codec.encode(span) for span in spans]
+    profanity = [codec.encode(word) for word in req.analysis.profanity_spans]
+    if any(_still_abusive(span, profanity) for span in spans):
+        _LOG.info("[최종] null — 선택된 피드백에 욕설이 포함됨")
         return empty
-    for name in sorted(names, key=len, reverse=True):
-        original = original.replace(name, "[플레이어]")
     config = backend.options()
     mode = config["LLM_BACKEND"]
     secrets = (config.get("LLM_API_KEY", ""), config.get("GEMINI_API_KEY", ""))
@@ -366,13 +406,24 @@ def run(req: RewriteRequest) -> Rewrite:
         source += " " + " ".join(role for role in _ROLES if role in original)
     if mode == "api":
         cleaned = original
-        for word in sorted(req.analysis.profanity_spans, key=len, reverse=True):
+        for word in sorted(profanity, key=len, reverse=True):
             if word:
                 cleaned = cleaned.replace(word, "")
         cleaned = " ".join(cleaned.split())
         prompt = _build_prompt(original, cleaned, spans)
-        cache_key = _cache_key(prompt, names, req.analysis.profanity_spans, config)
-        generated = _cached(cache_key)
+        # 요청마다 코드는 달라도 같은 문맥의 검증된 결과는 로컬에서 다시 치환해 재사용할 수 있다.
+        raw_cleaned = raw_original
+        for word in sorted(req.analysis.profanity_spans, key=len, reverse=True):
+            if word:
+                raw_cleaned = raw_cleaned.replace(word, "")
+        cache_key = _cache_key(
+            _build_prompt(raw_original, " ".join(raw_cleaned.split()), raw_spans),
+            names,
+            req.analysis.profanity_spans,
+            {**config, "_champions": "|".join(champions)},
+        )
+        cached = _cached(cache_key)
+        generated = codec.encode(cached) if cached is not None else None
         cache_hit = generated is not None
         if cache_hit:
             _LOG.info("[캐시] 120초 내 동일 입력의 검증된 결과 재사용 — API 호출 없음, 추가 사용량 0토큰")
@@ -383,24 +434,27 @@ def run(req: RewriteRequest) -> Rewrite:
             clean = _clean_output(generated)
             _LOG.info("[초안] %s", preview(generated, secrets=secrets, names=names))
             _LOG.info("[출력 정리] %s", preview(clean, secrets=secrets, names=names))
-            failures = _log_checks(clean, source, names, req.analysis.profanity_spans)
+            failures = _request_checks(clean, source, names, profanity, codec, spans, champions)
             elapsed = time.monotonic() - started
             if elapsed >= 3:
                 failures.append("3초 제한")
             if not failures:
                 if not cache_hit:
-                    _remember(cache_key, clean)
-                _LOG.info("[최종] backend=api, %.3f초, 결과=%s", elapsed, preview(clean, secrets=secrets, names=names))
-                return Rewrite(msg_id=req.message.id, rewritten=clean, backend="api")
+                    _remember(cache_key, codec.restore(clean))
+                restored = codec.restore(clean)
+                _LOG.info(
+                    "[최종] backend=api, %.3f초, 결과=%s", elapsed, preview(restored, secrets=secrets, names=names)
+                )
+                return Rewrite(msg_id=req.message.id, rewritten=restored, backend="api")
             _LOG.info("[API 결과 거절] 사유: %s (%.3f초) — 예비 규칙을 확인합니다.", ", ".join(failures), elapsed)
     _LOG.info("[예비 규칙] API 실패/거절 또는 rule 설정 — 안전한 규칙을 확인합니다.")
-    result = _rule(spans, original)
+    result = _rule(spans, original, champions)
     if result:
         _LOG.info("[예비 규칙 초안] %s", preview(result, secrets=secrets, names=names))
-        failures = _log_checks(result, source, names, req.analysis.profanity_spans)
+        failures = _request_checks(result, source, names, profanity, codec, spans, champions)
         if not failures and time.monotonic() - started < 3:
             _LOG.info("[최종] backend=rule — AI 생성이 아닌 예비 규칙, %.3f초", time.monotonic() - started)
-            return Rewrite(msg_id=req.message.id, rewritten=result, backend="rule")
+            return Rewrite(msg_id=req.message.id, rewritten=codec.restore(result), backend="rule")
         _LOG.info("[예비 규칙] 거절=%s", ", ".join(failures) or "3초 제한")
     _LOG.info("[최종] null — 규칙에 없는 표현 또는 안전한 변환 불가 (%.3f초)", time.monotonic() - started)
     return empty

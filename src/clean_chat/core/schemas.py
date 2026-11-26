@@ -185,6 +185,7 @@ class Analysis(BaseModel):
 class RewriteRequest(BaseModel):
     message: ChatMessage
     analysis: Analysis
+    players: list[Player] = Field(default_factory=list)  # 닉네임 익명화용 경기 명단 (기존 입력과 호환)
 
 
 class Rewrite(BaseModel):
