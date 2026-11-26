@@ -4,7 +4,10 @@
   impl 모델   문장 1개(64토큰)        → 유형 5개 점수            `models/analyze-classifier/`
   judge 모델  게임 1판 문서(512토큰)   → report · complaint 점수   `models/analyze-judge/`   (환경 변수 CLEAN_CHAT_JUDGE_MODEL)
 
-입력 문서는 유저마다 하나씩 만든다. 같은 판이라도 "누구를 판단하는가"에 따라 표시가 달라진다.
+입력 문서는 유저마다 하나씩 만든다. 두 가지 방식이 있고 학습할 때 고른다(`--scope`, meta.json 의 `doc_scope`):
+  context  그 판의 대화 전체에 대상의 말을 표시한다 (아래 예)
+  own      대상 유저가 쓴 채팅만 모은다 — 문서가 짧아 적은 데이터로도 배우기 쉽지만, 맞장구("ㅇㅈ")가 무엇에 대한 것인지는 모른다
+ 같은 판이라도 "누구를 판단하는가"에 따라 표시가 달라진다.
     나: 나미 서폿 | 대상: 드레이븐 원딜 우리팀
     · 세트(우리): ㅎㅇ 즐겜합시다
     ▶ 드레이븐: 서폿 뭐 하냐                  ← 판단 대상이 한 말
@@ -51,7 +54,12 @@ def version() -> str | None:
 
 
 def build_document(
-    messages: list[ChatMessage], players: list[Player], my_name: str, user: str, max_chars: int = MAX_CHARS
+    messages: list[ChatMessage],
+    players: list[Player],
+    my_name: str,
+    user: str,
+    max_chars: int = MAX_CHARS,
+    scope: str = "context",
 ) -> str:
     """게임 1판의 채팅을 `user` 를 판단하기 위한 문서 하나로 만든다 (위 docstring 의 형식)."""
     by_name = {p.name: p for p in players}
@@ -71,6 +79,11 @@ def build_document(
 
     side_of_target = {"우리": " 우리팀", "상대": " 상대팀"}.get(side(user), "")
     header = f"나: {who(my_name)} | 대상: {who(user, target.champion if target else None)}{side_of_target}"
+    if scope == "own":  # 대상 유저가 쓴 채팅만 (다른 사람의 말은 넣지 않는다). 전체 채팅이면 표시한다
+        own = [
+            f"▶{'(전체)' if m.channel == 'all' else ''} {m.text_norm or m.text}" for m in messages if m.speaker == user
+        ]
+        return "\n".join([header, *own])[: max_chars * 2]
     lines: list[tuple[bool, str]] = []  # (꼭 남길 줄인가, 내용)
     for m in messages:
         text = m.text_norm or m.text
@@ -118,7 +131,8 @@ def predict(messages: list[ChatMessage], players: list[Player], my_name: str) ->
         return {}
     try:
         torch, meta = loaded["torch"], loaded["meta"]
-        docs = [build_document(messages, players, my_name, u) for u in users]
+        scope = str(meta.get("doc_scope", "context"))
+        docs = [build_document(messages, players, my_name, u, scope=scope) for u in users]
         scores: dict[str, dict[str, float]] = {}
         with torch.no_grad():
             for i in range(0, len(docs), 4):  # 한 판에 최대 9명 → 3번에 나눠 돌린다
@@ -138,8 +152,11 @@ def predict(messages: list[ChatMessage], players: list[Player], my_name: str) ->
         return {}
 
 
-def examples_from_games(games: list[dict]) -> list[tuple[str, list[float]]]:
-    """게임 데이터(judge_games.jsonl 의 한 줄씩) → (유저별 문서, [report, complaint]). 말한 적 없는 유저는 뺀다."""
+def examples_from_games(games: list[dict], scope: str = "context") -> list[tuple[str, list[float]]]:
+    """게임 데이터(judge_games.jsonl 의 한 줄씩) → (유저별 문서, [report, complaint]). 말한 적 없는 유저는 뺀다.
+
+    scope="context" 는 그 판의 대화 전체에 대상의 말을 표시한 문서, "own" 은 대상 유저가 쓴 채팅만 모은 문서.
+    """
     from clean_chat.modules.analyze.judge_evaluate import to_request  # 순환 import 를 피하려고 함수 안에서
 
     out: list[tuple[str, list[float]]] = []
@@ -147,7 +164,7 @@ def examples_from_games(games: list[dict]) -> list[tuple[str, list[float]]]:
         req = to_request(game)
         for user in speakers(req.messages, req.my_name):
             gold = game.get("labels", {}).get(user, {})
-            doc = build_document(req.messages, req.players, req.my_name, user)
+            doc = build_document(req.messages, req.players, req.my_name, user, scope=scope)
             out.append((doc, [1.0 if gold.get(label) else 0.0 for label in LABELS]))
     return out
 
@@ -166,8 +183,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lr", type=float, default=3e-5)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--patience", type=int, default=5)
+    ap.add_argument(
+        "--scope", choices=["context", "own"], default="context", help="입력 문서: 대화 전체 / 대상 유저의 채팅만"
+    )
     args = ap.parse_args(argv)
-    examples = examples_from_games(load_games(args.data, "train"))
+    examples = examples_from_games(load_games(args.data, "train"), args.scope)
     train.train(
         [args.data],
         args.base,
@@ -181,6 +201,7 @@ def main(argv: list[str] | None = None) -> int:
         patience=args.patience,
         labels=LABELS,
         examples=examples,
+        extra_meta={"doc_scope": args.scope},
     )
     return 0
 

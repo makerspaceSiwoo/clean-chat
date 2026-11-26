@@ -1,0 +1,201 @@
+id,text,text_norm,hints,level,harm_types,profanity_spans,has_feedback,feedback,target,split,writer,note,category,pair_id,relabel_level,relabel_types,ambiguous
+A001,용 40초 정글 미리 와주셈,용 40초 정글 미리 와주셈,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,,0,,0
+A002,상대 정글 바텀쪽에서 봤음 사려,상대 정글 바텀쪽에서 봤음 사려,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,,0,,0
+A003,ㅇㅋ 블루 줄게 빅토르 와서 먹어,ㅇㅋ 블루 줄게 빅토르 와서 먹어,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,,0,,0
+A004,아 진짜 안풀리네 오늘,아 진짜 안풀리네 오늘,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p17,0,,0
+A005,탑 텔 아껴놨음? 용한타 때 와줘,탑 텔 아껴놨음? 용한타 때 와줘,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p18,0,,0
+A006,바론 칠건데 원딜 파밍 끝나면 합류좀,바론 칠건데 원딜 파밍 끝나면 합류좀,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p19,0,,0
+A007,서폿 와드 좀 박아줘 맵이 깜깜함,서폿 와드 좀 박아줘 맵이 깜깜함,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p20,0,,0
+A008,아 아깝다 피 한칸 남았는데,아 아깝다 피 한칸 남았는데,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p21,0,,0
+A009,다들 서폿한테 명예 한번씩 눌러줘,다들 서폿한테 명예 한번씩 눌러줘,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_call,p25,0,,0
+A010,이렇게 잘하는 서폿 첨봄 ㄹㅇ,이렇게 잘하는 서폿 첨봄 ㄹㅇ,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 칭찬 잡담,clean_call,p26,0,,0
+A011,와 카이사 미쳤다 ㄹㅇ 혼자 다잡네,와 카이사 미쳤다 ㄹㅇ 혼자 다잡네,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p01,0,,0
+A012,나 0/7임 ㅋㅋ 어케하면 이게됨 ㅈㅅ,나 0/7임 ㅋㅋ 어케하면 이게됨 ㅈㅅ,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p02,0,,0
+A013,야스오 한타에서 보이면 바로 죽인다 궁 아껴둬,야스오 한타에서 보이면 바로 죽인다 궁 아껴둬,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p03,0,,0
+A014,신고는 끝나고 각자 알아서 하고 일단 겜하자 싸우지마,신고는 끝나고 각자 알아서 하고 일단 겜하자 싸우지마,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p04,0,,0
+A015,정글 지금 어디임? 탑 갱 가능?,정글 지금 어디임? 탑 갱 가능?,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p05,0,,0
+A016,상대 티모 트롤픽인줄 알았는데 잘하네 ㄷㄷ,상대 티모 트롤픽인줄 알았는데 잘하네 ㄷㄷ,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p06,0,,0
+A017,럭스 궁 뭐임 ㄷㄷ 사기네 다터짐,럭스 궁 뭐임 ㄷㄷ 사기네 다터짐,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p07,0,,0
+A018,그만해 캡처해뒀고 끝나고 신고할게,그만해 캡처해뒀고 끝나고 신고할게,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p08,0,,0
+A019,미드 계속 그러면 차단하고 겜할게,미드 계속 그러면 차단하고 겜할게,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p09,0,,0
+A020,원딜 0/7이어도 괜찮음 후반가면 이김 멘탈잡자,원딜 0/7이어도 괜찮음 후반가면 이김 멘탈잡자,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p10,0,,0
+A021,진짜 못한다 나 ㅋㅋ 브론즈로 가야됨,진짜 못한다 나 ㅋㅋ 브론즈로 가야됨,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p11,0,,0
+A022,정글님 덕분에 우리 바텀이 참 편하게 겜하네요 ㄳ,정글님 덕분에 우리 바텀이 참 편하게 겜하네요 ㄳ,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 짝 문장과 달리 진심 감사로 읽히지만 맥락 없이는 반어로도 읽힐 수 있음,clean_trap,p12,0,,0
+A023,역시 우리 정글 ㅋㅋ 기대를 저버리질 않아 또 캐리함,역시 우리 정글 ㅋㅋ 기대를 저버리질 않아 또 캐리함,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,clean_trap,p13,0,,0
+A024,원딜 강의 잘봤습니다 저렇게 하면 되는구나 ㄷㄷ,원딜 강의 잘봤습니다 저렇게 하면 되는구나 ㄷㄷ,,0,,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 칭찬으로 썼으나 반어로 읽을 여지 있음,clean_trap,p14,0,,0
+A025,아 ㅅㅂ 답없네 내 손,아 시발 답없네 내 손,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,p15,1,profanity,0
+A026,아 씨발 내가 왜 거길 갔지,아 씨발 내가 왜 거길 갔지,,1,profanity,씨발,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,p16,1,profanity,0
+A027,아 존나 안풀리네 오늘,아 존나 안풀리네 오늘,,1,profanity,존나,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,p17,1,profanity,0
+A028,ㅈㄴ 아깝다 피 한칸 남았는데,존나 아깝다 피 한칸 남았는데,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,p21,1,profanity,0
+A029,하 좆됐다 억제기 다 밀림,하 좆됐다 억제기 다 밀림,,1,profanity,좆됐다,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,p22,1,profanity,0
+A030,와 시1발 렉걸림,와 시발 렉걸림,noise_removed,1,profanity,시1발,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,,1,profanity,0
+A031,아 tlqkf 또 미끄러졌네,아 시발 또 미끄러졌네,lexicon:tlqkf,1,profanity,tlqkf,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,,1,profanity,0
+A032,아 좆같네 또 텔 끊김,아 좆같네 또 텔 끊김,,1,profanity,좆같네,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,profanity_alone,,1,profanity,0
+A033,아 ㅅㅂ 답없네 리신 손,아 시발 답없네 리신 손,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,p15,2,profanity|blame,0
+A034,아 씨발 이즈 니가 왜 거길 가냐,아 씨발 이즈 니가 왜 거길 가냐,,2,profanity|blame,씨발,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · '왜 거길 가냐'를 게임 지적으로 보면 has_feedback=1 여지,direct_abuse,p16,2,profanity|blame,0
+A035,블츠 ㅂㅅ임? ㄹㅇ 궁금해서 물어봄,블츠 병신임? ㄹㅇ 궁금해서 물어봄,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A036,병신같은 바드 때문에 겜 터짐,병신같은 바드 때문에 겜 터짐,,2,profanity|blame,병신,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A037,ㅈㄹ하지마라 케틀아 니 탓이잖아,지랄하지마라 케틀아 니 탓이잖아,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A038,하 좆됐다 억제기 다 밀림 탑새끼 때문에,하 좆됐다 억제기 다 밀림 탑새끼 때문에,,2,profanity|blame,좆됐다|새끼,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,p22,2,profanity|blame,0
+A039,닥쳐 제드 입만 살았네,닥쳐 제드 입만 살았네,,2,profanity|blame,닥쳐,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A040,미드 ㅁㅊ놈인가 ㅋㅋ,미드 미친놈인가 ㅋㅋ,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A041,ㅈㄴ 못하네 진짜 우리 원딜,존나 못하네 진짜 우리 원딜,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A042,가렌 병1신아 그냥 꺼져,가렌 병신아 그냥 꺼져,noise_removed,2,profanity|blame,병1신|꺼져,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A043,이겜 범인 티모 저 미친새끼임,이겜 범인 티모 저 미친새끼임,,2,profanity|blame,미친새끼,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,direct_abuse,,2,profanity|blame,0
+A044,하 럭스 저 등신 또 죽었네,하 럭스 저 등신 또 죽었네,,2,profanity|blame,등신,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · '등신'을 욕설 낱말로 봄,direct_abuse,,2,profanity|blame,0
+A045,카이사 미쳤냐 ㄹㅇ 혼자 왜들어감,카이사 미쳤냐 ㄹㅇ 혼자 왜들어감,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)","봉인 검증 · '미쳤냐'를 욕설로 보면 profanity, '왜들어감'을 지적으로 보면 has_feedback=1 여지",plain_blame,p01,2,blame,0
+A046,정글 지금 어디임? 겜 던짐? ㄹㅇ 노답,정글 지금 어디임? 겜 던짐? ㄹㅇ 노답,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,p05,2,blame,0
+A047,우리 티모 트롤픽인줄 알았는데 그냥 트롤이네,우리 티모 트롤픽인줄 알았는데 그냥 트롤이네,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,p06,2,blame,0
+A048,진짜 못한다 탑 ㅋㅋ 브론즈로 가야됨,진짜 못한다 탑 ㅋㅋ 브론즈로 가야됨,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,p11,2,blame,0
+A049,연습을 어떻게 했길래 겜을 그렇게하냐 미드,연습을 어떻게 했길래 겜을 그렇게하냐 미드,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,p23,2,blame,0
+A050,이렇게 못하는 서폿 첨봄 ㄹㅇ,이렇게 못하는 서폿 첨봄 ㄹㅇ,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,p26,2,blame,0
+A051,이판 진건 전부 세라핀 탓임 ㅇㅈ?,이판 진건 전부 세라핀 탓임 ㅇㅈ?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A052,요네 넌 그냥 게임에 재능이 없어,요네 넌 그냥 게임에 재능이 없어,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A053,수준 진짜 처참하다 원딜 접어라,수준 진짜 처참하다 원딜 접어라,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A054,대체 왜 저럼 ㄹㅇ 민폐네 저 리신은,대체 왜 저럼 ㄹㅇ 민폐네 저 리신은,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A055,다리우스 니 때문에 라인 다 망함 책임져,다리우스 니 때문에 라인 다 망함 책임져,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A056,jg diff 그 자체 우리 정글이 훨씬 못함,jg diff 그 자체 우리 정글이 훨씬 못함,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,plain_blame,,2,blame,0
+A057,탑 0/7임 ㅋㅋ 어케하면 이게됨,탑 0/7임 ㅋㅋ 어케하면 이게됨,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p02,2,blame,0
+A058,럭스 궁 뭐임 ㅋㅋ 미니언한테 쓰는 스킬이었음?,럭스 궁 뭐임 ㅋㅋ 미니언한테 쓰는 스킬이었음?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p07,2,blame,0
+A059,원딜 0/7인데 괜찮음? 모니터는 켜져있고?,원딜 0/7인데 괜찮음? 모니터는 켜져있고?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p10,2,blame,0
+A060,정글님 덕분에 상대 바텀이 참 편하게 겜하시네요,정글님 덕분에 상대 바텀이 참 편하게 겜하시네요,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p12,2,blame,0
+A061,역시 우리 정글 ㅋㅋ 기대를 저버리질 않아 또 죽음,역시 우리 정글 ㅋㅋ 기대를 저버리질 않아 또 죽음,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p13,2,blame,0
+A062,원딜 강의 잘봤습니다 저렇게 하면 안되는구나,원딜 강의 잘봤습니다 저렇게 하면 안되는구나,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p14,2,blame,0
+A063,아리 사람임? 봇이면 말해줘 버스 태워줌,아리 사람임? 봇이면 말해줘 버스 태워줌,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,p24,2,blame,0
+A064,솔직히 봇전 ai 넣어도 야스오보단 킬 더 먹을듯,솔직히 봇전 ai 넣어도 야스오보단 킬 더 먹을듯,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A065,상대 서폿은 사람인데 우리 서폿은 관전중인가봐,상대 서폿은 사람인데 우리 서폿은 관전중인가봐,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A066,고맙다 자야 니 덕에 빨리 끝나겠네 ff ㄱ,고맙다 자야 니 덕에 빨리 끝나겠네 ff ㄱ,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A067,top gap ㅋㅋ 상대 탑이랑 같은 겜 하는거 맞음 우리 탑?,top gap ㅋㅋ 상대 탑이랑 같은 겜 하는거 맞음 우리 탑?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A068,이즈 스킬 맞추는거 올해 안엔 볼수있나,이즈 스킬 맞추는거 올해 안엔 볼수있나,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A069,그랩은 우리편 살려주려고 일부러 안맞추는거지 쓰레쉬? 착하네,그랩은 우리편 살려주려고 일부러 안맞추는거지 쓰레쉬? 착하네,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,indirect_blame,,2,blame,0
+A070,혹시 동생이 대신 하는중임 서폿?,혹시 동생이 대신 하는중임 서폿?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · '동생'은 가족 모욕이 아니라 실력 조롱으로 봄,indirect_blame,,2,blame,0
+A071,탑 텔 아껴서 뭐함 장식임? 용한타 좀 와,탑 텔 아껴서 뭐함 장식임? 용한타 좀 와,,2,blame,,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,p18,2,blame,0
+A072,바론 치는데 혼자 파밍하는 원딜 실화냐 합류좀,바론 치는데 혼자 파밍하는 원딜 실화냐 합류좀,,2,blame,,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,p19,2,blame,0
+A073,ㅅㅂ 서폿 와드 좀 박아라 맵이 깜깜하잖아,시발 서폿 와드 좀 박아라 맵이 깜깜하잖아,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 비난 낱말은 욕설뿐이라 blame 을 빼고 profanity 만 볼 여지,feedback_mixed,p20,2,profanity|blame,0
+A074,미드 병신아 로밍갈때 핑 좀 찍어,미드 병신아 로밍갈때 핑 좀 찍어,,2,profanity|blame,병신,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,,2,profanity|blame,0
+A075,리신 눈없음? 용 뺏기잖아 강타 똑바로 써,리신 눈없음? 용 뺏기잖아 강타 똑바로 써,,2,blame,,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,,2,blame,0
+A076,제발 귀환좀 해 가렌 그 피로 뭘하겠다고 생각이 없냐,제발 귀환좀 해 가렌 그 피로 뭘하겠다고 생각이 없냐,,2,blame,,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,,2,blame,0
+A077,궁은 아끼다 똥된다 아리야 좀 써 ㄹㅇ 답답해서 같이 못하겠네,궁은 아끼다 똥된다 아리야 좀 써 ㄹㅇ 답답해서 같이 못하겠네,,2,blame,,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 비난 수위가 약해 1~2 경계,feedback_mixed,,2,blame,0
+A078,존나 못하네 정글 걍 내 라인 오지말고 정글이나 돌아,존나 못하네 정글 걍 내 라인 오지말고 정글이나 돌아,,2,profanity|blame,존나,1,,,test,"AI(claude, 독립 작성 A)",봉인 검증,feedback_mixed,,2,profanity|blame,0
+A079,신고는 끝나고 다같이 베인한테 박고 일단 겜하자,신고는 끝나고 다같이 베인한테 박고 일단 겜하자,,2,instigation,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,instigation,p04,2,instigation,0
+A080,얘들아 미드 채팅 다 무시해 쟤랑 말섞지마,얘들아 미드 채팅 다 무시해 쟤랑 말섞지마,,2,instigation,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 따돌림 부추김으로 봄. 단순 중재로 읽을 여지,instigation,,2,instigation,0
+A081,9x 리포트 정글 ㄱㄱ 상대팀도 좀 해줘,9x 리포트 정글 ㄱㄱ 상대팀도 좀 해줘,,2,instigation,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,instigation,,2,instigation,0
+A082,이판 지면 다 야스오 탓인거 다들 알지? 끝나고 신고 ㄱ,이판 지면 다 야스오 탓인거 다들 알지? 끝나고 신고 ㄱ,,2,blame|instigation,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,instigation,,2,blame|instigation,0
+A083,우리 넷이서만 하자 탑은 없는셈 쳐,우리 넷이서만 하자 탑은 없는셈 쳐,,2,blame|instigation,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,instigation,,2,instigation,0
+A084,다들 서폿새끼 신고 한번씩 눌러줘,다들 서폿새끼 신고 한번씩 눌러줘,,2,profanity|instigation,새끼,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,instigation,p25,2,profanity|instigation,0
+A085,원딜 너네 부모님은 너 이러고 사는거 아시냐,원딜 너네 부모님은 너 이러고 사는거 아시냐,,3,family_insult,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 부모 언급 조롱. 직접 모욕은 아니라 2로 볼 여지,family_or_sexual,,2,blame,1
+A086,느금마 ㅋㅋ 정글 차이,느금마 ㅋㅋ 정글 차이,,3,profanity|family_insult,느금마,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · '느금마'를 욕설 낱말로도 표시,family_or_sexual,,3,profanity|family_insult|blame,0
+A087,가정교육을 어떻게 받았길래 겜을 그렇게하냐 미드,가정교육을 어떻게 받았길래 겜을 그렇게하냐 미드,,3,family_insult|blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,p23,3,family_insult|blame,0
+A088,탑 엄마 없이 컸냐 시발,탑 엄마 없이 컸냐 시발,,3,profanity|family_insult,시발,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,,3,profanity|family_insult,0
+A089,아리 여자임? 몸매 사진 보내주면 버스 태워줌,아리 여자임? 몸매 사진 보내주면 버스 태워줌,,3,sexual_harassment,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,p24,3,sexual_harassment,0
+A090,서폿 여자면 겜 말고 오빠랑 모텔이나 가자,서폿 여자면 겜 말고 오빠랑 모텔이나 가자,,3,sexual_harassment,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,,3,sexual_harassment,0
+A091,소나 가슴 보느라 겜 못하겠네 유저도 그렇게 큼?,소나 가슴 보느라 겜 못하겠네 유저도 그렇게 큼?,,3,sexual_harassment,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,,3,sexual_harassment,0
+A092,미드 저 년 걸레같이 생겼을듯 ㅋㅋ,미드 저 년 걸레같이 생겼을듯 ㅋㅋ,,3,profanity|sexual_harassment,년|걸레,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,family_or_sexual,,3,profanity|sexual_harassment,0
+A093,야스오 너 피시방에서 보이면 바로 죽인다 진짜,야스오 너 피시방에서 보이면 바로 죽인다 진짜,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,threat,p03,3,threat,0
+A094,그만해 캡처해뒀고 끝나고 니 학교에 뿌릴게,그만해 캡처해뒀고 끝나고 니 학교에 뿌릴게,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,threat,p08,3,threat,0
+A095,미드 계속 그러면 집주소 알아내서 찾아갈게,미드 계속 그러면 집주소 알아내서 찾아갈게,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,threat,p09,3,threat,0
+A096,니 아이디 기억했다 매판 저격해서 따라다닌다,니 아이디 기억했다 매판 저격해서 따라다닌다,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증 · 게임 안 저격이지만 지속적 괴롭힘 예고로 봄,threat,,3,threat,0
+A097,신상 털어서 커뮤에 올린다 각오해라 정글,신상 털어서 커뮤에 올린다 각오해라 정글,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,threat,,3,threat,0
+A098,어디 사냐 ㅋㅋ 주소 불러 뼈 부러뜨려줄게,어디 사냐 ㅋㅋ 주소 불러 뼈 부러뜨려줄게,,3,threat,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,threat,,3,threat,0
+A099,니가 제일 문제야 그걸 모르냐,니가 제일 문제야 그걸 모르냐,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,second_person,,2,blame,0
+A100,너땜에 진거임 ㅇㅈ하지?,너땜에 진거임 ㅇㅈ하지?,,2,blame,,0,,,test,"AI(claude, 독립 작성 A)",봉인 검증,second_person,,2,blame,0
+B001,용 40초 남았으니 정글님 미리 봇쪽으로 내려와 주세요,용 40초 남았으니 정글님 미리 봇쪽으로 내려와 주세요,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p01,0,,0
+B002,미드 점멸 없음 다음 갱 때 노려볼만 함,미드 점멸 없음 다음 갱 때 노려볼만 함,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,,0,,0
+B003,바론 시야는 내가 잡아둘테니 탑은 사이드 계속 밀어주면 됨,바론 시야는 내가 잡아둘테니 탑은 사이드 계속 밀어주면 됨,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p02,0,,0
+B004,상대 원딜 케틀이라 초반 라인전 좀 빡셀거임 사리면서 합시다,상대 원딜 케틀이라 초반 라인전 좀 빡셀거임 사리면서 합시다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,,0,,0
+B005,전령 내가 먹었는데 어디다 풀까요 탑이 낫겠죠?,전령 내가 먹었는데 어디다 풀까요 탑이 낫겠죠?,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p28,0,,0
+B006,다들 수고많으셨습니다 다음판도 화이팅 하이소,다들 수고많으셨습니다 다음판도 화이팅 하이소,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p24,0,,0
+B007,오늘 날씨가 추워서 그런가 내 손이 얼었는갑네 스킬이 하나도 안나가네 ㅎㅎ,오늘 날씨가 추워서 그런가 내 손이 얼었는갑네 스킬이 하나도 안나가네 ㅎㅎ,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p25,0,,0
+B008,서폿님 와드 하나만 삼거리 부쉬에 박아주실 수 있나요,서폿님 와드 하나만 삼거리 부쉬에 박아주실 수 있나요,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p03,0,,0
+B009,아리 궁 빠졌습니다 한 1분 반은 없을겁니다,아리 궁 빠졌습니다 한 1분 반은 없을겁니다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,p27,0,,0
+B010,억제기 재생성 30초 남았네 그 전에 한번 더 밀어봅시다,억제기 재생성 30초 남았네 그 전에 한번 더 밀어봅시다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_call,,0,,0
+B011,이번 한타 원딜이 다 죽이네 진짜 미쳤다 잘한다,이번 한타 원딜이 다 죽이네 진짜 미쳤다 잘한다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p04,0,,0
+B012,제가 0/7 이네요 죄송합니다 제가 못해서 그렇습니다,제가 0/7 이네요 죄송합니다 제가 못해서 그렇습니다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p05,0,,0
+B013,다음 한타에서 제드 만나면 내가 반드시 죽여놓는다,다음 한타에서 제드 만나면 내가 반드시 죽여놓는다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p06,0,,0
+B014,트롤 아니고 진짜 손이 미끄러진겁니다 미안합니다 탑님,트롤 아니고 진짜 손이 미끄러진겁니다 미안합니다 탑님,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p07,0,,0
+B015,미드한테 뭐라 하지 맙시다 신고 당하면 우리만 손해입니다,미드한테 뭐라 하지 맙시다 신고 당하면 우리만 손해입니다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p08,0,,0
+B016,저 사람 계속 욕하면 끝나고 신고 하겠습니다 캡처도 해뒀습니다,저 사람 계속 욕하면 끝나고 신고 하겠습니다 캡처도 해뒀습니다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p09,0,,0
+B017,정글님 지금 어디 계신가요? 탑 갱 한번 가능하신지요,정글님 지금 어디 계신가요? 탑 갱 한번 가능하신지요,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p10,0,,0
+B018,와 리신 발차기 지린다 저걸 어떻게 맞추노 미쳤네,와 리신 발차기 지린다 저걸 어떻게 맞추노 미쳤네,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p11,0,,0
+B019,티모 버섯 밟고 죽었네 ㅋㅋ 내가 눈이 없었음,티모 버섯 밟고 죽었네 ㅋㅋ 내가 눈이 없었음,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p12,0,,0
+B020,블츠 그랩 한번만 맞으면 죽습니다 다들 조심하세요,블츠 그랩 한번만 맞으면 죽습니다 다들 조심하세요,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p13,0,,0
+B021,우리 엄마도 롤 하시는데 가렌을 나보다 잘하심 ㅋㅋ,우리 엄마도 롤 하시는데 가렌을 나보다 잘하심 ㅋㅋ,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p14,0,,0
+B022,원딜님 혹시 정화 드셨습니까? 상대 cc가 많아서 여쭤봅니다,원딜님 혹시 정화 드셨습니까? 상대 cc가 많아서 여쭤봅니다,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p15,0,,0
+B023,이 판은 내가 던진거 맞음 탑 탓 아님 다들 미안함,이 판은 내가 던진거 맞음 탑 탓 아님 다들 미안함,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p16,0,,0
+B024,상대 정글 4렙인데 우리 정글은 벌써 6렙이네 참 잘 크고 있구만,상대 정글 4렙인데 우리 정글은 벌써 6렙이네 참 잘 크고 있구만,,0,,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,clean_trap,p17,0,,0
+B025,아 시발 점멸을 왜 거기다 썼노 내 손가락이 문제다,아 시발 점멸을 왜 거기다 썼노 내 손가락이 문제다,,1,profanity,시발,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,p18,1,profanity,0
+B026,ㅈㄴ 아깝네 한대만 더 쳤으면 잡는건데,존나 아깝네 한대만 더 쳤으면 잡는건데,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,p19,1,profanity,0
+B027,하 ㅅㅂ 오늘 게임이 와이리 안풀리노,하 시발 오늘 게임이 와이리 안풀리노,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,p20,1,profanity,0
+B028,에라이 지랄맞은 핑 또 튀네 렉 걸려서 죽음,에라이 지랄맞은 핑 또 튀네 렉 걸려서 죽음,,1,profanity,지랄,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,p21,1,profanity,0
+B029,ㅁㅊ 저게 안죽네 체력 10 남고 사는거 실화임?,미친 저게 안죽네 체력 10 남고 사는거 실화임?,lexicon:ㅁㅊ,1,profanity,ㅁㅊ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 감탄사 'ㅁㅊ' 단독 — 0(감탄)으로 볼 여지 있음,profanity_alone,,1,profanity,0
+B030,아오 tlqkf 큐를 또 벽에다 박았네,아오 시발 큐를 또 벽에다 박았네,lexicon:tlqkf,1,profanity,tlqkf,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,,1,profanity,0
+B031,존나게 안맞네 오늘 스킬샷은 접어야겠다 에휴,존나게 안맞네 오늘 스킬샷은 접어야겠다 에휴,,1,profanity,존나,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,,1,profanity,0
+B032,시1발 강타싸움 또 졌네 반응속도 다 죽었다 나이는 못 속임,시발 강타싸움 또 졌네 반응속도 다 죽었다 나이는 못 속임,noise_removed,1,profanity,시1발,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,profanity_alone,,1,profanity,0
+B033,와 리신 발차기 지랄났다 저걸 어떻게 못맞추노 미친놈이네,와 리신 발차기 지랄났다 저걸 어떻게 못맞추노 미친놈이네,,2,profanity|blame,지랄|미친놈,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,p11,2,profanity|blame,0
+B034,아 시발 점멸을 왜 거기다 쓰노 이즈 손가락이 문제다,아 시발 점멸을 왜 거기다 쓰노 이즈 손가락이 문제다,,2,profanity|blame,시발,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,p18,2,profanity|blame,0
+B035,ㅈㄴ 못하네 한대만 더 치면 잡는걸 미드는 그걸 놓치노,존나 못하네 한대만 더 치면 잡는걸 미드는 그걸 놓치노,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,p19,2,profanity|blame,0
+B036,하 ㅅㅂ 오늘 정글이 와이리 못하노,하 시발 오늘 정글이 와이리 못하노,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,p20,2,profanity|blame,0
+B037,에라이 지랄맞은 서폿 또 튀네 혼자 살겠다고,에라이 지랄맞은 서폿 또 튀네 혼자 살겠다고,,2,profanity|blame,지랄,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,p21,2,profanity|blame,0
+B038,원딜 ㅂㅅ이가 진짜 평타도 못치네 나이 헛먹었나,원딜 병신이가 진짜 평타도 못치네 나이 헛먹었나,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B039,이런 ㅁㅊ놈을 봤나 4대1로 들어가는 리븐은 내 처음 본다,이런 미친놈을 봤나 4대1로 들어가는 리븐은 내 처음 본다,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B040,말을 해도 못알아먹는 새1끼네 탑 저건 답이 없다,말을 해도 못알아먹는 새끼네 탑 저건 답이 없다,noise_removed,2,profanity|blame,새1끼,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B041,ㅈㄹ도 정도껏 하이소 케틀님 그게 지금 딜입니까,지랄도 정도껏 하이소 케틀님 그게 지금 딜입니까,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B042,아가리 닥치고 게임이나 해라 럭스 니가 제일 못한다,아가리 닥치고 게임이나 해라 럭스 니가 제일 못한다,,2,profanity|blame,아가리|닥치고,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B043,개같이 못하는 새끼가 입만 살았네 제드 니 얘기다,개같이 못하는 새끼가 입만 살았네 제드 니 얘기다,,2,profanity|blame,개같이|새끼,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B044,꺼지라 그냥 서폿 니같은 등신은 없는게 도움이다,꺼지라 그냥 서폿 니같은 등신은 없는게 도움이다,,2,profanity|blame,꺼지라|등신,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,direct_abuse,,2,profanity|blame,0
+B045,바론 시야는 내가 다 잡아두는데 탑은 사이드에서 계속 죽기만 하노,바론 시야는 내가 다 잡아두는데 탑은 사이드에서 계속 죽기만 하노,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p02,2,blame,0
+B046,이번 한타 원딜이 다 죽여놨네 진짜 미쳤나 왜 앞으로 가노,이번 한타 원딜이 다 죽여놨네 진짜 미쳤나 왜 앞으로 가노,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · '미쳤나'를 욕설(profanity)로 볼 여지 있음. 비난으로만 표시,plain_blame,p04,2,blame,0
+B047,트롤 아니고서야 그럴수가 있습니까 진짜 손이 문제입니다 탑님,트롤 아니고서야 그럴수가 있습니까 진짜 손이 문제입니다 탑님,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p07,2,blame,0
+B048,티모 버섯 밟고 또 죽었네 ㅋㅋ 원딜은 눈이 없는거임?,티모 버섯 밟고 또 죽었네 ㅋㅋ 원딜은 눈이 없는거임?,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p12,2,blame,0
+B049,블츠 그랩 한번을 못 맞추십니까 그러니 다들 죽습니다,블츠 그랩 한번을 못 맞추십니까 그러니 다들 죽습니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 스킬 적중 지적이지만 지시는 아니라 has_feedback=0,plain_blame,p13,2,blame,0
+B050,아리 궁을 또 허공에 날리셨습니다 한 1분 반은 쓸모가 없을겁니다,아리 궁을 또 허공에 날리셨습니다 한 1분 반은 쓸모가 없을겁니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 궁 사용 지적 — has_feedback 1로 볼 여지 있음,plain_blame,p27,2,blame,0
+B051,전령 줘봤자 뭐합니까 탑이 저 모양인데 풀어도 소용 없지요,전령 줘봤자 뭐합니까 탑이 저 모양인데 풀어도 소용 없지요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p28,2,blame,0
+B052,미드님 누가 그렇게 하라고 가르치시던가요 실력이 훤히 보입니다,미드님 누가 그렇게 하라고 가르치시던가요 실력이 훤히 보입니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p22,2,blame,0
+B053,럭스 니 티어나 불어봐라 게임은 글렀으니,럭스 니 티어나 불어봐라 게임은 글렀으니,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,p23,2,blame,0
+B054,그 나이 먹고 라인 관리 하나 못하면 어쩌자는겁니까 탑님,그 나이 먹고 라인 관리 하나 못하면 어쩌자는겁니까 탑님,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,,2,blame,0
+B055,솔직히 이 판 지면 전부 미드 책임임 변명할 생각 마셈,솔직히 이 판 지면 전부 미드 책임임 변명할 생각 마셈,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,,2,blame,0
+B056,내 롤 십년 했지만 이렇게 못하는 정글은 진짜 처음 봄,내 롤 십년 했지만 이렇게 못하는 정글은 진짜 처음 봄,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,plain_blame,,2,blame,0
+B057,서폿님은 와드를 삼거리 부쉬에 박는 법을 아직 안 배우셨나봅니다,서폿님은 와드를 삼거리 부쉬에 박는 법을 아직 안 배우셨나봅니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 와드 지적이 섞여 has_feedback 1로 볼 여지 있음,indirect_blame,p03,2,blame,0
+B058,야스오님 0/7 이시네요 대단하십니다 아주 그냥 기부천사세요,야스오님 0/7 이시네요 대단하십니다 아주 그냥 기부천사세요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,p05,2,blame,0
+B059,정글님 지금 어디 계신가요? 혹시 다른 게임 하고 계신건 아니지요,정글님 지금 어디 계신가요? 혹시 다른 게임 하고 계신건 아니지요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,p10,2,blame,0
+B060,원딜님 혹시 손으로 하고 계십니까? 발로 하시는가 싶어 여쭤봅니다,원딜님 혹시 손으로 하고 계십니까? 발로 하시는가 싶어 여쭤봅니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,p15,2,blame,0
+B061,상대 정글은 벌써 6렙인데 우리 정글은 4렙이네 참 잘 크고 계십니다,상대 정글은 벌써 6렙인데 우리 정글은 4렙이네 참 잘 크고 계십니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,p17,2,blame,0
+B062,다들 수고많으셨습니다 리신님만 빼고요 다음판은 꼭 상대팀으로 만납시다,다들 수고많으셨습니다 리신님만 빼고요 다음판은 꼭 상대팀으로 만납시다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,p24,2,blame,0
+B063,오늘 날씨가 추워서 그런가 우리 미드 손이 얼었는갑네 스킬이 하나도 안맞네 ㅎㅎ,오늘 날씨가 추워서 그런가 우리 미드 손이 얼었는갑네 스킬이 하나도 안맞네 ㅎㅎ,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 가벼운 농담조 — 0으로 볼 여지 있음,indirect_blame,p25,2,blame,0
+B064,정글님 정말 대단하십니다 15분동안 한번도 얼굴을 안비추시는 그 뚝심 존경합니다,정글님 정말 대단하십니다 15분동안 한번도 얼굴을 안비추시는 그 뚝심 존경합니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B065,오늘 컴퓨터 처음 만져보신 분이 우리 원딜이라니 참 영광이네요,오늘 컴퓨터 처음 만져보신 분이 우리 원딜이라니 참 영광이네요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B066,상대 유미는 사람인데 우리 유미는 진짜 고양이가 하는갑네,상대 유미는 사람인데 우리 유미는 진짜 고양이가 하는갑네,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B067,감사합니다 서폿님 덕분에 상대 원딜이 전설 찍었네요,감사합니다 서폿님 덕분에 상대 원딜이 전설 찍었네요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B068,아이고 잘한다 잘해 이즈 큐가 미니언만 골라 맞추네 그것도 재주다,아이고 잘한다 잘해 이즈 큐가 미니언만 골라 맞추네 그것도 재주다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B069,혹시 초등학생이신가 싶어 여쭙니다 마이님 내일 학교는 가셔야지요,혹시 초등학생이신가 싶어 여쭙니다 마이님 내일 학교는 가셔야지요,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B070,2/11 찍고도 채팅 칠 여유가 있으시네요 베인님 멘탈 하나는 챌린저십니다,2/11 찍고도 채팅 칠 여유가 있으시네요 베인님 멘탈 하나는 챌린저십니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,indirect_blame,,2,blame,0
+B071,용 40초 남았는데 정글님은 생각이 없으신가 미리 봇쪽으로 좀 내려오세요,용 40초 남았는데 정글님은 생각이 없으신가 미리 봇쪽으로 좀 내려오세요,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,p01,2,blame,0
+B072,탑은 귀가 막혔나 몇번을 말하노 지금이라도 봇으로 텔 타라,탑은 귀가 막혔나 몇번을 말하노 지금이라도 봇으로 텔 타라,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,blame,0
+B073,ㅅㅂ 서폿아 와드 좀 사라 시야가 하나도 없잖아,시발 서폿아 와드 좀 사라 시야가 하나도 없잖아,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,profanity|blame,0
+B074,혼자 들어가서 죽지 말고 생각이란걸 좀 하고 삽시다 레넥톤님 합류부터 하세요,혼자 들어가서 죽지 말고 생각이란걸 좀 하고 삽시다 레넥톤님 합류부터 하세요,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,blame,0
+B075,궁은 아껴뒀다 국 끓여 드실겁니까 오리아나님 한타때 좀 쓰세요,궁은 아껴뒀다 국 끓여 드실겁니까 오리아나님 한타때 좀 쓰세요,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,blame,0
+B076,라인만 밀줄 알지 할 줄 아는게 없노 원딜 니 용 한타 때는 좀 내려온나,라인만 밀줄 알지 할 줄 아는게 없노 원딜 니 용 한타 때는 좀 내려온나,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,blame,0
+B077,병신같이 던지지 말고 집 갔다 와라 다리우스 피 없으면 귀환을 해야지,병신같이 던지지 말고 집 갔다 와라 다리우스 피 없으면 귀환을 해야지,,2,profanity|blame,병신,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,profanity|blame,0
+B078,차이가 이렇게 나는데 양심이 있으면 바론 시야라도 잡으세요 정글님,차이가 이렇게 나는데 양심이 있으면 바론 시야라도 잡으세요 정글님,,2,blame,,1,,,test,"AI(claude, 독립 작성 B)",봉인 검증,feedback_mixed,,2,blame,0
+B079,미드한테 뭐라 할것도 없습니다 다같이 신고 넣으면 됩니다,미드한테 뭐라 할것도 없습니다 다같이 신고 넣으면 됩니다,,2,instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,p08,2,instigation,0
+B080,이 판은 탑이 던진거 맞음 내 탓 아님 다들 탑한테 한마디씩 하셈,이 판은 탑이 던진거 맞음 내 탓 아님 다들 탑한테 한마디씩 하셈,,2,blame|instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,p16,2,blame|instigation,0
+B081,쓰레쉬 아이디 다들 적어두이소 끝나고 다같이 신고 넣읍시다,쓰레쉬 아이디 다들 적어두이소 끝나고 다같이 신고 넣읍시다,,2,instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,p26,2,instigation,0
+B082,아군분들 지금부터 정글 핑은 다 무시합시다 없는 사람 취급하면 됩니다,아군분들 지금부터 정글 핑은 다 무시합시다 없는 사람 취급하면 됩니다,,2,instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,,2,instigation,0
+B083,상대팀 분들도 우리 티모 신고 좀 해주이소 9인 리폿 갑시다,상대팀 분들도 우리 티모 신고 좀 해주이소 9인 리폿 갑시다,,2,instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,,2,instigation,0
+B084,다들 봤지요? 방금 그거 서폿이 일부러 죽은겁니다 전부 한소리씩 해주세요,다들 봤지요? 방금 그거 서폿이 일부러 죽은겁니다 전부 한소리씩 해주세요,,2,blame|instigation,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,instigation,,2,blame|instigation,0
+B085,가렌 니네 엄마도 롤을 딱 너처럼 하시나 집안 내력이 그 모양이가,가렌 니네 엄마도 롤을 딱 너처럼 하시나 집안 내력이 그 모양이가,,3,family_insult|blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,p14,3,family_insult|blame,0
+B086,미드님 부모님이 그렇게 하라고 가르치시던가요 가정교육이 훤히 보입니다,미드님 부모님이 그렇게 하라고 가르치시던가요 가정교육이 훤히 보입니다,,3,family_insult|blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,p22,3,family_insult|blame,0
+B087,애비 없는 티를 그렇게까지 내고 싶나 정글,애비 없는 티를 그렇게까지 내고 싶나 정글,,3,family_insult,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · '애비'를 가릴 욕설 조각으로 볼 여지 있음. spans 비움,family_or_sexual,,3,family_insult,0
+B088,ㅅㅂ 느그 엄마가 널 낳고 미역국을 드셨다니 그게 아깝다,시발 느그 엄마가 널 낳고 미역국을 드셨다니 그게 아깝다,lexicon:ㅅㅂ,3,profanity|family_insult,ㅅㅂ,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,,3,profanity|family_insult,0
+B089,럭스 니 가슴 사이즈나 불어봐라 게임은 글렀으니,럭스 니 가슴 사이즈나 불어봐라 게임은 글렀으니,,3,sexual_harassment|blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,p23,3,sexual_harassment|blame,0
+B090,아리님 여자분이시죠? 몸매도 좋으실거 같은데 사진 한장 보내주면 오빠가 버스 태워드릴게 ㅎㅎ,아리님 여자분이시죠? 몸매도 좋으실거 같은데 사진 한장 보내주면 오빠가 버스 태워드릴게 ㅎㅎ,,3,sexual_harassment,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,,3,sexual_harassment,0
+B091,서폿 여자면 게임 말고 오빠랑 모텔이나 가자 그쪽은 더 잘하겠네,서폿 여자면 게임 말고 오빠랑 모텔이나 가자 그쪽은 더 잘하겠네,,3,sexual_harassment|blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,,3,sexual_harassment,0
+B092,ㅈㄴ 못하네 걸레같은 년이 원딜은 왜 잡았노 몸이나 팔아라,존나 못하네 걸레같은 년이 원딜은 왜 잡았노 몸이나 팔아라,lexicon:ㅈㄴ,3,profanity|sexual_harassment|blame,ㅈㄴ|걸레같은 년,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,family_or_sexual,,3,profanity|sexual_harassment|blame,0
+B093,게임 끝나고 현실에서 제드 만나면 내가 반드시 죽여놓는다,게임 끝나고 현실에서 제드 만나면 내가 반드시 죽여놓는다,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,threat,p06,3,threat,0
+B094,저 사람 계속 욕하면 끝나고 집으로 찾아가겠습니다 주소도 알아뒀습니다,저 사람 계속 욕하면 끝나고 집으로 찾아가겠습니다 주소도 알아뒀습니다,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,threat,p09,3,threat,0
+B095,쓰레쉬 니 아이디 다 적어놨다 신상 털어서 커뮤니티마다 다 뿌려줄테니 기다리라,쓰레쉬 니 아이디 다 적어놨다 신상 털어서 커뮤니티마다 다 뿌려줄테니 기다리라,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,threat,p26,3,threat,0
+B096,내가 니 사는 동네 안다 조만간 pc방 앞에서 보자 뼈 몇개 부러질 각오는 하고 온나,내가 니 사는 동네 안다 조만간 pc방 앞에서 보자 뼈 몇개 부러질 각오는 하고 온나,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,threat,,3,threat,0
+B097,앞으로 니가 큐 돌릴때마다 따라 들어가서 평생 괴롭혀줄게 기대하이소 원딜님,앞으로 니가 큐 돌릴때마다 따라 들어가서 평생 괴롭혀줄게 기대하이소 원딜님,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증 · 게임 안 스토킹성 괴롭힘 예고 — 명세의 '계속 따라다니며 괴롭힘'으로 보아 3,threat,,3,threat,0
+B098,말 조심하이소 징크스님 밤길 다니다 칼 맞는 수가 있습니다,말 조심하이소 징크스님 밤길 다니다 칼 맞는 수가 있습니다,,3,threat,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,threat,,3,threat,0
+B099,니는 진짜 생각이란걸 하고 사나 볼때마다 답답하다,니는 진짜 생각이란걸 하고 사나 볼때마다 답답하다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,second_person,,2,blame,0
+B100,너같은 사람이랑 한팀인게 내 오늘 최대 불운입니다,너같은 사람이랑 한팀인게 내 오늘 최대 불운입니다,,2,blame,,0,,,test,"AI(claude, 독립 작성 B)",봉인 검증,second_person,,2,blame,0

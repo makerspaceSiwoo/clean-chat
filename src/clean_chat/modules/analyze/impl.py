@@ -52,7 +52,8 @@ def run(req: AnalyzeRequest) -> Analysis:
     try:
         scores = _predict_harm(msg.text_norm)
         target = _guess_target(msg, req.history, req.players)
-        level, harm_types = _decide_level(scores, target)
+        implied = None if target else _implied_target(msg, req.players)
+        level, harm_types, target = _decide_level(scores, target, implied)
         if level == Level.L0_CLEAN:  # 정상이면 나머지는 빈 값
             return Analysis(msg_id=msg.id, level=level, model_version=_model_version())
         return Analysis(
@@ -213,17 +214,51 @@ def _lineup_holders(team: list[Player], role: str) -> set[str]:
     return holders
 
 
-def _decide_level(scores: dict[str, float], target: str | None) -> tuple[Level, list[HarmType]]:
-    """점수 + 대상 여부 → 등급과 유형 목록. 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱·협박 = L3)."""
+def _decide_level(
+    scores: dict[str, float], target: str | None, implied: tuple[str | None, bool] | None = None
+) -> tuple[Level, list[HarmType], str | None]:
+    """점수 + 대상 → (등급, 유형 목록, 대상). 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱·협박 = L3).
+
+    implied 는 확실하지 않은 대상 단서 (이름 또는 None, 욕설이 바로 붙어 있는가)다 — `_implied_target` 참고.
+    비난·정치질처럼 "누군가를 향한" 유형이 걸렸거나 욕설이 그 이름에 바로 붙어 있을 때만 대상으로 인정한다.
+    """
     hit = [t for t in HarmType if scores.get(t.value, 0.0) >= THRESHOLD]
+    if not target and implied is not None and hit:
+        name, adjacent = implied
+        directed = HarmType.BLAME in hit or HarmType.INSTIGATION in hit or (adjacent and HarmType.PROFANITY in hit)
+        if directed or name is None:  # 이름 없이 "너"·"니" 로 부른 경우(name=None)는 어떤 유형이든 사람을 향한 말
+            if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit or HarmType.THREAT in hit:
+                return Level.L3_LEGAL, hit, name
+            return Level.L2_ABUSIVE, hit, name
     if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit or HarmType.THREAT in hit:
-        return Level.L3_LEGAL, hit
+        return Level.L3_LEGAL, hit, target
     if target and hit:
-        return Level.L2_ABUSIVE, hit
+        return Level.L2_ABUSIVE, hit, target
     # 대상이 없으면 비난·정치질은 성립하지 않는다 ("내가 못했네") → 비속어만 남긴다
     if HarmType.PROFANITY in hit:
-        return Level.L1_MILD, [HarmType.PROFANITY]
-    return Level.L0_CLEAN, []
+        return Level.L1_MILD, [HarmType.PROFANITY], None
+    return Level.L0_CLEAN, [], None
+
+
+def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | None, bool] | None:
+    """확실하지 않은 대상 단서. 유형과 함께 봐야 대상인지 알 수 있어서 `_decide_level` 이 최종 판단한다.
+
+    - 명단이 없을 때 문장 **중간·끝**의 챔피언 이름: ("이즈리얼", 욕설이 바로 옆에 붙었는가)
+      "그걸 못 치냐 이즈"(비난 → 대상), "ㅂㅅ 티모 꺼져"(사람을 가리키는 욕설이 붙음 → 대상),
+      "아 시발 블츠 그랩에 또 끌렸네"(감탄 욕설뿐 → 대상 아님, 혼잣말)
+    - "너"·"니" 로만 부른 말(앞 대화가 없어 누구인지 모름): (None, False) → 등급은 사람을 향한 것으로 보되 target 은 비운다
+    """
+    text = message.text_norm
+    if not players:
+        tokens = [t.group() for t in _TOKEN.finditer(text)]
+        for i, word in enumerate(tokens):
+            for name in sorted(CHAMPION_ROLES, key=len, reverse=True):
+                if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
+                    near = " ".join(tokens[max(0, i - 1) : i + 2])
+                    return canonical(name), any(w in near for w in lexicon.PERSON_INSULT)
+    if lexicon.SECOND_PERSON.search(text):
+        return None, False
+    return None
 
 
 def _find_profanity(message: ChatMessage) -> list[str]:

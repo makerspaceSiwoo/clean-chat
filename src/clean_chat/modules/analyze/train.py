@@ -104,6 +104,7 @@ def train(
     examples: list[Example] | None = None,
     log: Callable[[str], None] = print,
     on_epoch: Callable[[dict], None] | None = None,
+    extra_meta: dict | None = None,
 ) -> Path:
     """파인튜닝 후 out 폴더에 모델·토크나이저·meta.json 을 저장한다.
 
@@ -203,6 +204,7 @@ def train(
         "seed": seed,
         "only_labels": only_labels,
     }
+    meta |= extra_meta or {}
     (out / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     log(f"저장: {out}  (평가: uv run python -m clean_chat.modules.analyze.evaluate <CSV> --split test)")
     return out
