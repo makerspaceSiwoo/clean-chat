@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from clean_chat.core.config import settings
 from clean_chat.core.schemas import Action, Analysis, ChatMessage, Decision, Level, Rewrite
 
 MASK = "**"
@@ -50,6 +51,10 @@ def decide_incoming(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | Non
     if level == Level.L0_CLEAN:
         return out(Action.SHOW, msg.text, "L0")
     if level == Level.L1_MILD:
+        if settings.filter_strength == "low":
+            return out(Action.SHOW, msg.text, "낮음 · L1 혼잣말 표시")
+        if settings.filter_strength == "high":
+            return out(Action.HIDE, None, "높음 · L1 숨김")
         return out(Action.SHOW_MASKED, mask_profanity(msg.text, analysis.profanity_spans), "L1 → 비속어만 가림")
     rewritten = _rewritten(analysis, rewrite)
     if level == Level.L2_ABUSIVE:

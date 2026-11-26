@@ -20,9 +20,12 @@ from __future__ import annotations
 
 from enum import IntEnum, StrEnum
 
-from pydantic import BaseModel, Field, model_serializer
+from pydantic import BaseModel, Field, computed_field, model_serializer
 
-SCHEMA_VERSION = "1.0.0"
+from clean_chat.core.charges import CHARGE_CATALOG, ChargeId
+
+SCHEMA_VERSION = "1.1.0"
+# 1.1.0: 신고·고소 초안의 원문 증거와 적용된 혐의 ID 추가
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
 #        parse 가 내 입력(compose)·정규화(normalize)까지, 정책(policy)은 구성으로. Mock 제거
 # 0.6.0: PostGameResult 추가 (게임 종료 배치 처리 결과)
@@ -250,12 +253,54 @@ class GameSession(BaseModel):
 
 
 # ── ⑤ report: 신고 문구 / 고소장 (게임 종료 후에만) ──────────────
+# 고소장 후보로 표시된 사건에만 적용하는 초안 분류표. 유해 유형만으로 범죄 성립을 판정하지 않는다.
+_COMPLAINT_CHARGE_BY_HARM = {
+    HarmType.THREAT: ChargeId.THREAT,
+    HarmType.FAMILY_INSULT: ChargeId.INSULT,
+    HarmType.SEXUAL_HARASSMENT: ChargeId.SEXUAL_MESSAGE,
+}
+
+
 class ReportRequest(BaseModel):
     kind: ReportKind
     session: GameSession  # 이번 게임 기록 전체. report → decision.report, complaint → complaint_candidate 기록만 쓴다
     speaker: str  # 대상 닉네임
     complainant: str | None = None  # 고소인(사용자) 이름. complaint 일 때만
     output_dir: str | None = None  # PDF 저장 폴더. complaint 일 때만. 상대 경로면 레포 루트 기준 (resolve_repo_path)
+
+    evidence_ids: tuple[str, ...] | None = None  # None이면 해당 화자의 대상 기록 전체, 빈 목록이면 첨부 없음
+
+    def _incidents(self) -> list[Incident]:
+        complaint = self.kind == ReportKind.COMPLAINT
+        return [
+            inc
+            for inc in self.session.incidents
+            if inc.msg.speaker == self.speaker
+            and not inc.msg.is_me
+            and inc.msg.source != Source.SELF_INPUT
+            and (inc.decision.complaint_candidate if complaint else inc.decision.report)
+        ]
+
+    @computed_field
+    @property
+    def evidence(self) -> tuple[ChatMessage, ...]:
+        """현재 초안에 첨부할 원본 메시지. 같은 시각이면 세션 기록 순서를 유지한다."""
+        selected = None if self.evidence_ids is None else set(self.evidence_ids)
+        messages = [inc.msg for inc in self._incidents() if selected is None or inc.msg.id in selected]
+        return tuple(sorted(messages, key=lambda msg: msg.ts))
+
+    @computed_field
+    @property
+    def applied_charge_ids(self) -> tuple[ChargeId, ...]:
+        if self.kind != ReportKind.COMPLAINT:
+            return ()
+        applied = {
+            _COMPLAINT_CHARGE_BY_HARM[harm]
+            for inc in self._incidents()
+            for harm in inc.analysis.harm_types
+            if harm in _COMPLAINT_CHARGE_BY_HARM
+        }
+        return tuple(charge for charge in CHARGE_CATALOG if charge in applied)
 
 
 class ReportDraft(BaseModel):
@@ -264,6 +309,8 @@ class ReportDraft(BaseModel):
     text: str  # report: 그대로 붙여넣을 신고 문구 / complaint: 사건 경위
     incident_ids: list[str]
     pdf_path: str | None = None  # complaint 일 때 저장한 PDF 경로
+    evidence: tuple[ChatMessage, ...] = ()  # 초안이 인용한 원문. 예전 결과에는 없을 수 있다.
+    applied_charge_ids: tuple[ChargeId, ...] = ()
 
 
 # ── 구성: 게임 종료 결과 (POST_GAME 배치 처리 → "이번 게임 결과" 화면) ──

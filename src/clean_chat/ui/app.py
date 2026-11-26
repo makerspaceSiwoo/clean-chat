@@ -1,6 +1,7 @@
 """클라이언트·오버레이·엔진을 연결한다. 화면 변경은 Qt 이벤트 루프에서 처리한다."""
 
 import sys
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QSettings, Slot
 from PySide6.QtWidgets import QApplication
@@ -17,17 +18,31 @@ from clean_chat.ui.overlay import OverlayWindow
 
 
 class App(QObject):
-    def __init__(self, pipelines: Pipelines, source: LineSource | FrameSource, detector: PhaseDetector) -> None:
+    def __init__(
+        self,
+        pipelines: Pipelines,
+        source: LineSource | FrameSource,
+        detector: PhaseDetector,
+        history_path: Path | None = None,
+    ) -> None:
         qt = QApplication.instance() or QApplication(sys.argv)
         super().__init__()
         self.qt = qt
         self.engine = Engine(pipelines, source, detector)
         self.bridge = EngineBridge(self.engine)
         self.outgoing = OutgoingRunner(pipelines.outgoing)
-        self.client = ClientWindow()
+        self.client = ClientWindow(history_path)
         self.overlay = OverlayWindow(on_submit=self.outgoing.submit)
         self.preferences = QSettings("CleanChat", "Desktop")
-        self.client.my_name.setText(self.preferences.value("player/name", settings.my_name, type=str))
+        settings.my_name = self.preferences.value("player/name", settings.my_name, type=str)
+        self.client.my_name.setText(settings.my_name)
+        level = self.preferences.value("filter/strength", "normal", type=str)
+        idx = self.client.strength.findData(level)
+        self.client.strength.setCurrentIndex(idx if idx >= 0 else 1)
+        self.client.strength_state.setText(self.client.strength.currentText())
+        settings.filter_strength = self.client.strength.currentData()
+        self.client.strength.currentIndexChanged.connect(self.set_strength)
+        self.client.my_name.editingFinished.connect(self.save_name)
         self.sampler = None
         self.armed = False
         self.session_started = False
@@ -56,10 +71,26 @@ class App(QObject):
         self.overlay.input.returnPressed.connect(self.overlay.submit_input)
         self.outgoing.done.connect(self.overlay.apply_outgoing)
         self.outgoing.failed.connect(self.overlay.show_error)
-        self.client.btn_copy_report.clicked.connect(self.client.copy_selected_report)
-        self.client.btn_open_complaint.clicked.connect(self.client.open_selected_complaint)
-        self.client.btn_close_result.clicked.connect(self.engine.dismiss_result)
+        self.client.btn_close_result.clicked.connect(self.close_result)
         self.qt.aboutToQuit.connect(self.shutdown)
+
+    @Slot()
+    def save_name(self) -> None:
+        settings.my_name = self.client.my_name.text().strip() or "나"
+        self.preferences.setValue("player/name", settings.my_name)
+
+    @Slot()
+    def set_strength(self) -> None:
+        settings.filter_strength = self.client.strength.currentData()
+        self.preferences.setValue("filter/strength", settings.filter_strength)
+        self.client.strength_state.setText(self.client.strength.currentText())
+
+    @Slot()
+    def close_result(self) -> None:
+        if self.engine.phase == GamePhase.POST_GAME:
+            self.engine.dismiss_result()
+        else:
+            self.client.pages.setCurrentIndex(0)
 
     @Slot(str)
     def _status(self, text: str) -> None:
@@ -95,8 +126,7 @@ class App(QObject):
             return
         if self.engine.phase == GamePhase.POST_GAME and not self.engine.dismiss_result():
             return
-        settings.my_name = self.client.my_name.text().strip() or "나"
-        self.preferences.setValue("player/name", settings.my_name)
+        self.save_name()
         self.sampler.preview_only = self.client.preview_only.isChecked()
         self.client.preview_only.setEnabled(False)
         if self.sampler.preview_only:
@@ -119,6 +149,8 @@ class App(QObject):
             self.sampler.pause()
             self.failure = ""
         self.overlay.set_editing(editing)
+        rect = self.overlay.geometry()
+        self.client.region_state.setText(f"{rect.width()} × {rect.height()} · {'조정 중' if editing else '잠금'}")
         self.client.btn_lock.setText("위치 잠금" if editing else "위치 조정")
         if editing:
             self._status("위치 조정 중 · 위치 잠금을 누르면 캡처를 시작합니다.")
@@ -136,6 +168,7 @@ class App(QObject):
             if self.sampler.preview_only:
                 self.client.show_phase(self.engine.phase, None)
         self.overlay.hide()
+        self.client.region_state.setText("위치 조정 대기")
         self.client.btn_start.setText("Clean Chat 시작")
         self.client.btn_start.setEnabled(not self.session_started and self.engine.error is None)
         self.client.btn_lock.setEnabled(False)
@@ -174,7 +207,7 @@ class App(QObject):
 
 
 def run_app(pipelines: Pipelines, source: LineSource | FrameSource, detector: PhaseDetector) -> int:
-    app = App(pipelines, source, detector)
+    app = App(pipelines, source, detector, history_path=settings.store_dir / "recent-results.json")
     app.show()
     app.engine.start()
     try:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -21,6 +22,7 @@ FIXTURES = ROOT / "fixtures"
 
 class Settings(BaseModel):
     my_name: str = "나"  # 내 소환사명 (클라이언트 설정에서 변경)
+    filter_strength: Literal["low", "normal", "high"] = "normal"
     llm_backend: str = "none"  # rewrite/report 모듈용: "local" | "api" (OPEN-04)
     store_dir: Path = STORE  # 처리 내역 로컬 저장 (git 제외)
     sessions_dir: Path = STORE / "sessions"  # 게임 세션 기록 <id>.jsonl (git 제외)
