@@ -220,14 +220,18 @@ def test_classify_kinds():
     assert classify(ValueError("boom")) == "exception"
 
 
-def _logged_run(tmp_path, sample_id: str, **kw):
+def _logged_run(tmp_path, sample_id: str, check: bool = False, **kw):
+    """check=True 면 예시 id 를 넘겨 정답 비교까지 한다."""
     from clean_chat.sim.flow_log import FlowLog, read_records
 
     log = FlowLog("run-1", sample_id, tmp_path)
     s = _sample(sample_id)
     events: list[dict] = []
     try:
-        run_flow(FlowRequest(image_path=s["image"], ocr_text="\n".join(s["lines"]), **kw), events.append, log)
+        req = FlowRequest(
+            image_path=s["image"], ocr_text="\n".join(s["lines"]), sample_id=sample_id if check else None, **kw
+        )
+        run_flow(req, events.append, log)
         log.finish("ok")
     except FlowStopped as e:
         log.finish("stopped", e.stage)
@@ -257,6 +261,8 @@ def test_module_exception_is_logged_with_stage_kind_and_traceback(monkeypatch, t
         "fallback": 1,
         "errors": 1,
         "warnings": 0,
+        "checked": 0,  # ocr 이 가정 응답이면 정답 비교를 하지 않는다
+        "mismatches": 0,
     }
 
 
@@ -316,3 +322,60 @@ def test_summary_counts_failed_runs_per_stage(monkeypatch, tmp_path):
     assert s["stages"]["analyze"]["failedRuns"] == 2 and s["stages"]["analyze"]["warnings"] == 1
     assert [r["runId"] for r in s["runs"]] == ["r2", "r1", "r0"]  # 최신이 앞
     assert s["stages"]["analyze"]["last"]["message"] == "m2"
+
+
+# ── 정답 비교 (sim/flow_check.py, fixtures/flow/samples.jsonl 의 expect) ──
+def test_every_sample_has_expectations_for_every_line():
+    for s in flow_api.samples():
+        exp = s["expect"]
+        assert len(exp["lines"]) == len(s["lines"]), s["id"]
+        for e in exp["lines"]:
+            assert e["chat"] in (True, False)
+            if e["chat"]:
+                assert e["level"] in (0, 1, 2, 3) and e["channel"] in ("team", "all") and e["action"]
+
+
+def _real_fallback_modules(monkeypatch, real: set[str]):
+    """real 에 든 모듈은 가정 응답 함수를 "실제 모듈"로 부른다 → 정답 비교가 돈다."""
+    from clean_chat.sim import fallback as fb
+
+    def make(name):
+        if name not in real:
+            return _not_implemented
+        if name == "ocr":
+            return lambda frame: fb.ocr(frame, "\n".join(_sample("abusive")["lines"]))
+        return getattr(fb, name)
+
+    monkeypatch.setattr(modules, "load", make)
+
+
+def test_mismatches_are_reported_per_stage_and_logged(monkeypatch, tmp_path):
+    _real_fallback_modules(monkeypatch, {"ocr", "parse", "analyze"})
+    events, records = _logged_run(tmp_path, "abusive", check=True)
+    checks = [c for e in events for c in e.get("checks") or []]
+    by = {(c["stage"], c["field"]) for c in checks}
+    assert {("ocr", "line"), ("parse", "chat"), ("parse", "speaker"), ("analyze", "level"), ("policy", "action")} <= by
+    assert ("report", "reports") in by
+    assert all(c["ok"] for c in checks if c["stage"] in ("ocr", "parse"))  # 정답 줄 그대로 → ocr·parse 는 전부 정답
+    # 가정 응답 analyze 는 'ㅂㅅ같이 하네' 를 L1 로 봄 → 초안 기대값 L2 와 다름 → 빨간색 + 로그
+    bad = [c for c in checks if not c["ok"]]
+    assert any(c["stage"] == "analyze" and c["field"] == "level" and c["expected"] == 2 for c in bad)
+    logged = [r for r in records if r["type"] == "failure" and r["kind"] == "mismatch"]
+    assert len(logged) == len(bad) and all(r["severity"] == "mismatch" for r in logged)
+    (run,) = [r for r in records if r["type"] == "run"]
+    assert run["stages"]["analyze"]["checked"] > 0 and run["stages"]["analyze"]["mismatches"] > 0
+    assert run["stages"]["policy"]["checked"] == 9  # 채팅 9줄의 정책 결과
+
+
+def test_fallback_results_are_not_checked(all_fallback, tmp_path):
+    events, _ = _logged_run(tmp_path, "abusive", check=True)
+    stages = {c["stage"] for e in events for c in e.get("checks") or []}
+    assert stages == {"policy", "report"}  # 모듈 결과는 가정 응답이라 비교 안 함, 흐름 결과(정책·신고 대상)는 비교
+
+
+def test_action_accepts_any_of_listed():
+    from clean_chat.sim.flow_check import Checker
+
+    r = Checker._one("policy", "action", ["hide", "show_rewritten"], "show_rewritten", "x", any_of=True)
+    assert r["ok"]
+    assert not Checker._one("report", "reports", ["a", "b"], ["a"], None)["ok"]  # 목록끼리는 같아야 정답

@@ -31,7 +31,8 @@ from clean_chat.core.modules import MODULE_NAMES, ModuleSet
 from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.platform import use_utf8_console
 from clean_chat.core.schemas import Frame, GamePhase, Incident, OcrResult, PhaseEvent, Player, Region
-from clean_chat.sim import fallback, flow_log
+from clean_chat.sim import fallback, flow_check, flow_log
+from clean_chat.sim.flow_check import Checker
 from clean_chat.sim.flow_log import FlowLog
 
 FLOW_DIR = FIXTURES / "flow"
@@ -88,6 +89,7 @@ class TracingModules:
 
     def __init__(self, req: FlowRequest, emit: Emit, log: FlowLog | None = None) -> None:
         self.req, self.emit, self.log = req, emit, log
+        self.checker = Checker.for_sample(req.sample_id)  # 기대값이 있는 예시면 정답 비교
         self.seq = 0
         self.where = "game"
         self.status: dict[str, set[str]] = {name: set() for name in MODULE_NAMES}
@@ -122,6 +124,17 @@ class TracingModules:
             self.log.failure(name, kind, message, tb, _item_id(item))
         return {"kind": kind, "severity": severity, "message": message, "traceback": tb}
 
+    def checked(self, results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """정답 비교 결과를 단계별로 세고, 다른 것은 오류 로그에 mismatch 로 남긴다."""
+        for r in results:
+            if self.log is not None:
+                self.log.count(r["stage"], "checked")
+                if not r["ok"]:
+                    self.log.failure(r["stage"], "mismatch", flow_check.describe(r), "", r.get("itemId"))
+            if not r["ok"]:
+                print(f"✗ [{r['stage']}] 정답과 다름 — {flow_check.describe(r)}", file=sys.stderr, flush=True)
+        return results
+
     def _wrap(self, name: str) -> Callable[[BaseModel], BaseModel]:
         def call(item: BaseModel) -> BaseModel:
             self.seq += 1
@@ -154,6 +167,7 @@ class TracingModules:
                 if empty:
                     problem = self._record(name, "empty_result", empty, "", item)
                     print(f"⚠ [{name}] empty_result — {empty}", file=sys.stderr, flush=True)
+            checks = self.checked(self.checker.after_call(name, item, out, mode)) if self.checker else []
             self.status[name].add(mode)
             if self.log is not None:
                 self.log.count(name, "calls")
@@ -166,6 +180,7 @@ class TracingModules:
                     "mode": mode,
                     "reason": reason,
                     "problem": problem,
+                    "checks": checks,
                     "input": _dump(item),
                     "output": _dump(out),
                     "ms": round((time.perf_counter() - started) * 1000),
@@ -224,6 +239,11 @@ def _run(req: FlowRequest, emit: Emit, tracer: TracingModules) -> dict[str, Any]
     pipes = Pipelines(mods)
     pipes.set_players(players)
     emit({"event": "phase", "phase": GamePhase.IN_GAME.value, "sessionId": game.session.id if game.session else None})
+    checker = tracer.checker
+    if checker is not None:
+        emit(
+            {"event": "expect", "status": checker.status, "reports": checker.reports, "complaints": checker.complaints}
+        )
 
     frame = Frame(id="F0", ts=now, image_path=req.image_path, region=REGION)
     print(f"▶ 흐름 A: 캡처 이미지 1장 ({req.image_path})", flush=True)
@@ -238,7 +258,10 @@ def _run(req: FlowRequest, emit: Emit, tracer: TracingModules) -> dict[str, Any]
             continue
         incidents.append(inc)
         game.record(inc)
-        emit({"event": "incident", "incident": _dump(inc)})
+        tracer.where = "policy"
+        checks = tracer.checked(checker.after_incident(inc)) if checker else []
+        tracer.where = "pipeline"
+        emit({"event": "incident", "incident": _dump(inc), "checks": checks})
     print(f"  채팅 {len(incidents)}건 처리", flush=True)
     tracer.pause()
 
@@ -247,7 +270,8 @@ def _run(req: FlowRequest, emit: Emit, tracer: TracingModules) -> dict[str, Any]
     emit({"event": "phase", "phase": GamePhase.POST_GAME.value, "sessionId": game.session.id if game.session else None})
     print("▶ 게임 종료: 신고 문구 · 고소장 초안 (report)", flush=True)
     result = PostGameBatch(mods).run(game.session) if game.session else None
-    emit({"event": "post_game", "result": _dump(result)})
+    checks = tracer.checked(checker.after_post_game(result)) if checker else []
+    emit({"event": "post_game", "result": _dump(result), "checks": checks})
 
     summary = {"modules": {name: sorted(modes) for name, modes in tracer.status.items()}, "incidents": len(incidents)}
     emit({"event": "done", "summary": summary})

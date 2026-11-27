@@ -14,6 +14,7 @@ kind / severity:
   bad_output       error    출력이 계약(core/schemas.py)과 다름
   exception        error    모듈 안에서 난 예외
   stage_exception  error    모듈 밖 구성 단계에서 난 예외 → 흐름이 멈춤
+  mismatch         mismatch 기대값(정답)과 결과가 다름 (sim/flow_check.py). stage 에 policy(정책표)도 쓴다
 """
 
 from __future__ import annotations
@@ -40,8 +41,10 @@ SEVERITY = {
     "bad_output": "error",
     "exception": "error",
     "stage_exception": "error",
+    "mismatch": "mismatch",
 }
-STAGES = ("ocr", "parse", "analyze", "rewrite", "report", "game", "pipeline", "post_game")
+STAGES = ("ocr", "parse", "analyze", "rewrite", "policy", "report", "game", "pipeline", "post_game")
+COUNT_FOR = {"error": "errors", "warning": "warnings", "mismatch": "mismatches"}
 MAX_TRACEBACK = 8000  # 기록 1건 크기 제한 (긴 traceback 은 뒤쪽만 남긴다)
 
 
@@ -90,14 +93,14 @@ class FlowLog:
             print(f"⚠ 오류 로그를 쓰지 못했습니다 ({self.path}): {e}", file=sys.stderr, flush=True)
 
     def count(self, stage: str, key: str) -> None:
-        s = self.stages.setdefault(stage, {"calls": 0, "real": 0, "fallback": 0, "errors": 0, "warnings": 0})
-        s[key] += 1
+        s = self.stages.setdefault(stage, _counts())
+        s[key] = s.get(key, 0) + 1
 
     def failure(
         self, stage: str, kind: str, message: str, traceback: str = "", item_id: str | None = None
     ) -> dict[str, Any]:
         severity = SEVERITY.get(kind, "error")
-        self.count(stage, "errors" if severity == "error" else "warnings")
+        self.count(stage, COUNT_FOR.get(severity, "errors"))
         record = {
             "type": "failure",
             "ts": time.time(),
@@ -142,8 +145,13 @@ def read_records(directory: Path | None = None, days: int = 7) -> list[dict[str,
     return out
 
 
+def _counts() -> dict[str, int]:
+    """단계 1개의 합계. checked·mismatches 는 정답 비교 (기대값이 있는 예시에서만)."""
+    return {"calls": 0, "real": 0, "fallback": 0, "errors": 0, "warnings": 0, "checked": 0, "mismatches": 0}
+
+
 def _empty() -> dict[str, Any]:
-    return {"calls": 0, "real": 0, "fallback": 0, "errors": 0, "warnings": 0, "failedRuns": 0}
+    return {**_counts(), "failedRuns": 0, "mismatchRuns": 0}
 
 
 def summary(directory: Path | None = None, runs: int = 50, failures: int = 100) -> dict[str, Any]:
@@ -160,6 +168,8 @@ def summary(directory: Path | None = None, runs: int = 50, failures: int = 100) 
                 s[k] = s.get(k, 0) + v
             if counts.get("errors"):
                 s["failedRuns"] += 1
+            if counts.get("mismatches"):
+                s["mismatchRuns"] += 1
     for f in fails:
         stages.setdefault(f["stage"], _empty())["last"] = {k: f.get(k) for k in ("ts", "kind", "severity", "message")}
     return {

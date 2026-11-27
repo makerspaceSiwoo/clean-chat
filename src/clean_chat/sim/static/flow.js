@@ -42,8 +42,10 @@ const KIND_KO = {
   bad_output: "출력 형식 오류",
   exception: "예외",
   stage_exception: "구성 단계 예외",
+  mismatch: "정답과 다름",
 };
-const STAGE_KO = { game: "게임 시작 (구성)", pipeline: "흐름 연결·정책 (구성)", post_game: "게임 종료 배치 (구성)" };
+const STAGE_KO = { game: "게임 시작 (구성)", pipeline: "흐름 연결 (구성)", policy: "정책표 (구성)", post_game: "게임 종료 배치 (구성)" };
+const FIELD_KO = { line: "줄", chat: "구분", speaker: "화자", channel: "채널", level: "등급", target: "대상", action: "처리", reports: "신고 대상", complaints: "고소 대상" };
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/bmp"];
 const MAX_IMAGE = 10 * 1024 * 1024;
 
@@ -154,7 +156,7 @@ function renderPlayers() {
 
 // ── 실행 결과 상태 ─────────────────────────────────────
 function newRun() {
-  return { calls: [], incidents: {}, postGame: null, phase: "idle", done: false, stopped: null, summary: null, current: null, proc: null };
+  return { calls: [], incidents: {}, postGame: null, phase: "idle", done: false, stopped: null, summary: null, current: null, proc: null, expect: null, checks: [] };
 }
 function callsOf(name) {
   return state.run.calls.filter((c) => c.module === name);
@@ -184,6 +186,40 @@ function stageProblems(name) {
   return el("span", { class: "cnt" }, errs ? chip(`오류 ${errs}`, "err") : null, warns ? chip(`경고 ${warns}`, "warn") : null);
 }
 
+// ── 정답 비교 (기대값이 있는 예시만, sim/flow_check.py) ──
+function fmtExpected(field, v) {
+  if (Array.isArray(v) && field !== "reports" && field !== "complaints") return v.map((x) => fmtExpected(field, x)).join(" 또는 ");
+  if (field === "level") return `L${v}`;
+  if (field === "action") return ACTION_KO[v] || v;
+  if (field === "chat") return v ? "채팅" : "시스템";
+  if (field === "channel") return v === "all" ? "전체" : "팀";
+  if (field === "reports" || field === "complaints") return v.length ? v.join(", ") : "없음";
+  if (field === "line") return v == null ? "(없음)" : v;
+  return v == null ? "없음" : String(v);
+}
+function checksFor(stage, itemIds) {
+  return state.run.checks.filter((c) => c.stage === stage && itemIds.includes(c.itemId));
+}
+// 셀에 붙일 비교 결과: 틀리면 빨간 "기대: …", 맞으면 작은 ✓
+function checkMarks(checks) {
+  if (!checks.length) return { bad: false, nodes: [] };
+  const bad = checks.filter((c) => !c.ok);
+  const nodes = bad.length
+    ? bad.map((c) => {
+        const d = el("div", { class: "expect" }, `✗ 기대 ${FIELD_KO[c.field] || c.field}: ${fmtExpected(c.field, c.expected)} (결과: ${fmtExpected(c.field, c.actual)})`);
+        if (c.note) d.title = c.note;
+        return d;
+      })
+    : [el("span", { class: "okmark", title: checks.map((c) => FIELD_KO[c.field] || c.field).join(", ") + " 정답" }, "✓ 정답")];
+  return { bad: bad.length > 0, nodes };
+}
+function accuracyChip(stage) {
+  const cs = state.run.checks.filter((c) => c.stage === stage);
+  if (!cs.length) return null;
+  const ok = cs.filter((c) => c.ok).length;
+  return el("span", { class: "cnt" }, chip(`정답 ${ok}/${cs.length}`, ok === cs.length ? "okc" : "err"));
+}
+
 function renderStages() {
   const r = state.run;
   const items = MODULES.map(([name, num, title]) => {
@@ -207,8 +243,13 @@ function renderStages() {
       el("span", {}, status + (backends.length ? ` · backend=${backends.join(",")}` : "")),
       why ? el("span", { class: "why" }, why.replace(/^(구현 전|오류): /, "")) : null,
       stageProblems(name),
+      accuracyChip(name),
     );
   });
+  if (r.expect) {
+    const i = items.findIndex((li) => li.textContent.startsWith("⑤"));
+    items.splice(i, 0, el("li", { class: "phase" }, el("b", {}, "정책표"), el("span", { class: "muted" }, "core/policy.py"), el("span", {}, "표시·가림·순화·숨김"), accuracyChip("policy")));
+  }
   const phaseKo = { idle: "대기", in_game: "게임 중", post_game: "게임 종료" }[r.phase] || r.phase;
   items.unshift(el("li", { class: "phase" }, el("b", {}, "게임 단계"), el("span", { class: "muted" }, "core/game.py"), el("span", {}, phaseKo)));
   $("stages").replaceChildren(...items);
@@ -250,6 +291,13 @@ function renderNow() {
     box.textContent = `✖ ${STAGE_KO[r.stoppedStage] || r.stoppedStage || ""} 단계에서 멈춤 — ${r.stopped}`;
   }
   const p = r.proc;
+  const bad = r.checks.filter((c) => !c.ok).length;
+  $("expect-info").textContent = r.expect
+    ? `정답 비교: 검사 ${r.checks.length}개 · 다름 ${bad}개 — 기대값 ${r.expect.status === "draft" ? "초안(검수 전)" : r.expect.status} · fixtures/flow/samples.jsonl 의 expect`
+    : r.proc
+      ? "정답 비교 없음 — 기대값은 예시 이미지에만 있습니다 (첨부 이미지는 비교하지 않음)"
+      : "";
+  $("expect-info").className = "small " + (bad ? "expect" : "muted");
   $("proc").textContent = p
     ? `새 프로세스 PID ${p.pid} 에서 디스크의 모듈 코드를 불러 실제 run() 을 호출합니다 (저장된 결과 아님)` +
       (p.stepDelayMs ? ` · 단계 사이 ${p.stepDelayMs / 1000}초 멈춤 (보여 주기용, 계산 시간은 각 단계 ms 로 따로 표시)` : "")
@@ -331,18 +379,27 @@ function renderRows() {
       ? [rw.output.rewritten ? el("div", {}, rw.output.rewritten) : chip("순화 실패 → 숨김", "L2"), fbChip(rw), el("div", { class: "muted small" }, `backend=${rw.output.backend}`)]
       : "";
     const decision = inc ? [el("b", {}, ACTION_KO[inc.decision.action] || inc.decision.action), el("div", { class: "muted small" }, inc.decision.reason)] : "";
+    const ids = [line.id, msg && msg.id].filter(Boolean);
+    const mOcr = checkMarks(checksFor("ocr", ids));
+    const mParse = checkMarks(checksFor("parse", ids));
+    const mAnalyze = checkMarks(checksFor("analyze", ids));
+    const mPolicy = checkMarks(checksFor("policy", ids));
+    const cell = (m, content) => el("td", { class: m.bad ? "mismatch" : "" }, content, m.nodes);
     const tr = el(
       "tr",
       { class: "row" + (p && !msg ? " skip" : "") + (activeLine === line.id ? " active" : ""), title: "눌러서 모듈 입력·출력 보기" },
-      el("td", { class: "raw" }, line.text, " ", fbChip(ocr)),
-      el("td", {}, parseCell),
-      el("td", {}, a ? analysisCell(a) : msg ? spin("analyze", line.id) || wait() : ""),
+      el("td", { class: "raw" + (mOcr.bad ? " mismatch" : "") }, line.text, " ", fbChip(ocr), mOcr.bad ? mOcr.nodes : null),
+      cell(mParse, parseCell),
+      cell(mAnalyze, a ? analysisCell(a) : msg ? spin("analyze", line.id) || wait() : ""),
       el("td", {}, rwCell || (msg ? spin("rewrite", line.id) : "")),
-      el("td", {}, decision || (msg ? wait() : "")),
+      cell(mPolicy, decision || (msg ? wait() : "")),
     );
     const detail = detailRow([p, a, rw]);
     tr.onclick = () => (detail.hidden = !detail.hidden);
     rows.push(tr, detail);
+  }
+  for (const c of state.run.checks.filter((x) => x.stage === "ocr" && !x.ok && x.itemId == null)) {
+    rows.push(el("tr", {}, el("td", { class: "raw mismatch", colspan: "5" }, el("div", { class: "expect" }, `✗ OCR 이 읽지 못한 정답 줄: ${c.expected}`))));
   }
   if (!rows.length) rows.push(el("tr", {}, el("td", { colspan: "5", class: "muted" }, "OCR 이 읽은 줄이 없습니다. 첨부 이미지라면 왼쪽 'OCR 가정 응답'에 줄을 적어 보세요.")));
   body.replaceChildren(...rows);
@@ -382,6 +439,12 @@ function renderReports() {
       : [el("span", { class: "muted" }, "신고·고소 대상 기록이 없어 report 모듈을 부르지 않았습니다. (정책표가 report / complaint_candidate 를 표시한 채팅이 없음)")]),
   );
   if (drafts.length && !r.postGame.complaints.length) box.append(el("p", { class: "small muted" }, "고소장 초안 없음 — L3(법적 대응 후보) 채팅이 없었습니다."));
+  for (const c of r.checks.filter((x) => x.stage === "report")) {
+    const label = c.field === "reports" ? "신고 문구 대상" : "고소장 대상";
+    box.append(
+      el("p", { class: c.ok ? "okmark" : "expect report-check" }, c.ok ? `✓ ${label} 정답: ${fmtExpected(c.field, c.actual)}` : `✗ ${label} — 기대: ${fmtExpected(c.field, c.expected)} / 결과: ${fmtExpected(c.field, c.actual)}`),
+    );
+  }
 }
 
 function renderAll() {
@@ -408,7 +471,9 @@ function setRunning(on) {
 }
 function onFlow(ev) {
   const r = state.run;
+  if (ev.checks && ev.checks.length) r.checks = [...r.checks, ...ev.checks];
   if (ev.event === "start") r.proc = ev;
+  else if (ev.event === "expect") r.expect = ev;
   else if (ev.event === "call_start") r.current = ev;
   else if (ev.event === "call") [r.calls, r.current] = [[...r.calls, ev], null];
   else if (ev.event === "incident") r.incidents[ev.incident.msg.id] = ev.incident;
@@ -496,7 +561,7 @@ async function loadLogs() {
   try {
     renderLogs(await (await fetch("/api/flow/logs")).json());
   } catch (e) {
-    $("mon-rows").replaceChildren(el("tr", {}, el("td", { colspan: "8", class: "error" }, `오류 로그를 불러오지 못했습니다: ${e.message}`)));
+    $("mon-rows").replaceChildren(el("tr", {}, el("td", { colspan: "9", class: "error" }, `오류 로그를 불러오지 못했습니다: ${e.message}`)));
   }
 }
 function renderLogs(data) {
@@ -512,16 +577,16 @@ function renderLogs(data) {
         return d;
       }),
   );
-  const order = [...MODULES.map(([n]) => n), "game", "pipeline", "post_game"];
+  const order = [...MODULES.map(([n]) => n).slice(0, 4), "policy", "report", "game", "pipeline", "post_game"];
   const rows = order
     .map((name) => [name, data.stages[name]])
-    .filter(([name, s]) => s && (MODULES.some(([n]) => n === name) || s.errors || s.warnings))
+    .filter(([name, s]) => s && (MODULES.some(([n]) => n === name) || s.errors || s.warnings || s.checked))
     .map(([name, s]) => {
       const mod = MODULES.find(([n]) => n === name);
       const last = s.last;
       return el(
         "tr",
-        { class: s.errors ? "bad" : "" },
+        { class: s.errors || s.mismatches ? "bad" : "" },
         el("td", {}, mod ? `${mod[1]} ${name}` : STAGE_KO[name] || name),
         el("td", { class: "num" }, String(s.failedRuns || 0)),
         el("td", { class: "num" }, String(s.calls || 0)),
@@ -529,7 +594,8 @@ function renderLogs(data) {
         el("td", { class: "num" }, String(s.fallback || 0)),
         el("td", { class: "num" }, String(s.errors || 0)),
         el("td", { class: "num" }, String(s.warnings || 0)),
-        el("td", {}, last ? [chip(KIND_KO[last.kind] || last.kind, last.severity === "error" ? "err" : "warn"), el("span", { class: "small" }, ` ${fmtTime(last.ts)} — ${last.message.slice(0, 120)}`)] : el("span", { class: "muted" }, "없음")),
+        el("td", { class: "num" + (s.mismatches ? " bad" : "") }, s.checked ? `${s.checked - (s.mismatches || 0)}/${s.checked} (${Math.round((100 * (s.checked - (s.mismatches || 0))) / s.checked)}%)` : "—"),
+        el("td", {}, last ? [chip(KIND_KO[last.kind] || last.kind, last.severity === "warning" ? "warn" : "err"), el("span", { class: "small" }, ` ${fmtTime(last.ts)} — ${last.message.slice(0, 120)}`)] : el("span", { class: "muted" }, "없음")),
       );
     });
   $("mon-rows").replaceChildren(...rows);
@@ -539,7 +605,7 @@ function renderLogs(data) {
           el(
             "details",
             {},
-            el("summary", {}, chip(KIND_KO[f.kind] || f.kind, f.severity === "error" ? "err" : "warn"), ` ${fmtTime(f.ts)} · ${STAGE_KO[f.stage] || f.stage}${f.itemId ? ` · ${f.itemId}` : ""} · ${f.sample || ""} — ${f.message.slice(0, 160)}`),
+            el("summary", {}, chip(KIND_KO[f.kind] || f.kind, f.severity === "warning" ? "warn" : "err"), ` ${fmtTime(f.ts)} · ${STAGE_KO[f.stage] || f.stage}${f.itemId ? ` · ${f.itemId}` : ""} · ${f.sample || ""} — ${f.message.slice(0, 160)}`),
             el("pre", {}, f.traceback || "(traceback 없음)"),
           ),
         )
