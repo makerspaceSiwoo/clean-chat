@@ -102,3 +102,25 @@ def test_filter_strength_checkboxes_and_pills_stay_in_sync() -> None:
     client.strength_buttons.button(0).click()
     assert checks[0].isChecked() and seen == ["high", "low"]
     client.close()
+
+
+def test_nav_follows_accessibility_press_and_key_button_keeps_width() -> None:
+    qt = QApplication.instance() or QApplication([])
+    client = ClientWindow()
+    client.show()
+    qt.processEvents()
+    # VoiceOver의 '누르기'는 클릭 신호 없이 체크만 바꾼다. 그래도 페이지가 바뀌어야 한다.
+    client.nav_buttons[3].setChecked(True)
+    assert client.pages.currentIndex() == 3
+    client.nav_buttons[0].click()
+    assert client.pages.currentIndex() == 0 and not client.nav_buttons[3].isChecked()
+    client.pages.setCurrentIndex(2)  # 코드에서 페이지를 바꾸면 메뉴 강조도 따라간다.
+    assert client.nav_buttons[2].isChecked()
+    client.nav_buttons[3].click()
+    qt.processEvents()
+    before = (client.btn_key_show.width(), client.llm_key.width())
+    client.btn_key_show.click()
+    qt.processEvents()
+    assert client.btn_key_show.text() == "숨기기"
+    assert (client.btn_key_show.width(), client.llm_key.width()) == before
+    client.close()
