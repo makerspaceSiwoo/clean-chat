@@ -1,15 +1,16 @@
-"""[뼈대 · ui/capture 공동 · Windows 전용] 창을 화면 캡처에서 제외 (ADR-0003, OPEN-02 실측 필요)"""
+"""Windows 미리보기 동안 Clean Chat 창을 데스크톱 캡처에서 제외한다."""
 
-from PySide6.QtWidgets import QWidget
-
-from clean_chat.core.platform import IS_WINDOWS
-
-WDA_EXCLUDEFROMCAPTURE = 0x11
+import ctypes
+from ctypes import wintypes
+from functools import cache
 
 
-def exclude_from_capture(widget: QWidget) -> bool:
-    """성공하면 True. Windows가 아니면 아무것도 하지 않고 False."""
-    if not IS_WINDOWS:
-        return False
-    # TODO(실측): ctypes.windll.user32.SetWindowDisplayAffinity(int(widget.winId()), WDA_EXCLUDEFROMCAPTURE)
-    raise NotImplementedError("Windows 담당: 캡처 제외 실측 후 구현")
+@cache
+def _set_affinity():
+    fn = ctypes.WinDLL("user32", use_last_error=True).SetWindowDisplayAffinity
+    fn.argtypes, fn.restype = [wintypes.HWND, wintypes.DWORD], wintypes.BOOL
+    return fn
+
+
+def capture_exclusion(hwnd: int, enabled: bool) -> bool:
+    return bool(_set_affinity()(hwnd, 0x11 if enabled else 0))

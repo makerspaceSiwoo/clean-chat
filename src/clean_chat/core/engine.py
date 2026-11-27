@@ -14,12 +14,26 @@ import sys
 import threading
 import traceback
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 
 from clean_chat.core.game import GameStateMachine, MemorySessionRepository, PostGameBatch, SessionRepository
+from clean_chat.core.grabber import ScreenGrabber
 from clean_chat.core.modules import ModuleNotImplemented
-from clean_chat.core.pipeline import Pipelines
-from clean_chat.core.schemas import GamePhase, GameSession, Incident, PhaseEvent, PostGameResult
+from clean_chat.core.pipeline import LineDedup, Pipelines
+from clean_chat.core.policy import decide_incoming
+from clean_chat.core.schemas import (
+    Analysis,
+    ChatMessage,
+    Frame,
+    GamePhase,
+    GameSession,
+    Incident,
+    Level,
+    PhaseEvent,
+    PostGameResult,
+)
 from clean_chat.core.sources import FrameSource, LineSource, PhaseDetector
+from clean_chat.modules.parse.notices import system_notice
 
 IncidentListener = Callable[[Incident], None]
 PhaseListener = Callable[[GamePhase, GameSession | None], None]
@@ -38,11 +52,12 @@ class Engine:
         self.repository = repository or MemorySessionRepository()
         self.machine = GameStateMachine()
         self.batch = PostGameBatch(pipelines.modules)
+        self._row_listeners: list[Callable[[int, int, str], None]] = []
         self._incident_listeners: list[IncidentListener] = []
         self._phase_listeners: list[PhaseListener] = []
         self._result_listeners: list[ResultListener] = []
         self._error_listeners: list[Callable[[str], None]] = []
-        self.error: ModuleNotImplemented | None = None  # 구현 없는 모듈을 만나 멈췄으면 그 원인
+        self.error: Exception | None = None  # 구현 없는 모듈을 만나 멈췄으면 그 원인
         self._stop = threading.Event()
         self._capture_stop = threading.Event()
         self._batch_running = threading.Event()  # 게임 종료 배치 중에는 결과 화면을 닫을 수 없음
@@ -54,6 +69,13 @@ class Engine:
     def subscribe(self, fn: IncidentListener) -> None:
         """흐름 A 결과(Incident) 1건마다 호출 (캡처 스레드)"""
         self._incident_listeners.append(fn)
+
+    def on_row(self, fn: Callable[[int, int, str], None]) -> None:
+        self._row_listeners.append(fn)
+
+    def _row(self, frame: Frame, order: int, text: str) -> None:
+        for fn in self._row_listeners:
+            fn(int(frame.id.partition("-")[0]), order, text)
 
     def on_phase(self, fn: PhaseListener) -> None:
         """단계가 바뀔 때마다 호출 (엔진 스레드 또는 dismiss 를 부른 스레드)"""
@@ -119,7 +141,7 @@ class Engine:
         finally:
             self._stop_capture(drain=False)
 
-    def _fail(self, error: ModuleNotImplemented) -> None:
+    def _fail(self, error: Exception) -> None:
         """구현 없는 모듈을 만남 → 원인을 알리고 엔진을 멈춘다 (Mock 으로 대신하지 않음, ADR-0017)."""
         if self.error is not None:
             return
@@ -148,6 +170,7 @@ class Engine:
             return
         if phase == GamePhase.IN_GAME:
             self._players_ready = False
+            self.pipelines.reset_session()
             self._refresh_players()
             self._emit_phase(phase, self.machine.session)
             self._start_capture()
@@ -210,13 +233,17 @@ class Engine:
             self._capture()
         except ModuleNotImplemented as e:
             self._fail(e)
-        except Exception:  # 캡처 스레드가 조용히 죽지 않게 원인을 남긴다 (앱은 계속 돈다)
+        except Exception as exc:  # 캡처 스레드가 조용히 죽지 않게 원인을 남긴다 (앱은 계속 돈다)
             print("⚠️ 흐름 A(캡처) 중단:", file=sys.stderr)
             traceback.print_exc()
+            if isinstance(self.source, ScreenGrabber):
+                self._fail(RuntimeError(f"채팅 감시 중단 · {exc}"))
 
     def _capture(self) -> None:
         incoming = self.pipelines.incoming
-        if hasattr(self.source, "frames"):
+        if isinstance(self.source, ScreenGrabber):
+            self._capture_live(self.source)
+        elif hasattr(self.source, "frames"):
             for frame in self.source.frames():
                 if self._capture_stop.is_set():
                     return
@@ -230,6 +257,61 @@ class Engine:
                 self._refresh_players()
                 if inc := incoming.process_line(line):
                     self._emit_incident(inc)
+
+    def _capture_live(self, source: ScreenGrabber) -> None:
+        incoming = self.pipelines.incoming
+        order = 0
+        epoch = None
+        capacity = threading.BoundedSemaphore(6)
+
+        def deliver(frame: Frame, index: int, msg: ChatMessage, analysis: Analysis, rewrite: bool) -> None:
+            try:
+                if not source.current(frame):
+                    return
+                rw = incoming.filters.rewrite(msg, analysis) if rewrite else None
+            except Exception as exc:
+                rw = None  # 순화 실패 시 원문은 가린다.
+                for fn in self._error_listeners:
+                    fn(f"순화 실패 · {exc}")
+            finally:
+                if rewrite:
+                    capacity.release()
+            if not source.current(frame):
+                return
+            decision = decide_incoming(msg, analysis, rw)
+            self._emit_incident(Incident(msg=msg, analysis=analysis, decision=decision, rewrite=rw))
+            if decision.display_text:
+                self._row(frame, index, f"{msg.speaker}: {decision.display_text}")
+
+        # 순화 하나가 오래 걸려도 다음 OCR·분석과 일반 콜 표시는 계속한다.
+        with ThreadPoolExecutor(max_workers=1, thread_name_prefix="chat-rewrite") as worker:
+            for frame in source.frames():
+                if self._capture_stop.is_set():
+                    return
+                if not source.current(frame):
+                    continue
+                self._refresh_players()
+                current_epoch = frame.id.partition("-")[0]
+                if current_epoch != epoch:
+                    incoming.dedup = LineDedup()
+                    epoch = current_epoch
+                for line in incoming.read_frame(frame):
+                    if not source.current(frame):
+                        break
+                    order += 1
+                    parsed = incoming.parse(line)
+                    msg = parsed.message
+                    if msg is None:
+                        if (notice := parsed.system_text or system_notice(line.text)) and source.current(frame):
+                            self._row(frame, order, notice)
+                        continue
+                    if self.pipelines.sent_log.is_echo(msg):
+                        continue
+                    analysis = incoming.filters.analyze(msg)
+                    if analysis.level >= Level.L2_ABUSIVE and analysis.feedback_spans and capacity.acquire(False):
+                        worker.submit(deliver, frame, order, msg, analysis, True)
+                    else:
+                        deliver(frame, order, msg, analysis, False)
 
     def _emit_incident(self, inc: Incident) -> None:
         self.machine.record(inc)
