@@ -355,8 +355,16 @@ function reportCard(draft, call) {
     "article",
     { class: "report" },
     el("header", {}, el("b", {}, `${draft.kind === "report" ? "신고 문구" : "고소장 초안"} · ${draft.speaker}`), fbChip(call), draft.pdf_path ? el("span", { class: "small muted" }, draft.pdf_path) : null, btn),
-    el("pre", {}, draft.text),
+    ...draftBody(draft.text),
   );
+}
+// report 모듈이 고소장을 서식 있는 HTML 로 돌려주면 미리보기로 그린다.
+// 모듈 출력이라 sandbox(스크립트·폼·링크 이동 모두 막음) iframe 에 넣고, 원문은 접어 둔다.
+function draftBody(text) {
+  if (!/^\s*<(article|section|div|html|h1|p)\b/i.test(text)) return [el("pre", {}, text)];
+  const frame = el("iframe", { class: "doc", sandbox: "", title: "고소장 미리보기", referrerpolicy: "no-referrer" });
+  frame.srcdoc = text;
+  return [frame, el("details", {}, el("summary", {}, "HTML 원문 보기"), el("pre", {}, text))];
 }
 function renderReports() {
   const r = state.run;
