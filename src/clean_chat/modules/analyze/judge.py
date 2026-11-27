@@ -52,7 +52,8 @@ SELF_TALK = re.compile(r"(^|\s)(내가|내|나|제가)(\s|$)|내\s?(실수|잘�
 VEILED_THREAT_SEC = 900.0  # 암시적 협박을 "앞서 공격하던 사람에게 한 말"로 보는 시간
 FOLLOW_UP_SEC = 600.0  # 대상을 생략한 욕설을 "앞서 공격하던 사람에게 이어서 한 말"로 보는 시간
 MODEL_THRESHOLD = 0.5  # judge 모델 점수가 이 이상이면 그 판단(신고 권고·고소 후보)으로 본다
-Mode = Literal["rules", "hybrid", "model"]  # rules: 규칙만(기본) / hybrid: 규칙 또는 모델 / model: 모델만 (비교용)
+# hybrid(기본): 신고 권고 = 규칙 또는 모델, 고소 후보 = 규칙 / rules: 규칙만 / model: 모델만 (비교용)
+Mode = Literal["hybrid", "rules", "model"]
 DEFEND = re.compile(r"그만|적당히|선\s?넘|곱게|조용히|하지\s?마|싸우지|신경\s?쓰지")
 
 
@@ -100,12 +101,12 @@ class Judgment(BaseModel):
     version: str = VERSION
 
 
-def judge(req: JudgeRequest, index: precedents.PrecedentIndex | None = None, mode: Mode = "rules") -> Judgment:
+def judge(req: JudgeRequest, index: precedents.PrecedentIndex | None = None, mode: Mode = "hybrid") -> Judgment:
     """전체 대화 → 화자별 판단. index 는 판례 색인(없으면 기본 파일, 그것도 없으면 요건 점검표만).
 
     순서: ① 메시지마다 실시간 필터 결과로 근거를 모은다 → ② 유저별 누적 점수·흐름 규칙으로 판단한다
-    → ③ mode="hybrid" 이면 judge 모델(judge_model.py)이 유저별 전체 채팅을 읽고 낸 점수로 보완한다.
-    기본은 규칙만이다: 지금 데이터(게임 36판)로 학습한 모델은 규칙보다 낫지 않았다 (README · demo_judge.ipynb).
+    → ③ judge 모델(judge_model.py, `models/analyze-judge/`)이 그 유저가 쓴 채팅을 모아 읽고 낸 점수로 신고 권고를 보완한다.
+    모델 파일이 없으면 규칙만으로 돈다. 고소 후보는 모델을 쓰지 않고 규칙으로만 정한다 (README "대화 판단").
     """
     me = next((p for p in req.players if p.is_me or p.name == req.my_name), None) or Player(
         name=req.my_name, is_me=True
@@ -181,17 +182,18 @@ def _empty(speaker: str, champion: str | None, total_messages: int) -> SpeakerJu
 
 
 def _with_model(base: SpeakerJudgment, scores: dict[str, float], mode: Mode) -> SpeakerJudgment:
-    """규칙 판단에 모델 점수를 합친다. hybrid 는 둘 중 하나라도 그렇다고 하면, model 은 모델만 따른다."""
+    """규칙 판단에 모델 점수를 합친다. hybrid 는 신고 권고만 "규칙 또는 모델", model 은 모델만 따른다."""
     said_report = scores.get("report", 0.0) >= MODEL_THRESHOLD
     said_complaint = scores.get("complaint", 0.0) >= MODEL_THRESHOLD
-    complaint = said_complaint if mode == "model" else base.complaint_candidate or said_complaint
+    # hybrid: 신고 권고는 규칙 또는 모델, 고소 후보는 규칙만 (모델의 고소 후보 판단은 오탐이 많았다 — README)
+    complaint = said_complaint if mode == "model" else base.complaint_candidate
     report = (said_report if mode == "model" else base.report or said_report) or complaint
     reasons = list(base.reasons)
     if said_report and not base.report:
         reasons.append(
             f"대화 흐름 모델이 신고 권고로 판단 (점수 {scores['report']:.2f}) — 한 문장씩으로는 잡히지 않은 표현"
         )
-    if said_complaint and not base.complaint_candidate:
+    if said_complaint and not base.complaint_candidate and mode == "model":
         reasons.append(
             f"대화 흐름 모델이 고소 후보로 판단 (점수 {scores['complaint']:.2f}) — 근거 문장은 직접 확인 필요"
         )

@@ -503,10 +503,10 @@ def test_judge_merges_model_scores(monkeypatch):
     monkeypatch.setattr(judge_model, "predict", lambda *_a: fake)
     monkeypatch.setattr(judge_model, "version", lambda: "fake-judge-0.1")
     req = judge.JudgeRequest(messages=messages, players=ROSTER, my_name="나")
-    hybrid = judge.judge(req, mode="hybrid")
+    hybrid = judge.judge(req)  # 기본 = hybrid
     assert [(s.speaker, s.report, s.complaint_candidate) for s in hybrid.speakers] == [("불꽃남자", True, False)]
     assert hybrid.speakers[0].model_scores["report"] == 0.91 and hybrid.version.endswith("+fake-judge-0.1")
-    assert judge.judge(req).speakers == []  # 기본은 규칙만
+    assert judge.judge(req, mode="rules").speakers == []
 
 
 def test_judge_evaluate_counts_users(tmp_path):
@@ -618,3 +618,42 @@ def test_named_person_beats_lane_word():
     assert impl.run(_req("세주 너 일부러 탑 안 오지 트롤이냐", players=players)).target == "불주먹"
     assert impl.run(_req("정글 트롤이냐", players=players)).target == "불주먹"  # 포지션 낱말만 있으면 그대로 포지션으로
     assert impl.run(_req("정글 트롤이냐 아리 좀 봐줘라", players=players)).target == "불주먹"  # 먼저 나온 쪽이 대상
+
+
+def test_eval_sets_do_not_overlap_training_sentences():
+    """시험·검증 세트(기존 60, 챔피언, 협박, 조정용, 봉인)는 서로 다른 파일의 학습 문장과 겹치지 않는다."""
+    folder = FIXTURES / "analyze"
+    train_texts = {
+        t
+        for t, _ in train.load_examples(
+            [folder / n for n in ("labeled_parsed.csv", "train_aug.csv", "train_indep.csv")]
+        )
+    }
+    assert len(train_texts) >= 2300
+    for name in ("champion_eval_draft.csv", "threat_eval_draft.csv", "dev_eval.csv", "blind_eval.csv"):
+        rows = evaluate.load_rows(folder / name)
+        assert rows and {r["split"] for r in rows} == {"test"}, name
+        assert not {r["text_norm"].strip() for r in rows} & train_texts, name
+    held_out = evaluate.load_rows(folder / "labeled_parsed.csv", "test")
+    assert not {r["text_norm"].strip() for r in held_out} & train_texts
+
+
+def test_judge_blind_games_are_separate_from_training_games():
+    train_games = judge_evaluate.load_games(FIXTURES / "analyze" / "judge_games.jsonl")
+    blind = judge_evaluate.load_games(FIXTURES / "analyze" / "judge_blind_games.jsonl")
+    assert len(blind) >= 30 and {g["split"] for g in blind} == {"blind"}
+    assert not {g["id"] for g in blind} & {g["id"] for g in train_games}
+    seen = {m["text"] for g in train_games for m in g["messages"] if len(m["text"]) >= 12}
+    overlap = [m["text"] for g in blind for m in g["messages"] if m["text"] in seen]
+    assert len(overlap) <= 5, overlap[:5]  # 짧은 인사말 말고는 같은 문장이 거의 없어야 한다
+
+
+def test_implied_target_for_champion_mid_sentence_and_second_person():
+    """명단이 없을 때: 문장 중간·끝의 챔피언은 비난이거나 사람을 가리키는 욕설이 붙었을 때만 대상, "너/니" 는 사람을 향한 말."""
+    out = impl.run(_req("ㅂㅅ 티모 꺼져", "병신 티모 꺼져", ("lexicon:ㅂㅅ",)))
+    assert (out.target, int(out.level)) == ("티모", 2)
+    assert int(impl.run(_req("다같이 리신 신고 ㄱ")).level) == 2  # 정치질 + 문장 중간의 챔피언
+    assert (lambda o: (o.target, int(o.level)))(impl.run(_req("아 시발 블츠 그랩에 또 끌렸네"))) == (None, 1)  # 혼잣말
+    out = impl.run(_req("너 진짜 트롤이냐"))
+    assert (out.target, int(out.level)) == (None, 2)  # 누구인지는 모르지만 사람을 향한 말
+    assert int(impl.run(_req("너 덕분에 살았다")).level) == 0
