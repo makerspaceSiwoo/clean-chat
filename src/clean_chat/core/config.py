@@ -47,28 +47,25 @@ def load_user_env(path: Path, environ: MutableMapping[str, str] | None = None) -
         environ.setdefault(key, value)
 
 
-def current_llm(path: Path, environ: Mapping[str, str] | None = None) -> tuple[str, str]:
-    """지금 적용되는 (모델, API 키). 환경 변수가 있으면 파일보다 우선한다."""
+def current_llm_key(path: Path, environ: Mapping[str, str] | None = None) -> str:
+    """지금 적용되는 Gemini API 키. 환경 변수가 있으면 파일보다 우선한다. 모델은 각 모듈이 정한다."""
     environ = os.environ if environ is None else environ
     values = read_user_env(path) | {key: environ[key] for key in USER_ENV_KEYS if environ.get(key)}
-    return values.get("LLM_MODEL", ""), values.get("GEMINI_API_KEY") or values.get("LLM_API_KEY", "")
+    return values.get("GEMINI_API_KEY") or values.get("LLM_API_KEY", "")
 
 
-def save_llm_settings(model: str, api_key: str, path: Path, environ: MutableMapping[str, str] | None = None) -> str:
-    """설정 화면에서 입력한 모델·키를 .env에 쓰고 실행 중인 앱에 바로 적용한다. 정리된 모델명을 돌려준다."""
+def save_llm_settings(api_key: str, path: Path, environ: MutableMapping[str, str] | None = None) -> None:
+    """설정 화면에서 입력한 API 키를 .env에 쓰고 실행 중인 앱에 바로 적용한다. 모델은 rewrite·report가 정한다."""
     environ = os.environ if environ is None else environ
-    model, api_key = model.strip(), api_key.strip()
-    if not model or not api_key:
-        raise ValueError("모델 이름과 API 키를 모두 입력하세요.")
-    if any(ch.isspace() or ch in "'\"#" for ch in model + api_key):
-        raise ValueError("모델 이름과 API 키에는 공백, 따옴표, #을 넣을 수 없습니다.")
-    if "/" not in model:
-        model = "gemini/" + model
-    values = {"LLM_BACKEND": "api", "LLM_MODEL": model, "LLM_API_KEY": api_key}
+    api_key = api_key.strip()
+    if not api_key:
+        raise ValueError("API 키를 입력하세요.")
+    if any(ch.isspace() or ch in "'\"#" for ch in api_key):
+        raise ValueError("API 키에는 공백, 따옴표, #을 넣을 수 없습니다.")
+    values = {"LLM_BACKEND": "api", "LLM_API_KEY": api_key}
     _write_user_env(path, values)
     environ.update(values)
     environ["GEMINI_API_KEY"] = api_key  # rewrite는 GEMINI_API_KEY를 먼저 본다
-    return model
 
 
 def clear_llm_settings(path: Path, environ: MutableMapping[str, str] | None = None) -> None:
@@ -115,7 +112,7 @@ class Settings(BaseModel):
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
     capture_interval_sec: float = 0.4  # 고정 주기 비교 기준
     uploads_dir: Path = STORE / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
-    llm_env: Path = USER_ENV  # 설정 화면에서 입력한 LLM 모델·키를 저장하는 .env
+    llm_env: Path = USER_ENV  # 설정 화면에서 입력한 Gemini API 키를 저장하는 .env
     sim_timeout_sec: float = 120.0  # 시뮬레이터에서 모듈 1번 실행 제한 시간 (모델 로딩 포함)
 
 

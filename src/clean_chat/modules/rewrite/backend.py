@@ -19,10 +19,12 @@ from clean_chat.modules.rewrite.tracing import preview
 _SLOT = threading.BoundedSemaphore(1)
 _LOG = logging.getLogger(__name__)
 _ENV_KEYS = {"LLM_API_KEY", "GEMINI_API_KEY", "LLM_MODEL", "LLM_BACKEND"}
+# LLM_MODEL이 없을 때 쓰는 rewrite 기본 모델. Gemini 3 계열이라 reasoning_effort=minimal로 호출한다 (2027-05 종료 예정).
+DEFAULT_MODEL = "gemini/gemini-3.1-flash-lite"
 
 
 def options() -> dict[str, str]:
-    """단순 .env와 환경 변수를 읽는다. 키와 모델을 임의로 채우지 않는다."""
+    """단순 .env와 환경 변수를 읽는다. 키는 채우지 않고, 모델이 없으면 모듈 기본 모델을 쓴다."""
     values: dict[str, str] = {}
     try:
         with (Path(ROOT) / ".env").open(encoding="utf-8-sig") as stream:
@@ -39,10 +41,8 @@ def options() -> dict[str, str]:
         if key in os.environ:
             values[key] = os.environ[key].strip()
     values["LLM_API_KEY"] = values.get("GEMINI_API_KEY") or values.get("LLM_API_KEY", "")
-    values.setdefault("LLM_MODEL", "")
-    model = values["LLM_MODEL"]
-    if model and "/" not in model:
-        values["LLM_MODEL"] = "gemini/" + model
+    model = values.get("LLM_MODEL") or DEFAULT_MODEL  # 앱은 키만 받고 모델은 모듈이 정한다
+    values["LLM_MODEL"] = model if "/" in model else "gemini/" + model
     configured = settings.llm_backend
     values.setdefault("LLM_BACKEND", configured if configured in {"api", "rule", "local"} else "api")
     return values
