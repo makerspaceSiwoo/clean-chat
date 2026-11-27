@@ -18,6 +18,28 @@ if getattr(sys, "frozen", False):
         STORE = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Clean Chat"
 DATA = ROOT / "data"
 FIXTURES = ROOT / "fixtures"
+USER_ENV_KEYS = ("LLM_BACKEND", "LLM_MODEL", "LLM_API_KEY", "GEMINI_API_KEY")
+
+
+def load_user_env(path: Path, environ: dict[str, str] | None = None) -> None:
+    """빌드된 앱은 레포 루트가 없으므로 사용자 데이터 폴더의 .env에서 LLM 설정만 읽는다.
+
+    이미 설정된 환경 변수가 우선이고, 알려진 키 외의 줄은 무시한다.
+    """
+    environ = os.environ if environ is None else environ
+    try:
+        lines = path.read_text(encoding="utf-8-sig").splitlines()
+    except (OSError, UnicodeError):
+        return
+    for line in lines:
+        key, sep, value = line.strip().removeprefix("export ").partition("=")
+        key, value = key.strip(), value.split(" #", 1)[0].strip().strip("'\"")
+        if sep and key in USER_ENV_KEYS and value:
+            environ.setdefault(key, value)
+
+
+if getattr(sys, "frozen", False):
+    load_user_env(STORE / ".env")
 
 
 class Settings(BaseModel):
