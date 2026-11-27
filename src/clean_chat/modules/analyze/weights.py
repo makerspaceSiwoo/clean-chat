@@ -6,7 +6,7 @@
   실시간 필터(impl)  models/analyze-classifier/  ←  <owner>/clean-chat-analyze-classifier
   대화 판단(judge)   models/analyze-judge/       ←  <owner>/clean-chat-analyze-judge
 
-저장소는 비공개다. 받으려면 읽기 권한이 있는 계정으로 먼저 로그인한다: `uv run hf auth login`
+저장소는 공개라 받을 때는 로그인이 필요 없다. 올릴 때만 쓰기 권한 계정으로 로그인한다: `uv run hf auth login`
 가중치가 없어도 analyze 는 규칙만으로 돈다(정확도는 낮다).
 huggingface_hub 는 transformers 와 함께 설치되며 함수 안에서만 import 한다.
 """
@@ -50,7 +50,7 @@ def download(names: list[str], owner: str | None = None, revision: str | None = 
 
 
 def upload(names: list[str], owner: str | None = None, private: bool = True) -> list[str]:
-    """models/<폴더> → Hub (없으면 비공개 저장소를 만든다). 커밋 메시지는 meta.json 의 version."""
+    """models/<폴더> → Hub (저장소가 없으면 비공개로 만든다 — 공개 전환은 직접). 커밋 메시지는 meta.json 의 version."""
     from huggingface_hub import HfApi
 
     api = HfApi()
