@@ -4,6 +4,7 @@
 기대값 (expect.lines[i] 는 lines[i] 줄의 정답, 줄 텍스트로 찾는다 → OCR 가정 응답을 고쳐도 남은 줄은 비교된다)
   {"chat": false}                                  시스템 메시지 → parse 가 None 이어야 함
   {"chat": true, "speaker", "channel", "level",     parse 화자·채널, analyze 등급
+   "level": 2 | [0, 1],                             analyze 등급 (목록이면 그중 하나면 정답)
    "target": 닉네임 | "*",                          analyze 대상 (L2 이상에서만, "*" 면 검사 안 함)
    "action": "hide" | ["hide", "show_rewritten"]}   정책 결과 (목록이면 그중 하나면 정답)
   expect.reports / expect.complaints                게임 종료 후 신고 문구·고소장 초안 대상 화자
@@ -118,8 +119,9 @@ class Checker:
         if not exp or not exp.get("chat"):
             return []
         level = int(out.level)  # type: ignore[attr-defined]
-        results = [self._one("analyze", "level", exp["level"], level, msg_id, exp.get("note"))]
-        if exp.get("target", ANY) != ANY and exp["level"] >= 2:
+        expected = exp["level"]  # 목록이면 그중 하나면 정답 (판단이 갈리는 줄)
+        results = [self._one("analyze", "level", expected, level, msg_id, exp.get("note"), isinstance(expected, list))]
+        if exp.get("target", ANY) != ANY and min(expected if isinstance(expected, list) else [expected]) >= 2:
             results.append(self._one("analyze", "target", exp["target"], out.target, msg_id))  # type: ignore[attr-defined]
         return results
 
