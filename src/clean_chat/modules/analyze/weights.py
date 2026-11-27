@@ -1,0 +1,91 @@
+"""모델 가중치를 Hugging Face Hub 에서 받거나 올린다 (가중치는 git 에 넣지 않는다).
+
+    uv run python -m clean_chat.modules.analyze.weights download          # 두 모델을 models/ 아래에 받는다
+    uv run python -m clean_chat.modules.analyze.weights upload            # (모델을 학습한 사람) 로컬 모델을 올린다
+
+  실시간 필터(impl)  models/analyze-classifier/  ←  <owner>/clean-chat-analyze-classifier
+  대화 판단(judge)   models/analyze-judge/       ←  <owner>/clean-chat-analyze-judge
+
+저장소는 비공개다. 받으려면 읽기 권한이 있는 계정으로 먼저 로그인한다: `uv run hf auth login`
+가중치가 없어도 analyze 는 규칙만으로 돈다(정확도는 낮다).
+huggingface_hub 는 transformers 와 함께 설치되며 함수 안에서만 import 한다.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+from clean_chat.core.config import resolve_repo_path
+
+OWNER_ENV = "CLEAN_CHAT_HF_OWNER"
+DEFAULT_OWNER = "seeyouspace0"  # 가중치를 올린 Hugging Face 계정
+MODELS = {
+    "classifier": ("models/analyze-classifier", "clean-chat-analyze-classifier"),
+    "judge": ("models/analyze-judge", "clean-chat-analyze-judge"),
+}
+FILES = ["config.json", "meta.json", "model.safetensors", "tokenizer.json", "tokenizer_config.json"]
+
+
+def repo_id(name: str, owner: str | None = None) -> str:
+    owner = owner or os.environ.get(OWNER_ENV) or DEFAULT_OWNER
+    if not owner:
+        raise ValueError(f"Hugging Face 계정 이름이 없습니다. --owner 나 환경 변수 {OWNER_ENV} 로 알려 주세요")
+    return f"{owner}/{MODELS[name][1]}"
+
+
+def download(names: list[str], owner: str | None = None, revision: str | None = None) -> list[Path]:
+    """Hub → models/<폴더>. 이미 같은 파일이 있으면 다시 받지 않는다."""
+    from huggingface_hub import snapshot_download
+
+    out = []
+    for name in names:
+        folder = resolve_repo_path(MODELS[name][0])
+        snapshot_download(repo_id(name, owner), local_dir=folder, allow_patterns=FILES, revision=revision)
+        out.append(folder)
+    return out
+
+
+def upload(names: list[str], owner: str | None = None, private: bool = True) -> list[str]:
+    """models/<폴더> → Hub (없으면 비공개 저장소를 만든다). 커밋 메시지는 meta.json 의 version."""
+    from huggingface_hub import HfApi
+
+    api = HfApi()
+    owner = owner or os.environ.get(OWNER_ENV) or DEFAULT_OWNER or api.whoami()["name"]
+    urls = []
+    for name in names:
+        folder = resolve_repo_path(MODELS[name][0])
+        missing = [f for f in FILES if not (folder / f).exists()]
+        if missing:
+            raise FileNotFoundError(f"{folder} 에 파일이 없습니다: {missing}")
+        version = json.loads((folder / "meta.json").read_text(encoding="utf-8")).get("version", "unknown")
+        rid = repo_id(name, owner)
+        api.create_repo(rid, private=private, exist_ok=True)
+        api.upload_folder(folder_path=folder, repo_id=rid, allow_patterns=FILES, commit_message=str(version))
+        urls.append(f"https://huggingface.co/{rid}")
+    return urls
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description="analyze 모델 가중치를 Hugging Face Hub 에서 받거나 올린다")
+    ap.add_argument("action", choices=["download", "upload"])
+    ap.add_argument("names", nargs="*", choices=[*MODELS, []], help="classifier · judge (비우면 둘 다)")
+    ap.add_argument("--owner", help="Hugging Face 계정 이름")
+    ap.add_argument("--revision", help="download: 받을 커밋·태그 (기본은 최신)")
+    args = ap.parse_args(argv)
+    names = args.names or list(MODELS)
+    if args.action == "download":
+        for folder in download(names, args.owner, args.revision):
+            version = json.loads((folder / "meta.json").read_text(encoding="utf-8")).get("version")
+            print(f"받음: {folder.name} ({version})")
+    else:
+        for url in upload(names, args.owner):
+            print("올림:", url)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -90,6 +90,25 @@ uv run python -m clean_chat.modules.analyze.evaluate fixtures/analyze/blind_eval
 uv run python -m clean_chat.modules.analyze.judge_evaluate fixtures/analyze/judge_games.jsonl --split test   # judge 조정용
 uv run python -m clean_chat.modules.analyze.judge_evaluate fixtures/analyze/judge_blind_games.jsonl          # judge 봉인
 ```
+### 모델 가중치 받기 (Hugging Face Hub)
+가중치(모델 하나에 약 420MB)는 git 에 넣지 않는다. 비공개 Hugging Face 저장소에 있고, 읽기 권한을 받은 계정으로 로그인해 받는다.
+가중치가 없으면 analyze 는 규칙만으로 돈다(봉인 세트 등급 정답률 56.0%, 모델이 있으면 89.5%).
+
+```bash
+uv run hf auth login                                              # 처음 한 번 (읽기 권한 토큰)
+uv run python -m clean_chat.modules.analyze.weights download      # models/analyze-classifier · models/analyze-judge 에 받는다
+uv run python -m clean_chat.modules.analyze.weights upload        # (모델을 다시 학습한 사람) 로컬 모델을 올린다
+```
+
+| 모델 | Hub 저장소 (비공개) | 받는 폴더 | 버전 |
+|---|---|---|---|
+| 실시간 필터 (impl) | `seeyouspace0/clean-chat-analyze-classifier` | `models/analyze-classifier/` | `kcelectra-base-ft-0.5` |
+| 대화 판단 (judge) | `seeyouspace0/clean-chat-analyze-judge` | `models/analyze-judge/` | `judge-own-0.1` |
+
+- 받은 뒤 확인: `uv run sim analyze` 에서 반환값의 `model_version` 이 `rule-0.2+kcelectra-base-ft-0.5` 이면 모델이 붙은 것이다.
+- 다른 계정의 저장소를 쓰려면 `--owner <계정>` 이나 환경 변수 `CLEAN_CHAT_HF_OWNER`.
+- 공개로 바꾸기 전에 확인할 것: 학습에 K-MHaS(CC-BY-SA 4.0)가 들어갔으므로 출처 표시와 라이선스 조건, 모델의 용도·한계를 모델 카드에 적어야 한다.
+
 아래 절들은 여기까지 오는 과정의 기록이다(옛 시험셋 기준 수치 포함).
 
 ### 파인튜닝 모델 넣기
