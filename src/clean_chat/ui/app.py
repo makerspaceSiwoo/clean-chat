@@ -6,7 +6,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, QSettings, Slot
 from PySide6.QtWidgets import QApplication
 
-from clean_chat.core.config import clear_llm_settings, current_llm, save_llm_settings, settings
+from clean_chat.core.config import clear_llm_settings, current_llm_key, save_llm_settings, settings
 from clean_chat.core.engine import Engine
 from clean_chat.core.grabber import ScreenGrabber
 from clean_chat.core.pipeline import Pipelines
@@ -41,7 +41,7 @@ class App(QObject):
         settings.filter_strength = self.client.strength_value()
         self.client.strength_changed.connect(self.set_strength)
         self.client.my_name.editingFinished.connect(self.save_name)
-        self.client.set_llm_state(*current_llm(settings.llm_env))
+        self.client.set_llm_state(current_llm_key(settings.llm_env))
         self.client.llm_save_requested.connect(self.save_llm)
         self.client.llm_clear_requested.connect(self.clear_llm)
         self.sampler = None
@@ -83,14 +83,14 @@ class App(QObject):
         settings.my_name = self.client.my_name.text().strip() or "나"
         self.preferences.setValue("player/name", settings.my_name)
 
-    @Slot(str, str)
-    def save_llm(self, model: str, api_key: str) -> None:
+    @Slot(str)
+    def save_llm(self, api_key: str) -> None:
         try:
-            save_llm_settings(model, api_key, settings.llm_env)
+            save_llm_settings(api_key, settings.llm_env)
         except (OSError, ValueError) as exc:
             self.client.notify(f"AI 설정을 저장하지 못했습니다 · {exc}")
             return
-        self.client.set_llm_state(*current_llm(settings.llm_env))
+        self.client.set_llm_state(current_llm_key(settings.llm_env))
         self.client.notify("AI 설정을 저장했습니다 · 바로 적용됩니다")
 
     @Slot()
@@ -100,7 +100,7 @@ class App(QObject):
         except OSError as exc:
             self.client.notify(f"AI 설정을 지우지 못했습니다 · {exc}")
             return
-        self.client.set_llm_state(*current_llm(settings.llm_env))
+        self.client.set_llm_state(current_llm_key(settings.llm_env))
         self.client.notify("AI 설정을 지웠습니다 · 로컬 규칙만 사용합니다")
 
     @Slot()
