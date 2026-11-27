@@ -122,7 +122,8 @@ def test_module_error_falls_back_per_call(monkeypatch, capsys):
 
 
 # ── 서버 (새 프로세스 + HTTP) ──
-def test_run_flow_request_streams_steps_in_subprocess(tmp_path):
+def test_run_flow_request_streams_steps_in_subprocess(tmp_path, monkeypatch):
+    monkeypatch.setenv("CLEAN_CHAT_FLOW_LOG_DIR", str(tmp_path / "logs"))
     events: list[dict] = []
     flow_api.run_flow_request(
         {"sample": "abusive", "ocrText": "\n".join(_sample("abusive")["lines"])}, events.append, tmp_path
@@ -131,6 +132,10 @@ def test_run_flow_request_streams_steps_in_subprocess(tmp_path):
     kinds = [e.get("event") for e in events if e["type"] == "flow"]
     assert kinds[:2] == ["start", "phase"] and "post_game" in kinds and kinds[-1] == "done"
     assert isinstance(events[1]["pid"], int)  # 매번 새 프로세스
+    from clean_chat.sim.flow_log import summary
+
+    runs = summary(tmp_path / "logs")["runs"]  # 실행 1번 = run 기록 1줄 (단계별 합계)
+    assert len(runs) == 1 and runs[0]["runId"] == events[1]["runId"] and runs[0]["status"] == "ok"
 
 
 def test_run_flow_request_input_errors(tmp_path):
@@ -199,3 +204,115 @@ def test_step_delay_pauses_between_calls(all_fallback):
     n_calls = sum(e["event"] == "call" for e in events)
     assert time.perf_counter() - started >= n_calls * 0.02
     assert all(e["ms"] < 1000 for e in events if e["event"] == "call")  # 멈춤은 계산 시간(ms)에 넣지 않는다
+
+
+# ── 단계별 오류 로그 (sim/flow_log.py) ──
+def test_classify_kinds():
+    from clean_chat.core.platform import PlatformNotSupported
+    from clean_chat.sim.flow_log import classify
+
+    assert classify(NotImplementedError()) == "not_implemented"
+    assert classify(modules.ModuleNotImplemented("ocr")) == "not_implemented"
+    assert classify(PlatformNotSupported("Windows 내장 OCR")) == "platform"
+    assert classify(ModuleNotFoundError("No module named 'x'")) == "missing_package"
+    assert classify(SyntaxError("x"), loading=True) == "import_error"
+    assert classify(TypeError("모듈 'ocr' 이 OcrResult 대신 dict 을 돌려줬습니다")) == "bad_output"
+    assert classify(ValueError("boom")) == "exception"
+
+
+def _logged_run(tmp_path, sample_id: str, **kw):
+    from clean_chat.sim.flow_log import FlowLog, read_records
+
+    log = FlowLog("run-1", sample_id, tmp_path)
+    s = _sample(sample_id)
+    events: list[dict] = []
+    try:
+        run_flow(FlowRequest(image_path=s["image"], ocr_text="\n".join(s["lines"]), **kw), events.append, log)
+        log.finish("ok")
+    except FlowStopped as e:
+        log.finish("stopped", e.stage)
+        raise
+    finally:
+        records = read_records(tmp_path)
+    return events, records
+
+
+def test_module_exception_is_logged_with_stage_kind_and_traceback(monkeypatch, tmp_path):
+    def broken(item):
+        raise ValueError("모듈 안 오류")
+
+    monkeypatch.setattr(modules, "load", lambda name: broken)
+    events, records = _logged_run(tmp_path, "clean")
+    fails = [r for r in records if r["type"] == "failure"]
+    ocr = next(f for f in fails if f["stage"] == "ocr")
+    assert (ocr["kind"], ocr["severity"], ocr["itemId"]) == ("exception", "error", "F0")
+    assert "ValueError: 모듈 안 오류" in ocr["traceback"]
+    assert {f["stage"] for f in fails} == {"ocr", "parse", "analyze"}  # 실패한 단계마다 기록
+    call = next(e for e in events if e["event"] == "call")
+    assert call["problem"]["kind"] == "exception"  # 화면에도 같은 내용
+    (run,) = [r for r in records if r["type"] == "run"]
+    assert run["status"] == "ok" and run["stages"]["ocr"] == {
+        "calls": 1,
+        "real": 0,
+        "fallback": 1,
+        "errors": 1,
+        "warnings": 0,
+    }
+
+
+def test_not_implemented_is_warning_without_traceback(all_fallback, tmp_path):
+    _, records = _logged_run(tmp_path, "clean")
+    fails = [r for r in records if r["type"] == "failure"]
+    assert fails and all(f["kind"] == "not_implemented" and f["severity"] == "warning" for f in fails)
+    assert all(f["traceback"] == "" for f in fails)
+
+
+def test_empty_rewrite_is_logged_as_warning(monkeypatch, tmp_path):
+    from clean_chat.core.schemas import Rewrite
+
+    def null_rewrite(req):
+        return Rewrite(msg_id=req.message.id, rewritten=None, backend="rule")
+
+    monkeypatch.setattr(modules, "load", lambda name: null_rewrite if name == "rewrite" else _not_implemented)
+    _, records = _logged_run(tmp_path, "blame_feedback")
+    (warn,) = [r for r in records if r["type"] == "failure" and r["stage"] == "rewrite"]
+    assert (warn["kind"], warn["severity"]) == ("empty_result", "warning")
+
+
+def test_stop_outside_modules_names_the_stage(all_fallback, monkeypatch, tmp_path):
+    import clean_chat.core.pipeline as pipeline
+
+    def broken_policy(*a, **k):
+        raise KeyError("정책표 오류")
+
+    monkeypatch.setattr(pipeline, "decide_incoming", broken_policy)
+    with pytest.raises(FlowStopped) as e:
+        _logged_run(tmp_path, "clean")
+    assert e.value.stage == "pipeline"
+    from clean_chat.sim.flow_log import read_records, summary
+
+    records = read_records(tmp_path)
+    assert any(r["type"] == "failure" and r["kind"] == "stage_exception" and r["stage"] == "pipeline" for r in records)
+    s = summary(tmp_path)
+    assert s["runs"][0]["status"] == "stopped" and s["runs"][0]["stoppedAt"] == "pipeline"
+    assert s["stages"]["pipeline"]["errors"] == 1 and s["stages"]["pipeline"]["last"]["kind"] == "stage_exception"
+
+
+def test_without_fallback_logs_where_it_stopped(all_fallback, tmp_path):
+    with pytest.raises(FlowStopped) as e:
+        _logged_run(tmp_path, "abusive", use_fallback=False)
+    assert e.value.stage == "ocr"
+
+
+def test_summary_counts_failed_runs_per_stage(monkeypatch, tmp_path):
+    from clean_chat.sim.flow_log import FlowLog, summary
+
+    for i, kind in enumerate(["exception", "not_implemented", "exception"]):
+        log = FlowLog(f"r{i}", "clean", tmp_path)
+        log.count("analyze", "calls")
+        log.failure("analyze", kind, f"m{i}")
+        log.finish("ok")
+    s = summary(tmp_path)
+    assert s["stages"]["analyze"]["failedRuns"] == 2 and s["stages"]["analyze"]["warnings"] == 1
+    assert [r["runId"] for r in s["runs"]] == ["r2", "r1", "r0"]  # 최신이 앞
+    assert s["stages"]["analyze"]["last"]["message"] == "m2"

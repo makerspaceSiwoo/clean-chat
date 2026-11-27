@@ -229,6 +229,8 @@ class Handler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.OK, module_list())
         elif path.rstrip("/") == "/api/flow/samples":
             self._json(HTTPStatus.OK, flow_api.sample_info())
+        elif path.rstrip("/") == "/api/flow/logs":
+            self._json(HTTPStatus.OK, flow_api.logs())
         elif (m := FLOW_SAMPLE.match(path)) and (png := flow_api.sample_image(m.group(1))) is not None:
             self._send(HTTPStatus.OK, png, "image/png")
         else:

@@ -31,7 +31,8 @@ from clean_chat.core.modules import MODULE_NAMES, ModuleSet
 from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.platform import use_utf8_console
 from clean_chat.core.schemas import Frame, GamePhase, Incident, OcrResult, PhaseEvent, Player, Region
-from clean_chat.sim import fallback
+from clean_chat.sim import fallback, flow_log
+from clean_chat.sim.flow_log import FlowLog
 
 FLOW_DIR = FIXTURES / "flow"
 MARKER = "\x1eFLOW "
@@ -52,7 +53,11 @@ class FlowRequest(BaseModel):
 
 
 class FlowStopped(RuntimeError):
-    """가정 응답을 끈 상태에서 모듈이 구현 전이거나 오류가 남."""
+    """흐름이 중간에 멈춤: 가정 응답을 끈 상태의 모듈 실패, 또는 모듈 밖 구성 단계의 예외. stage = 멈춘 단계."""
+
+    def __init__(self, stage: str, message: str) -> None:
+        super().__init__(f"[{stage}] {message}")
+        self.stage = stage
 
 
 def default_players() -> list[Player]:
@@ -63,14 +68,30 @@ def _dump(x: Any) -> Any:
     return x.model_dump(mode="json") if isinstance(x, BaseModel) else x
 
 
-class TracingModules:
-    """모듈 5개를 감싸 실제 함수 → (실패하면) 가정 응답 순서로 부르고, 부를 때마다 call 이벤트를 낸다."""
+def _item_id(item: BaseModel) -> str | None:
+    """로그에 남길 처리 대상 id (줄·메시지·프레임·화자). 원문은 남기지 않는다."""
+    for path in (("line", "id"), ("message", "id"), ("id",), ("speaker",)):
+        x: Any = item
+        for key in path:
+            x = getattr(x, key, None)
+        if isinstance(x, str):
+            return x
+    return None
 
-    def __init__(self, req: FlowRequest, emit: Emit) -> None:
-        self.req, self.emit = req, emit
+
+class TracingModules:
+    """모듈 5개를 감싸 실제 함수 → (실패하면) 가정 응답 순서로 부르고, 부를 때마다 call 이벤트를 낸다.
+
+    실패는 flow_log.classify 로 종류(kind)를 나누고, 이벤트와 오류 로그(FlowLog)에 같은 내용을 남긴다.
+    where = 지금 흐름이 있는 단계 (모듈 이름 또는 구성 단계) → 모듈 밖에서 멈추면 어디서 멈췄는지 알 수 있다.
+    """
+
+    def __init__(self, req: FlowRequest, emit: Emit, log: FlowLog | None = None) -> None:
+        self.req, self.emit, self.log = req, emit, log
         self.seq = 0
+        self.where = "game"
         self.status: dict[str, set[str]] = {name: set() for name in MODULE_NAMES}
-        self._real: dict[str, Callable[[Any], Any] | Exception] = {}
+        self._real: dict[str, Callable[[Any], Any] | tuple[Exception, str]] = {}
 
     def pause(self) -> None:
         if self.req.step_delay_ms:
@@ -79,13 +100,15 @@ class TracingModules:
     def module_set(self) -> ModuleSet:
         return ModuleSet({name: self._wrap(name) for name in MODULE_NAMES})
 
-    def _load(self, name: str) -> Callable[[Any], Any] | Exception:
+    def _load(self, name: str) -> Callable[[Any], Any] | tuple[Exception, str]:
+        """모듈 함수를 한 번만 불러온다. 실패하면 (예외, traceback) 을 기억해 호출할 때마다 같은 실패로 처리."""
         if name not in self._real:
             try:
                 self._real[name] = modules.load(name)
             except Exception as e:  # 모듈 파일 문법 오류, 없는 패키지 import 등
-                traceback.print_exc()
-                self._real[name] = e
+                tb = traceback.format_exc()
+                print(tb, file=sys.stderr, end="", flush=True)
+                self._real[name] = (e, tb)
         return self._real[name]
 
     def _fallback(self, name: str, item: BaseModel) -> BaseModel:
@@ -93,30 +116,48 @@ class TracingModules:
             return fallback.ocr(item, self.req.ocr_text)  # type: ignore[arg-type]
         return getattr(fallback, name)(item)
 
+    def _record(self, name: str, kind: str, message: str, tb: str, item: BaseModel) -> dict[str, Any]:
+        severity = flow_log.SEVERITY.get(kind, "error")
+        if self.log is not None:
+            self.log.failure(name, kind, message, tb, _item_id(item))
+        return {"kind": kind, "severity": severity, "message": message, "traceback": tb}
+
     def _wrap(self, name: str) -> Callable[[BaseModel], BaseModel]:
         def call(item: BaseModel) -> BaseModel:
             self.seq += 1
+            self.where = name
             self.emit({"event": "call_start", "seq": self.seq, "module": name, "input": _dump(item)})
             self.pause()  # 화면에 "지금 실행 중" 을 먼저 보여 준다
             started = time.perf_counter()
-            fn = self._load(name)
-            mode, reason = "real", ""
+            loaded = self._load(name)
+            mode, reason, problem = "real", "", None
             try:
-                if isinstance(fn, Exception):
-                    raise fn
-                out = modules.invoke(name, fn, item)
-            except modules.ModuleNotImplemented as e:
-                mode, reason = "fallback", f"구현 전: {e}"
-            except Exception as e:  # 모듈 안 오류, 출력 형식 오류, Windows 전용 등
-                if not isinstance(fn, Exception):
-                    traceback.print_exc()
-                mode, reason = "fallback", f"오류: {type(e).__name__}: {e}{_hint(name, e)}"
-            if mode == "fallback":
+                if isinstance(loaded, tuple):
+                    raise loaded[0]
+                out = modules.invoke(name, loaded, item)
+            except Exception as e:  # 구현 전, 모듈 안 오류, 출력 형식 오류, Windows 전용, 패키지 없음
+                is_load = isinstance(loaded, tuple)
+                tb = loaded[1] if is_load else traceback.format_exc()
+                kind = flow_log.classify(e, loading=is_load and not isinstance(e, NotImplementedError))
+                if kind not in ("not_implemented", "platform") and not is_load:
+                    print(tb, file=sys.stderr, end="", flush=True)
+                label = "구현 전" if kind == "not_implemented" else "오류"
+                mode, reason = "fallback", f"{label}: {type(e).__name__}: {e}{_hint(name, e)}"
+                problem = self._record(name, kind, reason, "" if kind == "not_implemented" else tb, item)
+                print(f"✖ [{name}] {kind} ({problem['severity']}) — {reason}", file=sys.stderr, flush=True)
                 if not self.req.use_fallback:
-                    raise FlowStopped(f"[{name}] {reason}")
-                print(f"⚠ [{name}] 가정 응답으로 대신합니다 — {reason}", file=sys.stderr, flush=True)
+                    raise FlowStopped(name, reason) from e
                 out = self._fallback(name, item)
+                print(f"  → [{name}] 가정 응답으로 대신하고 계속합니다", file=sys.stderr, flush=True)
+            else:
+                empty = _empty_result(name, out)
+                if empty:
+                    problem = self._record(name, "empty_result", empty, "", item)
+                    print(f"⚠ [{name}] empty_result — {empty}", file=sys.stderr, flush=True)
             self.status[name].add(mode)
+            if self.log is not None:
+                self.log.count(name, "calls")
+                self.log.count(name, mode)
             self.emit(
                 {
                     "event": "call",
@@ -124,14 +165,25 @@ class TracingModules:
                     "module": name,
                     "mode": mode,
                     "reason": reason,
+                    "problem": problem,
                     "input": _dump(item),
                     "output": _dump(out),
                     "ms": round((time.perf_counter() - started) * 1000),
                 }
             )
+            self.where = "pipeline"  # 모듈이 끝나면 다음은 구성(중복 제거·정책·세션 기록)
             return out
 
         return call
+
+
+def _empty_result(name: str, out: BaseModel) -> str | None:
+    """오류는 아니지만 다음 단계가 할 일이 없어지는 결과 → 경고로 남긴다."""
+    if name == "ocr" and not getattr(out, "lines", None):
+        return "OCR 이 읽은 줄이 없습니다 (이미지가 채팅창이 아니거나 글자를 못 읽음)"
+    if name == "rewrite" and getattr(out, "rewritten", "x") is None:
+        return f"순화 결과가 없습니다 (backend={getattr(out, 'backend', '?')}) → 정책표가 원문을 숨깁니다"
+    return None
 
 
 def _hint(name: str, e: Exception) -> str:
@@ -141,13 +193,31 @@ def _hint(name: str, e: Exception) -> str:
     return ""
 
 
-def run_flow(req: FlowRequest, emit: Emit) -> dict[str, Any]:
-    """흐름 1번: 게임 시작 → 이미지 1장 처리(흐름 A) → 게임 종료 → 신고 문구·고소장. 마지막 요약을 돌려준다."""
-    tracer = TracingModules(req, emit)
+def run_flow(req: FlowRequest, emit: Emit, log: FlowLog | None = None) -> dict[str, Any]:
+    """흐름 1번: 게임 시작 → 이미지 1장 처리(흐름 A) → 게임 종료 → 신고 문구·고소장. 마지막 요약을 돌려준다.
+
+    모듈 밖(구성)에서 예외가 나면 그 단계 이름을 붙여 FlowStopped 로 바꾼다 → 어디서 멈췄는지 기록.
+    """
+    tracer = TracingModules(req, emit, log)
+    try:
+        return _run(req, emit, tracer)
+    except FlowStopped:
+        raise
+    except Exception as e:
+        stage = tracer.where
+        tb = traceback.format_exc()
+        print(tb, file=sys.stderr, end="", flush=True)
+        if log is not None:
+            log.failure(stage, "stage_exception", f"{type(e).__name__}: {e}", tb)
+        raise FlowStopped(stage, f"{type(e).__name__}: {e}") from e
+
+
+def _run(req: FlowRequest, emit: Emit, tracer: TracingModules) -> dict[str, Any]:
     mods = tracer.module_set()
     players = req.players or default_players()
     now = time.time()
 
+    tracer.where = "game"
     game = GameStateMachine(idle_grace_sec=0)
     game.handle(PhaseEvent(ts=now, phase=GamePhase.IN_GAME, raw="sim"))
     game.set_players(players)
@@ -172,6 +242,7 @@ def run_flow(req: FlowRequest, emit: Emit) -> dict[str, Any]:
     print(f"  채팅 {len(incidents)}건 처리", flush=True)
     tracer.pause()
 
+    tracer.where = "post_game"
     game.handle(PhaseEvent(ts=time.time(), phase=GamePhase.POST_GAME, raw="sim"))
     emit({"event": "phase", "phase": GamePhase.POST_GAME.value, "sessionId": game.session.id if game.session else None})
     print("▶ 게임 종료: 신고 문구 · 고소장 초안 (report)", flush=True)
@@ -204,18 +275,29 @@ def main(argv: list[str]) -> int:
     use_utf8_console()
     with open(argv[0], encoding="utf-8") as f:
         req = FlowRequest.model_validate(json.load(f))
-    _emit_stdout({"event": "start", "pid": os.getpid(), "files": _module_files(), "stepDelayMs": req.step_delay_ms})
+    run_id = f"{time.strftime('%Y%m%d-%H%M%S')}-{os.getpid()}"
+    log = FlowLog(run_id, req.sample_id or "upload")
+    _emit_stdout(
+        {
+            "event": "start",
+            "pid": os.getpid(),
+            "runId": run_id,
+            "logPath": str(log.path),
+            "files": _module_files(),
+            "stepDelayMs": req.step_delay_ms,
+        }
+    )
     print(
         f"▶ 전체 흐름 시작 (가정 응답 {'켬' if req.use_fallback else '끔'}, 내 닉네임 '{settings.my_name}')", flush=True
     )
     try:
-        run_flow(req, _emit_stdout)
+        run_flow(req, _emit_stdout, log)
     except FlowStopped as e:
         print(f"✖ 멈춤: {e}", file=sys.stderr, flush=True)
-        _emit_stdout({"event": "stopped", "error": str(e)})
-    except Exception as e:
-        traceback.print_exc()
-        _emit_stdout({"event": "stopped", "error": f"{type(e).__name__}: {e}"})
+        log.finish("stopped", e.stage)
+        _emit_stdout({"event": "stopped", "error": str(e), "stage": e.stage})
+    else:
+        log.finish("ok")
     return 0
 
 

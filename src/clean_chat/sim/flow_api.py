@@ -2,6 +2,7 @@
 
 GET  /api/flow/samples           예시 캡처 이미지 목록 (fixtures/flow/samples.jsonl) + 명단
 GET  /api/flow/samples/<id>.png  예시 이미지
+GET  /api/flow/logs              단계별 실패 모니터링: 최근 실행의 단계별 합계 + 최근 실패 (sim/flow_log.py)
 POST /api/flow/run               {"sample": id} 또는 {"image": {"name","base64"}}, "ocrText", "useFallback"
                                  → NDJSON 스트림: {"type":"log"} / {"type":"flow", ...단계 이벤트} / {"type":"ping"}
                                    마지막에 {"type":"result","status":"ok|stopped|error|timeout","error","durationMs"}
@@ -22,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from clean_chat.core.config import ROOT, settings
+from clean_chat.sim import flow_log
 from clean_chat.sim.flow import FLOW_DIR, MARKER, FlowRequest, default_players
 
 Emit = Callable[[dict[str, Any]], None]
@@ -39,6 +41,10 @@ def samples() -> list[dict[str, Any]]:
 
 def sample_info() -> dict[str, Any]:
     return {"samples": samples(), "players": [p.model_dump(mode="json") for p in default_players()]}
+
+
+def logs() -> dict[str, Any]:
+    return flow_log.summary()
 
 
 def sample_image(sample_id: str) -> bytes | None:

@@ -87,6 +87,19 @@
         <h3>⑤ 게임 종료 <span class="muted small">— 신고 문구 · 고소장 초안 (report)</span></h3>
         <div id="reports" class="reports"><span class="muted">실행 전</span></div>
 
+        <h3 id="mon">단계별 실패 모니터링 <span class="muted small">— 최근 50번 실행 · 이 PC 의 오류 로그</span>
+          <button id="logs-refresh" type="button" class="link">새로고침</button></h3>
+        <p id="log-path" class="small muted"></p>
+        <div id="run-dots" class="run-dots" aria-label="최근 실행 결과"></div>
+        <div class="table-wrap">
+          <table class="lines mon">
+            <thead><tr><th>단계</th><th>실패한 실행</th><th>호출</th><th>실제</th><th>가정 응답</th><th>오류</th><th>경고</th><th>마지막 문제</th></tr></thead>
+            <tbody id="mon-rows"><tr><td colspan="8" class="muted">불러오는 중…</td></tr></tbody>
+          </table>
+        </div>
+        <h4>최근 실패 <span class="muted small">— 행을 누르면 traceback</span></h4>
+        <div id="fail-list" class="fails"></div>
+
         <details id="console-box">
           <summary>디버깅 콘솔 (print · logging · 오류)</summary>
           <pre id="console" class="console flow-console"></pre>

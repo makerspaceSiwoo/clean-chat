@@ -33,6 +33,17 @@ const HARM_KO = {
   threat: "협박",
 };
 const BADGE = { idle: "실행 전", running: "실행 중…", ok: "끝까지 실행", stopped: "멈춤", error: "오류", timeout: "시간 초과", invalid_input: "입력 오류" };
+const KIND_KO = {
+  not_implemented: "구현 전",
+  platform: "이 OS 미지원",
+  empty_result: "빈 결과",
+  missing_package: "패키지 없음",
+  import_error: "불러오기 실패",
+  bad_output: "출력 형식 오류",
+  exception: "예외",
+  stage_exception: "구성 단계 예외",
+};
+const STAGE_KO = { game: "게임 시작 (구성)", pipeline: "흐름 연결·정책 (구성)", post_game: "게임 종료 배치 (구성)" };
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/bmp"];
 const MAX_IMAGE = 10 * 1024 * 1024;
 
@@ -53,7 +64,19 @@ function chip(text, cls = "") {
   return el("span", { class: "chip " + cls }, text);
 }
 function fbChip(call) {
-  return call && call.mode === "fallback" ? chip("가정", "fb") : null;
+  if (!call) return null;
+  const p = call.problem;
+  const out = [];
+  if (p) {
+    const c = chip(KIND_KO[p.kind] || p.kind, p.severity === "error" ? "err" : "warn");
+    c.title = p.message;
+    out.push(c);
+  }
+  if (call.mode === "fallback") out.push(chip("가정", "fb"));
+  return out;
+}
+function fmtTime(ts) {
+  return ts ? new Date(ts * 1000).toLocaleString() : "";
 }
 async function copyText(text) {
   try {
@@ -152,6 +175,15 @@ function fallbackStatus(calls) {
   return "구현됨 · 실행 오류 → 가정 응답";
 }
 
+// 이번 실행에서 이 단계의 오류·경고 수
+function stageProblems(name) {
+  const ps = callsOf(name).map((c) => c.problem).filter(Boolean);
+  const errs = ps.filter((p) => p.severity === "error").length;
+  const warns = ps.length - errs;
+  if (!ps.length) return null;
+  return el("span", { class: "cnt" }, errs ? chip(`오류 ${errs}`, "err") : null, warns ? chip(`경고 ${warns}`, "warn") : null);
+}
+
 function renderStages() {
   const r = state.run;
   const items = MODULES.map(([name, num, title]) => {
@@ -174,6 +206,7 @@ function renderStages() {
       el("span", { class: "muted" }, title + (n ? ` · ${n}번` : "")),
       el("span", {}, status + (backends.length ? ` · backend=${backends.join(",")}` : "")),
       why ? el("span", { class: "why" }, why.replace(/^(구현 전|오류): /, "")) : null,
+      stageProblems(name),
     );
   });
   const phaseKo = { idle: "대기", in_game: "게임 중", post_game: "게임 종료" }[r.phase] || r.phase;
@@ -214,7 +247,7 @@ function renderNow() {
     const real = r.calls.filter((x) => x.mode === "real").length;
     box.textContent = `■ 끝 — 모듈 호출 ${r.calls.length}번 (실제 ${real}번 · 가정 응답 ${r.calls.length - real}번)`;
   } else if (r.stopped) {
-    box.textContent = `✖ 멈춤 — ${r.stopped}`;
+    box.textContent = `✖ ${STAGE_KO[r.stoppedStage] || r.stoppedStage || ""} 단계에서 멈춤 — ${r.stopped}`;
   }
   const p = r.proc;
   $("proc").textContent = p
@@ -374,7 +407,7 @@ function onFlow(ev) {
   else if (ev.event === "phase") r.phase = ev.phase;
   else if (ev.event === "post_game") r.postGame = ev.result;
   else if (ev.event === "done") [r.done, r.summary] = [true, ev.summary];
-  else if (ev.event === "stopped") [r.stopped, r.current] = [ev.error, null];
+  else if (ev.event === "stopped") [r.stopped, r.stoppedStage, r.current] = [ev.error, ev.stage, null];
   renderAll();
   const active = document.querySelector(".lines tr.active");
   if (active) active.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -426,6 +459,7 @@ async function run() {
     }
     if (!result) throw new Error("서버가 결과 없이 연결을 끊었습니다");
     setBadge(result.status);
+    loadLogs();
     log(`■ 끝: ${BADGE[result.status] || result.status} (${result.durationMs}ms)`, "sys");
     if (result.status !== "ok") {
       $("result-error").textContent = result.error || "";
@@ -449,6 +483,62 @@ async function run() {
   }
 }
 
+// ── 단계별 실패 모니터링 (GET /api/flow/logs) ──────────────────
+async function loadLogs() {
+  try {
+    renderLogs(await (await fetch("/api/flow/logs")).json());
+  } catch (e) {
+    $("mon-rows").replaceChildren(el("tr", {}, el("td", { colspan: "8", class: "error" }, `오류 로그를 불러오지 못했습니다: ${e.message}`)));
+  }
+}
+function renderLogs(data) {
+  $("log-path").textContent = `기록 위치: ${data.path}/<날짜>.jsonl · 실행 ${data.runs.length}번 · 실패 기록 ${data.failures.length}건`;
+  $("run-dots").replaceChildren(
+    ...data.runs
+      .slice()
+      .reverse()
+      .map((r) => {
+        const warn = Object.values(r.stages || {}).some((s) => s.errors);
+        const d = el("span", { class: r.status !== "ok" ? "stopped" : warn ? "warn" : "" });
+        d.title = `${fmtTime(r.ts)} · ${r.sample || ""} · ${r.status === "ok" ? "끝까지 실행" : `${STAGE_KO[r.stoppedAt] || r.stoppedAt} 에서 멈춤`}${warn ? " · 오류 있음(가정 응답으로 계속)" : ""} · ${r.durationMs}ms`;
+        return d;
+      }),
+  );
+  const order = [...MODULES.map(([n]) => n), "game", "pipeline", "post_game"];
+  const rows = order
+    .map((name) => [name, data.stages[name]])
+    .filter(([name, s]) => s && (MODULES.some(([n]) => n === name) || s.errors || s.warnings))
+    .map(([name, s]) => {
+      const mod = MODULES.find(([n]) => n === name);
+      const last = s.last;
+      return el(
+        "tr",
+        { class: s.errors ? "bad" : "" },
+        el("td", {}, mod ? `${mod[1]} ${name}` : STAGE_KO[name] || name),
+        el("td", { class: "num" }, String(s.failedRuns || 0)),
+        el("td", { class: "num" }, String(s.calls || 0)),
+        el("td", { class: "num" }, String(s.real || 0)),
+        el("td", { class: "num" }, String(s.fallback || 0)),
+        el("td", { class: "num" }, String(s.errors || 0)),
+        el("td", { class: "num" }, String(s.warnings || 0)),
+        el("td", {}, last ? [chip(KIND_KO[last.kind] || last.kind, last.severity === "error" ? "err" : "warn"), el("span", { class: "small" }, ` ${fmtTime(last.ts)} — ${last.message.slice(0, 120)}`)] : el("span", { class: "muted" }, "없음")),
+      );
+    });
+  $("mon-rows").replaceChildren(...rows);
+  $("fail-list").replaceChildren(
+    ...(data.failures.length
+      ? data.failures.slice(0, 30).map((f) =>
+          el(
+            "details",
+            {},
+            el("summary", {}, chip(KIND_KO[f.kind] || f.kind, f.severity === "error" ? "err" : "warn"), ` ${fmtTime(f.ts)} · ${STAGE_KO[f.stage] || f.stage}${f.itemId ? ` · ${f.itemId}` : ""} · ${f.sample || ""} — ${f.message.slice(0, 160)}`),
+            el("pre", {}, f.traceback || "(traceback 없음)"),
+          ),
+        )
+      : [el("span", { class: "muted" }, "기록된 실패가 없습니다.")]),
+  );
+}
+
 // ── 시작 ───────────────────────────────────────────────
 async function init() {
   $("run").onclick = run;
@@ -467,6 +557,8 @@ async function init() {
     return;
   }
   renderPlayers();
+  $("logs-refresh").onclick = loadLogs;
+  loadLogs();
   const want = new URLSearchParams(location.search).get("sample");
   if (state.samples.length) pickSample(want || state.samples[0].id);
 }
