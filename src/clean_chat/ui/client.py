@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QListWidget,
     QMainWindow,
     QPlainTextEdit,
+    QPushButton,
     QSizePolicy,
     QStackedWidget,
     QVBoxLayout,
@@ -111,7 +112,8 @@ class ClientWindow(QMainWindow):
             self.nav_buttons.append(b)
             menu.addWidget(b)
         menu.addStretch()
-        self.navigation.idClicked.connect(self.pages.setCurrentIndex)
+        # 마우스 클릭뿐 아니라 VoiceOver 같은 보조 기능의 '누르기'(체크만 바꿈)에도 페이지를 바꾼다.
+        self.navigation.idToggled.connect(lambda i, on: on and self.pages.setCurrentIndex(i))
         self.pages.currentChanged.connect(lambda i: self.nav_buttons[i].setChecked(True))
         self.nav_buttons[0].setChecked(True)
         home, reports, complaint, preferences = panels
@@ -452,6 +454,7 @@ class ClientWindow(QMainWindow):
         key_row.addWidget(self.llm_key, 1)
         key_row.addWidget(self.btn_key_show)
         ai.addLayout(key_row)
+        self._fix_width(self.btn_key_show, ("숨기기", "보기"))  # 글자가 바뀌어도 입력칸 폭이 흔들리지 않게
         actions = QHBoxLayout()
         actions.setSpacing(12)
         self.btn_llm_save = button("저장", "primary")
@@ -498,6 +501,16 @@ class ClientWindow(QMainWindow):
     def _request_llm_save(self) -> None:
         if self.btn_llm_save.isEnabled():
             self.llm_save_requested.emit(*self._llm_inputs())
+
+    @staticmethod
+    def _fix_width(widget: QPushButton, texts: tuple[str, ...]) -> None:
+        """여러 글자 중 가장 넓은 폭으로 고정한다. 마지막 글자가 처음 표시된다."""
+        widget.ensurePolished()
+        widths = []
+        for text in texts:
+            widget.setText(text)
+            widths.append(widget.sizeHint().width())
+        widget.setFixedWidth(max(widths))
 
     def _toggle_key(self, shown: bool) -> None:
         self.llm_key.setEchoMode(QLineEdit.Normal if shown else QLineEdit.Password)
