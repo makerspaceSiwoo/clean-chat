@@ -381,3 +381,26 @@ def test_action_accepts_any_of_listed():
     r = Checker._one("policy", "action", ["hide", "show_rewritten"], "show_rewritten", "x", any_of=True)
     assert r["ok"]
     assert not Checker._one("report", "reports", ["a", "b"], ["a"], None)["ok"]  # 목록끼리는 같아야 정답
+
+
+def test_ocr_typos_still_check_later_stages(monkeypatch):
+    """OCR 이 조금 틀리게 읽어도(ㅇㅇㅇ→000) 같은 정답 줄로 보고 parse·analyze·정책을 비교한다."""
+    from clean_chat.sim import fallback as fb
+
+    lines = _sample("abusive")["lines"]
+    typo = [t.replace("ㅇㅇㅇ", "000").replace("♡♡♡", "CCO0") for t in lines]
+
+    def make(name):
+        if name == "ocr":
+            return lambda frame: fb.ocr(frame, "\n".join(typo))
+        return getattr(fb, name) if name in ("parse", "analyze") else _not_implemented
+
+    monkeypatch.setattr(modules, "load", make)
+    s = _sample("abusive")
+    events: list[dict] = []
+    run_flow(FlowRequest(image_path=s["image"], ocr_text="", sample_id="abusive"), events.append)
+    checks = [c for e in events for c in e.get("checks") or []]
+    ocr_bad = [c for c in checks if c["stage"] == "ocr" and not c["ok"]]
+    assert len(ocr_bad) == 2 and all(c["similarity"] >= 0.8 and c["itemId"] for c in ocr_bad)  # 비슷하게 읽은 줄
+    analyzed = {c["itemId"] for c in checks if c["stage"] == "analyze"}
+    assert len(analyzed) == 9  # 오타 줄도 뒤 단계 비교에서 빠지지 않는다

@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+import difflib
 import json
 import re
 from typing import Any
@@ -27,6 +28,9 @@ from clean_chat.core.config import FIXTURES
 
 SAMPLES = FIXTURES / "flow" / "samples.jsonl"
 ANY = "*"
+MATCH = (
+    0.8  # OCR 이 조금 틀리게 읽은 줄도 이 유사도 이상이면 같은 정답 줄로 보고 뒤 단계(parse·analyze·정책)를 비교한다
+)
 
 
 def norm(text: str) -> str:
@@ -82,10 +86,19 @@ class Checker:
         text = self.text_of.get(item_id)
         return self.by_text.get(text) if text is not None else None
 
+    def _truth_for(self, text: str) -> str:
+        """읽은 줄 → 정답 줄 텍스트. 똑같은 줄이 없으면 가장 비슷한 정답 줄(MATCH 이상), 없으면 그대로."""
+        if text in self.by_text:
+            return text
+        best = max(self.truth, key=lambda t: difflib.SequenceMatcher(None, t, text).ratio(), default=None)
+        if best is not None and difflib.SequenceMatcher(None, best, text).ratio() >= MATCH:
+            return best
+        return text
+
     # ── 모듈 호출 ──
     def after_call(self, name: str, item: BaseModel, out: BaseModel, mode: str) -> list[dict[str, Any]]:
         if name == "parse":  # 줄 id·메시지 id → 텍스트는 가정 응답이어도 기억 (뒤 단계 비교용)
-            text = norm(item.line.text)  # type: ignore[attr-defined]
+            text = self._truth_for(norm(item.line.text))  # type: ignore[attr-defined]
             self.text_of[item.line.id] = text  # type: ignore[attr-defined]
             if out.message is not None:  # type: ignore[attr-defined]
                 self.text_of[out.message.id] = text  # type: ignore[attr-defined]
@@ -97,8 +110,23 @@ class Checker:
     def _check_ocr(self, item: BaseModel, out: BaseModel) -> list[dict[str, Any]]:
         read = [(ln.id, norm(ln.text)) for ln in out.lines]  # type: ignore[attr-defined]
         got = {t for _, t in read}
-        results = [self._one("ocr", "line", t, t if t in got else None, None) for t in self.truth]
-        results += [self._one("ocr", "line", None, t, i) for i, t in read if t not in self.by_text]
+        # 정답 줄마다: 똑같이 읽었으면 정답, 비슷하게 읽었으면(MATCH 이상) 그 줄을 결과로 보여 주고 오답, 못 읽었으면 None
+        results, used = [], set()
+        for t in self.truth:
+            if t in got:
+                results.append(self._one("ocr", "line", t, t, None))
+                used.add(t)
+                continue
+            near = [(difflib.SequenceMatcher(None, t, g).ratio(), i, g) for i, g in read if g not in used]
+            score, line_id, g = max(near, default=(0.0, None, None))
+            if score >= MATCH:
+                used.add(g)
+                r = self._one("ocr", "line", t, g, line_id)
+                r["similarity"] = round(score, 3)
+                results.append(r)
+            else:
+                results.append(self._one("ocr", "line", t, None, None))
+        results += [self._one("ocr", "line", None, g, i) for i, g in read if g not in used and g not in self.by_text]
         return results
 
     def _check_parse(self, item: BaseModel, out: BaseModel) -> list[dict[str, Any]]:

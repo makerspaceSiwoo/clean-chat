@@ -206,7 +206,8 @@ function checkMarks(checks) {
   const bad = checks.filter((c) => !c.ok);
   const nodes = bad.length
     ? bad.map((c) => {
-        const d = el("div", { class: "expect" }, `✗ 기대 ${FIELD_KO[c.field] || c.field}: ${fmtExpected(c.field, c.expected)} (결과: ${fmtExpected(c.field, c.actual)})`);
+        const sim = c.similarity != null ? ` · 유사도 ${Math.round(c.similarity * 100)}%` : "";
+        const d = el("div", { class: "expect" }, `✗ 기대 ${FIELD_KO[c.field] || c.field}: ${fmtExpected(c.field, c.expected)} (결과: ${fmtExpected(c.field, c.actual)}${sim})`);
         if (c.note) d.title = c.note;
         return d;
       })
