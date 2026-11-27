@@ -641,11 +641,12 @@ def test_eval_sets_do_not_overlap_training_sentences():
 def test_judge_blind_games_are_separate_from_training_games():
     train_games = judge_evaluate.load_games(FIXTURES / "analyze" / "judge_games.jsonl")
     blind = judge_evaluate.load_games(FIXTURES / "analyze" / "judge_blind_games.jsonl")
-    assert len(blind) >= 30 and {g["split"] for g in blind} == {"blind"}
+    assert len(blind) >= 150 and {g["split"] for g in blind} == {"blind"}
     assert not {g["id"] for g in blind} & {g["id"] for g in train_games}
     seen = {m["text"] for g in train_games for m in g["messages"] if len(m["text"]) >= 12}
     overlap = [m["text"] for g in blind for m in g["messages"] if m["text"] in seen]
-    assert len(overlap) <= 5, overlap[:5]  # 짧은 인사말 말고는 같은 문장이 거의 없어야 한다
+    lines = sum(len(g["messages"]) for g in blind)
+    assert len(overlap) <= lines * 0.005, len(overlap)  # 같은 문장은 0.5% 이하 (흔한 콜이 우연히 겹치는 정도)
 
 
 def test_implied_target_for_champion_mid_sentence_and_second_person():
