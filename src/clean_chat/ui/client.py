@@ -48,8 +48,15 @@ def styled(widget: QWidget, role: str) -> QWidget:
     return widget
 
 
+def mask_key(api_key: str) -> str:
+    """API 키는 끝 4자리만 보여 준다. 짧은 키는 전부 가린다."""
+    return f"••••{api_key[-4:]}" if len(api_key) >= 12 else "••••"
+
+
 class ClientWindow(QMainWindow):
     strength_changed = Signal(str)  # 필터 강도 값: low · normal · high
+    llm_save_requested = Signal(str, str)  # (모델 이름, API 키)
+    llm_clear_requested = Signal()
 
     def __init__(self, history_path: Path | None = None) -> None:
         super().__init__()
@@ -422,6 +429,79 @@ class ClientWindow(QMainWindow):
                 "muted",
             )
         )
+
+        self._build_llm_card(preferences)
+
+    def _build_llm_card(self, preferences: QVBoxLayout) -> None:
+        ai_card, ai = card("AI 순화·고소장 초안 (선택)")
+        preferences.addWidget(ai_card)
+        ai.addWidget(label("모델 이름", "caption"))
+        self.llm_model = QLineEdit()
+        self.llm_model.setPlaceholderText("예) gemini/gemini-2.5-flash")
+        self.llm_model.setAccessibleName("LLM 모델 이름")
+        ai.addWidget(self.llm_model)
+        ai.addWidget(label("API 키", "caption"))
+        key_row = QHBoxLayout()
+        key_row.setSpacing(8)
+        self.llm_key = QLineEdit()
+        self.llm_key.setEchoMode(QLineEdit.Password)
+        self.llm_key.setAccessibleName("LLM API 키")
+        self.btn_key_show = button("보기")
+        self.btn_key_show.setCheckable(True)
+        self.btn_key_show.toggled.connect(self._toggle_key)
+        key_row.addWidget(self.llm_key, 1)
+        key_row.addWidget(self.btn_key_show)
+        ai.addLayout(key_row)
+        actions = QHBoxLayout()
+        actions.setSpacing(12)
+        self.btn_llm_save = button("저장", "primary")
+        self.btn_llm_clear = button("지우기", "link")
+        self.llm_status = label("", "muted")
+        actions.addWidget(self.btn_llm_save)
+        actions.addWidget(self.btn_llm_clear)
+        actions.addWidget(self.llm_status, 1)
+        ai.addLayout(actions)
+        ai.addWidget(
+            label(
+                "키는 이 PC의 사용자 폴더에만 저장되고 화면·로그에 전체가 표시되지 않습니다. "
+                "비워 두면 외부 AI 없이 로컬 규칙으로 순화하고 초안을 만듭니다.",
+                "muted",
+            )
+        )
+        self.llm_model.textChanged.connect(self._llm_inputs_changed)
+        self.llm_key.textChanged.connect(self._llm_inputs_changed)
+        self.btn_llm_save.clicked.connect(self._request_llm_save)
+        self.btn_llm_clear.clicked.connect(self.llm_clear_requested.emit)
+        self.set_llm_state("", "")
+
+    def set_llm_state(self, model: str, api_key: str) -> None:
+        """저장된 값을 보여 준다. 키는 입력칸에 다시 채우지 않고 끝 4자리만 표시한다."""
+        self._llm_saved = (model, api_key)
+        self.llm_model.setText(model)
+        self.llm_key.clear()
+        self.btn_key_show.setChecked(False)
+        masked = mask_key(api_key)
+        self.llm_key.setPlaceholderText(f"저장됨 {masked} · 바꾸려면 새 키 입력" if api_key else "API 키 붙여넣기")
+        self.llm_status.setText(
+            f"사용 중 · {model} · 키 {masked}" if model and api_key else "설정 안 됨 · 로컬 규칙만 사용"
+        )
+        self.btn_llm_clear.setVisible(bool(model or api_key))
+        self._llm_inputs_changed()
+
+    def _llm_inputs(self) -> tuple[str, str]:
+        return self.llm_model.text().strip(), self.llm_key.text().strip() or self._llm_saved[1]
+
+    def _llm_inputs_changed(self) -> None:
+        model, api_key = self._llm_inputs()
+        self.btn_llm_save.setEnabled(bool(model and api_key) and (model, api_key) != self._llm_saved)
+
+    def _request_llm_save(self) -> None:
+        if self.btn_llm_save.isEnabled():
+            self.llm_save_requested.emit(*self._llm_inputs())
+
+    def _toggle_key(self, shown: bool) -> None:
+        self.llm_key.setEchoMode(QLineEdit.Normal if shown else QLineEdit.Password)
+        self.btn_key_show.setText("숨기기" if shown else "보기")
 
     def strength_value(self) -> str:
         return STRENGTHS[max(0, self.strength_checks.checkedId())][1]
