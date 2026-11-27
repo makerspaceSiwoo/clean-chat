@@ -658,3 +658,17 @@ def test_implied_target_for_champion_mid_sentence_and_second_person():
     out = impl.run(_req("너 진짜 트롤이냐"))
     assert (out.target, int(out.level)) == (None, 2)  # 누구인지는 모르지만 사람을 향한 말
     assert int(impl.run(_req("너 덕분에 살았다")).level) == 0
+
+
+def test_weights_repo_ids_and_missing_owner(monkeypatch):
+    """가중치 저장소 이름: 계정/clean-chat-analyze-<모델>. 계정을 모르면 알기 쉬운 오류."""
+    from clean_chat.modules.analyze import weights
+
+    assert weights.repo_id("classifier", "someone") == "someone/clean-chat-analyze-classifier"
+    monkeypatch.setenv(weights.OWNER_ENV, "team")
+    assert weights.repo_id("judge") == "team/clean-chat-analyze-judge"
+    monkeypatch.delenv(weights.OWNER_ENV)
+    monkeypatch.setattr(weights, "DEFAULT_OWNER", "")
+    with pytest.raises(ValueError):
+        weights.repo_id("judge")
+    assert "model.safetensors" in weights.FILES and set(weights.MODELS) == {"classifier", "judge"}
