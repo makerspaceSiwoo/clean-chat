@@ -189,10 +189,10 @@ qudtls 같은 내 손가락,병신 같은 내 손가락,lexicon:qudtls,1,profani
 미드 너 따먹고 싶다,미드 너 따먹고 싶다,,3,sexual_harassment,따먹,0,,team,train,AI,
 서폿 몸이나 팔아라,서폿 몸이나 팔아라,,3,sexual_harassment,,0,,team,test,AI,
 탑 창1년아,탑 창년아,noise_removed,3,profanity|sexual_harassment,창1년,0,,team,train,AI,우회
-정글 너 집 주소 안다 찾아간다,정글 너 집 주소 안다 찾아간다,,3,,,0,,team,train,AI,협박 — 유형 코드 없음 (팀 논의 필요)
-미드 현실에서 만나면 죽인다,미드 현실에서 만나면 죽인다,,3,,,0,,team,train,AI,협박 — 유형 코드 없음 (팀 논의 필요)
-원딜 니 신상 털어서 퍼뜨린다,원딜 니 신상 털어서 퍼뜨린다,,3,,,0,,team,test,AI,협박 — 유형 코드 없음 (팀 논의 필요)
-탑 죽여버린다 진짜 ㅅㅂ,탑 죽여버린다 진짜 시발,lexicon:ㅅㅂ,3,profanity,ㅅㅂ,0,,team,train,AI,우회 · 협박
+정글 너 집 주소 안다 찾아간다,정글 너 집 주소 안다 찾아간다,,3,threat,,0,,team,train,AI,협박 (ADR-0021)
+미드 현실에서 만나면 죽인다,미드 현실에서 만나면 죽인다,,3,threat,,0,,team,train,AI,협박 (ADR-0021)
+원딜 니 신상 털어서 퍼뜨린다,원딜 니 신상 털어서 퍼뜨린다,,3,threat,,0,,team,test,AI,협박 (ADR-0021)
+탑 죽여버린다 진짜 ㅅㅂ,탑 죽여버린다 진짜 시발,lexicon:ㅅㅂ,3,profanity|threat,ㅅㅂ,0,,team,train,AI,우회 · 협박
 정글 니애미 용 좀 치라고,정글 니애미 용 좀 치라고,,3,family_insult|blame,니애미,1,용 먼저 치자,team,train,AI,
 서폿 느금마 와드 박으라고,서폿 느금마 와드 박으라고,,3,family_insult|blame,느금마,1,와드 박아줘,team,test,AI,
 미드 엄창 ㅂㅅ아 로밍 좀 와,미드 엄창 병신아 로밍 좀 와,lexicon:ㅂㅅ,3,profanity|family_insult|blame,엄창|ㅂㅅ,1,미드 로밍 와줄 수 있어?,team,train,AI,우회

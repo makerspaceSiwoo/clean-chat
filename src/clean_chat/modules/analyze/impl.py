@@ -4,7 +4,7 @@
 모든 채팅에 실행되므로 빠른 소형 모델(KcBERT/KcELECTRA 계열) 또는 사전 규칙을 쓴다(ADR-0005).
 모델 로딩처럼 무거운 준비는 functools.cache 로 한 번만, 무거운 import(torch 등)는 함수 안에서 한다.
 
-지금은 **규칙만** 쓴다(사전: lexicon.py). 모델을 붙일 때는 `_predict_harm` 만 바꾸면 된다 —
+규칙(사전: lexicon.py)에 파인튜닝 모델 점수(model.py, 없으면 규칙만)를 더한다. 모델은 `_predict_harm` 에서만 쓰고 —
 대상·등급·조각은 모델과 상관없이 아래 규칙이 정한다.
 """
 
@@ -16,15 +16,22 @@ from itertools import permutations
 
 from clean_chat.core.schemas import Analysis, AnalyzeRequest, ChatMessage, HarmType, Level, Player
 from clean_chat.modules.analyze import lexicon, model
-from clean_chat.modules.analyze.champions import roles_of
+from clean_chat.modules.analyze.champions import AMBIGUOUS, CHAMPION_ROLES, canonical, names_of, roles_of
 
 logger = logging.getLogger(__name__)
 
 MODEL_VERSION = "rule-0.2"  # 규칙 버전. 파인튜닝 모델이 있으면 "rule-0.2+<모델 버전>" 으로 기록된다
 THRESHOLD = 0.5  # 이 점수 이상이면 해당 유형으로 본다
 _RULE_SCORE = 0.9  # 규칙이 걸렸을 때 주는 점수
+# 모델 점수를 쓰지 않는 유형. 욕설은 사전이 정확하고(가릴 조각도 사전이 찾는다), 모델만 걸린 욕설은 가릴 조각이 없는 데다
+# 검증 문장에서 정상 문장 오탐("와 개쩐다 방금")의 대부분이 여기서 나왔다 (README "모델 비교" 참고).
+_RULE_ONLY = frozenset({HarmType.PROFANITY.value})
 _MASKABLE = tuple(sorted({*lexicon.PROFANITY, *lexicon.FAMILY_INSULT, *lexicon.SEXUAL}, key=len, reverse=True))
 _TOKEN = re.compile(r"\S+")
+# 이름 앞에 붙어도 부르는 말로 보는 낱말 ("상대 럭스 …", "다들 야스 신고해")
+_LEAD_WORDS = frozenset(
+    {"우리", "상대", "저", "이", "쟤", "ㅋㅋ", "ㅋㅋㅋ", "와", "다들", "얘들아", "다", "같이", "끝나고"}
+)
 
 
 def run(req: AnalyzeRequest) -> Analysis:
@@ -45,7 +52,8 @@ def run(req: AnalyzeRequest) -> Analysis:
     try:
         scores = _predict_harm(msg.text_norm)
         target = _guess_target(msg, req.history, req.players)
-        level, harm_types = _decide_level(scores, target)
+        implied = None if target else _implied_target(msg, req.players)
+        level, harm_types, target = _decide_level(scores, target, implied)
         if level == Level.L0_CLEAN:  # 정상이면 나머지는 빈 값
             return Analysis(msg_id=msg.id, level=level, model_version=_model_version())
         return Analysis(
@@ -67,11 +75,13 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
     """유해 유형별 점수 0~1. 예) {"profanity": 0.9, "blame": 0.9}
 
     규칙 점수와 파인튜닝 모델 점수(model.py, 모델이 없으면 빈 값) 중 유형별 큰 값.
-    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질은 모델이 잡는 것을 기대한다.
+    명시적인 욕설은 규칙이, 욕설 없는 비난·정치질·패드립·성희롱·협박은 모델이 잡는다. 욕설(profanity)은 규칙 점수만 쓴다.
     """
     scores = _rule_scores(text_norm)
     for name, score in model.predict(text_norm).items():
-        if score > scores.get(name, 0.0):
+        if name == HarmType.THREAT.value and lexicon.GAME_TALK.search(text_norm):
+            continue  # 게임 안의 말("다음 용 때 다 죽인다")은 모델이 협박이라 해도 받지 않는다. 명시적 협박은 규칙이 잡는다
+        if name not in _RULE_ONLY and score > scores.get(name, 0.0):
             scores[name] = round(score, 4)
     return scores
 
@@ -84,6 +94,7 @@ def _rule_scores(text_norm: str) -> dict[str, float]:
         HarmType.SEXUAL_HARASSMENT: any(w in text_norm for w in lexicon.SEXUAL),
         HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)),
         HarmType.INSTIGATION: bool(lexicon.INSTIGATION.search(text_norm)),
+        HarmType.THREAT: bool(lexicon.THREAT.search(text_norm)),
     }
     return {t.value: _RULE_SCORE for t, hit in checks.items() if hit}
 
@@ -103,15 +114,22 @@ def _guess_target(message: ChatMessage, history: list[ChatMessage], players: lis
     speaker = next((p for p in players if p.name == message.speaker or (p.is_me and message.is_me)), None)
     people = _people(message, history, players)
     found = _position_token(text)
+    named = next((p for p in people if _addressed(p, message, speaker)), None)
     if found:
-        return _resolve_position(found[0], message, speaker, people) or found[0]
-    for p in people:
-        if _addressed(p, message, speaker):
-            return p.name
+        resolved = _resolve_position(found[0], message, speaker, people)
+        # 이름으로 부른 사람이 있으면 포지션 낱말보다 먼저다: 포지션을 한 명으로 못 좁혔거나(말한 사람 자신의 라인 등),
+        # 이름이 문장에서 먼저 나올 때. 예) 탑이 한 말 "세주 너 일부러 탑 안 오지" → 대상은 세주아니, "탑" 은 라인 이름
+        if named is not None and (resolved is None or _name_index(named, text) < found[1]):
+            return named.name
+        return resolved or found[0]
+    if named is not None:
+        return named.name
     if lexicon.SECOND_PERSON.search(text):
         for prev in reversed(history):
             if prev.speaker != message.speaker:
                 return prev.speaker
+    if not players:  # 명단을 모를 때: 문장에서 부른 챔피언 이름을 그대로 대상으로 둔다 (포지션 단어와 같은 방식)
+        return _champion_token(text)
     return None
 
 
@@ -130,7 +148,14 @@ def _addressed(p: Player, message: ChatMessage, speaker: Player | None) -> bool:
         word = (word or "").replace(" ", "")
         if len(word) >= 2 and word in text and not re.search(re.escape(word) + r"(부터|를|을)", text):
             return True
-    return False
+    # 줄임말("이즈", "케틀")은 짧아서 다른 낱말 속에 들어 있기 쉽다 → 낱말 단위로만 본다
+    return any(_called(alias, message.text_norm) for alias in names_of(p.champion)[1:])
+
+
+def _name_index(p: Player, text: str) -> int:
+    """문장에서 이 사람의 이름(닉네임·챔피언·줄임말)이 처음 나오는 위치. 못 찾으면 문장 끝."""
+    spots = [text.find(w) for w in (p.name, *names_of(p.champion)) if w and text.find(w) >= 0]
+    return min(spots, default=len(text))
 
 
 def _people(message: ChatMessage, history: list[ChatMessage], players: list[Player]) -> list[Player]:
@@ -189,17 +214,51 @@ def _lineup_holders(team: list[Player], role: str) -> set[str]:
     return holders
 
 
-def _decide_level(scores: dict[str, float], target: str | None) -> tuple[Level, list[HarmType]]:
-    """점수 + 대상 여부 → 등급과 유형 목록. 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱 = L3)."""
+def _decide_level(
+    scores: dict[str, float], target: str | None, implied: tuple[str | None, bool] | None = None
+) -> tuple[Level, list[HarmType], str | None]:
+    """점수 + 대상 → (등급, 유형 목록, 대상). 기준은 SPEC 4-2 (대상 없는 비속어 = L1, 특정인 비난 = L2, 패드립·성희롱·협박 = L3).
+
+    implied 는 확실하지 않은 대상 단서 (이름 또는 None, 욕설이 바로 붙어 있는가)다 — `_implied_target` 참고.
+    비난·정치질처럼 "누군가를 향한" 유형이 걸렸거나 욕설이 그 이름에 바로 붙어 있을 때만 대상으로 인정한다.
+    """
     hit = [t for t in HarmType if scores.get(t.value, 0.0) >= THRESHOLD]
-    if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit:
-        return Level.L3_LEGAL, hit
+    if not target and implied is not None and hit:
+        name, adjacent = implied
+        directed = HarmType.BLAME in hit or HarmType.INSTIGATION in hit or (adjacent and HarmType.PROFANITY in hit)
+        if directed or name is None:  # 이름 없이 "너"·"니" 로 부른 경우(name=None)는 어떤 유형이든 사람을 향한 말
+            if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit or HarmType.THREAT in hit:
+                return Level.L3_LEGAL, hit, name
+            return Level.L2_ABUSIVE, hit, name
+    if HarmType.FAMILY_INSULT in hit or HarmType.SEXUAL_HARASSMENT in hit or HarmType.THREAT in hit:
+        return Level.L3_LEGAL, hit, target
     if target and hit:
-        return Level.L2_ABUSIVE, hit
+        return Level.L2_ABUSIVE, hit, target
     # 대상이 없으면 비난·정치질은 성립하지 않는다 ("내가 못했네") → 비속어만 남긴다
     if HarmType.PROFANITY in hit:
-        return Level.L1_MILD, [HarmType.PROFANITY]
-    return Level.L0_CLEAN, []
+        return Level.L1_MILD, [HarmType.PROFANITY], None
+    return Level.L0_CLEAN, [], None
+
+
+def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | None, bool] | None:
+    """확실하지 않은 대상 단서. 유형과 함께 봐야 대상인지 알 수 있어서 `_decide_level` 이 최종 판단한다.
+
+    - 명단이 없을 때 문장 **중간·끝**의 챔피언 이름: ("이즈리얼", 욕설이 바로 옆에 붙었는가)
+      "그걸 못 치냐 이즈"(비난 → 대상), "ㅂㅅ 티모 꺼져"(사람을 가리키는 욕설이 붙음 → 대상),
+      "아 시발 블츠 그랩에 또 끌렸네"(감탄 욕설뿐 → 대상 아님, 혼잣말)
+    - "너"·"니" 로만 부른 말(앞 대화가 없어 누구인지 모름): (None, False) → 등급은 사람을 향한 것으로 보되 target 은 비운다
+    """
+    text = message.text_norm
+    if not players:
+        tokens = [t.group() for t in _TOKEN.finditer(text)]
+        for i, word in enumerate(tokens):
+            for name in sorted(CHAMPION_ROLES, key=len, reverse=True):
+                if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
+                    near = " ".join(tokens[max(0, i - 1) : i + 2])
+                    return canonical(name), any(w in near for w in lexicon.PERSON_INSULT)
+    if lexicon.SECOND_PERSON.search(text):
+        return None, False
+    return None
 
 
 def _find_profanity(message: ChatMessage) -> list[str]:
@@ -284,6 +343,32 @@ def _position_token(text: str) -> tuple[str, int] | None:
         for name, aliases in lexicon.POSITIONS.items():
             if any(re.fullmatch(re.escape(a) + lexicon.PARTICLES + r"[!?.,~]*", tok.group()) for a in aliases):
                 return name, tok.start()
+    return None
+
+
+def _called(name: str, text: str) -> bool:
+    """문장이 이 이름을 부르는가: 낱말이 `이름 + 조사` 꼴이고 목적어("이즈를", "이즈부터")가 아닐 때."""
+    pattern = re.compile(re.escape(name) + lexicon.PARTICLES + r"[!?.,~]*")
+    for tok in _TOKEN.finditer(text):
+        m = pattern.fullmatch(tok.group())
+        if m and m.group(1) not in ("을", "를"):
+            return True
+    return False
+
+
+def _champion_token(text: str) -> str | None:
+    """문장 맨 앞에서 부른 챔피언 → 정식 이름. 예) "이즈야 궁 써" → "이즈리얼", "상대 럭스 허접" → "럭스"
+
+    맨 앞(군말·"우리"·"상대" 뒤 포함)에 올 때만 부른 것으로 본다. 문장 중간의 챔피언은 대개 이야기의 소재다
+    ("아 시발 블츠 그랩에 또 끌렸네" 는 혼잣말). 일상 낱말과 겹치는 이름(AMBIGUOUS)은 보지 않는다.
+    """
+    for tok in _TOKEN.finditer(text):
+        word = tok.group()
+        for name in sorted(CHAMPION_ROLES, key=len, reverse=True):
+            if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
+                return canonical(name)
+        if word not in lexicon.INTERJECTIONS and word not in _LEAD_WORDS:
+            return None
     return None
 
 
