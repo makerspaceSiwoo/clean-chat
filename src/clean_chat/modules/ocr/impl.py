@@ -20,7 +20,7 @@ def run(frame: Frame) -> OcrResult:
     """채팅창 이미지 1장 → 보이는 채팅 줄 전부 (위에서 아래 순서).
 
     입력: Frame(id, ts, image_path, region) → 출력: OcrResult(frame_id, lines=RawLine[])
-    예) sample_01.png → ["[팀] 탑솔장인 (가렌): 다들 화이팅", "정글러 (리신)님이 ... 신호를 보냈습니다", ...]
+    예) sample_01.png → ["[팀] 밤하늘별 (가렌): 다들 화이팅", "초코우유 (리신)님이 ... 신호를 보냈습니다", ...]
     순서: _load_image → _preprocess → _read_lines → _merge_wrapped_lines → _to_raw_lines
     주의: 프레임당 0.5초 이내 목표(최초 엔진 로딩 별도, 실제 게임 화면 실측 필요).
           읽을 줄이 없으면 빈 lines. 오버레이가 찍히면 안 됨(ADR-0003).

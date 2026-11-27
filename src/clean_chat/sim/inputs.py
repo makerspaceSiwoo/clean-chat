@@ -38,12 +38,12 @@ FORMS: dict[str, list[dict[str, Any]]] = {
             "key": "text",
             "type": "textarea",
             "label": "채팅창에 보이는 한 줄",
-            "default": "[팀] 원딜러 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고",
+            "default": "[팀] 불꽃남자 (징크스): 야 정글 ㅂㅅ아 용 먼저 치라고",
         },
         {"key": "self_input", "type": "checkbox", "label": "내가 오버레이에 입력한 문장 (채널·화자 없이 본문만)"},
     ],
     "analyze": [
-        {"key": "speaker", "type": "text", "label": "말한 사람", "default": "원딜러"},
+        {"key": "speaker", "type": "text", "label": "말한 사람", "default": "불꽃남자"},
         {"key": "text", "type": "textarea", "label": "채팅 문장", "default": "야 정글 ㅂㅅ아 용 먼저 치라고"},
     ],
     "rewrite": [

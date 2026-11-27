@@ -45,10 +45,10 @@ def test_demo_game_wiring():
     assert session == read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session  # 같은 시나리오
     (result,) = results
     assert [(r.kind, r.speaker) for r in result.reports] == [
-        (ReportKind.REPORT, "원딜러"),
-        (ReportKind.REPORT, "상대탑"),
+        (ReportKind.REPORT, "불꽃남자"),
+        (ReportKind.REPORT, "얼음땡"),
     ]
-    assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "상대탑")]
+    assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "얼음땡")]
 
 
 def test_rewrite_only_for_l2_with_feedback():
