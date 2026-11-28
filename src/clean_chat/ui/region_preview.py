@@ -78,6 +78,9 @@ def mac_snapshot(rect, scale: float) -> QImage:
 
 
 class RegionPreview(QObject):
+    """오버레이 좌표의 사각형만 주기적으로 한 장 가져온다 (우리 앱 창은 캡처에서 뺀다)."""
+
+    OK = "오버레이 아래 화면 · 이미지 미리보기"
     image = Signal(QImage)
     status = Signal(str)
 
@@ -153,4 +156,4 @@ class RegionPreview(QObject):
         if image.isNull():
             raise RuntimeError("화면 이미지가 비어 있습니다.")
         self.image.emit(image)
-        self.status.emit("오버레이 아래 화면 · 이미지 미리보기")
+        self.status.emit(self.OK)
