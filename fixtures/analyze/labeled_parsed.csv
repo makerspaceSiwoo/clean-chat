@@ -1,0 +1,201 @@
+text,text_norm,hints,level,harm_types,profanity_spans,has_feedback,feedback,target,split,writer,note
+다들 화이팅,다들 화이팅,,0,,,0,,none,train,AI,
+미드 갱 ㄱㄱ,미드 갱 ㄱㄱ,,0,,,0,,none,train,AI,콜
+용 30초 뒤에 나와,용 30초 뒤에 나와,,0,,,0,,none,test,AI,
+바론 시야 잡자,바론 시야 잡자,,0,,,0,,none,train,AI,
+탑 텔 있어?,탑 텔 있어?,,0,,,0,,none,train,AI,
+정글 블루 줄 수 있어?,정글 블루 줄 수 있어?,,0,,,0,,none,test,AI,
+ㅈㅅ 내 실수,ㅈㅅ 내 실수,,0,,,0,,none,train,AI,
+원딜 점멸 없음,원딜 점멸 없음,,0,,,0,,none,train,AI,
+서폿 와드 고마워,서폿 와드 고마워,,0,,,0,,none,test,AI,
+한타 때 뭉치자,한타 때 뭉치자,,0,,,0,,none,train,AI,
+ㄱㅊ 다음에 잘하자,ㄱㅊ 다음에 잘하자,,0,,,0,,none,train,AI,
+미드 로밍 감 조심,미드 로밍 감 조심,,0,,,0,,none,train,AI,
+전령 먹고 탑 밀자,전령 먹고 탑 밀자,,0,,,0,,none,test,AI,
+나 집 갔다 올게,나 집 갔다 올게,,0,,,0,,none,train,AI,
+상대 정글 바텀에 있음,상대 정글 바텀에 있음,,0,,,0,,none,train,AI,
+ㅋㅋㅋ 방금 뭐임,ㅋㅋㅋ 방금 뭐임,,0,,,0,,none,test,AI,
+와 미친 플레이 ㄷㄷ,와 미친 플레이 ㄷㄷ,,0,,,0,,none,train,AI,칭찬
+ㅋㅋ 미친놈 잘하네,ㅋㅋ 미친놈 잘하네,,0,,,0,,none,train,AI,친근한 장난 (가이드: L0 또는 L1)
+탓하지 말고 다음 한타 보자,탓하지 말고 다음 한타 보자,,0,,,0,,none,test,AI,'탓'이 있지만 비난 아님
+신고는 하지 말고 그냥 끝까지 하자,신고는 하지 말고 그냥 끝까지 하자,,0,,,0,,none,train,AI,'신고'가 있지만 정치질 아님
+나 트롤 아니니까 믿어줘,나 트롤 아니니까 믿어줘,,0,,,0,,none,train,AI,
+정글 미안 내가 못했네,정글 미안 내가 못했네,,0,,,0,,none,train,AI,자기 탓
+궁 60초 남음,궁 60초 남음,,0,,,0,,none,test,AI,
+사이드 내가 밀게,사이드 내가 밀게,,0,,,0,,none,train,AI,
+억제기 나올 때까지 버티자,억제기 나올 때까지 버티자,,0,,,0,,none,train,AI,
+gg 수고했어,gg 수고했어,,0,,,0,,none,test,AI,
+ㅎㅇ 잘 부탁해,ㅎㅇ 잘 부탁해,,0,,,0,,none,train,AI,
+탑 다이브 오니까 빼,탑 다이브 오니까 빼,,0,,,0,,none,train,AI,
+미드 미아,미드 미아,,0,,,0,,none,test,AI,
+원딜 템 뭐 감?,원딜 템 뭐 감?,,0,,,0,,none,train,AI,
+용 한타 전에 귀환하자,용 한타 전에 귀환하자,,0,,,0,,none,train,AI,
+서폿 로밍 가도 돼?,서폿 로밍 가도 돼?,,0,,,0,,none,train,AI,
+나이스 갱,나이스 갱,,0,,,0,,none,test,AI,
+ㄳ 정글,ㄳ 정글,,0,,,0,,none,train,AI,
+바텀 라인 당겨,바텀 라인 당겨,,0,,,0,,none,train,AI,
+상대 탑 점멸 빠짐,상대 탑 점멸 빠짐,,0,,,0,,none,test,AI,
+오브젝트 먼저 챙기자,오브젝트 먼저 챙기자,,0,,,0,,none,train,AI,
+내가 이니시 걸게,내가 이니시 걸게,,0,,,0,,none,train,AI,
+강타 싸움 지면 어쩔 수 없지,강타 싸움 지면 어쩔 수 없지,,0,,,0,,none,test,AI,
+다들 멘탈 잡자,다들 멘탈 잡자,,0,,,0,,none,train,AI,
+유충 먹을까?,유충 먹을까?,,0,,,0,,none,train,AI,
+블루 먹어도 돼?,블루 먹어도 돼?,,0,,,0,,none,train,AI,
+아 아깝다 조금만 더 쳤으면,아 아깝다 조금만 더 쳤으면,,0,,,0,,none,test,AI,
+미드 솔킬 ㄷㄷ 잘한다,미드 솔킬 ㄷㄷ 잘한다,,0,,,0,,none,train,AI,
+상대 원딜 진짜 잘하네,상대 원딜 진짜 잘하네,,0,,,0,,none,train,AI,
+20분에 바론 보자,20분에 바론 보자,,0,,,0,,none,test,AI,
+탑 와드 박았어,탑 와드 박았어,,0,,,0,,none,train,AI,
+내 탓이야 미안,내 탓이야 미안,,0,,,0,,none,train,AI,자기 탓
+시야 없으니까 들어가지 마,시야 없으니까 들어가지 마,,0,,,0,,none,test,AI,
+ㅇㅋ 합류할게,ㅇㅋ 합류할게,,0,,,0,,none,train,AI,
+아타칸 나오면 모이자,아타칸 나오면 모이자,,0,,,0,,none,train,AI,
+정글 어디야?,정글 어디야?,,0,,,0,,none,train,AI,
+원딜 귀환 타이밍 맞추자,원딜 귀환 타이밍 맞추자,,0,,,0,,none,test,AI,
+ㅋㅋㅋㅋ 개웃기네,ㅋㅋㅋㅋ 개웃기네,,0,,,0,,none,train,AI,'개-' 강조
+와 개잘하네 우리 정글,와 개잘하네 우리 정글,,0,,,0,,none,train,AI,칭찬
+존잘 플레이였다,존잘 플레이였다,,0,,,0,,none,test,AI,칭찬
+포탑 골드 챙겨,포탑 골드 챙겨,,0,,,0,,none,train,AI,
+서폿 점멸 돌았어,서폿 점멸 돌았어,,0,,,0,,none,train,AI,
+미드 텔 타줘,미드 텔 타줘,,0,,,0,,none,test,AI,
+바텀 갱 갈게 준비해,바텀 갱 갈게 준비해,,0,,,0,,none,train,AI,
+져도 괜찮아 재밌게 하자,져도 괜찮아 재밌게 하자,,0,,,0,,none,train,AI,
+스펠 체크 좀 해줘,스펠 체크 좀 해줘,,0,,,0,,none,train,AI,
+상대 서폿 로밍 갔어,상대 서폿 로밍 갔어,,0,,,0,,none,test,AI,
+우리 조합 후반 가면 이겨,우리 조합 후반 가면 이겨,,0,,,0,,none,train,AI,
+한타 포지션만 잘 잡자,한타 포지션만 잘 잡자,,0,,,0,,none,train,AI,
+탑 차이 나도 괜찮아 버텨,탑 차이 나도 괜찮아 버텨,,0,,,0,,none,test,AI,
+다음 용은 꼭 먹자,다음 용은 꼭 먹자,,0,,,0,,none,train,AI,
+내가 못해서 미안 다음엔 잘할게,내가 못해서 미안 다음엔 잘할게,,0,,,0,,none,train,AI,자기 탓
+아 렉 걸렸네,아 렉 걸렸네,,0,,,0,,none,test,AI,
+수고 다들 잘했어,수고 다들 잘했어,,0,,,0,,none,train,AI,
+아 ㅅㅂ 내가 실수함,아 시발 내가 실수함,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,none,train,AI,우회
+아 ㅈㄴ 아프네,아 존나 아프네,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,train,AI,우회
+와 시1발 점멸 빠졌네,와 시발 점멸 빠졌네,noise_removed,1,profanity,시1발,0,,none,test,AI,우회
+tlqkf 렉 걸림,시발 렉 걸림,lexicon:tlqkf,1,profanity,tlqkf,0,,none,train,AI,우회
+아 씨 발 또 죽었네,아 시발 또 죽었네,lexicon:씨 발,1,profanity,씨 발,0,,none,train,AI,우회
+ㅈㄴ 세네 상대 딜,존나 세네 상대 딜,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,test,AI,우회
+아 존나 아깝다,아 존나 아깝다,,1,profanity,존나,0,,none,train,AI,
+ㅅ ㅂ 손 미끄러짐,시발 손 미끄러짐,lexicon:ㅅ ㅂ,1,profanity,ㅅ ㅂ,0,,none,train,AI,우회
+아 ㅆㅂ 강타 놓침,아 시발 강타 놓침,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,none,test,AI,우회
+와 ㅁㅊ 저게 살아?,와 미친 저게 살아?,lexicon:ㅁㅊ,1,profanity,ㅁㅊ,0,,none,train,AI,우회
+하 시발 내 궁 빗나감,하 시발 내 궁 빗나감,,1,profanity,시발,0,,none,train,AI,
+아 ㅈ같네 이 판,아 좆같네 이 판,lexicon:ㅈ같,1,profanity,ㅈ같,0,,none,train,AI,우회
+개같이 멸망했네 ㅋㅋ,개같이 멸망했네 ㅋㅋ,,1,profanity,개같,0,,none,test,AI,
+씨@발 핑 왜 이래,시발 핑 왜 이래,noise_removed|lexicon:씨발,1,profanity,씨@발,0,,none,train,AI,우회
+아 진짜 좆됐다,아 진짜 좆됐다,,1,profanity,좆,0,,none,train,AI,
+qudtls 같은 내 손가락,병신 같은 내 손가락,lexicon:qudtls,1,profanity,qudtls,0,,none,test,AI,우회 · 자기 비하
+ㅈㄹ 났네 한타,지랄 났네 한타,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,none,train,AI,우회
+아오 시이발 또 끊김,아오 시발 또 끊김,lexicon:시이발,1,profanity,시이발,0,,none,train,AI,우회
+와 조낸 아프다,와 존나 아프다,lexicon:조낸,1,profanity,조낸,0,,none,test,AI,우회
+내가 ㅂㅅ이지 그걸 왜 들어감,내가 병신이지 그걸 왜 들어감,lexicon:ㅂㅅ,1,profanity,ㅂㅅ,0,,none,train,AI,우회 · 자기 비하
+아 씨바 큐 잘못 돌림,아 씨바 큐 잘못 돌림,,1,profanity,씨바,0,,none,train,AI,
+ㅅㅂ 졌다 그냥,시발 졌다 그냥,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,none,train,AI,우회
+아 빡쳐 ㅈㄴ 안 풀리네,아 빡쳐 존나 안 풀리네,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,test,AI,우회
+젠장 미니언 다 놓쳤네,젠장 미니언 다 놓쳤네,,1,profanity,젠장,0,,none,train,AI,약한 비속어
+와 씨 깜짝이야,와 씨 깜짝이야,,1,profanity,씨,0,,none,train,AI,약한 비속어
+ㅈㄴ 웃기네 ㅋㅋㅋ,존나 웃기네 ㅋㅋㅋ,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,none,test,AI,우회
+아 시8 점멸 실수,아 시발 점멸 실수,lexicon:시8,1,profanity,시8,0,,none,train,AI,우회
+염병 또 렉이야,염병 또 렉이야,,1,profanity,염병,0,,none,train,AI,
+ㅆㅂ 이걸 지네,시발 이걸 지네,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,none,test,AI,우회
+아 지랄 맞게 안 풀린다,아 지랄 맞게 안 풀린다,,1,profanity,지랄,0,,none,train,AI,
+야 정글 ㅂㅅ아 용 먼저 치라고,야 정글 병신아 용 먼저 치라고,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,용 먼저 치자,team,train,AI,우회
+서폿 와드 좀 박아 ㅂㅅ아,서폿 와드 좀 박아 병신아,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,시야 좀 잡아 주세요,team,train,AI,우회
+정글 탑 좀 와 ㅂㅅ아,정글 탑 좀 와 병신아,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,정글 탑 와줄 수 있어?,team,test,AI,우회
+미드 시1발 로밍 좀 가라,미드 시발 로밍 좀 가라,noise_removed,2,profanity|blame,시1발,1,미드 로밍 가줄 수 있어?,team,train,AI,우회
+원딜 tlqkf 뒤에서 딜 좀 해,원딜 시발 뒤에서 딜 좀 해,lexicon:tlqkf,2,profanity|blame,tlqkf,1,원딜 뒤에서 딜 해줘,team,train,AI,우회
+탑 병1신아 텔 좀 타,탑 병신아 텔 좀 타,noise_removed,2,profanity|blame,병1신,1,탑 텔 타줄 수 있어?,team,test,AI,우회
+서폿 ㅈㄴ 못하네 시야 좀 잡아,서폿 존나 못하네 시야 좀 잡아,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,시야 좀 잡아 주세요,team,train,AI,우회
+정글 개새끼야 바론 스틸 당하지 말라고,정글 개새끼야 바론 스틸 당하지 말라고,,2,profanity|blame,개새끼,1,바론 스틸 조심하자,team,train,AI,
+아 정글 ㅂㅅ 왜 안 와,아 정글 병신 왜 안 와,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,정글 와줄 수 있어?,team,test,AI,우회
+미드 ㅄ아 미아 좀 찍어,미드 병신아 미아 좀 찍어,lexicon:ㅄ,2,profanity|blame,ㅄ,1,미드 미아 핑 찍어줘,team,train,AI,우회
+원딜 새1끼야 한타 때 앞으로 가지 마,원딜 새끼야 한타 때 앞으로 가지 마,noise_removed,2,profanity|blame,새1끼,1,한타 때 뒤에서 싸우자,team,train,AI,우회
+탑 ㅅㅂ 라인 좀 밀어놓고 죽어,탑 시발 라인 좀 밀어놓고 죽어,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,탑 라인 먼저 밀어줘,team,train,AI,우회
+서폿 등신아 원딜 좀 지켜,서폿 등신아 원딜 좀 지켜,,2,profanity|blame,등신,1,원딜 지켜줘,team,test,AI,
+정글 뭐하냐 용 한타 합류해,정글 뭐하냐 용 한타 합류해,,2,blame,,1,용 한타 합류해줘,team,train,AI,욕설 없음
+미드 트롤이냐 궁 좀 써,미드 트롤이냐 궁 좀 써,,2,blame,,1,궁 써줘,team,train,AI,욕설 없음
+원딜 왜 혼자 들어가 같이 좀 싸워,원딜 왜 혼자 들어가 같이 좀 싸워,,2,blame,,1,같이 싸우자,team,test,AI,욕설 없음
+탑 생각 좀 해라 사이드 그만 밀고 합류해,탑 생각 좀 해라 사이드 그만 밀고 합류해,,2,blame,,1,사이드 그만 밀고 합류해줘,team,train,AI,욕설 없음
+리신 qudtls아 강타 좀 제대로 써,리신 병신아 강타 좀 제대로 써,lexicon:qudtls,2,profanity|blame,qudtls,1,강타 잘 써줘,team,train,AI,우회 · 챔피언으로 부름
+징크스 ㅈㄴ 못하네 포지션 좀 뒤로 잡아,징크스 존나 못하네 포지션 좀 뒤로 잡아,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,포지션 뒤로 잡아줘,team,test,AI,우회 · 챔피언으로 부름
+서폿 ㅅ ㅂ 로밍 그만 가고 바텀 있어,서폿 시발 로밍 그만 가고 바텀 있어,lexicon:ㅅ ㅂ,2,profanity|blame,ㅅ ㅂ,1,바텀에 있어줘,team,train,AI,우회
+야 가렌 씨@발 텔 타라고 몇 번 말해,야 가렌 시발 텔 타라고 몇 번 말해,noise_removed|lexicon:씨발,2,profanity|blame,씨@발,1,텔 타줘,team,train,AI,우회 · 챔피언으로 부름
+정글 눈 없냐 와드 지우고 가,정글 눈 없냐 와드 지우고 가,,2,blame,,1,와드 지우고 가줘,team,train,AI,욕설 없음
+미드 ㅈㄹ 말고 라인이나 밀어,미드 지랄 말고 라인이나 밀어,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,1,라인 밀어줘,team,test,AI,우회
+원딜 ㅁㅊ놈아 바론 치는데 왜 집 가 귀환하지 마,원딜 미친놈아 바론 치는데 왜 집 가 귀환하지 마,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,1,바론 칠 때는 귀환하지 말자,team,train,AI,우회
+탑 개못하네 그냥 포탑 안에 있어,탑 개못하네 그냥 포탑 안에 있어,,2,blame,,1,포탑 안에서 버텨줘,team,train,AI,욕설 없음
+서폿 발컨이냐 스킬 좀 맞춰,서폿 발컨이냐 스킬 좀 맞춰,,2,blame,,1,스킬 맞춰줘,team,test,AI,욕설 없음
+정글 ㅆㅂ 갱 한 번만 와라,정글 시발 갱 한 번만 와라,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,1,갱 한 번 와줘,team,train,AI,우회
+미드 조낸 죽네 그만 싸우고 cs나 먹어,미드 존나 죽네 그만 싸우고 cs나 먹어,lexicon:조낸,2,profanity|blame,조낸,1,싸우지 말고 cs 먹자,team,train,AI,우회
+원딜 ㅂㅅ같이 하지 말고 타워 쳐,원딜 병신같이 하지 말고 타워 쳐,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,타워 치자,team,test,AI,우회
+야 쓰레쉬 좃같이 하네 랜턴 좀 던져,야 쓰레쉬 좆같이 하네 랜턴 좀 던져,lexicon:좃,2,profanity|blame,좃,1,랜턴 던져줘,team,train,AI,우회 · 챔피언으로 부름
+탑 시이발 한타 오라고,탑 시발 한타 오라고,lexicon:시이발,2,profanity|blame,시이발,1,한타 합류해줘,team,train,AI,우회
+정글 뇌 없냐 오브젝트 먼저 챙겨,정글 뇌 없냐 오브젝트 먼저 챙겨,,2,blame,,1,오브젝트 먼저 챙기자,team,train,AI,욕설 없음
+제드 tlqkf놈아 사이드 밀지 말고 뭉쳐,제드 시발놈아 사이드 밀지 말고 뭉쳐,lexicon:tlqkf,2,profanity|blame,tlqkf놈,1,사이드 말고 뭉치자,team,test,AI,우회 · 챔피언으로 부름
+서폿 ㅈ도 못하네 점멸 아끼지 마,서폿 좆도 못하네 점멸 아끼지 마,lexicon:ㅈ도,2,profanity|blame,ㅈ도,1,점멸 아끼지 말자,team,train,AI,우회
+원딜 답 없네 템 좀 제대로 사,원딜 답 없네 템 좀 제대로 사,,2,blame,,1,템 다시 확인해줘,team,train,AI,욕설 없음
+미드 시1발 개못하네,미드 시발 개못하네,noise_removed,2,profanity|blame,시1발,0,,team,test,AI,우회
+정글 개새끼,정글 개새끼,,2,profanity,개새끼,0,,team,train,AI,
+원딜 개못하네 트롤이냐,원딜 개못하네 트롤이냐,,2,blame,,0,,team,train,AI,욕설 없음
+다들 정글 탓인 거 알지? 정글 신고 ㄱ,다들 정글 탓인 거 알지? 정글 신고 ㄱ,,2,blame|instigation,,0,,team,test,AI,정치질
+탑 ㅂㅅ이네 진짜,탑 병신이네 진짜,lexicon:ㅂㅅ,2,profanity,ㅂㅅ,0,,team,train,AI,우회
+서폿 tlqkf 왜 사냐,서폿 시발 왜 사냐,lexicon:tlqkf,2,profanity|blame,tlqkf,0,,team,train,AI,우회
+미드 차이 ㅈㄴ 나네 우리 미드 뭐함,미드 차이 존나 나네 우리 미드 뭐함,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,team,train,AI,우회
+원딜 수준 봐라 ㅋㅋ,원딜 수준 봐라 ㅋㅋ,,2,blame,,0,,team,test,AI,욕설 없음
+정글 때문에 졌다,정글 때문에 졌다,,2,blame,,0,,team,train,AI,욕설 없음
+우리 탑 사람이냐,우리 탑 사람이냐,,2,blame,,0,,team,train,AI,욕설 없음
+서폿 ㅄ ㅋㅋㅋ,서폿 병신 ㅋㅋㅋ,lexicon:ㅄ,2,profanity,ㅄ,0,,team,test,AI,우회
+야 미드 qudtls이냐,야 미드 병신이냐,lexicon:qudtls,2,profanity,qudtls,0,,team,train,AI,우회
+정글 ㅈㄹ하네,정글 지랄하네,lexicon:ㅈㄹ,2,profanity,ㅈㄹ,0,,team,train,AI,우회
+원딜 던지네 그냥,원딜 던지네 그냥,,2,blame,,0,,team,test,AI,욕설 없음
+탑 0킬 5데스 실화냐 ㅋㅋ 다들 탑 신고해,탑 0킬 5데스 실화냐 ㅋㅋ 다들 탑 신고해,,2,blame|instigation,,0,,team,train,AI,정치질
+얘들아 서폿 차단하고 하자,얘들아 서폿 차단하고 하자,,2,instigation,,0,,team,train,AI,정치질
+이 판 범인 미드임 다들 알지,이 판 범인 미드임 다들 알지,,2,blame|instigation,,0,,team,train,AI,정치질
+정글 새1끼 진짜,정글 새끼 진짜,noise_removed,2,profanity,새1끼,0,,team,test,AI,우회
+리신 ㅈㄴ 못해,리신 존나 못해,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,team,train,AI,우회 · 챔피언으로 부름
+징크스 병1신,징크스 병신,noise_removed,2,profanity,병1신,0,,team,train,AI,우회 · 챔피언으로 부름
+원딜 왜 그것도 못 함,원딜 왜 그것도 못 함,,2,blame,,0,,team,test,AI,행동이 없어 피드백 아님 (가이드)
+탑 겜 접어라,탑 겜 접어라,,2,blame,,0,,team,train,AI,욕설 없음
+서폿 ㅅ ㅂ 진짜,서폿 시발 진짜,lexicon:ㅅ ㅂ,2,profanity,ㅅ ㅂ,0,,team,train,AI,우회
+미드 대리 맡겼냐,미드 대리 맡겼냐,,2,blame,,0,,team,test,AI,욕설 없음
+정글 실력 실화냐,정글 실력 실화냐,,2,blame,,0,,team,train,AI,욕설 없음
+가렌 씨@발놈,가렌 시발놈,noise_removed|lexicon:씨발,2,profanity,씨@발놈,0,,team,train,AI,우회 · 챔피언으로 부름
+우리 원딜 벌레네,우리 원딜 벌레네,,2,blame,,0,,team,train,AI,욕설 없음
+탑 ㅆㅂ 뭐하는 거임,탑 시발 뭐하는 거임,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,0,,team,test,AI,우회
+다 같이 정글 욕하자 ㅋㅋ,다 같이 정글 욕하자 ㅋㅋ,,2,instigation,,0,,team,train,AI,정치질
+서폿 민폐 그 자체,서폿 민폐 그 자체,,2,blame,,0,,team,train,AI,욕설 없음
+미드 조낸 못하네,미드 존나 못하네,lexicon:조낸,2,profanity|blame,조낸,0,,team,test,AI,우회
+상대 정글 ㅂㅅ ㅋㅋ,상대 정글 병신 ㅋㅋ,lexicon:ㅂㅅ,2,profanity,ㅂㅅ,0,,enemy,train,AI,우회
+상대 원딜 개못함 ㅋㅋ 허접,상대 원딜 개못함 ㅋㅋ 허접,,2,blame,,0,,enemy,train,AI,욕설 없음
+제드 ㅁㅊ놈인가,제드 미친놈인가,lexicon:ㅁㅊ,2,profanity,ㅁㅊ놈,0,,team,test,AI,우회 · 챔피언으로 부름
+원딜 노답이네,원딜 노답이네,,2,blame,,0,,team,train,AI,욕설 없음
+탑 니애미 tlqkf,탑 니애미 시발,lexicon:tlqkf,3,profanity|family_insult,니애미|tlqkf,0,,enemy,train,AI,우회
+정글 느금마,정글 느금마,,3,family_insult,느금마,0,,team,train,AI,
+미드 니 엄마 없냐,미드 니 엄마 없냐,,3,family_insult,니 엄마,0,,team,test,AI,
+원딜 ㄴㄱㅁ,원딜 느금마,lexicon:ㄴㄱㅁ,3,family_insult,ㄴㄱㅁ,0,,team,train,AI,우회
+서폿 느1금마 안부 좀,서폿 느금마 안부 좀,noise_removed,3,family_insult,느1금마,0,,team,train,AI,우회
+야 탑 엄창 ㅅㅂ,야 탑 엄창 시발,lexicon:ㅅㅂ,3,profanity|family_insult,엄창|ㅅㅂ,0,,team,test,AI,우회
+정글 애미 뒤졌냐,정글 애미 뒤졌냐,,3,family_insult,애미,0,,team,train,AI,
+미드 니애비가 그렇게 가르쳤냐,미드 니애비가 그렇게 가르쳤냐,,3,family_insult,니애비,0,,team,train,AI,
+원딜 부모님이 불쌍하다 ㅂㅅ아,원딜 부모님이 불쌍하다 병신아,lexicon:ㅂㅅ,3,profanity|family_insult,ㅂㅅ,0,,team,test,AI,우회
+서폿 sldoal,서폿 니애미,lexicon:sldoal,3,family_insult,sldoal,0,,team,train,AI,우회 (영타)
+탑 니 가족 다 죽어라,탑 니 가족 다 죽어라,,3,family_insult,,0,,team,train,AI,
+정글 고아냐 ㅋㅋ,정글 고아냐 ㅋㅋ,,3,family_insult,고아,0,,team,train,AI,
+미드 니미 시1발,미드 니미 시발,noise_removed,3,profanity|family_insult,니미|시1발,0,,team,test,AI,우회
+원딜 애미 없는 티 내네,원딜 애미 없는 티 내네,,3,family_insult,애미,0,,team,train,AI,
+서폿 느그 엄마 창녀,서폿 느그 엄마 창녀,,3,family_insult|sexual_harassment,느그 엄마|창녀,0,,team,train,AI,
+서폿 여자냐 벗고 방송이나 해,서폿 여자냐 벗고 방송이나 해,,3,sexual_harassment,,0,,team,test,AI,
+원딜 걸레 같은 년,원딜 걸레 같은 년,,3,profanity|sexual_harassment,걸레,0,,team,train,AI,
+미드 너 따먹고 싶다,미드 너 따먹고 싶다,,3,sexual_harassment,따먹,0,,team,train,AI,
+서폿 몸이나 팔아라,서폿 몸이나 팔아라,,3,sexual_harassment,,0,,team,test,AI,
+탑 창1년아,탑 창년아,noise_removed,3,profanity|sexual_harassment,창1년,0,,team,train,AI,우회
+정글 너 집 주소 안다 찾아간다,정글 너 집 주소 안다 찾아간다,,3,threat,,0,,team,train,AI,협박 (ADR-0021)
+미드 현실에서 만나면 죽인다,미드 현실에서 만나면 죽인다,,3,threat,,0,,team,train,AI,협박 (ADR-0021)
+원딜 니 신상 털어서 퍼뜨린다,원딜 니 신상 털어서 퍼뜨린다,,3,threat,,0,,team,test,AI,협박 (ADR-0021)
+탑 죽여버린다 진짜 ㅅㅂ,탑 죽여버린다 진짜 시발,lexicon:ㅅㅂ,3,profanity|threat,ㅅㅂ,0,,team,train,AI,우회 · 협박
+정글 니애미 용 좀 치라고,정글 니애미 용 좀 치라고,,3,family_insult|blame,니애미,1,용 먼저 치자,team,train,AI,
+서폿 느금마 와드 박으라고,서폿 느금마 와드 박으라고,,3,family_insult|blame,느금마,1,와드 박아줘,team,test,AI,
+미드 엄창 ㅂㅅ아 로밍 좀 와,미드 엄창 병신아 로밍 좀 와,lexicon:ㅂㅅ,3,profanity|family_insult|blame,엄창|ㅂㅅ,1,미드 로밍 와줄 수 있어?,team,train,AI,우회
+원딜 애미 없냐 한타 때 뒤로 빠져,원딜 애미 없냐 한타 때 뒤로 빠져,,3,family_insult|blame,애미,1,한타 때 뒤로 빠져줘,team,train,AI,
+탑 ㄴㄱㅁ 텔 좀 타라,탑 느금마 텔 좀 타라,lexicon:ㄴㄱㅁ,3,family_insult|blame,ㄴㄱㅁ,1,탑 텔 타줘,team,test,AI,우회
+정글 고아새끼야 바론 시야 잡아,정글 고아새끼야 바론 시야 잡아,,3,profanity|family_insult|blame,고아새끼,1,바론 시야 잡아줘,team,train,AI,
