@@ -223,7 +223,7 @@ class App(QObject):
                 "오버레이를 드래그하고 가장자리로 크기를 맞춰 채팅 5~6줄을 모두 가린 뒤 위치 잠금을 누르세요.",
             )
         elif self.sampler.preview_only:
-            c.set_status("실행 중 · 화면 미리보기", "OCR 없이 오버레이 아래 화면을 0.2초마다 확인합니다.")
+            c.set_status("실행 중 · 화면 미리보기", "OCR 없이 오버레이 아래 화면을 1초마다 확인합니다.")
         elif self.engine.phase == GamePhase.IN_GAME:
             c.set_status(
                 "실행 중 · 게임 중", "채팅을 읽어 필터링하고 있습니다. 게임이 끝나면 오버레이가 자동으로 닫힙니다."

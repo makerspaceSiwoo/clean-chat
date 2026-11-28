@@ -22,10 +22,12 @@ from enum import IntEnum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, computed_field, model_serializer, model_validator
+from pydantic.json_schema import SkipJsonSchema
 
 from clean_chat.core.charges import CHARGE_CATALOG, ChargeId
 
-SCHEMA_VERSION = "2.1.0"
+SCHEMA_VERSION = "2.2.0"
+# 2.2.0: Frame.image 추가 — 앱의 실시간 캡처가 디스크에 쓰지 않고 메모리 이미지를 넘긴다 (JSON 형식은 그대로)
 # 2.1.0: 신고·고소 초안의 원문 증거(evidence)와 적용된 혐의 ID(applied_charge_ids), ParseResult.system_text 추가
 #        (데스크톱 클라이언트용, 기존 입력·출력과 호환)
 # 2.0.0: raw_norm・game_time_sec를 ChatMessage 내부로 이동. 1.1.0 ParseResult 입력은 읽을 때 변환한다.
@@ -120,8 +122,11 @@ class Frame(BaseModel):
 
     id: str
     ts: float
-    image_path: str  # PNG 파일 경로
+    image_path: str  # PNG 파일 경로. 앱의 실시간 캡처는 파일을 만들지 않고 빈 문자열을 넣는다.
     region: Region
+    # 실시간 캡처가 메모리에 든 이미지(PIL.Image)를 그대로 넘길 때 쓴다. 있으면 ocr 은 image_path 대신 이것을 읽는다.
+    # JSON(fixtures·시뮬레이터·저장)에는 나오지 않는다 → 주고받는 형식은 그대로다.
+    image: SkipJsonSchema[Any] = Field(default=None, exclude=True, repr=False)
 
 
 class RawLine(BaseModel):

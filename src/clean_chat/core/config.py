@@ -115,7 +115,8 @@ class Settings(BaseModel):
     complaint_output_dir: str = str(STORE / "complaints") if getattr(sys, "frozen", False) else ".clean-chat/complaints"
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
-    capture_interval_sec: float = 0.4  # 고정 주기 비교 기준
+    capture_interval_sec: float = 1.0  # 채팅 영역을 확인하는 주기. 글자가 바뀐 화면만 OCR 로 보낸다.
+    capture_recheck_sec: float = 5.0  # 글자가 그대로여도 이 시간마다 한 번은 다시 읽는다 (빈 화면은 3배 느리게)
     uploads_dir: Path = STORE / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
     llm_env: Path = USER_ENV  # 설정 화면에서 입력한 Gemini API 키를 저장하는 .env
     sim_timeout_sec: float = 120.0  # 시뮬레이터에서 모듈 1번 실행 제한 시간 (모델 로딩 포함)

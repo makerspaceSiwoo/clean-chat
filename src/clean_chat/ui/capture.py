@@ -103,7 +103,7 @@ class WindowSampler(QObject):
             self.region_preview.start()
             return
         self.sampling = True
-        self.timer.start(200)
+        self.timer.start(self.gate.interval_ms(0))
         self._tick()
 
     def pause(self) -> None:
@@ -173,11 +173,11 @@ class WindowSampler(QObject):
             self.window_id = ident
             self.capture.setWindow(windows[0])
             if hasattr(self.capture, "setMaximumFrameRate"):
-                self.capture.setMaximumFrameRate(5)
+                self.capture.setMaximumFrameRate(2)  # 1초마다 확인하므로 초당 2장이면 충분하다
             self.started_at, self.received = now, False
             self.capture.start()
             if self.sampling:
-                self.timer.setInterval(200)
+                self.timer.setInterval(self.gate.interval_ms(now))
             return
         frame = self.sink.videoFrame()
         if not frame.isValid():
@@ -193,7 +193,7 @@ class WindowSampler(QObject):
             if self.last_region is not None:
                 self.reset_region()
             self.status.emit("오버레이 전체를 게임 채팅 위에 놓아 주세요.")
-            self.timer.setInterval(200)
+            self.timer.setInterval(self.gate.interval_ms(now))
             return
         if rect != self.last_region:
             self.reset_region()
@@ -203,10 +203,7 @@ class WindowSampler(QObject):
         self.source.begin()
         if self.gate.observe(image, now):
             self.source.offer(image, Region(x=rect.x(), y=rect.y(), w=rect.width(), h=rect.height()))
-        interval = self.gate.interval_ms(now)
-        if interval != self.timer.interval() and hasattr(self.capture, "setMaximumFrameRate"):
-            self.capture.setMaximumFrameRate(1000 / interval)
-        self.timer.setInterval(interval)
+        self.timer.setInterval(self.gate.interval_ms(now))
         self.status.emit(
             "채팅 감시 중" if not self.source.dropped else f"채팅 감시 중 · 대기열 초과 {self.source.dropped}프레임"
         )

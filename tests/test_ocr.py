@@ -343,3 +343,21 @@ def test_compressed_stretched_repetitions(jamo_font_path, text):
                     assert [span.text for row in find_repeat_rows(processed) for span in row.spans] == [text]
                 finally:
                     processed.close()
+
+
+def test_in_memory_frame_is_read_without_touching_disk(monkeypatch):
+    """앱의 실시간 캡처는 파일을 만들지 않고 Frame.image(메모리)로 넘긴다."""
+    pytest.importorskip("PIL")
+    from PIL import Image
+
+    from clean_chat.modules.ocr import impl
+
+    seen = []
+    monkeypatch.setattr(impl, "_load_image", lambda path: pytest.fail(f"디스크에서 읽으려 함: {path!r}"))
+    monkeypatch.setattr(impl, "_read_lines", lambda image: seen.append(image.size) or [])
+    with Image.new("RGB", (320, 90), "black") as image:
+        frame = Frame(id="F-mem", ts=0, image_path="", region=Region(x=0, y=0, w=320, h=90), image=image)
+        assert impl.run(frame).lines == []
+        assert seen == [(320, 90)]
+        assert image.getpixel((0, 0)) == (0, 0, 0)  # 넘겨받은 이미지는 닫지 않는다 (복사본만 닫는다)
+    assert "image" not in Frame.model_json_schema()["properties"]  # 주고받는 JSON 형식은 그대로

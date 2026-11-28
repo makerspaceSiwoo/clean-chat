@@ -35,6 +35,7 @@
 
 ```
 ① Frame          { id, ts, image_path, region{x,y,w,h} }
+                 (앱의 실시간 캡처는 image_path 를 비우고 메모리 이미지 `image` 로 넘긴다. JSON 에는 나오지 않는다)
    OcrResult      { frame_id, lines: RawLine[] }                ← 보이는 줄 전부 (프레임 사이 중복 제거는 구성)
    RawLine        { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
 ② ParseRequest   { line: RawLine, my_name }                     ← 내 입력은 source=self_input (본문만)

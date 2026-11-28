@@ -16,6 +16,8 @@ from PySide6.QtCore import QObject, QStandardPaths, QTimer, Signal
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
+INTERVAL_MS = 1000  # 미리보기를 새로 가져오는 주기
+
 
 def build_snapshot_library(output: Path) -> None:
     source = Path(__file__).with_name("region_snapshot.m")
@@ -95,7 +97,7 @@ class RegionPreview(QObject):
         if self.timer.isActive():
             return
         self.status.emit("오버레이 아래 첫 이미지를 가져오는 중")
-        self.timer.start(200)
+        self.timer.start(INTERVAL_MS)
         self._tick()
 
     def stop(self) -> None:
@@ -141,7 +143,7 @@ class RegionPreview(QObject):
                     self.excluded.add(hwnd)
                 local = rect.translated(-screen.geometry().topLeft())
                 self._show(screen.grabWindow(0, *local.getRect()).toImage())
-            self.timer.setInterval(200)
+            self.timer.setInterval(INTERVAL_MS)
         except Exception as exc:
             self.image.emit(QImage())
             self.status.emit(f"미리보기 재시도 중 · {exc}")

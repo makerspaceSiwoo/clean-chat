@@ -3,7 +3,6 @@
 import os
 import threading
 import time
-from pathlib import Path
 
 import pytest
 
@@ -39,16 +38,15 @@ def snapshot(y=None, background=(45, 74, 86)):
 def test_hidden_idle_first_call_scroll_and_watchdog():
     gate = TextChangeGate()
     gate.observe(snapshot(), 0)
-    assert not gate.observe(snapshot(background=(93, 63, 85)), 0.2)
-    assert gate.interval_ms(0.2) == 200
-    assert gate.observe(snapshot(110), 0.4)
-    assert gate.interval_ms(0.4) == 100
-    assert not gate.observe(snapshot(110, (55, 74, 61)), 0.5)
-    assert gate.observe(snapshot(92), 0.6)
-    assert gate.interval_ms(1.61) == 200
-    assert gate.observe(snapshot(92), 1.61)
-    assert not gate.observe(snapshot(), 1.7)
-    assert gate.observe(snapshot(92), 1.8)
+    assert gate.interval_ms(0) == 1000  # 채팅 영역은 1초마다 확인한다 (예전 0.1~0.2초)
+    assert not gate.observe(snapshot(background=(93, 63, 85)), 1)  # 배경만 바뀜 → OCR 안 함
+    assert gate.observe(snapshot(110), 2)  # 새 글자
+    assert not gate.observe(snapshot(110, (55, 74, 61)), 3)
+    assert gate.observe(snapshot(92), 4)  # 채팅이 밀려 올라감
+    assert not gate.observe(snapshot(92), 5)  # 그대로면 다시 읽지 않는다
+    assert gate.observe(snapshot(92), 9.01)  # 그대로여도 5초마다 한 번은 다시 읽는다
+    assert not gate.observe(snapshot(), 10)
+    assert gate.observe(snapshot(92), 11)
 
 
 def test_scroll_preserves_repeated_calls_and_hidden_history():
@@ -85,16 +83,15 @@ def test_capture_buffer_bounded_order_cleanup_and_stop():
     src.begin()
     for n in range(8):
         src.offer(snapshot(background=(n, n, n)), roi)
-    assert src.dropped == 2
+    assert src.dropped == 6  # 최근 2장만 둔다 (한 장에 보이는 채팅이 모두 들어 있다)
     frames = src.frames()
     first = next(frames)
-    with Image.open(first.image_path) as img:
-        assert img.getpixel((0, 0)) == (2, 2, 2)
+    assert first.image.getpixel((0, 0)) == (6, 6, 6)
+    assert first.image_path == "" and "image" not in first.model_dump()  # 디스크에 쓰지 않고 메모리로만 넘긴다
     src.invalidate()
     assert not src.current(first)
     src.finish()
     assert list(frames) == []
-    assert not Path(first.image_path).exists()
     src.stop()
 
 
@@ -207,9 +204,9 @@ def test_sampler_reads_all_six_rows_from_game_frame(tmp_path, monkeypatch):
     sampler._sample()
     frames = src.frames()
     frame = next(frames)
-    with Image.open(frame.image_path) as img:
-        assert img.size == (200, 120)
-        assert all(img.getpixel((0, 20 * r)) == (255, 0, 0) for r in range(6))
+    img = frame.image
+    assert img.size == (200, 120)
+    assert all(img.getpixel((0, 20 * r)) == (255, 0, 0) for r in range(6))
     sampler.stop()
     frames.close()
     qt.processEvents()
@@ -237,7 +234,7 @@ def test_broad_fighting_effects_do_not_run_ocr_every_sample():
     assert len(simulate(False)) < 20
     with_call = simulate(True)
     assert len(with_call) < 20
-    assert any(4000 < tick <= 4400 for tick in with_call)
+    assert any(4000 <= tick <= 6000 for tick in with_call)  # 콜이 뜨고 2초 안에 읽는다
 
 
 def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypatch):
