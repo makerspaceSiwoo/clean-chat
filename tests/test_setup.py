@@ -205,3 +205,21 @@ def test_capture_log_records_sizes_and_new_lines(tmp_path, monkeypatch):
     text = (tmp_path / "logs" / "capture.log").read_text(encoding="utf-8")
     assert "캡처 822x320" in text and "읽은 줄 1 · 새 줄 1" in text and "+ [전체] 얼음땡 (다리우스): 테스트 줄" in text
     assert "읽은 줄 1 · 새 줄 0" in text
+
+
+def test_model_download_turns_off_terminal_progress_bars(monkeypatch):
+    """준비 화면이 진행률을 따로 보여 준다. Hugging Face 진행 막대는 콘솔 없는 창 앱에서 쓰다 실패하므로 끈다."""
+    pytest.importorskip("huggingface_hub")
+    from huggingface_hub.utils import are_progress_bars_disabled, enable_progress_bars
+
+    from clean_chat.modules.analyze import weights
+
+    calls = []
+    monkeypatch.setattr(setup, "missing_models", lambda: ["classifier"])
+    monkeypatch.setattr(weights, "download", lambda names: calls.append((names, are_progress_bars_disabled())))
+    monkeypatch.setattr(setup, "remove_unused_weights", lambda: [])
+    try:
+        setup.download_models()
+    finally:
+        enable_progress_bars()
+    assert calls == [(["classifier"], True)]

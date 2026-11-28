@@ -1,4 +1,5 @@
 # Windows·macOS 독립 실행 앱(PyInstaller) 빌드. 결과는 Actions 실행 화면의 Artifacts에서 zip으로 받는다.
+# 만든 zip 을 그대로 올려서(archive: false) 받은 zip 을 한 번만 풀면 앱이 나온다 (예전에는 zip 안에 zip).
 # 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·ocr·analyze-app·rewrite·report extra)으로 빌드한다.
 # analyze 모델 실행 패키지(torch·transformers)는 넣고, 가중치(약 440MB)는 앱이 첫 실행 준비 화면에서 내려받는다.
 # macOS는 인증서 없이 서명한 Apple Silicon(arm64) 전용 "Clean Chat.app"이다 (권한이 버전 간에 유지되게 번들 ID 로 서명).
@@ -60,12 +61,11 @@ jobs:
           $name = "CleanChat-windows-$ref-$sha"
           Compress-Archive -Path "dist/Clean Chat" -DestinationPath "$name.zip"
           "ZIP_NAME=$name" >> $env:GITHUB_ENV
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ZIP_NAME }}
-          path: ${{ env.ZIP_NAME }}.zip
+          path: ${{ env.ZIP_NAME }}.zip  # archive: false 면 파일 이름이 Artifact 이름이 된다
+          archive: false  # zip 을 한 번 더 감싸지 않는다
           retention-days: 14
-          compression-level: 0  # 이미 zip이라 다시 압축하지 않는다
 
   macos:
     runs-on: macos-latest  # Apple Silicon (arm64)
@@ -108,9 +108,8 @@ jobs:
           name="CleanChat-macos-$ref-${GITHUB_SHA::7}"
           ditto -c -k --keepParent "dist/Clean Chat.app" "$name.zip"  # 실행 권한·서명 유지
           echo "ZIP_NAME=$name" >> "$GITHUB_ENV"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ZIP_NAME }}
-          path: ${{ env.ZIP_NAME }}.zip
+          path: ${{ env.ZIP_NAME }}.zip  # archive: false 면 파일 이름이 Artifact 이름이 된다
+          archive: false  # zip 을 한 번 더 감싸지 않는다
           retention-days: 14
-          compression-level: 0

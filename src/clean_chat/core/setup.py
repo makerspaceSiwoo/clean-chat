@@ -77,9 +77,16 @@ def downloaded_bytes() -> int:
 
 
 def download_models() -> None:
-    """없는 모델을 받는다 (끝날 때까지 기다린다). 받다가 끊겨도 다음에 이어 받는다."""
+    """없는 모델을 받는다 (끝날 때까지 기다린다). 받다가 끊겨도 다음에 이어 받는다.
+
+    진행률은 준비 화면이 받은 크기로 따로 보여 주므로 Hugging Face 의 터미널 진행 막대는 끈다
+    (콘솔 없는 창 앱에서 막대를 그리다 실패하지 않게).
+    """
+    from huggingface_hub.utils import disable_progress_bars
+
     from clean_chat.modules.analyze import weights
 
+    disable_progress_bars()
     weights.download(missing_models())
     remove_unused_weights()
 

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import multiprocessing
+import os
 import sys
 
 from clean_chat.core.config import FIXTURES
@@ -19,6 +20,33 @@ CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "onnxruntime", "tokeniz
 
 
 ARGS = ("--demo", "--check")
+CONSOLE_LOG_LIMIT = 1_000_000  # logs/console.log 이 이보다 커지면 새로 시작한다
+
+
+def ensure_std_streams() -> None:
+    """콘솔 없는 창 앱이면 sys.stdout·sys.stderr 를 logs/console.log 로 돌린다.
+
+    Windows 설치 파일(PyInstaller --windowed)은 둘 다 None 이다. 그러면 진행 막대(tqdm)를 그리는
+    Hugging Face 모델 내려받기·RapidOCR 모델 내려받기가 "'NoneType' object has no attribute 'write'" 로 실패한다.
+    파일을 열 수 없으면 버리는 곳(os.devnull)으로 보낸다. 이미 있는 스트림(터미널 실행)은 건드리지 않는다.
+    """
+    if sys.stdout is not None and sys.stderr is not None:
+        return
+    from clean_chat.core.config import settings
+
+    try:
+        folder = settings.store_dir / "logs"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / "console.log"
+        if path.exists() and path.stat().st_size > CONSOLE_LOG_LIMIT:
+            path.unlink()
+        stream = open(path, "a", encoding="utf-8", errors="replace", buffering=1)  # noqa: SIM115 (앱이 끝날 때까지 연다)
+    except OSError:
+        stream = open(os.devnull, "w", encoding="utf-8")  # noqa: SIM115
+    if sys.stdout is None:
+        sys.stdout = stream
+    if sys.stderr is None:
+        sys.stderr = stream
 
 
 def unexpected_args(args: list[str]) -> list[str]:
@@ -69,6 +97,7 @@ def app() -> None:
     # 반드시 맨 먼저. 설치 파일에서는 tqdm·torch 가 만드는 multiprocessing 보조 프로세스가 이 실행 파일을
     # 다시 실행한다. 여기서 가로채지 않으면 그 프로세스가 앱 창을 또 띄우고, 그 창이 다시 모델을 불러와 끝없이 반복된다.
     multiprocessing.freeze_support()
+    ensure_std_streams()
     if getattr(sys, "frozen", False) and (unknown := unexpected_args(sys.argv[1:])):
         # 설치 파일을 파이썬 인터프리터처럼 부른 경우(-c, -m 등)에는 창을 띄우지 않고 끝낸다.
         print(f"알 수 없는 실행 인자라 시작하지 않습니다: {unknown}", file=sys.stderr)
