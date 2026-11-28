@@ -129,10 +129,13 @@ def test_threat_in_report_and_complaint(complaint):
     assert incident.msg.text in unescape(draft.text)
 
 
-def test_complaint_litellm_and_fallback(complaint, monkeypatch):
-    monkeypatch.setenv("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-    litellm = pytest.importorskip("litellm")
-    completion = litellm.completion
+def _gemini_reply(text):
+    return {"choices": [{"finish_reason": "stop", "message": {"content": text, "refusal": None}}], "usage": {}}
+
+
+def test_complaint_gemini_and_fallback(complaint, monkeypatch):
+    from clean_chat.core import gemini
+
     fallback = run(complaint).text
     monkeypatch.setenv("LLM_MODEL", "gemini/test-model")
     monkeypatch.setenv("LLM_API_KEY", "test-key")
@@ -142,9 +145,9 @@ def test_complaint_litellm_and_fallback(complaint, monkeypatch):
 
     def fake_completion(**kwargs):
         calls.append(kwargs)
-        return completion(**kwargs, mock_response=summary)
+        return _gemini_reply(summary)
 
-    monkeypatch.setattr(litellm, "completion", fake_completion)
+    monkeypatch.setattr(gemini, "completion", fake_completion)
     assert f"사건 경위: {summary}" in run(complaint).text
     (call,) = calls
     assert call["model"] == "gemini/test-model"
@@ -157,9 +160,9 @@ def test_complaint_litellm_and_fallback(complaint, monkeypatch):
     assert run(complaint).text == fallback
 
     def failed_completion(**_kwargs):
-        raise TimeoutError
+        raise gemini.GeminiError(503, "Service Unavailable")
 
-    monkeypatch.setattr(litellm, "completion", failed_completion)
+    monkeypatch.setattr(gemini, "completion", failed_completion)
     assert run(complaint).text == fallback
 
 
@@ -173,17 +176,14 @@ def test_complaint_without_evidence(complaint):
 
 
 def test_complaint_uses_default_model_with_key_only(complaint, monkeypatch):
-    monkeypatch.setenv("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-    litellm = pytest.importorskip("litellm")
+    from clean_chat.core import gemini
     from clean_chat.modules.report import impl
 
+    monkeypatch.delenv("LLM_MODEL", raising=False)
     monkeypatch.setenv("LLM_API_KEY", "test-key")  # 앱 설정은 키만 저장한다
     calls = []
     summary = "전체 채팅에서 가족을 언급한 비하 표현과 비속어를 사용한 표현이 포함된 메시지 1건이 확인됩니다."
-    completion = litellm.completion
-    monkeypatch.setattr(
-        litellm, "completion", lambda **kwargs: calls.append(kwargs) or completion(**kwargs, mock_response=summary)
-    )
+    monkeypatch.setattr(gemini, "completion", lambda **kwargs: calls.append(kwargs) or _gemini_reply(summary))
     assert f"사건 경위: {summary}" in run(complaint).text
     assert calls[0]["model"] == impl.DEFAULT_MODEL == "gemini/gemini-3.1-flash-lite"
 

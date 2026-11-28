@@ -32,12 +32,10 @@ analyze = [
     "scikit-learn>=1.5",
 ]
 report = [
-    "litellm>=1.110.2",
     "reportlab>=4.2",
 ]
-rewrite = [
-    "litellm>=1.110.2",
-]
+# Gemini 는 core/gemini.py 가 표준 라이브러리로 직접 부른다 (litellm 제거). 기존 명령이 깨지지 않게 extra 이름만 남긴다.
+rewrite = []
 
 [dependency-groups]
 dev = [

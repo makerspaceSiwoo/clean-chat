@@ -1,8 +1,8 @@
 """현재 OS용 독립 실행 앱을 dist에 만든다.
 
 uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
-analyze extra(torch·transformers)를 빼고 빌드하면 분류 모델 없이 규칙만 쓰는 앱이 되고,
-rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 쓰는 앱이 된다.
+analyze extra(torch·transformers)를 빼고 빌드하면 분류 모델 없이 규칙만 쓰는 앱이 된다.
+Gemini 는 표준 라이브러리로 직접 부르므로(core/gemini.py) 따로 묶을 LLM 패키지가 없다.
 설치 파일에는 게임 오버레이로 모듈을 실행하는 메인 앱(clean_chat.desktop)만 넣고, 시뮬레이터는 뺀다.
 analyze 모델 가중치(약 440MB)는 넣지 않는다. 앱이 첫 실행 준비 화면에서 사용자 데이터 폴더에 내려받는다.
 """
@@ -43,11 +43,6 @@ def build(distpath: Path = ROOT / "dist") -> None:
     if importlib.util.find_spec("rapidocr"):
         # RapidOCR은 설정 yaml 등 패키지 데이터를 읽는다. OCR 모델은 첫 실행 때 사용자 폴더에 내려받는다.
         options.extend(["--collect-all", "rapidocr"])
-    if importlib.util.find_spec("litellm"):
-        # litellm은 가격표·토크나이저 데이터 파일과 tiktoken 플러그인을 런타임에 읽는다.
-        options.extend(
-            ["--collect-all", "litellm", "--collect-all", "tiktoken", "--collect-submodules", "tiktoken_ext"]
-        )
     PyInstaller.__main__.run(
         [
             "--name",
