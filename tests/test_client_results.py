@@ -234,9 +234,35 @@ def test_pdf_text_is_document_size(tmp_path: Path) -> None:
     editor.save_pdf(path)
     doc = QPdfDocument()
     doc.load(str(path))
-    title = doc.getSelectionAtIndex(0, 0, 3).boundingRectangle()  # "고 소 장"
-    assert title.height() >= 12  # pt (A4 = 595 × 842 pt). 고치기 전에는 2pt 쯤이었다
+    # 글자 위치(텍스트 선택)는 Windows 에서 읽히지 않아서, 페이지를 1pt = 1px 로 그려 글자 줄의 높이를 잰다.
+    assert (
+        _tallest_ink_run(doc) >= 10
+    )  # pt. 제목 "고 소 장"이 23pt 쯤. 고치기 전(1200dpi)에는 진한 글자가 하나도 없었다
     client.close()
+
+
+def _tallest_ink_run(doc) -> int:
+    """PDF 첫 페이지를 A4 pt 크기로 그려, 잉크가 있는 행이 연달아 이어진 가장 긴 구간(= 가장 큰 글자 줄 높이)."""
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QColor, QImage, QPainter
+
+    size = doc.pagePointSize(0)
+    page = doc.render(0, QSize(round(size.width()), round(size.height())))
+    assert not page.isNull()
+    # 그린 페이지는 배경이 투명하다. 흰 종이 위에 올려야 투명한 곳이 검은색(잉크)으로 세어지지 않는다.
+    paper = QImage(page.size(), QImage.Format.Format_RGB32)
+    paper.fill(QColor("white"))
+    painter = QPainter(paper)
+    painter.drawImage(0, 0, page)
+    painter.end()
+    gray = paper.convertToFormat(QImage.Format.Format_Grayscale8)
+    data, stride = bytes(gray.constBits()), gray.bytesPerLine()
+    tallest = run = 0
+    for y in range(gray.height()):
+        row = data[y * stride : y * stride + gray.width()]
+        run = run + 1 if min(row) < 160 else 0
+        tallest = max(tallest, run)
+    return tallest
 
 
 @pytest.mark.parametrize(
