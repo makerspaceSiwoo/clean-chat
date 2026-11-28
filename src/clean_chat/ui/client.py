@@ -49,6 +49,11 @@ def styled(widget: QWidget, role: str) -> QWidget:
     return widget
 
 
+def target_label(draft: ReportDraft) -> str:
+    """신고·고소 대상 한 사람을 가리키는 이름. 닉네임이 같아도 챔피언이 다르면 다른 사람이다."""
+    return f"{draft.speaker} ({draft.champion})" if draft.champion else draft.speaker
+
+
 def mask_key(api_key: str) -> str:
     """API 키는 끝 4자리만 보여 준다. 짧은 키는 전부 가린다."""
     return f"••••{api_key[-4:]}" if len(api_key) >= 12 else "••••"
@@ -302,9 +307,9 @@ class ClientWindow(QMainWindow):
         self.result_layout.addWidget(self.result_content)
         users: dict[str, list[ReportDraft | None]] = {}
         for draft in result.reports if result else []:
-            users.setdefault(draft.speaker, [None, None])[0] = draft
+            users.setdefault(target_label(draft), [None, None])[0] = draft
         for draft in result.complaints if result else []:
-            users.setdefault(draft.speaker, [None, None])[1] = draft
+            users.setdefault(target_label(draft), [None, None])[1] = draft
         self.users = {name: (rep, comp) for name, (rep, comp) in users.items()}
         self.selected = ""
         if result is None:
@@ -376,10 +381,10 @@ class ClientWindow(QMainWindow):
         inner.setContentsMargins(14, 12, 14, 12)
         inner.setSpacing(4)
         top = QHBoxLayout()
-        top.addWidget(label(speaker, "value"), 1)
+        top.addWidget(label(draft.speaker, "value"), 1)
         top.addWidget(label("수위 높음" if comp else "보통", "badgeHigh" if comp else "badgeNormal"))
         inner.addLayout(top)
-        champion = next((m.champion for m in draft.evidence if m.champion), "")
+        champion = draft.champion or next((m.champion for m in draft.evidence if m.champion), "")
         count = f"욕설 {len(draft.incident_ids)}건"
         inner.addWidget(label(f"{champion} · {count}" if champion else count, "caption"))
         card_button.clicked.connect(lambda: self._select_user(speaker))

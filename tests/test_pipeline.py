@@ -180,6 +180,25 @@ def test_line_missed_in_one_frame_is_not_emitted_again():
     assert [ln.text for ln in dedup.new_lines(_frame("B: 둘둘", "C: 셋셋셋", "D: 넷"))] == ["D: 넷"]
 
 
+def test_same_text_sent_several_times_counts_each_line():
+    """같은 사람이 ㅋㅋㅋ 를 여러 줄 연달아 쳐도 줄마다 한 번씩 센다. ㅋ 개수가 다르게 읽혀도 다시 세지 않는다."""
+    who = "[전체] 불꽃남자 (징크스): "
+    dedup = LineDedup()
+
+    def new(*texts: str) -> list[str]:
+        return [ln.text for ln in dedup.new_lines(_frame(*texts))]
+
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ") == ["A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ"]
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ") == [who + "ㅋㅋㅋㅋㅋㅋㅋ"]  # 둘째 줄
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋㅋ") == []  # 같은 두 줄, ㅋ 개수만 다르게 읽힘
+    assert new(who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ") == [
+        who + "ㅋㅋㅋㅋㅋㅋㅋ"
+    ]  # 셋째 줄
+    # 한 줄에 다 못 들어가 다음 줄로 넘어간 긴 ㅋㅋㅋ (OCR 모듈이 한 줄로 합쳐 준다) 도 개수 차이를 같은 줄로 본다.
+    long = who + "ㅋ" * 45
+    assert new(long) == [long] and new(who + "ㅋ" * 52) == [] and new(who + "ㅋ" * 39) == []
+
+
 def test_line_not_read_as_chat_is_retried_when_read_differently():
     """첫 판독이 깨져 채팅으로 읽히지 않은 줄은, 다르게 읽혔을 때 한 번 더 내보낸다 (같은 판독이면 다시 내지 않는다)."""
     dedup = LineDedup()
@@ -233,3 +252,35 @@ def _analysis_for(base: ModuleSet, req):
     if req.message.id == "L9":
         return Analysis(msg_id="L9", level=0, model_version="test")
     return base.run("analyze", req)
+
+
+def test_speaker_is_one_person_per_nickname_and_champion():
+    """닉네임 + 챔피언이 한 사람이다. 닉네임 오독은 같은 챔피언 안에서만 한 사람으로 모은다."""
+    from clean_chat.core.pipeline import SpeakerBook
+    from clean_chat.core.schemas import ChatMessage, Player
+
+    def msg(speaker: str, champion: str | None) -> ChatMessage:
+        return ChatMessage(
+            id="m",
+            ts=0,
+            source="ocr",
+            channel="all",
+            speaker=speaker,
+            champion=champion,
+            text="x",
+            text_norm="x",
+            raw="x",
+        )
+
+    book = SpeakerBook()  # 명단 없음 → 처음 읽은 표기로 맞춘다
+    assert book.resolve(msg("오른은 죽었다", "나서스"), []).speaker == "오른은 죽었다"
+    assert book.resolve(msg("오른은 ’  죽었다", "나서스"), []).speaker == "오른은 죽었다"  # 실제 게임의 오독
+    assert book.resolve(msg("오른은 죽었디", "나서스"), []).speaker == "오른은 죽었다"
+    assert book.resolve(msg("오른은 죽었다", "티모"), []).speaker == "오른은 죽었다"  # 같은 닉네임, 다른 사람
+    assert ("오른은 죽었다", "티모") in book.seen and ("오른은 죽었다", "나서스") in book.seen
+    assert book.resolve(msg("전혀다른이름", "나서스"), []).speaker == "전혀다른이름"  # 상대 팀의 같은 챔피언
+    assert book.resolve(msg("오른은 죽었다", None), []).speaker == "오른은 죽었다"  # 챔피언을 모르면 그대로
+
+    roster = [Player(name="밤하늘별", champion="가렌"), Player(name="초코우유", champion="리신")]
+    assert SpeakerBook().resolve(msg("밤하늘벌", "가렌"), roster).speaker == "밤하늘별"  # 명단의 표기로 맞춘다
+    assert SpeakerBook().resolve(msg("밤하늘벌", "리신"), roster).speaker == "밤하늘벌"  # 챔피언이 다르면 그대로

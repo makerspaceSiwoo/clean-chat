@@ -39,14 +39,14 @@ def test_hidden_idle_first_call_scroll_and_watchdog():
     gate = TextChangeGate()
     gate.observe(snapshot(), 0)
     assert gate.interval_ms(0) == 1000  # 채팅 영역은 1초마다 확인한다 (예전 0.1~0.2초)
-    assert not gate.observe(snapshot(background=(93, 63, 85)), 1)  # 배경만 바뀜 → OCR 안 함
+    assert not gate.observe(snapshot(background=(93, 63, 85)), 0.5)  # 글자 없이 배경만 바뀜 → OCR 안 함
     assert gate.observe(snapshot(110), 2)  # 새 글자
-    assert not gate.observe(snapshot(110, (55, 74, 61)), 3)
+    assert not gate.observe(snapshot(110, (55, 74, 61)), 2.5)
     assert gate.observe(snapshot(92), 4)  # 채팅이 밀려 올라감
-    assert not gate.observe(snapshot(92), 5)  # 그대로면 다시 읽지 않는다
-    assert gate.observe(snapshot(92), 9.01)  # 그대로여도 5초마다 한 번은 다시 읽는다
-    assert not gate.observe(snapshot(), 10)
-    assert gate.observe(snapshot(92), 11)
+    assert not gate.observe(snapshot(92), 4.5)  # 방금 읽은 화면 그대로
+    assert gate.observe(snapshot(92), 5.01)  # 글자가 보이는 동안은 변화를 못 잡아도 1초마다 다시 읽는다
+    assert not gate.observe(snapshot(), 6)  # 빈 화면은 3초마다만
+    assert gate.observe(snapshot(92), 7)
 
 
 def test_scroll_preserves_repeated_calls_and_hidden_history():

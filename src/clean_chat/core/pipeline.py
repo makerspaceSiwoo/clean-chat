@@ -205,12 +205,47 @@ class LineDedup:
         return -best[-1][1]
 
 
+class SpeakerBook:
+    """이번 게임에서 채팅을 친 사람 목록. 사람은 닉네임 + 챔피언으로 구분한다.
+
+    OCR 이 같은 사람의 닉네임을 조금씩 다르게 읽으면(따옴표가 끼거나 한 글자가 바뀜) 신고 대상이 여러 명으로
+    갈라진다. 챔피언이 같고 닉네임이 거의 같으면 같은 사람으로 보고, 명단(Live Client Data API)이나
+    처음 읽은 표기로 닉네임을 맞춘다. 닉네임이 같아도 챔피언이 다르면 다른 사람이므로 건드리지 않는다.
+    """
+
+    SIMILARITY = 0.6  # 같은 챔피언일 때 같은 사람으로 볼 닉네임 유사도
+
+    def __init__(self) -> None:
+        self.seen: list[tuple[str, str]] = []  # (닉네임, 챔피언)
+
+    def resolve(self, message: ChatMessage, players: list[Player]) -> ChatMessage:
+        if not message.speaker or not message.champion or message.is_me:
+            return message
+        known = [(p.name, p.champion) for p in players if p.champion] + self.seen
+        name = self._match(message.speaker, message.champion, known)
+        if name is None:
+            self.seen.append((message.speaker, message.champion))
+            return message
+        return message if name == message.speaker else message.model_copy(update={"speaker": name})
+
+    def _match(self, speaker: str, champion: str, known: list[tuple[str, str]]) -> str | None:
+        best, best_score = None, self.SIMILARITY
+        for name, champ in known:
+            if champ != champion:
+                continue
+            score = 1.0 if name == speaker else SequenceMatcher(None, _key(name), _key(speaker)).ratio()
+            if score >= best_score and (best is None or score > best_score):
+                best, best_score = name, score
+        return best
+
+
 class IncomingPipeline:
     """흐름 A: 다른 유저 채팅 (캡처 주기마다 자동, 백그라운드 스트림)."""
 
     def __init__(self, modules: ModuleSet, filters: MessageFilters, sent_log: SentLog, roster: Roster) -> None:
         self.modules, self.filters, self.sent_log, self.roster = modules, filters, sent_log, roster
         self.dedup = LineDedup()
+        self.speakers = SpeakerBook()
 
     def process_frame(self, frame: Frame) -> list[Incident]:
         """[Windows 실제 앱] 캡처 이미지 1장 → 새 채팅 줄들 처리"""
@@ -221,7 +256,10 @@ class IncomingPipeline:
         return self.dedup.new_lines(result.lines)
 
     def parse(self, line: RawLine) -> ParseResult:
-        return self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
+        result: ParseResult = self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
+        if result.message is not None:  # 같은 사람(닉네임 + 챔피언)은 같은 닉네임 표기로 맞춘다
+            result.message = self.speakers.resolve(result.message, self.roster.players)
+        return result
 
     def process_line(self, line: RawLine) -> Incident | None:
         parsed = self.parse(line)
@@ -277,6 +315,7 @@ class Pipelines:
         self.sent_log.clear()
         self.incoming.filters.reset_history()
         self.incoming.dedup = LineDedup()
+        self.incoming.speakers = SpeakerBook()
         self.set_players([])
 
     def set_players(self, players: list[Player]) -> None:

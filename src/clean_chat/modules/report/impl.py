@@ -42,16 +42,22 @@ def run(req: ReportRequest) -> ReportDraft:
             incident
             for incident in req.session.incidents
             if incident.msg.speaker == req.speaker
+            and (req.champion is None or incident.msg.champion == req.champion)  # 닉네임 + 챔피언이 한 사람
             and (incident.decision.complaint_candidate if complaint else incident.decision.report)
         ),
         key=lambda incident: incident.msg.ts,
     )
     draft = ReportDraft(
-        kind=req.kind, speaker=req.speaker, text="", incident_ids=[incident.msg.id for incident in incidents]
+        kind=req.kind,
+        speaker=req.speaker,
+        champion=req.champion,
+        text="",
+        incident_ids=[incident.msg.id for incident in incidents],
     )
     if not complaint:
+        target = f"{req.speaker} ({req.champion})" if req.champion else req.speaker
         draft.text = "\n".join(
-            [f"신고 대상: {req.speaker}", f"사유: 언어 폭력 {len(incidents)}건", *map(_format_line, incidents)]
+            [f"신고 대상: {target}", f"사유: 언어 폭력 {len(incidents)}건", *map(_format_line, incidents)]
         )
         return draft
 
@@ -156,7 +162,9 @@ def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) 
         ),
         (
             "피고소인",
-            f"성명: {blank}\n게임 ID(닉네임): {req.speaker}\n주소 또는 연락처(아는 경우): {blank}",
+            f"성명: {blank}\n게임 ID(닉네임): {req.speaker}\n"
+            + (f"사용 챔피언: {req.champion}\n" if req.champion else "")
+            + f"주소 또는 연락처(아는 경우): {blank}",
         ),
         (
             "고소취지",
