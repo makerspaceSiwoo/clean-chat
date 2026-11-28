@@ -1,8 +1,9 @@
 # Windows·macOS 독립 실행 앱(PyInstaller) 빌드. 결과는 Actions 실행 화면의 Artifacts에서 zip으로 받는다.
-# 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·ocr·rewrite·report extra)으로 빌드한다.
+# 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·ocr·analyze·rewrite·report extra)으로 빌드한다.
+# analyze 모델 실행 패키지(torch·transformers)는 넣고, 가중치(약 440MB)는 앱이 첫 실행 준비 화면에서 내려받는다.
 # macOS는 서명하지 않은 Apple Silicon(arm64) 전용 "Clean Chat Preview.app"이다.
 # test 브랜치에 push하거나, Actions 탭에서 "Run workflow"로 원하는 브랜치를 골라 직접 실행한다.
-# LLM 키는 넣지 않는다. 받는 사람이 앱 설정 화면에서 입력한다.
+# LLM 키는 넣지 않는다. 받는 사람이 첫 실행 준비 화면에서 입력한다.
 name: build-desktop
 on:
   workflow_dispatch:
@@ -23,10 +24,10 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - name: 설치 (UI + LLM)
-        run: uv sync --locked --extra ui --extra ocr --extra rewrite --extra report
+      - name: 설치 (UI + OCR + 분류 모델 + LLM)
+        run: uv sync --locked --extra ui --extra ocr --extra analyze --extra rewrite --extra report
       - name: 빌드
-        run: uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+        run: uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
       - name: 번들 확인 (OCR 스크립트 포함)
         shell: pwsh
         run: |
@@ -35,13 +36,22 @@ jobs:
           $ps1 = Get-ChildItem -Recurse $app -Filter windows.ps1
           if (-not $ps1) { throw "windows.ps1이 번들에 없습니다" }
           $ps1 | ForEach-Object { $_.FullName }
+      - name: 설치 점검 (묶인 패키지를 모두 불러온다)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist/Clean Chat/Clean Chat.exe" -ArgumentList "--check" -PassThru -Wait
+          if ($p.ExitCode -ne 0) { throw "--check 실패 (exit $($p.ExitCode)): 설치 파일에서 빠진 패키지가 있습니다" }
       - name: 실행 확인 (데모 15초)
         shell: pwsh
+        env:
+          CLEAN_CHAT_SKIP_SETUP: "1"  # 첫 실행 준비 화면(키 입력·모델 내려받기)을 건너뛴다
         run: |
           $p = Start-Process -FilePath "dist/Clean Chat/Clean Chat.exe" -ArgumentList "--demo" -PassThru
           Start-Sleep -Seconds 15
           if ($p.HasExited) { throw "앱이 15초 안에 종료됐습니다 (exit $($p.ExitCode))" }
-          Stop-Process -Id $p.Id -Force
+          $count = @(Get-Process -Name "Clean Chat" -ErrorAction SilentlyContinue).Count
+          Get-Process -Name "Clean Chat" -ErrorAction SilentlyContinue | Stop-Process -Force
+          if ($count -gt 2) { throw "앱이 자기 자신을 다시 실행했습니다 (프로세스 $count 개)" }
       - name: zip 만들기
         shell: pwsh
         run: |
@@ -65,10 +75,10 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - name: 설치 (UI + LLM)
-        run: uv sync --locked --extra ui --extra ocr --extra rewrite --extra report
+      - name: 설치 (UI + OCR + 분류 모델 + LLM)
+        run: uv sync --locked --extra ui --extra ocr --extra analyze --extra rewrite --extra report
       - name: 빌드
-        run: uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+        run: uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
       - name: 번들 확인 (OCR 스크립트·화면 캡처 라이브러리 포함)
         run: |
           app="dist/Clean Chat Preview.app"
@@ -76,13 +86,19 @@ jobs:
           find "$app" -name windows.ps1 | grep -q .
           find "$app" -name region_snapshot.dylib | grep -q .
           file "$app/Contents/MacOS/Clean Chat Preview"
+      - name: 설치 점검 (묶인 패키지를 모두 불러온다)
+        run: '"dist/Clean Chat Preview.app/Contents/MacOS/Clean Chat Preview" --check'
       - name: 실행 확인 (데모 15초)
+        env:
+          CLEAN_CHAT_SKIP_SETUP: "1"  # 첫 실행 준비 화면(키 입력·모델 내려받기)을 건너뛴다
         run: |
           "dist/Clean Chat Preview.app/Contents/MacOS/Clean Chat Preview" --demo &
           pid=$!
           sleep 15
           kill -0 "$pid" || { echo "앱이 15초 안에 종료됐습니다"; exit 1; }
-          kill "$pid"
+          count=$(pgrep -f "MacOS/Clean Chat Preview" | wc -l | tr -d ' ')
+          pkill -f "MacOS/Clean Chat Preview" || true
+          [ "$count" -le 2 ] || { echo "앱이 자기 자신을 다시 실행했습니다 (프로세스 $count 개)"; exit 1; }
       - name: zip 만들기
         run: |
           ref=$(echo "${{ github.ref_name }}" | sed 's/[^A-Za-z0-9._-]/-/g')  # feat/x 같은 브랜치 이름의 / 제거

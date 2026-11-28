@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import threading
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -24,15 +25,21 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_DIR = "models/analyze-classifier"
 ENV_VAR = "CLEAN_CHAT_ANALYZE_MODEL"
+_LOAD_LOCK = threading.Lock()  # 앱 시작 때 미리 불러오는 스레드와 캡처 스레드가 동시에 두 번 불러오지 않게
 
 
 def model_dir() -> Path:
     return resolve_repo_path(os.environ.get(ENV_VAR) or DEFAULT_DIR)
 
 
-@cache
 def _load(path: Path) -> dict[str, Any] | None:
     """모델을 한 번만 불러온다. 폴더가 없거나 실패하면 None (→ 규칙만 사용)."""
+    with _LOAD_LOCK:
+        return _load_once(path)
+
+
+@cache
+def _load_once(path: Path) -> dict[str, Any] | None:
     if not (path / "config.json").exists() or not (path / "meta.json").exists():
         return None
     try:
