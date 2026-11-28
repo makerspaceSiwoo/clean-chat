@@ -22,10 +22,13 @@ from enum import IntEnum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, computed_field, model_serializer, model_validator
+from pydantic.json_schema import SkipJsonSchema
 
 from clean_chat.core.charges import CHARGE_CATALOG, ChargeId
 
-SCHEMA_VERSION = "2.1.0"
+SCHEMA_VERSION = "2.2.0"
+# 2.2.0: Frame.image 추가 — 앱의 실시간 캡처가 디스크에 쓰지 않고 메모리 이미지를 넘긴다 (JSON 형식은 그대로)
+#        ReportRequest.champion · ReportDraft.champion 추가 — 신고·고소 대상을 닉네임 + 챔피언으로 구분 (없으면 예전처럼 닉네임만)
 # 2.1.0: 신고·고소 초안의 원문 증거(evidence)와 적용된 혐의 ID(applied_charge_ids), ParseResult.system_text 추가
 #        (데스크톱 클라이언트용, 기존 입력·출력과 호환)
 # 2.0.0: raw_norm・game_time_sec를 ChatMessage 내부로 이동. 1.1.0 ParseResult 입력은 읽을 때 변환한다.
@@ -120,8 +123,11 @@ class Frame(BaseModel):
 
     id: str
     ts: float
-    image_path: str  # PNG 파일 경로
+    image_path: str  # PNG 파일 경로. 앱의 실시간 캡처는 파일을 만들지 않고 빈 문자열을 넣는다.
     region: Region
+    # 실시간 캡처가 메모리에 든 이미지(PIL.Image)를 그대로 넘길 때 쓴다. 있으면 ocr 은 image_path 대신 이것을 읽는다.
+    # JSON(fixtures·시뮬레이터·저장)에는 나오지 않는다 → 주고받는 형식은 그대로다.
+    image: SkipJsonSchema[Any] = Field(default=None, exclude=True, repr=False)
 
 
 class RawLine(BaseModel):
@@ -291,6 +297,8 @@ class ReportRequest(BaseModel):
     kind: ReportKind
     session: GameSession  # 이번 게임 기록 전체. report → decision.report, complaint → complaint_candidate 기록만 쓴다
     speaker: str  # 대상 닉네임
+    # 대상이 쓴 챔피언. 있으면 닉네임과 챔피언이 모두 같은 기록만 고른다 (닉네임이 같은 다른 사람과 구분).
+    champion: str | None = None
     complainant: str | None = None  # 고소인(사용자) 이름. complaint 일 때만
     output_dir: str | None = None  # PDF 저장 폴더. complaint 일 때만. 상대 경로면 레포 루트 기준 (resolve_repo_path)
 
@@ -302,6 +310,7 @@ class ReportRequest(BaseModel):
             inc
             for inc in self.session.incidents
             if inc.msg.speaker == self.speaker
+            and (self.champion is None or inc.msg.champion == self.champion)
             and not inc.msg.is_me
             and inc.msg.source != Source.SELF_INPUT
             and (inc.decision.complaint_candidate if complaint else inc.decision.report)
@@ -332,6 +341,7 @@ class ReportRequest(BaseModel):
 class ReportDraft(BaseModel):
     kind: ReportKind
     speaker: str
+    champion: str | None = None  # 대상이 쓴 챔피언 (요청에 있었으면 그대로). 닉네임 + 챔피언이 한 사람이다.
     text: str  # report: 그대로 붙여넣을 신고 문구 / complaint: 사건 경위
     incident_ids: list[str]
     pdf_path: str | None = None  # complaint 일 때 저장한 PDF 경로

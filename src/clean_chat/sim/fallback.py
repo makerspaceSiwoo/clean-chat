@@ -199,7 +199,12 @@ ENDINGS = (("치라고", "쳐 주세요"), ("박아", "박아 주세요"), ("가
 
 
 def rewrite(req: RewriteRequest) -> Rewrite:
-    """피드백 조각을 이어 붙이고 끝말만 바꾼다. 예) "서폿 와드 좀" → "서폿 와드 부탁해요"."""
+    """L1 은 욕설을 뺀 문장, L2 이상은 피드백 조각을 이어 붙이고 끝말만 바꾼다. 예) "서폿 와드 좀" → "서폿 와드 부탁해요"."""
+    if req.analysis.level == 1:  # L1: 욕설이 든 낱말만 지운다. 남는 말이 없으면 None (→ 숨김)
+        spans = [span for span in req.analysis.profanity_spans if span]
+        kept = " ".join(word for word in req.message.text.split() if not any(span in word for span in spans))
+        worded = any("가" <= ch <= "힣" or (ch.isascii() and ch.isalnum()) for ch in kept)  # ㅠㅠ 만 남으면 말이 아니다
+        return Rewrite(msg_id=req.message.id, rewritten=kept if worded else None, backend=FALLBACK)
     text = " ".join(req.analysis.feedback_spans).strip()
     if not text:
         return Rewrite(msg_id=req.message.id, rewritten=None, backend=FALLBACK)

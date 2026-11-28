@@ -148,11 +148,11 @@ class PostGameBatch:
         self.modules = modules
 
     def run(self, session: GameSession) -> PostGameResult:
-        report_speakers = _speakers(session, lambda inc: inc.decision.report)
-        complaint_speakers = _speakers(session, lambda inc: inc.decision.complaint_candidate)
         reports = [
-            self.modules.run("report", ReportRequest(kind=ReportKind.REPORT, session=session, speaker=s))
-            for s in report_speakers
+            self.modules.run(
+                "report", ReportRequest(kind=ReportKind.REPORT, session=session, speaker=name, champion=champion)
+            )
+            for name, champion in _targets(session, lambda inc: inc.decision.report)
         ]
         complaints = [
             self.modules.run(
@@ -160,17 +160,21 @@ class PostGameBatch:
                 ReportRequest(
                     kind=ReportKind.COMPLAINT,
                     session=session,
-                    speaker=s,
+                    speaker=name,
+                    champion=champion,
                     complainant=settings.my_name,
                     output_dir=settings.complaint_output_dir,
                 ),
             )
-            for s in complaint_speakers
+            for name, champion in _targets(session, lambda inc: inc.decision.complaint_candidate)
         ]
         return PostGameResult(session_id=session.id, reports=reports, complaints=complaints)
 
 
-def _speakers(session: GameSession, flagged) -> list[str]:
-    """정책표가 표시한 기록이 있는 화자 목록 (처음 나온 순서, 중복 없음)."""
-    names = [inc.msg.speaker for inc in session.incidents if flagged(inc) and inc.msg.speaker]
-    return list(dict.fromkeys(names))
+def _targets(session: GameSession, flagged) -> list[tuple[str, str | None]]:
+    """정책표가 표시한 기록이 있는 대상 목록 (처음 나온 순서, 중복 없음).
+
+    대상은 닉네임 + 챔피언이다. 채팅에는 태그 없는 닉네임만 보여서 닉네임이 같은 다른 사람이 있을 수 있다.
+    """
+    pairs = [(inc.msg.speaker, inc.msg.champion) for inc in session.incidents if flagged(inc) and inc.msg.speaker]
+    return list(dict.fromkeys(pairs))

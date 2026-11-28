@@ -36,6 +36,47 @@ from clean_chat.ui.client_widgets import (
 )
 
 CHANNEL = {"team": "팀", "all": "전체", "unknown": "채널 미상"}
+PDF_DPI = 72  # 미리보기 HTML 의 px 글자 크기를 그대로 pt 로 찍는 해상도 (본문 11px → 11pt)
+PHONE_DIGITS = 11  # 휴대폰 010-1234-5678
+
+
+def default_pdf_path(nickname: str = "", today: datetime | None = None) -> Path:
+    """고소장 PDF 기본 저장 위치: 다운로드 폴더(없으면 홈)의 `고소장-초안-닉네임-날짜.pdf`."""
+    folder = Path.home() / "Downloads"
+    if not folder.is_dir():
+        folder = Path.home()
+    day = (today or datetime.now(KST)).strftime("%Y%m%d")
+    safe = re.sub(r'[\\/:*?"<>|\s]+', "_", nickname).strip("_.")
+    return folder / ("-".join(part for part in ("고소장-초안", safe, day) if part) + ".pdf")
+
+
+def format_phone(text: str) -> str:
+    """연락처 숫자에 하이픈을 넣어 보여 준다. 숫자가 아닌 글자는 버린다 (입력은 숫자만).
+
+    예) "01012345678" → "010-1234-5678", "0212345678" → "02-1234-5678", "15881234" → "1588-1234"
+    입력 중인 숫자도 그때그때 나눈다: "0101" → "010-1"
+    """
+    d = re.sub(r"\D", "", text)
+    if d.startswith("02"):  # 서울 지역번호는 두 자리
+        d = d[:10]
+        if len(d) <= 2:
+            return d
+        if len(d) <= 5:
+            return f"02-{d[2:]}"
+        if len(d) <= 9:
+            return f"02-{d[2:5]}-{d[5:]}"
+        return f"02-{d[2:6]}-{d[6:]}"
+    d = d[:PHONE_DIGITS]
+    if len(d) == 8 and d[:2] in {"15", "16", "18"}:  # 대표번호 1588-1234
+        return f"{d[:4]}-{d[4:]}"
+    if len(d) <= 3:
+        return d
+    if len(d) <= 6:
+        return f"{d[:3]}-{d[3:]}"
+    if len(d) <= 10:
+        return f"{d[:3]}-{d[3:6]}-{d[6:]}"
+    return f"{d[:3]}-{d[3:7]}-{d[7:]}"
+
 
 WARNINGS = [
     (
@@ -134,6 +175,12 @@ class ComplaintEditor(QWidget):
             people.addWidget(caption, 0, i)
             people.addWidget(field, 1, i)
         form.addLayout(people)
+        # 연락처는 숫자만 받고 보기에는 하이픈을 넣는다 (01012345678 → 010-1234-5678)
+        self.contact.setPlaceholderText("숫자만 입력 (예: 01012345678)")
+        self.contact.setMaxLength(20)
+        self.contact.setInputMethodHints(Qt.ImhDialableCharactersOnly)
+        self._contact_shown = ""
+        self.contact.textEdited.connect(self._format_contact)
         form.addWidget(
             label(
                 "초안 양식이며 법률 자문이 아닙니다. 법정형은 참고용이고 사안·법 개정에 따라 다를 수 있으니, "
@@ -284,6 +331,27 @@ class ComplaintEditor(QWidget):
         box.addWidget(self.ack)
         return frame
 
+    def _format_contact(self, text: str) -> None:
+        """연락처 칸: 숫자가 아닌 글자는 지우고 하이픈은 자동으로 넣는다. 커서는 같은 숫자 뒤에 둔다."""
+        pos = self.contact.cursorPosition()
+        digits = re.sub(r"\D", "", text)
+        before = len(re.sub(r"\D", "", text[:pos]))  # 커서 앞의 숫자 수
+        shown = self._contact_shown
+        if digits == re.sub(r"\D", "", shown) and len(text) < len(shown) and before:
+            # 하이픈만 지웠다 → 그 앞 숫자를 지운다. 그러지 않으면 하이픈이 바로 다시 생겨 지워지지 않는 것처럼 보인다
+            digits, before = digits[: before - 1] + digits[before:], before - 1
+        formatted = format_phone(digits)
+        self._contact_shown = formatted
+        if formatted != text:
+            self.contact.setText(formatted)
+        seen, cursor = 0, len(formatted)
+        for i, ch in enumerate(formatted):
+            if seen == before:
+                cursor = i
+                break
+            seen += ch.isdigit()
+        self.contact.setCursorPosition(cursor)
+
     # ── 상태 ──────────────────────────────────────────────────
     def selected_charges(self) -> list[ChargeId]:
         """분석 결과로 자동 적용된 죄목 (사용자가 바꾸지 않는다)."""
@@ -344,7 +412,9 @@ class ComplaintEditor(QWidget):
     def download_pdf(self) -> None:
         if not self.download.isEnabled():
             return
-        path, _ = QFileDialog.getSaveFileName(self, "고소장 PDF 다운로드", "고소장-초안.pdf", "PDF (*.pdf)")
+        # 기본 위치는 절대 경로로 준다. 설치한 앱의 작업 폴더는 "/"(읽기 전용)라서 파일 이름만 주면 저장이 실패한다.
+        default = default_pdf_path(self.target.text().strip())
+        path, _ = QFileDialog.getSaveFileName(self, "고소장 PDF 다운로드", str(default), "PDF (*.pdf)")
         if not path:
             return
         if not path.lower().endswith(".pdf"):
@@ -366,6 +436,8 @@ class ComplaintEditor(QWidget):
             raise OSError(target.errorString())
         writer = QPdfWriter(target)
         writer.setPageSize(QPageSize(QPageSize.A4))
+        # 미리보기 HTML 의 글자 크기가 px 라서, 기본 해상도(1200dpi)로 찍으면 A4 에 글자가 아주 작게 나온다.
+        writer.setResolution(PDF_DPI)
         writer.setTitle("고소장 초안")
         self.paper.document().print_(writer)
         del writer

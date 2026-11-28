@@ -59,11 +59,27 @@ def test_mask_longest_span_first():
 
 
 @pytest.mark.parametrize(
-    "strength, action", [("low", Action.SHOW), ("normal", Action.SHOW_MASKED), ("high", Action.HIDE)]
+    "strength, action", [("low", Action.SHOW), ("normal", Action.SHOW_REWRITTEN), ("high", Action.HIDE)]
 )
 def test_strength_changes_mild_chat_only(strength: str, action: Action, monkeypatch: pytest.MonkeyPatch) -> None:
     from clean_chat.core.config import settings
 
     monkeypatch.setattr(settings, "filter_strength", strength)
-    assert decide_incoming(_msg("x"), _an(1)).action == action
+    cleaned = Rewrite(msg_id="m", rewritten="내가 실수함", backend="rule")
+    assert decide_incoming(_msg("ㅅㅂ 내가 실수함"), _an(1), cleaned).action == action
     assert decide_incoming(_msg("x"), _an(3)).action == Action.HIDE
+
+
+def test_mild_chat_never_shows_or_copies_masked_text():
+    """L1: 욕설을 ** 로 가리지 않는다. 욕설을 뺀 문장이 있으면 그 문장, 없으면 숨김 / 복사할 내용 없음."""
+    msg, mild = _msg("아 ㅅㅂ"), _an(1)
+    nothing_left = Rewrite(msg_id="m", rewritten=None, backend="rule")
+    masked = Rewrite(msg_id="m", rewritten="아 **", backend="rule")
+    for rewrite in (None, nothing_left, masked):
+        shown, copied = decide_incoming(msg, mild, rewrite), decide_outgoing(msg, mild, rewrite)
+        assert (shown.action, shown.display_text) == (Action.HIDE, None)
+        assert (copied.action, copied.display_text) == (Action.BLOCK, None)
+    cleaned = Rewrite(msg_id="m", rewritten="내가 실수함", backend="rule")
+    assert decide_incoming(msg, mild, cleaned).display_text == "내가 실수함"
+    assert decide_outgoing(msg, mild, cleaned).action == Action.COPY_REWRITTEN
+    assert not decide_incoming(msg, mild, cleaned).report  # 신고 표시는 등급으로만 정한다 (L1 은 신고 안 함)

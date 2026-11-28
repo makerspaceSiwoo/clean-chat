@@ -132,3 +132,171 @@ def test_nav_follows_accessibility_press_and_key_button_keeps_width() -> None:
     assert client.btn_key_show.text() == "숨기기"
     assert (client.btn_key_show.width(), client.llm_key.width()) == before
     client.close()
+
+
+def test_capture_preview_option_is_a_switch():
+    """캡처 미리보기는 스위치로 켜고 끈다 (클릭·스페이스). 판독(OCR)과는 무관하다."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QCheckBox
+
+    from clean_chat.ui.client import ClientWindow
+    from clean_chat.ui.client_widgets import Switch
+
+    QApplication.instance() or QApplication([])
+    client = ClientWindow()
+    switch = client.preview_toggle
+    assert isinstance(switch, Switch) and not isinstance(switch, QCheckBox)
+    assert switch.isChecked() and switch.accessibleName() == "읽고 있는 영역 보기"
+    QTest.mouseClick(switch, Qt.LeftButton)
+    assert not switch.isChecked() and "꺼짐" in client.preview_info.text()
+    QTest.keyClick(switch, Qt.Key_Space)
+    assert switch.isChecked() and client.preview_info.text() == "캡처 미리보기"
+    assert not switch.grab().isNull()  # 켜진 모습·꺼진 모습을 그릴 수 있다
+    client.close()
+
+
+def test_chat_log_shows_every_chat_of_last_game_and_survives_restart(tmp_path):
+    """채팅 기록 화면: 신고 여부와 상관없이 직전 게임의 채팅을 모두 보여 주고, 앱을 다시 열어도 남는다."""
+    from PySide6.QtWidgets import QApplication
+
+    from clean_chat.core.config import FIXTURES
+    from clean_chat.core.jsonl import read_jsonl
+    from clean_chat.core.schemas import GamePhase, ReportRequest
+    from clean_chat.ui.client import LOG_COLUMNS, NAV, ClientWindow
+
+    QApplication.instance() or QApplication([])
+    session = read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session
+    history = tmp_path / "recent-results.json"
+    client = ClientWindow(history)
+    assert client.log_table.rowCount() == 0 and not client.btn_copy_log.isEnabled()
+    client.show_phase(GamePhase.POST_GAME, session)  # 오버레이 종료 직후
+    table = client.log_table
+    assert table.rowCount() == len(session.incidents) == 5
+    cells = [[table.item(r, c).text() for c in range(len(LOG_COLUMNS))] for r in range(table.rowCount())]
+    by_text = {row[2]: row for row in cells}
+    assert by_text["다들 화이팅"][4] == "L0" and by_text["다들 화이팅"][7] == "그대로 표시"  # 신고와 무관한 줄도 보인다
+    mild = by_text["아 ㅅㅂ 내가 실수함"]
+    assert mild[3] == "아 시발 내가 실수함" and mild[8] == "아 내가 실수함" and mild[9] == ""
+    assert any(row[7] == "숨김" and row[9] in ("신고", "고소 후보") for row in cells)
+    assert "채팅 5줄" in client.log_meta.text()
+    client.copy_chat_log()
+    copied = QApplication.clipboard().text().splitlines()
+    assert copied[0].split("\t") == list(LOG_COLUMNS) and len(copied) == 6
+    client.nav_buttons[NAV.index("채팅 기록")].click()  # 왼쪽 메뉴에서 연다
+    assert client.pages.currentIndex() == NAV.index("채팅 기록") and table.isVisibleTo(client)
+    client.close()
+
+    reopened = ClientWindow(history)  # 앱을 다시 열어도 직전 게임 기록이 남아 있다
+    assert reopened.log_table.rowCount() == 5 and reopened.btn_copy_log.isEnabled()
+    reopened.close()
+
+
+def _ready_editor(qt, tmp_path: Path):
+    complaint = drafts()[-1]
+    client = ClientWindow(tmp_path / "recent.json")
+    client.show()
+    client.show_result(PostGameResult(session_id="경기 1", complaints=[complaint]))
+    client.open_editor(complaint)
+    qt.processEvents()
+    editor = client.editor
+    editor.tag.setText("KR1")
+    editor.ack.setChecked(True)
+    return client, editor
+
+
+def test_pdf_default_location_is_writable_even_when_app_runs_from_root(tmp_path: Path, monkeypatch) -> None:
+    """설치한 앱의 작업 폴더는 "/" (읽기 전용) 다. 기본 이름만 주면 저장 창이 "/" 에서 열려 저장이 실패했다."""
+    qt = QApplication.instance() or QApplication([])
+    (tmp_path / "Downloads").mkdir()
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.chdir("/")
+    asked = []
+    # 사용자가 기본 위치 그대로 "저장" 을 누른 경우
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args: (asked.append(args[2]) or args[2], "PDF"))
+    client, editor = _ready_editor(qt, tmp_path)
+    editor.download.click()
+    saved = Path(asked[0])
+    assert saved.is_absolute() and saved.parent == tmp_path / "Downloads"
+    assert saved.name.startswith("고소장-초안-얼음땡-") and saved.suffix == ".pdf"
+    assert saved.read_bytes().startswith(b"%PDF") and "PDF 저장 완료" in client.toast.text()
+    client.close()
+
+
+def test_pdf_text_is_document_size(tmp_path: Path) -> None:
+    """미리보기의 px 글자 크기가 1200dpi 로 찍혀 A4 에 글자가 아주 작게 나오던 문제."""
+    pytest.importorskip("PySide6.QtPdf")
+    from PySide6.QtPdf import QPdfDocument
+
+    qt = QApplication.instance() or QApplication([])
+    client, editor = _ready_editor(qt, tmp_path)
+    path = tmp_path / "draft.pdf"
+    editor.save_pdf(path)
+    doc = QPdfDocument()
+    doc.load(str(path))
+    # 글자 위치(텍스트 선택)는 Windows 에서 읽히지 않아서, 페이지를 1pt = 1px 로 그려 글자 줄의 높이를 잰다.
+    assert (
+        _tallest_ink_run(doc) >= 10
+    )  # pt. 제목 "고 소 장"이 23pt 쯤. 고치기 전(1200dpi)에는 진한 글자가 하나도 없었다
+    client.close()
+
+
+def _tallest_ink_run(doc) -> int:
+    """PDF 첫 페이지를 A4 pt 크기로 그려, 잉크가 있는 행이 연달아 이어진 가장 긴 구간(= 가장 큰 글자 줄 높이)."""
+    from PySide6.QtCore import QSize
+    from PySide6.QtGui import QColor, QImage, QPainter
+
+    size = doc.pagePointSize(0)
+    page = doc.render(0, QSize(round(size.width()), round(size.height())))
+    assert not page.isNull()
+    # 그린 페이지는 배경이 투명하다. 흰 종이 위에 올려야 투명한 곳이 검은색(잉크)으로 세어지지 않는다.
+    paper = QImage(page.size(), QImage.Format.Format_RGB32)
+    paper.fill(QColor("white"))
+    painter = QPainter(paper)
+    painter.drawImage(0, 0, page)
+    painter.end()
+    gray = paper.convertToFormat(QImage.Format.Format_Grayscale8)
+    data, stride = bytes(gray.constBits()), gray.bytesPerLine()
+    tallest = run = 0
+    for y in range(gray.height()):
+        row = data[y * stride : y * stride + gray.width()]
+        run = run + 1 if min(row) < 160 else 0
+        tallest = max(tallest, run)
+    return tallest
+
+
+@pytest.mark.parametrize(
+    ("typed", "shown"),
+    [
+        ("01012345678", "010-1234-5678"),
+        ("0101234567", "010-123-4567"),
+        ("0212345678", "02-1234-5678"),
+        ("021234567", "02-123-4567"),
+        ("15881234", "1588-1234"),
+        ("0101", "010-1"),
+        ("010-1234-5678", "010-1234-5678"),
+        ("010 abc 1234 5678 9", "010-1234-5678"),  # 숫자가 아니면 버리고 11자리까지
+        ("", ""),
+    ],
+)
+def test_phone_number_is_digits_with_hyphens(typed: str, shown: str) -> None:
+    from clean_chat.ui.complaint import format_phone
+
+    assert format_phone(typed) == shown
+
+
+def test_contact_field_accepts_digits_only_and_shows_hyphens(tmp_path: Path) -> None:
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    qt = QApplication.instance() or QApplication([])
+    client, editor = _ready_editor(qt, tmp_path)
+    QTest.keyClicks(editor.contact, "010ab1234-5678")
+    assert editor.contact.text() == "010-1234-5678"
+    assert "010-1234-5678" in editor.paper.toPlainText()  # 미리보기·PDF 에도 하이픈이 들어간 번호
+    QTest.keyClick(editor.contact, Qt.Key_Backspace)
+    assert editor.contact.text() == "010-123-4567"  # 10자리는 3-3-4 로 다시 나눈다
+    editor.contact.setCursorPosition(4)  # "010-|123…" → 하이픈만 지우면 그 앞 숫자가 지워진다
+    QTest.keyClick(editor.contact, Qt.Key_Backspace)
+    assert editor.contact.text() == "011-234-567"
+    client.close()

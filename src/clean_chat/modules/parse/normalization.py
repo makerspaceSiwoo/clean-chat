@@ -15,7 +15,7 @@ _PROTECTED = re.compile(
 _NOISE = re.compile(r"[0-9.!*_\-·ㆍ…\u200b]+")
 _SPACED_JAMO = re.compile(r"(?<![A-Za-z0-9_])[ㄱ-ㅎㅏ-ㅣ]+(?:[ \t\u200b]+[ㄱ-ㅎㅏ-ㅣ]+)+(?![A-Za-z0-9_])")
 _JAMO_SPACES = re.compile(r"[ \t\u200b]+")
-_REPEATS = re.compile(r"([ㅋㅎㅠㅜ])\1{2,}")
+_REPEATS = re.compile(r"([ㅋㅎㅠㅜㅗ])\1{2,}")
 _OCR_NOISE = re.compile(r"[0-9.!*_\-·ㆍ…\u200blI|oO]+")
 
 
@@ -84,7 +84,7 @@ def _join_known_jamo(fragment: str, lexicon: dict[str, str]) -> str:
 
 
 def _squeeze_repeats(text: str) -> tuple[str, list[str]]:
-    """ㅋ·ㅎ·ㅠ·ㅜ의 3회 이상 반복만 2회로 줄인다. 일반 음절·숫자·기호는 유지한다."""
+    """ㅋ·ㅎ·ㅠ·ㅜ·ㅗ의 3회 이상 반복만 2회로 줄인다. 일반 음절·숫자·기호는 유지한다."""
     result = _REPEATS.sub(lambda match: match[1] * 2, text)
     return result, ["repeats_squeezed"] if result != text else []
 

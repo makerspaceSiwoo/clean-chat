@@ -6,7 +6,7 @@ import pytest
 
 from clean_chat.core.config import FIXTURES
 from clean_chat.core.jsonl import read_jsonl
-from clean_chat.core.schemas import AnalyzeRequest, ChatMessage, Level, Player, ReportRequest
+from clean_chat.core.schemas import Analysis, AnalyzeRequest, ChatMessage, Level, Player, ReportRequest
 from clean_chat.modules.analyze import evaluate, impl, judge, judge_evaluate, judge_model, model, precedents, train
 from helpers import check_module, fixture_pairs
 
@@ -672,3 +672,189 @@ def test_weights_repo_ids_and_missing_owner(monkeypatch):
     with pytest.raises(ValueError):
         weights.repo_id("judge")
     assert "model.safetensors" in weights.FILES and set(weights.MODELS) == {"classifier", "judge"}
+
+
+@pytest.mark.parametrize(
+    ("text", "level", "harm"),
+    [
+        # 실제 게임 테스트에서 놓친 말 (2026-11-28). 이름이 없어도 사람에게 하는 말은 L2 이상으로 본다.
+        ("볍신련아", 2, "profanity"),
+        ("법신련아", 2, "profanity"),  # 화면에서 볍신을 법신으로 읽음
+        ("개색기야", 2, "profanity"),
+        ("멍청아", 2, "profanity"),
+        ("접어라", 2, "blame"),
+        ("겜 접어라", 2, "blame"),
+        ("tlgkf", 1, "profanity"),  # 화면에서 tlqkf 를 tlgkf 로 읽음 (대상 없는 욕설)
+        ("니엄마창년", 3, "family_insult"),
+        ("니엄마보지", 3, "sexual_harassment"),
+        ("니애미", 3, "family_insult"),
+    ],
+)
+def test_slang_and_addressed_insults_from_real_game(text, level, harm):
+    from clean_chat.core.schemas import AnalyzeRequest, ChatMessage
+    from clean_chat.modules.analyze import impl
+    from clean_chat.modules.parse.normalization import normalize
+
+    norm, hints = normalize(text)
+    message = ChatMessage(
+        id="m",
+        ts=0,
+        source="ocr",
+        channel="all",
+        speaker="얼음땡",
+        champion="멜",
+        text=text,
+        text_norm=norm,
+        hints=hints,
+        raw=text,
+    )
+    analysis = impl.run(AnalyzeRequest(message=message, history=[], players=[]))
+    assert int(analysis.level) == level and harm in [h.value for h in analysis.harm_types]
+
+
+@pytest.mark.parametrize(
+    "text", ["접어둔 종이", "멍청하게 죽었네 내가", "새끼 고양이 귀엽다", "훈련아 가자", "바론 가자 바론"]
+)
+def test_ordinary_sentences_are_not_treated_as_addressed_insults(text):
+    from clean_chat.core.schemas import AnalyzeRequest, ChatMessage
+    from clean_chat.modules.analyze import impl
+    from clean_chat.modules.parse.normalization import normalize
+
+    norm, hints = normalize(text)
+    message = ChatMessage(
+        id="m",
+        ts=0,
+        source="ocr",
+        channel="all",
+        speaker="얼음땡",
+        champion="멜",
+        text=text,
+        text_norm=norm,
+        hints=hints,
+        raw=text,
+    )
+    assert int(impl.run(AnalyzeRequest(message=message, history=[], players=[])).level) <= 1
+
+
+@pytest.mark.parametrize(
+    ("text", "level", "spans"),
+    [
+        ("숟가락아 와드 좀 박아", 1, ["숟가락"]),  # 얕잡아 부르는 말만 → 약한 욕설 (그 낱말만 지운다)
+        ("도구야 궁 체크", 1, ["도구"]),
+        ("백정 뭐하냐", 2, ["백정"]),  # 비난과 함께면 그 포지션 사람을 향한 말
+        ("탑신병자 또 죽네 뭐하냐", 2, ["탑신병자"]),
+        ("개못하쥬", 2, []),  # 이름이 없어도 남을 깎아내리는 말
+        ("죽인다", 2, []),
+        ("상체 뭐하냐", 2, []),
+    ],
+)
+def test_position_slurs_and_untargeted_insults(text, level, spans):
+    out = impl.run(_req(text))
+    assert int(out.level) == level and out.profanity_spans == spans
+
+
+@pytest.mark.parametrize(
+    "text", ["내가 개못하네", "바론 죽인다 다 와", "레벨 차이 나네", "상체 운동 해야지 ㅋㅋ", "서폿 와드 좀 박아줘"]
+)
+def test_self_talk_game_talk_and_plain_references_stay_clean(text):
+    assert int(impl.run(_req(text)).level) == 0, text
+
+
+@pytest.mark.parametrize(
+    ("text", "feedback"),
+    [
+        # 욕설에 섞인 게임 지시는 피드백 조각으로 뽑는다 (욕설·부른 대상·군말은 뺀다).
+        ("서폿 병신아 시야 좀 잡아라", "시야 좀 잡아라"),
+        ("원딜 병신아 cs 먹지마", "cs 먹지마"),
+        ("탑 병신아 라인 밀지마", "라인 밀지마"),
+        ("미드 병신아 타워 치지마", "타워 치지마"),
+        ("정글 병신아 장로 쳐", "장로 쳐"),
+        ("정글 병신아 유충 쳐", "유충 쳐"),
+        ("서폿 병신아 스펠 체크 좀", "스펠 체크 좀"),
+        ("미드 병신아 궁 체크해", "궁 체크해"),
+        ("정글 병신아 바위게 잡자", "바위게 잡자"),
+        ("탑 병신아 라인 프리징 해", "라인 프리징 해"),
+        ("백정 병신아 바론 잡자", "바론 잡자"),
+    ],
+)
+def test_feedback_is_extracted_from_abusive_instructions(text, feedback):
+    out = impl.run(_req(text))
+    assert int(out.level) >= 2 and out.feedback_spans == [feedback]
+    assert "병신" in out.profanity_spans
+
+
+# ── 게임 안의 "죽인다" 와 실제 협박 구분 (실측 점검 2026-11-28) ─────────────────────────
+def _fake_threat_model(monkeypatch, score: float = 0.97) -> None:
+    """모델이 "죽인다" 가 든 문장을 모두 협박이라고 하는 상황 (실측에서 "탑 내가 죽인다 ㄱㄱ" 가 그랬다)."""
+    monkeypatch.setattr(model, "predict", lambda t: {"threat": score} if "죽" in t else {})
+    monkeypatch.setattr(model, "version", lambda: "fake-ft")
+
+
+def _analyze(messages: list[ChatMessage]) -> Analysis:
+    """마지막 메시지를 앞 대화와 함께 분석한다 (실시간 파이프라인처럼)."""
+    return impl.run(AnalyzeRequest(message=messages[-1], history=messages[:-1], players=ROSTER))
+
+
+@pytest.mark.parametrize("text", ["탑 내가 죽인다 ㄱㄱ", "미드 죽인다 고고", "바텀 둘 다 죽인다 가자"])
+def test_game_call_with_kill_word_is_clean(monkeypatch, text):
+    _fake_threat_model(monkeypatch)
+    assert int(_analyze([_chat(0, 0, "얼음땡", text, channel="all")]).level) == 0, text
+
+
+def test_kill_word_alone_is_blame_not_threat(monkeypatch):
+    """문장 하나로는 게임 안의 말일 수 있다 → 비난(L2)까지만. 협박(L3)·고소 후보로 올리지 않는다."""
+    _fake_threat_model(monkeypatch)
+    out = _analyze([_chat(0, 0, "얼음땡", "너 진짜 죽인다", channel="all")])
+    assert int(out.level) == 2 and "threat" not in [t.value for t in out.harm_types]
+
+
+@pytest.mark.parametrize(
+    "text", ["실제로 찾아가서 죽인다", "겜 끝나면 찾아가서 죽인다", "학교 앞에서 패 버린다", "주소 땄다 기다려"]
+)
+def test_real_world_marker_makes_it_a_threat_alone(text):
+    out = _analyze([_chat(0, 0, "얼음땡", text, channel="all")])
+    assert int(out.level) == 3 and "threat" in [t.value for t in out.harm_types], text
+
+
+@pytest.mark.parametrize("text", ["너 진짜 죽인다", "찾아가서 죽여버린다", "끝나고 보자"])
+def test_kill_word_after_attacking_someone_is_a_threat(text):
+    """같은 화자가 바로 앞에서 누군가를 공격하고 있었으면 협박. 대상은 그 공격의 대상."""
+    talk = [
+        _chat(0, 0, "불꽃남자", "서폿 병신아 뭐하냐"),
+        _chat(1, 5, "달빛고양이", "그만해"),
+        _chat(2, 10, "불꽃남자", text),
+    ]
+    out = _analyze(talk)
+    assert int(out.level) == 3 and "threat" in [t.value for t in out.harm_types], text
+    # 대상: "너" 는 바로 앞에 말한 사람(달빛고양이)으로 본다. 부른 사람이 없으면 앞선 공격의 대상(서폿 = 나)
+    assert out.target in {"달빛고양이", "나"}
+    assert _analyze([talk[0], talk[2]]).target == "나"
+    # 공격 전에 다른 사람이 말했어도, 공격 뒤에 끼어든 사람이 없으면 공격받던 사람이 대상
+    earlier = [_chat(9, -5, "달빛고양이", "용 먹자"), talk[0], talk[2]]
+    assert _analyze(earlier).target == "나"
+
+
+def test_kill_word_after_someone_else_attacked_is_not_a_threat():
+    talk = [_chat(0, 0, "불꽃남자", "서폿 병신아 뭐하냐"), _chat(1, 10, "달빛고양이", "너 진짜 죽인다")]
+    assert int(_analyze(talk).level) == 2
+
+
+def test_kill_word_long_after_the_attack_is_not_a_threat():
+    talk = [_chat(0, 0, "불꽃남자", "서폿 병신아 뭐하냐"), _chat(1, 1000, "불꽃남자", "너 진짜 죽인다")]
+    assert int(_analyze(talk).level) == 2
+
+
+def test_game_call_after_attacking_is_still_game_talk():
+    talk = [_chat(0, 0, "불꽃남자", "서폿 병신아 뭐하냐"), _chat(1, 10, "불꽃남자", "바론 죽인다 다 와")]
+    assert int(_analyze(talk).level) == 0
+
+
+def test_judge_kill_word_needs_earlier_attack(monkeypatch):
+    """judge (끝난 게임 전체): "죽인다" 만으로는 고소 후보가 아니고, 공격하던 사람이 이어서 하면 협박."""
+    _fake_threat_model(monkeypatch)
+    alone = [_chat(0, 0, "얼음땡", "탑 내가 죽인다 ㄱㄱ", channel="all"), _chat(1, 9, "얼음땡", "너 진짜 죽인다")]
+    for who in judge.judge(judge.JudgeRequest(messages=alone, players=ROSTER, my_name="나")).speakers:
+        assert not who.complaint_candidate
+    after = [_chat(0, 0, "불꽃남자", "서폿 병신아 뭐하냐"), _chat(1, 30, "불꽃남자", "너 진짜 죽인다")]
+    who = judge.judge(judge.JudgeRequest(messages=after, players=ROSTER, my_name="나")).speakers[0]
+    assert who.complaint_candidate and "threat" in [t.value for t in who.harm_types]

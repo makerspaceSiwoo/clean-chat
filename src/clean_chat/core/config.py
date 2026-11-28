@@ -115,7 +115,10 @@ class Settings(BaseModel):
     complaint_output_dir: str = str(STORE / "complaints") if getattr(sys, "frozen", False) else ".clean-chat/complaints"
     phase_poll_sec: float = 1.5  # 🪟 LCU 게임 단계 확인 주기 (1~2초)
     idle_grace_sec: float = 10.0  # 게임 중 '대기' 보고가 이만큼 계속돼야 게임 종료로 봄 (재접속 대비, OPEN-12)
-    capture_interval_sec: float = 0.4  # 고정 주기 비교 기준
+    capture_interval_sec: float = 1.0  # 채팅 영역을 확인하는 주기. 글자가 바뀐 화면만 OCR 로 보낸다.
+    # 글자 변화 감지가 새 채팅을 놓쳤을 때를 대비해, 글자가 보이는 동안은 이 시간마다 다시 읽는다 (빈 화면은 3배 느리게).
+    # 캡처 주기와 같게 두면 채팅이 보이는 동안 매번 읽는다 → 새 채팅이 늦어도 캡처 주기 안에 잡힌다.
+    capture_recheck_sec: float = 1.0
     uploads_dir: Path = STORE / "uploads"  # 시뮬레이터에 첨부한 이미지 (git 제외)
     llm_env: Path = USER_ENV  # 설정 화면에서 입력한 Gemini API 키를 저장하는 .env
     sim_timeout_sec: float = 120.0  # 시뮬레이터에서 모듈 1번 실행 제한 시간 (모델 로딩 포함)

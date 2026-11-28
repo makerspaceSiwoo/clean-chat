@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 
@@ -9,11 +10,13 @@ from pydantic import TypeAdapter, ValidationError
 from PySide6.QtCore import QIODevice, QSaveFile, Qt, QTime, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QColor, QDesktopServices, QImage, QPalette, QPixmap
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QApplication,
     QButtonGroup,
     QCheckBox,
     QFrame,
     QHBoxLayout,
+    QHeaderView,
     QLineEdit,
     QListWidget,
     QMainWindow,
@@ -21,16 +24,38 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QStackedWidget,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
 from clean_chat.core.config import resolve_repo_path
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, PostGameResult, ReportDraft
-from clean_chat.ui.client_widgets import STYLE, SelectCard, button, card, heading, label, restyle, scroll_page
+from clean_chat.ui.client_widgets import STYLE, SelectCard, Switch, button, card, heading, label, restyle, scroll_page
 from clean_chat.ui.complaint import ComplaintEditor, quote
 
-NAV = ("홈 · 오버레이", "신고 메시지", "고소장", "설정")
+NAV = ("홈 · 오버레이", "신고 메시지", "고소장", "설정", "채팅 기록")
+# 채팅 기록 표의 열. 신고 여부와 상관없이 직전 게임에서 읽은 채팅을 모두 보여 준다 (디버깅용).
+LOG_COLUMNS = ("시각", "화자 (챔피언)", "원문", "정규화", "등급", "유형", "대상", "처리", "화면에 보인 문장", "신고")
+HARM_KO = {
+    "profanity": "욕설",
+    "family_insult": "패드립",
+    "sexual_harassment": "성희롱",
+    "blame": "비난",
+    "instigation": "정치질",
+    "threat": "협박",
+}
+ACTION_KO = {
+    "show": "그대로 표시",
+    "show_masked": "가려서 표시",
+    "show_rewritten": "바꿔서 표시",
+    "hide": "숨김",
+    "copy": "그대로 복사",
+    "copy_masked": "가려서 복사",
+    "copy_rewritten": "바꿔서 복사",
+    "block": "차단",
+}
 STRENGTHS = (("낮음", "low"), ("보통", "normal"), ("높음", "high"))
 PHASE_TEXT = {GamePhase.IDLE: "게임 대기 중", GamePhase.IN_GAME: "게임 진행 중", GamePhase.POST_GAME: "게임 종료"}
 
@@ -47,6 +72,11 @@ def styled(widget: QWidget, role: str) -> QWidget:
     widget.setObjectName(role)
     widget.setAttribute(Qt.WA_StyledBackground)
     return widget
+
+
+def target_label(draft: ReportDraft) -> str:
+    """신고·고소 대상 한 사람을 가리키는 이름. 닉네임이 같아도 챔피언이 다르면 다른 사람이다."""
+    return f"{draft.speaker} ({draft.champion})" if draft.champion else draft.speaker
 
 
 def mask_key(api_key: str) -> str:
@@ -80,6 +110,8 @@ class ClientWindow(QMainWindow):
         self.setStyleSheet(STYLE)
         self.history_path = history_path
         self.history_format = TypeAdapter(list[PostGameResult])
+        # 직전 게임의 전체 채팅 기록 (원문 포함 → 이 PC에만 둔다). 앱을 다시 열어도 볼 수 있다.
+        self.session_path = history_path.with_name("last-session.json") if history_path else None
         self.results: dict[str, PostGameResult] = {}
         self.current_result = None
         self.preview_count = 0
@@ -116,7 +148,7 @@ class ClientWindow(QMainWindow):
         self.navigation.idToggled.connect(lambda i, on: on and self.pages.setCurrentIndex(i))
         self.pages.currentChanged.connect(lambda i: self.nav_buttons[i].setChecked(True))
         self.nav_buttons[0].setChecked(True)
-        home, reports, complaint, preferences = panels
+        home, reports, complaint, preferences, chat_log = panels
         self.preview_page = self.pages.widget(0)
         self._page_for = {
             GamePhase.IDLE: self.preview_page,
@@ -129,6 +161,7 @@ class ClientWindow(QMainWindow):
         self.editor = ComplaintEditor()
         complaint.addWidget(self.editor)
         self._build_settings(preferences)
+        self._build_chat_log(chat_log)
         self._render_result(None)
 
         self.toast = label("")
@@ -141,6 +174,102 @@ class ClientWindow(QMainWindow):
         self.toast_timer.timeout.connect(self.toast.hide)
         self.show_phase(GamePhase.IDLE, None)
         self._load_history()
+        self._load_session()
+
+    # ── 채팅 기록 (직전 게임 전체) ───────────────────────────────
+    def _build_chat_log(self, page: QVBoxLayout) -> None:
+        head = QHBoxLayout()
+        titles = QVBoxLayout()
+        titles.setSpacing(2)
+        self.log_meta = label("게임이 끝나면(오버레이 종료) 그 게임에서 읽은 채팅이 모두 여기에 표시됩니다", "muted")
+        titles.addWidget(self.log_meta)
+        titles.addWidget(label("직전 게임 채팅 기록", "title"))
+        head.addLayout(titles, 1)
+        self.btn_copy_log = button("표 복사", "secondary")
+        self.btn_copy_log.clicked.connect(self.copy_chat_log)
+        head.addWidget(self.btn_copy_log, 0, Qt.AlignBottom)
+        page.addLayout(head)
+        page.addWidget(
+            label(
+                "신고 여부와 상관없이 OCR 로 읽어 채팅으로 인식한 줄을 처리 순서대로 보여 줍니다. "
+                "채팅으로 인식되지 않은 줄과 OCR 시간은 사용자 데이터 폴더의 logs/capture.log 에 있습니다.",
+                "caption",
+            )
+        )
+        self.log_table = QTableWidget(0, len(LOG_COLUMNS))
+        self.log_table.setHorizontalHeaderLabels(LOG_COLUMNS)
+        self.log_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.log_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.log_table.setWordWrap(True)
+        self.log_table.verticalHeader().hide()
+        self.log_table.setAlternatingRowColors(True)
+        self.log_table.setMinimumHeight(480)
+        self.log_table.setStyleSheet(
+            "QTableWidget {border:1px solid #DDE1E6; border-radius:8px; gridline-color:#EEF0F3; font-size:13px;"
+            " alternate-background-color:#FAFBFC;}"
+            "QHeaderView::section {background:#F7F8FA; border:0; border-bottom:1px solid #DDE1E6; padding:6px 8px;"
+            " color:#5B636E; font-size:12px;}"
+        )
+        header = self.log_table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        for column in (2, 3, 8):  # 긴 글 열은 남는 폭을 나눠 쓴다
+            header.setSectionResizeMode(column, QHeaderView.Stretch)
+        page.addWidget(self.log_table, 1)
+        self.btn_copy_log.setEnabled(False)
+
+    @staticmethod
+    def _log_row(inc: Incident) -> list[str]:
+        msg, analysis, decision = inc.msg, inc.analysis, inc.decision
+        who = f"{msg.speaker} ({msg.champion})" if msg.champion else msg.speaker or "?"
+        return [
+            datetime.fromtimestamp(msg.ts).strftime("%H:%M:%S"),
+            who + (" · 나" if msg.is_me else ""),
+            msg.text,
+            msg.text_norm if msg.text_norm != msg.text else "",
+            f"L{int(analysis.level)}",
+            ", ".join(HARM_KO.get(h.value, h.value) for h in analysis.harm_types),
+            analysis.target or "",
+            ACTION_KO.get(decision.action.value, decision.action.value),
+            decision.display_text or "",
+            "고소 후보" if decision.complaint_candidate else ("신고" if decision.report else ""),
+        ]
+
+    def show_session(self, session: GameSession, save: bool = True) -> None:
+        """직전 게임에서 처리한 채팅을 모두 표에 채운다. save 면 다음 실행에서도 보이게 파일로 남긴다."""
+        rows = [self._log_row(inc) for inc in session.incidents]
+        self.log_table.setRowCount(len(rows))
+        for r, row in enumerate(rows):
+            for c, text in enumerate(row):
+                item = QTableWidgetItem(text)
+                item.setToolTip(text)
+                self.log_table.setItem(r, c, item)
+        self.log_table.resizeRowsToContents()
+        reported = sum(1 for inc in session.incidents if inc.decision.report)
+        hidden = sum(1 for inc in session.incidents if inc.decision.action.value == "hide")
+        self.log_meta.setText(
+            f"{game_title(session.id)} · 채팅 {len(rows)}줄 · 숨김 {hidden}줄 · 신고 대상 {reported}줄"
+            if rows
+            else f"{game_title(session.id)} · 읽은 채팅이 없습니다"
+        )
+        self.btn_copy_log.setEnabled(bool(rows))
+        if save and self.session_path is not None:
+            with suppress(OSError):
+                self.session_path.parent.mkdir(parents=True, exist_ok=True)
+                self.session_path.write_text(session.model_dump_json(), encoding="utf-8")
+
+    def _load_session(self) -> None:
+        if self.session_path is None:
+            return
+        with suppress(OSError, ValidationError):  # 파일이 없거나 예전 형식이면 빈 화면으로 둔다
+            self.show_session(GameSession.model_validate_json(self.session_path.read_bytes()), save=False)
+
+    def copy_chat_log(self) -> None:
+        """표를 탭으로 나눈 글로 복사한다 (스프레드시트나 메신저에 붙여 넣기)."""
+        lines = ["\t".join(LOG_COLUMNS)]
+        for r in range(self.log_table.rowCount()):
+            lines.append("\t".join(self.log_table.item(r, c).text() for c in range(len(LOG_COLUMNS))))
+        QApplication.clipboard().setText("\n".join(lines))
+        self.notify(f"채팅 기록 {self.log_table.rowCount()}줄을 복사했습니다")
 
     # ── 홈 · 오버레이 ─────────────────────────────────────────
     def _build_home(self, home: QVBoxLayout) -> None:
@@ -229,14 +358,20 @@ class ClientWindow(QMainWindow):
         home.addLayout(recent)
 
         preview, content = card("캡처 미리보기")
-        self.preview_only = QCheckBox("오버레이 아래 화면 미리보기 (OCR 끔)")
-        self.preview_only.setChecked(True)
+        # 표시만 켜고 끄는 스위치. 채팅 판독(OCR)과는 무관하다.
+        self.preview_toggle = Switch("읽고 있는 영역 보기", checked=True)
+        self.preview_toggle.toggled.connect(self._preview_toggled)
+        toggle_row = QHBoxLayout()
+        toggle_row.setSpacing(10)
+        toggle_row.addWidget(label("읽고 있는 영역 보기", "label"))
+        toggle_row.addWidget(self.preview_toggle)
+        toggle_row.addStretch(1)
         self.preview_info = label("위치 잠금 대기", "caption")
         self.preview_image = label("위치 잠금 후 첫 이미지가 표시됩니다.", "muted")
         self.preview_image.setAlignment(Qt.AlignCenter)
         self.preview_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self.preview_image.setMinimumHeight(115)
-        content.addWidget(self.preview_only)
+        content.addLayout(toggle_row)
         content.addWidget(self.preview_info)
         content.addWidget(self.preview_image)
         self.preview_card = preview
@@ -302,9 +437,9 @@ class ClientWindow(QMainWindow):
         self.result_layout.addWidget(self.result_content)
         users: dict[str, list[ReportDraft | None]] = {}
         for draft in result.reports if result else []:
-            users.setdefault(draft.speaker, [None, None])[0] = draft
+            users.setdefault(target_label(draft), [None, None])[0] = draft
         for draft in result.complaints if result else []:
-            users.setdefault(draft.speaker, [None, None])[1] = draft
+            users.setdefault(target_label(draft), [None, None])[1] = draft
         self.users = {name: (rep, comp) for name, (rep, comp) in users.items()}
         self.selected = ""
         if result is None:
@@ -376,10 +511,10 @@ class ClientWindow(QMainWindow):
         inner.setContentsMargins(14, 12, 14, 12)
         inner.setSpacing(4)
         top = QHBoxLayout()
-        top.addWidget(label(speaker, "value"), 1)
+        top.addWidget(label(draft.speaker, "value"), 1)
         top.addWidget(label("수위 높음" if comp else "보통", "badgeHigh" if comp else "badgeNormal"))
         inner.addLayout(top)
-        champion = next((m.champion for m in draft.evidence if m.champion), "")
+        champion = draft.champion or next((m.champion for m in draft.evidence if m.champion), "")
         count = f"욕설 {len(draft.incident_ids)}건"
         inner.addWidget(label(f"{champion} · {count}" if champion else count, "caption"))
         card_button.clicked.connect(lambda: self._select_user(speaker))
@@ -540,7 +675,16 @@ class ClientWindow(QMainWindow):
         subprocess.Popen(["/usr/bin/open", "-R", str(Path(sys.executable).parents[2])])
 
     @Slot(QImage)
+    def _preview_toggled(self, shown: bool) -> None:
+        self.preview_count = 0
+        self.preview_info.setText("캡처 미리보기" if shown else "미리보기 꺼짐 · 채팅은 계속 읽습니다")
+        self.preview_image.clear()  # 꺼면 마지막 이미지도 지운다
+        if shown:
+            self.preview_image.setText("캡처 대기 중")
+
     def show_preview(self, image: QImage) -> None:
+        if not self.preview_toggle.isChecked():
+            return
         if image.isNull():
             self.preview_count = 0
             self.preview_info.setText("캡처 미리보기")
@@ -555,6 +699,8 @@ class ClientWindow(QMainWindow):
     def show_phase(self, phase: GamePhase, session: GameSession | None) -> None:
         self.live_card.setVisible(phase == GamePhase.IN_GAME)
         self.game_state.setText(PHASE_TEXT[phase])
+        if phase == GamePhase.POST_GAME and session:
+            self.show_session(session)
         if phase == GamePhase.POST_GAME and session and session.id != self.current_result:
             self._render_result(None)
             self.open_editor(None, navigate=False)

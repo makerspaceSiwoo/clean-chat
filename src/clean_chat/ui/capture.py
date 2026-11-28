@@ -1,49 +1,21 @@
-"""Qt 단일 창 캡처. 오버레이와 게임 창의 교차 좌표로 채팅 영역만 복사한다."""
+"""오버레이가 가린 영역만 캡처한다. 게임 창은 찾지 않는다. 잠근 동안은 항상 OCR 로 읽는다.
+
+위치를 잠근 순간이 게임 시작이고, 오버레이를 종료한 순간이 게임 끝이다.
+오버레이 아래에 있는 것은 무엇이든 읽으므로, 게임이 끝나면 오버레이를 종료해야 한다.
+"""
 
 from __future__ import annotations
 
-import sys
 import time
 
 from PIL import Image
-from PySide6.QtCore import QObject, QRect, QTimer, Signal
+from PySide6.QtCore import QObject, QTimer, Signal
 from PySide6.QtGui import QImage
-from PySide6.QtMultimedia import QMediaCaptureSession, QVideoFrame, QVideoFrameFormat, QVideoSink, QWindowCapture
 
 from clean_chat.core.grabber import ScreenGrabber, TextChangeGate
 from clean_chat.core.schemas import Region
 from clean_chat.ui.region_preview import RegionPreview
-from clean_chat.ui.window_bounds import capture_allowed, capture_permission_message, game_window, native_rect
-
-
-def pixel_crop(bounds: QRect, overlay: QRect, width: int, height: int) -> QRect:
-    if bounds.isEmpty() or overlay.isEmpty() or not bounds.contains(overlay):
-        return QRect()
-    sx, sy = width / bounds.width(), height / bounds.height()
-    x = round((overlay.x() - bounds.x()) * sx)
-    y = round((overlay.y() - bounds.y()) * sy)
-    right = round((overlay.x() + overlay.width() - bounds.x()) * sx)
-    bottom = round((overlay.y() + overlay.height() - bounds.y()) * sy)
-    return QRect(x, y, right - x, bottom - y)
-
-
-def crop_frame(frame: QVideoFrame, rect: QRect) -> QImage:
-    fmt = QVideoFrameFormat.imageFormatFromPixelFormat(frame.pixelFormat())
-    if fmt != QImage.Format.Format_Invalid and frame.map(QVideoFrame.MapMode.ReadOnly):
-        try:
-            mapped = QImage(frame.bits(0), frame.width(), frame.height(), frame.bytesPerLine(0), fmt)
-            if frame.surfaceFormat().scanLineDirection() == QVideoFrameFormat.Direction.BottomToTop:
-                source = QRect(rect.x(), frame.height() - rect.y() - rect.height(), rect.width(), rect.height())
-                crop = mapped.copy(source).mirrored(False, True)
-            else:
-                crop = mapped.copy(rect)
-        finally:
-            frame.unmap()
-    else:
-        crop = frame.toImage().copy(rect)
-    if crop.isNull():
-        raise RuntimeError("게임 프레임을 읽지 못했습니다.")
-    return crop
+from clean_chat.ui.window_bounds import capture_allowed, capture_permission_message
 
 
 def _ocr_image(crop: QImage) -> Image.Image:
@@ -52,37 +24,23 @@ def _ocr_image(crop: QImage) -> Image.Image:
 
 
 class WindowSampler(QObject):
-    preview = Signal(QImage)
+    preview = Signal(QImage)  # 방금 캡처한 영역 (클라이언트의 캡처 미리보기)
     status = Signal(str)
     permission_needed = Signal(bool)
-    ended = Signal()
     failed = Signal(str)
 
     def __init__(self, source: ScreenGrabber, overlay):
         super().__init__()
         self.source, self.overlay = source, overlay
-        self.capture = QWindowCapture(self)
-        self.session = QMediaCaptureSession(self)
-        self.sink = QVideoSink(self)
-        self.session.setWindowCapture(self.capture)
-        self.session.setVideoSink(self.sink)
-        self.capture.errorOccurred.connect(self._failed)
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._tick)
-        self.window_id = 0
-        self.missing_since = None
-        self.last_region = None
         self.gate = TextChangeGate()
-        self.started_at = 0.0
-        self.received = False
-        self.sampling = False
-        self.preview_only = False
+        self.sampling = False  # 캡처한 영역을 OCR 로 보내는 중인가 (위치를 잠근 동안 True)
         self.region_preview = RegionPreview(overlay)
+        self.timer = self.region_preview.timer  # 영역을 가져오는 주기 타이머
         self.permission_timer = QTimer(self)
         self.permission_timer.setInterval(1000)
         self.permission_timer.timeout.connect(self._check_permission)
-        self.region_preview.image.connect(self.preview)
-        self.region_preview.status.connect(self.status)
+        self.region_preview.image.connect(self._captured)
+        self.region_preview.status.connect(self._status)
 
     def start(self) -> None:
         if capture_allowed():
@@ -99,114 +57,48 @@ class WindowSampler(QObject):
     def _start_capture(self) -> None:
         self.permission_timer.stop()
         self.permission_needed.emit(False)
-        if self.preview_only:
-            self.region_preview.start()
-            return
-        self.sampling = True
-        self.timer.start(200)
-        self._tick()
+        self.sampling = True  # 잠그면 항상 OCR 로 읽는다. 미리보기는 화면에 보여 줄지 말지만 정한다.
+        self.source.begin()  # 위치를 잠근 순간이 게임 시작이다 (게임 창을 찾지 않는다)
+        self.region_preview.start()
 
     def pause(self) -> None:
+        """캡처만 멈춘다 (영역 다시 맞추기). 게임 기록은 이어진다."""
         self.permission_timer.stop()
         self.permission_needed.emit(False)
-        if self.preview_only:
-            self.region_preview.stop()
         self.sampling = False
-        self.timer.stop()
-        self.capture.stop()
-        self.sink.setVideoFrame(QVideoFrame())
-        self.window_id = 0
-        self.missing_since = None
+        self.region_preview.stop()
         self.reset_region()
 
     def stop(self) -> None:
+        """오버레이 종료 = 게임 끝. 이번 게임 기록으로 신고 문구·고소장 초안을 만든다."""
         self.pause()
         self.source.finish()
 
     def reset_region(self) -> None:
-        self.last_region = None
         self.gate = TextChangeGate()
         self.source.invalidate()
 
-    def _failed(self, _error, message: str) -> None:
-        if self.sampling:
-            self.stop()
-            self.failed.emit(f"게임 창 캡처 실패 · {message}")
-
-    def _tick(self) -> None:
-        try:
-            self._sample()
-        except Exception as exc:
-            self._failed(None, str(exc))
-
-    def _sample(self) -> None:
-        now = time.monotonic()
-        target = game_window(self.window_id)
-        if target is None:
-            if self.window_id:
-                if self.missing_since is None:
-                    self.missing_since = now
-                    self.reset_region()
-                    self.status.emit("게임 창이 숨겨졌습니다. 복귀 대기 중")
-                if now - self.missing_since >= 10:
-                    self.stop()
-                    self.ended.emit()
-                    return
-            else:
-                self.status.emit("인게임 창을 기다리는 중")
-            self.timer.setInterval(1000)
+    def _captured(self, image: QImage) -> None:
+        self.preview.emit(image)
+        if not self.sampling:
             return
-        self.missing_since = None
-        ident, title, bounds = target
-        if bounds.isEmpty():
-            if self.last_region is not None:
-                self.reset_region()
-            self.status.emit("게임 창 복귀 대기 중")
-            self.timer.setInterval(1000)
-            return
-        if not self.window_id:
-            windows = [w for w in self.capture.capturableWindows() if w.description() == title]
-            if len(windows) != 1:
-                self.status.emit("게임 창을 식별할 수 없습니다. 테두리 없는 창 모드를 확인하세요.")
-                self.timer.setInterval(1000)
-                return
-            self.window_id = ident
-            self.capture.setWindow(windows[0])
-            if hasattr(self.capture, "setMaximumFrameRate"):
-                self.capture.setMaximumFrameRate(5)
-            self.started_at, self.received = now, False
-            self.capture.start()
-            if self.sampling:
-                self.timer.setInterval(200)
-            return
-        frame = self.sink.videoFrame()
-        if not frame.isValid():
-            if self.last_region is not None:
-                self.reset_region()
-            if now - self.started_at > 5 and not self.received:
-                self._failed(None, "프레임이 없습니다. 화면 기록 권한과 게임 창 모드를 확인하세요.")
-            return
-        self.received = True
-        overlay = native_rect(int(self.overlay.winId())) if sys.platform == "win32" else self.overlay.geometry()
-        rect = pixel_crop(bounds, overlay, frame.width(), frame.height())
-        if rect.isEmpty():
-            if self.last_region is not None:
-                self.reset_region()
-            self.status.emit("오버레이 전체를 게임 채팅 위에 놓아 주세요.")
-            self.timer.setInterval(200)
-            return
-        if rect != self.last_region:
+        if image.isNull():  # 오버레이를 옮겼거나 캡처에 실패함 → 앞 영역의 판독은 버린다
             self.reset_region()
-            self.last_region = rect
-        crop = crop_frame(frame, rect)
-        image = _ocr_image(crop)
-        self.source.begin()
-        if self.gate.observe(image, now):
-            self.source.offer(image, Region(x=rect.x(), y=rect.y(), w=rect.width(), h=rect.height()))
-        interval = self.gate.interval_ms(now)
-        if interval != self.timer.interval() and hasattr(self.capture, "setMaximumFrameRate"):
-            self.capture.setMaximumFrameRate(1000 / interval)
-        self.timer.setInterval(interval)
-        self.status.emit(
-            "채팅 감시 중" if not self.source.dropped else f"채팅 감시 중 · 대기열 초과 {self.source.dropped}프레임"
-        )
+            return
+        try:
+            frame = _ocr_image(image)
+            if self.gate.observe(frame, time.monotonic()):
+                rect = self.overlay.geometry()
+                self.source.offer(frame, Region(x=rect.x(), y=rect.y(), w=frame.width, h=frame.height))
+        except Exception as exc:
+            self.stop()
+            self.failed.emit(f"채팅 영역 캡처 실패 · {exc}")
+
+    def _status(self, text: str) -> None:
+        if self.sampling:
+            if text == RegionPreview.OK:
+                dropped = self.source.dropped
+                text = "채팅 감시 중" if not dropped else f"채팅 감시 중 · 대기열 초과 {dropped}프레임"
+            else:
+                text = text.replace("미리보기", "캡처")
+        self.status.emit(text)

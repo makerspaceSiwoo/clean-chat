@@ -95,10 +95,11 @@ def test_post_game_returns_both_drafts_for_complaint_speaker(complaint, tmp_path
     assert report.kind == ReportKind.REPORT
     assert report.incident_ids == ["L5"]
     assert report.text.splitlines() == [
-        f"신고 대상: {complaint.speaker}",
+        f"신고 대상: {complaint.speaker} ({evidence.msg.champion})",  # 닉네임 + 챔피언이 한 사람
         "사유: 언어 폭력 1건",
         f"[2025-11-12 13:00:05] {evidence.msg.text} (욕설, 패드립)",
     ]
+    assert report.champion == evidence.msg.champion
 
     draft = complaints[complaint.speaker]
     assert draft.kind == ReportKind.COMPLAINT
@@ -185,3 +186,31 @@ def test_complaint_uses_default_model_with_key_only(complaint, monkeypatch):
     )
     assert f"사건 경위: {summary}" in run(complaint).text
     assert calls[0]["model"] == impl.DEFAULT_MODEL == "gemini/gemini-3.1-flash-lite"
+
+
+def test_same_nickname_with_different_champions_are_different_targets(complaint, tmp_path, monkeypatch):
+    """채팅에는 태그 없는 닉네임만 보인다. 닉네임이 같아도 챔피언이 다르면 다른 사람으로 신고·고소 대상을 나눈다."""
+    monkeypatch.setattr(settings, "complaint_output_dir", str(tmp_path / "complaints"))
+    session = complaint.session
+    for incident in session.incidents:
+        incident.decision = decide_incoming(incident.msg, incident.analysis, incident.rewrite)
+    original = next(incident for incident in session.incidents if incident.msg.id == "L5")
+    twin = original.model_copy(deep=True)  # 닉네임이 같은 다른 사람 (다른 챔피언)
+    twin.msg.id, twin.msg.champion, twin.msg.text = "L5-twin", "티모", "다른 사람이 한 말"
+    session.incidents.append(twin)
+
+    result = PostGameBatch(ModuleSet()).run(session)
+    same_name = [draft for draft in result.reports if draft.speaker == original.msg.speaker]
+    assert {draft.champion: draft.incident_ids for draft in same_name} == {
+        original.msg.champion: ["L5"],
+        "티모": ["L5-twin"],
+    }
+    assert all(f"({draft.champion})" in draft.text.splitlines()[0] for draft in same_name)
+    complaints = [draft for draft in result.complaints if draft.speaker == original.msg.speaker]
+    assert sorted(draft.incident_ids for draft in complaints) == [["L5"], ["L5-twin"]]
+    assert all(f"사용 챔피언: {draft.champion}" in unescape(draft.text) for draft in complaints)
+    # 챔피언을 주지 않은 예전 요청은 닉네임만으로 고른다 (기존 예시 그대로).
+    legacy = run(ReportRequest(kind=ReportKind.REPORT, session=session, speaker=original.msg.speaker))
+    assert (
+        legacy.incident_ids == ["L5", "L5-twin"] and legacy.text.splitlines()[0] == f"신고 대상: {original.msg.speaker}"
+    )

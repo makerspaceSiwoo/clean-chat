@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-import tempfile
 import threading
 import time
 from collections import deque
 from collections.abc import Iterator
-from pathlib import Path
 from queue import Queue
 from uuid import uuid4
 
+from clean_chat.core.config import settings
 from clean_chat.core.schemas import Frame, GamePhase, PhaseEvent, Player, Region
 
 
@@ -20,11 +19,11 @@ class TextChangeGate:
     def __init__(self) -> None:
         self.previous = None
         self.last_ink = None
-        self.active_until = 0.0
         self.last_check: float | None = None
 
     def interval_ms(self, now: float) -> int:
-        return 100 if now < self.active_until else 200
+        """다음 확인까지 기다릴 시간. 채팅은 1초 안팎으로 늦어도 되므로 자주 캡처하지 않는다."""
+        return round(settings.capture_interval_sec * 1000)
 
     def observe(self, image, now: float) -> bool:
         import numpy as np
@@ -78,12 +77,10 @@ class TextChangeGate:
             threshold = np.maximum(4, self.previous.sum(axis=1) * 0.15) if busy else 2
             changed_rows = np.count_nonzero(candidate != self.previous, axis=1) >= threshold
             changed = present and bool(changed_rows.any()) and (not busy or changed_rows.mean() < 0.6)
-        if changed:
-            self.active_until = now + 1.0
         # 놓친 작은 글자·색상과 숨김 판정 오류도 복구한다. 빈 화면에서는 드물게만 확인.
         if self.last_check is None:
             self.last_check = now
-        due = now - self.last_check >= (1.0 if present or busy else 3.0)
+        due = now - self.last_check >= settings.capture_recheck_sec * (1 if present or busy else 3)
         if not present:
             self.previous = None
         if changed or due:
@@ -94,11 +91,14 @@ class TextChangeGate:
 
 
 class ScreenGrabber:
-    """UI는 crop만 넣고 엔진은 OCR에 필요한 이미지 한 장만 임시 PNG로 만든다."""
+    """UI는 crop만 넣고 엔진은 그 이미지를 메모리에서 바로 OCR에 넘긴다 (디스크에 쓰지 않는다).
+
+    대기열은 최근 2장만 둔다. 한 장에 보이는 채팅이 모두 들어 있어서, 밀린 옛 화면을 읽을 필요가 없다.
+    """
 
     def __init__(self) -> None:
         self._condition = threading.Condition()
-        self._pending = deque(maxlen=6)
+        self._pending = deque(maxlen=2)
         self._events: Queue[PhaseEvent | None] = Queue()
         self._running = False
         self._epoch = 0
@@ -151,17 +151,13 @@ class ScreenGrabber:
                 self._events.put(PhaseEvent(ts=time.time(), phase=GamePhase.POST_GAME))
 
     def frames(self) -> Iterator[Frame]:
-        with tempfile.TemporaryDirectory(prefix="clean-chat-") as folder:
-            while True:
-                with self._condition:
-                    self._condition.wait_for(lambda: self._pending or not self._running)
-                    if not self._running:
-                        return
-                    epoch, ts, image, region = self._pending.popleft()
-                frame_id = f"{epoch}-{uuid4().hex}"
-                path = Path(folder) / "chat.png"
-                image.save(path, compress_level=1)
-                yield Frame(id=frame_id, ts=ts, image_path=str(path), region=region)
+        while True:
+            with self._condition:
+                self._condition.wait_for(lambda: self._pending or not self._running)
+                if not self._running:
+                    return
+                epoch, ts, image, region = self._pending.popleft()
+            yield Frame(id=f"{epoch}-{uuid4().hex}", ts=ts, image_path="", region=region, image=image)
 
     def events(self) -> Iterator[PhaseEvent]:
         while (event := self._events.get()) is not None:

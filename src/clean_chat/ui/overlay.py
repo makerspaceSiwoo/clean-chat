@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
 
-from clean_chat.core.schemas import Action, Incident, Region
+from clean_chat.core.schemas import Action, Incident, Level, Region
 
 
 class OverlayWindow(QWidget):
@@ -48,9 +48,10 @@ class OverlayWindow(QWidget):
         self.setWindowFlag(Qt.WindowDoesNotAcceptFocus, not editing)
         self.show()
         if QApplication.platformName() == "cocoa":
-            from clean_chat.ui.window_bounds import join_fullscreen_spaces
+            from clean_chat.ui.window_bounds import join_fullscreen_spaces, stay_in_background
 
             join_fullscreen_spaces(int(self.winId()))
+            stay_in_background(int(self.winId()))  # 오버레이를 눌러도 클라이언트 창이 앞으로 나오지 않게
 
     def _edges(self, point):
         return (point.x() < 8, point.y() < 6, point.x() >= self.width() - 8, point.y() >= self.height() - 6)
@@ -119,7 +120,9 @@ class OverlayWindow(QWidget):
         if not inc:
             return
         if inc.decision.action == Action.BLOCK:
-            self.show_error("전송이 차단되었습니다.")
+            # L1(욕설뿐인 혼잣말)은 욕설을 빼면 남는 말이 없어서 복사할 것이 없다. L2 이상은 차단.
+            mild = inc.analysis.level == Level.L1_MILD
+            self.show_error("욕설을 빼면 보낼 내용이 없습니다." if mild else "전송이 차단되었습니다.")
         elif text := inc.decision.display_text:
             QApplication.clipboard().setText(text)
             self.show_error("복사했습니다. 게임에 직접 붙여넣으세요.")

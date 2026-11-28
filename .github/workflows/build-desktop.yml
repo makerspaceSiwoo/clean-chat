@@ -1,7 +1,7 @@
 # Windows·macOS 독립 실행 앱(PyInstaller) 빌드. 결과는 Actions 실행 화면의 Artifacts에서 zip으로 받는다.
 # 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·ocr·analyze·rewrite·report extra)으로 빌드한다.
 # analyze 모델 실행 패키지(torch·transformers)는 넣고, 가중치(약 440MB)는 앱이 첫 실행 준비 화면에서 내려받는다.
-# macOS는 서명하지 않은 Apple Silicon(arm64) 전용 "Clean Chat Preview.app"이다.
+# macOS는 인증서 없이 서명한 Apple Silicon(arm64) 전용 "Clean Chat.app"이다 (권한이 버전 간에 유지되게 번들 ID 로 서명).
 # test 브랜치에 push하거나, Actions 탭에서 "Run workflow"로 원하는 브랜치를 골라 직접 실행한다.
 # LLM 키는 넣지 않는다. 받는 사람이 첫 실행 준비 화면에서 입력한다.
 name: build-desktop
@@ -81,29 +81,32 @@ jobs:
         run: uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
       - name: 번들 확인 (OCR 스크립트·화면 캡처 라이브러리 포함)
         run: |
-          app="dist/Clean Chat Preview.app"
-          test -x "$app/Contents/MacOS/Clean Chat Preview"
+          app="dist/Clean Chat.app"
+          test -x "$app/Contents/MacOS/Clean Chat"
           find "$app" -name windows.ps1 | grep -q .
           find "$app" -name region_snapshot.dylib | grep -q .
-          file "$app/Contents/MacOS/Clean Chat Preview"
+          # 화면 기록 권한이 빌드마다 초기화되지 않게, 권한을 묶는 기준이 번들 ID 여야 한다.
+          codesign --verify --strict "$app"
+          codesign -d -r- "$app" 2>&1 | grep -q 'designated => identifier "com.cleanchat.desktop"'
+          file "$app/Contents/MacOS/Clean Chat"
       - name: 설치 점검 (묶인 패키지를 모두 불러온다)
-        run: '"dist/Clean Chat Preview.app/Contents/MacOS/Clean Chat Preview" --check'
+        run: '"dist/Clean Chat.app/Contents/MacOS/Clean Chat" --check'
       - name: 실행 확인 (데모 15초)
         env:
           CLEAN_CHAT_SKIP_SETUP: "1"  # 첫 실행 준비 화면(키 입력·모델 내려받기)을 건너뛴다
         run: |
-          "dist/Clean Chat Preview.app/Contents/MacOS/Clean Chat Preview" --demo &
+          "dist/Clean Chat.app/Contents/MacOS/Clean Chat" --demo &
           pid=$!
           sleep 15
           kill -0 "$pid" || { echo "앱이 15초 안에 종료됐습니다"; exit 1; }
-          count=$(pgrep -f "MacOS/Clean Chat Preview" | wc -l | tr -d ' ')
-          pkill -f "MacOS/Clean Chat Preview" || true
+          count=$(pgrep -f "MacOS/Clean Chat" | wc -l | tr -d ' ')
+          pkill -f "MacOS/Clean Chat" || true
           [ "$count" -le 2 ] || { echo "앱이 자기 자신을 다시 실행했습니다 (프로세스 $count 개)"; exit 1; }
       - name: zip 만들기
         run: |
           ref=$(echo "${{ github.ref_name }}" | sed 's/[^A-Za-z0-9._-]/-/g')  # feat/x 같은 브랜치 이름의 / 제거
           name="CleanChat-macos-$ref-${GITHUB_SHA::7}"
-          ditto -c -k --keepParent "dist/Clean Chat Preview.app" "$name.zip"  # 실행 권한·서명 유지
+          ditto -c -k --keepParent "dist/Clean Chat.app" "$name.zip"  # 실행 권한·서명 유지
           echo "ZIP_NAME=$name" >> "$GITHUB_ENV"
       - uses: actions/upload-artifact@v4
         with:

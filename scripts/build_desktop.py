@@ -9,12 +9,14 @@ analyze 모델 가중치(약 440MB)는 넣지 않는다. 앱이 첫 실행 준�
 
 import importlib.util
 import os
+import subprocess
 import sys
 from pathlib import Path
 
 import PyInstaller.__main__
 
 ROOT = Path(__file__).resolve().parents[1]
+BUNDLE_ID = "com.cleanchat.desktop"  # macOS 가 화면 기록 권한을 이 ID 에 묶는다. 바꾸면 권한을 다시 받아야 한다.
 
 
 def build(distpath: Path = ROOT / "dist") -> None:
@@ -26,18 +28,15 @@ def build(distpath: Path = ROOT / "dist") -> None:
     icon = assets / ("icon.icns" if sys.platform == "darwin" else "icon.ico")
     options = ["--icon", str(icon), "--add-data", f"{assets / 'icon.png'}:clean_chat/ui/assets"]
     name = "Clean Chat"
+    identity = os.environ.get("CLEAN_CHAT_CODESIGN_IDENTITY")
     if sys.platform == "darwin":
         from clean_chat.ui.region_preview import build_snapshot_library
 
         lib = ROOT / "build" / "native" / "region_snapshot.dylib"
         build_snapshot_library(lib)
-        options.extend(["--add-binary", f"{lib}:clean_chat/ui"])
-        identity = os.environ.get("CLEAN_CHAT_CODESIGN_IDENTITY")
+        options.extend(["--add-binary", f"{lib}:clean_chat/ui", "--osx-bundle-identifier", BUNDLE_ID])
         if identity and identity != "-":
-            options.extend(["--codesign-identity", identity, "--osx-bundle-identifier", "com.cleanchat.desktop"])
-        else:
-            name = "Clean Chat Preview"
-            options.extend(["--osx-bundle-identifier", "com.cleanchat.desktop.preview"])
+            options.extend(["--codesign-identity", identity])
     ocr_script = ROOT / "src" / "clean_chat" / "modules" / "ocr" / "windows.ps1"
     if ocr_script.exists():  # Windows OCR은 모듈 옆의 PowerShell 스크립트를 읽는다 (ocr 모듈이 합쳐진 뒤).
         options.extend(["--add-data", f"{ocr_script}:clean_chat/modules/ocr"])
@@ -76,6 +75,22 @@ def build(distpath: Path = ROOT / "dist") -> None:
             f"{ROOT / 'data' / 'lexicon'}:data/lexicon",
             str(ROOT / "src" / "clean_chat" / "desktop.py"),
         ]
+    )
+    if sys.platform == "darwin" and not (identity and identity != "-"):
+        sign_with_stable_identity(distpath / f"{name}.app")
+
+
+def sign_with_stable_identity(app: Path) -> None:
+    """인증서 없이 만든 빌드도 버전이 바뀔 때 화면 기록 권한이 유지되게 서명한다.
+
+    macOS 는 권한을 앱의 "지정 요구 사항"에 묶는다. 인증서 없는(ad-hoc) 서명은 이 값이 실행 파일의 해시라서,
+    빌드할 때마다 다른 앱으로 보고 권한을 다시 받아야 했다(목록에는 예전 항목이 켜진 채 남아 헷갈린다).
+    요구 사항을 번들 ID 로 지정하면 같은 ID 의 다음 빌드에도 같은 권한이 적용된다.
+    """
+    subprocess.run(
+        ["codesign", "--force", "--sign", "-", "--identifier", BUNDLE_ID]
+        + ["--requirements", f'=designated => identifier "{BUNDLE_ID}"', str(app)],
+        check=True,
     )
 
 

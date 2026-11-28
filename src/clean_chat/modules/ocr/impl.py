@@ -32,7 +32,8 @@ def run(frame: Frame) -> OcrResult:
     """
     try:
         # image_path는 이미 채팅창 영역이다. 화면 좌표인 region으로 다시 자르지 않는다.
-        image = _load_image(frame.image_path)
+        # 앱의 실시간 캡처는 디스크에 쓰지 않고 메모리 이미지를 넘긴다. 없으면 파일에서 읽는다.
+        image = frame.image.convert("RGB") if frame.image is not None else _load_image(frame.image_path)
         try:
             processed = _preprocess(image)
             try:
@@ -107,8 +108,15 @@ def _merge_wrapped_lines(lines: list[tuple[str, float | None]]) -> list[tuple[st
 def _to_raw_lines(frame: Frame, lines: list[tuple[str, float | None]]) -> list[RawLine]:
     """(텍스트, 신뢰도) → RawLine(id, ts=frame.ts, text, source=ocr, ocr_confidence). id 는 앱 실행 중 유일하게."""
     from .alphabet import restrict
+    from .textfix import tidy
 
     return [
-        RawLine(id=f"ocr-{uuid4().hex}", ts=frame.ts, text=restrict(text), source=Source.OCR, ocr_confidence=confidence)
+        RawLine(
+            id=f"ocr-{uuid4().hex}",
+            ts=frame.ts,
+            text=tidy(restrict(text)),
+            source=Source.OCR,
+            ocr_confidence=confidence,
+        )
         for text, confidence in lines
     ]

@@ -13,6 +13,10 @@ from clean_chat.modules.parse.normalization import normalize
 _CHANNEL = re.compile(r"^[\[(（［][ \t]*(팀|전체)[ \t]*[\])）］][ \t]*")
 _HEADER_TEXT = r"[^:;：；()（）\[\]［］\r\n]+?"
 _SPEAKER = re.compile(rf"({_HEADER_TEXT})(?:[ \t]*[(（]({_HEADER_TEXT})[)）])?[ \t]*[:;：；][ \t]?([^\r\n]*)")
+_AFK_WARNING = re.compile(r"자리\s?비움\s?경고")
+_AFK_TAIL = re.compile(r"\s*자리\s?비움\s?경고\s*:?\s*게임에")
+
+
 _SYSTEM = re.compile(
     rf"{_HEADER_TEXT}(?:[ \t]*[(（]{_HEADER_TEXT}[)）])?[ \t]*님이 "
     r"(?:[^\r\n]*(?:신호를 보냈습니다|처치했습니다)|게임을 (?:종료했습니다|떠났습니다))[.!]?"
@@ -20,7 +24,8 @@ _SYSTEM = re.compile(
 _UI_CLOCK = re.compile(r"(?:게임 시간|남은 시간)[ \t]*[:;：；][ \t]*[0-9]{1,3}[:：][0-9]{2}")
 _NOTICE_LABEL = re.compile(r"^(?:알림|시스템)[ \t]*[:;：；][ \t]*")
 _GAME_CLOCK = r"[0-9]{1,3}:[0-5][0-9]"
-_GAME_TIME = re.compile(rf"^(?P<clock>{_GAME_CLOCK}|\[{_GAME_CLOCK}\])[ \t]+")
+# 대괄호로 싼 시간은 닉네임에 붙어 있어도 된다 ("[00:12]물비늘(쓰레쉬): …", OCR 이 띄어쓰기를 빠뜨림)
+_GAME_TIME = re.compile(rf"^(?:(?P<clock>{_GAME_CLOCK})[ \t]+|(?P<bracket>\[{_GAME_CLOCK}\])[ \t]*)")
 _TIME_LIKE = re.compile(r"^\[?[0-9]+[ \t]*[:;：；][0-9]")
 
 
@@ -51,6 +56,7 @@ def run(req: ParseRequest) -> ParseResult:
     if line.source == Source.SELF_INPUT:
         channel, body = _split_channel_command(line.text)
         speaker, champion, is_me = req.my_name, None, True
+        tagged = True
     else:
         if _is_noise(line.text):
             return ParseResult(line_id=line.id, message=None)
@@ -62,10 +68,15 @@ def run(req: ParseRequest) -> ParseResult:
         if channel is None and _is_system(rest):
             return ParseResult(line_id=line.id, message=None)
         speaker, champion, body = _split_speaker(rest)
-        if speaker is None:
+        if speaker is None or _AFK_WARNING.fullmatch(speaker.strip()):
+            # "자리비움 경고: 게임에 적극적으로 …" 는 `이름: 내용` 꼴이지만 게임이 띄우는 안내다.
             return ParseResult(line_id=line.id, message=None)
+        # OCR 이 바로 아랫줄의 자리비움 안내를 채팅 뒤에 이어 붙여 읽는 일이 있다 → 안내 부분은 떼어 낸다.
+        body = _AFK_TAIL.split(body, maxsplit=1)[0]
         is_me = bool(req.my_name) and speaker == req.my_name
-        channel = channel or Channel.UNKNOWN
+        # 롤은 전체 채팅에만 [전체] 를 붙이고 팀 채팅에는 표시가 없다 → 표시가 없으면 팀
+        tagged = channel is not None
+        channel = channel or Channel.TEAM
     if not body.strip():
         return ParseResult(line_id=line.id, message=None)
     text_norm, hints = normalize(body)
@@ -83,7 +94,7 @@ def run(req: ParseRequest) -> ParseResult:
         raw=line.text,
         game_time_sec=game_time_sec,
     )
-    message.raw_norm = _format_raw_norm(message)
+    message.raw_norm = _format_raw_norm(message, tagged)
     return ParseResult(line_id=line.id, message=message)
 
 
@@ -93,19 +104,22 @@ def _split_game_time(text: str) -> tuple[int | None, str] | None:
     stripped = text.lstrip(" \t")
     match = _GAME_TIME.match(stripped)
     if match is not None:
-        minutes, seconds = match["clock"].strip("[]").split(":")
+        minutes, seconds = (match["clock"] or match["bracket"]).strip("[]").split(":")
         return int(minutes) * 60 + int(seconds), stripped[match.end() :]
     return None if _TIME_LIKE.match(stripped) else (None, stripped)
 
 
-def _format_raw_norm(message: ChatMessage) -> str:
-    """확인한 헤더 정보만 표준 형식으로 재구성한다. 본문은 text_norm 대신 원문 text를 쓴다."""
+def _format_raw_norm(message: ChatMessage, tagged: bool = True) -> str:
+    """확인한 헤더 정보만 표준 형식으로 재구성한다. 본문은 text_norm 대신 원문 text를 쓴다.
+
+    채널 표시는 원문에 있었을 때만 쓴다 (표시가 없어 팀으로 본 줄에 [팀] 을 지어 붙이지 않는다).
+    """
     parts: list[str] = []
     if message.game_time_sec is not None:
         minutes, seconds = divmod(message.game_time_sec, 60)
         parts.append(f"{minutes:02d}:{seconds:02d}")
     tag = {Channel.TEAM: "[팀]", Channel.ALL: "[전체]"}.get(message.channel)
-    if tag is not None:
+    if tag is not None and tagged:
         parts.append(tag)
     champion = f" ({message.champion})" if message.champion else ""
     parts.append(f"{message.speaker}{champion}: {message.text}")

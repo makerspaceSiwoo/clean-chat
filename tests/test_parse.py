@@ -55,10 +55,10 @@ def test_non_chat(raw: str) -> None:
     assert run(request(raw)).message is None
 
 
-def test_unknown_channel_and_optional_champion() -> None:
+def test_no_channel_tag_means_team_and_optional_champion() -> None:
     message = run(request("나: 정글 합류 부탁해요")).message
     assert message is not None
-    assert (message.channel, message.champion, message.is_me) == (Channel.UNKNOWN, None, True)
+    assert (message.channel, message.champion, message.is_me) == (Channel.TEAM, None, True)
 
 
 def test_system_phrase_in_player_chat_is_preserved() -> None:
@@ -121,7 +121,7 @@ def test_header_delimiter_variants_preserve_body(separator: str, champion: str) 
 def test_delimiter_variants_without_champion(separator: str) -> None:
     message = run(request(f"나{separator} 합류 부탁해요")).message
     assert message is not None
-    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.UNKNOWN, True)
+    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.TEAM, True)
 
 
 @pytest.mark.parametrize(
@@ -407,7 +407,7 @@ def test_game_time_prefix_preserves_evidence(source: Source, clock: str, tag: st
 def test_game_time_without_channel_or_champion(clock: str) -> None:
     message = run(request(f"{clock} 나 : ****")).message
     assert message is not None
-    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.UNKNOWN, True)
+    assert (message.speaker, message.champion, message.channel, message.is_me) == ("나", None, Channel.TEAM, True)
     assert (message.text, message.text_norm, message.hints) == ("****", "****", [])
 
 
@@ -632,3 +632,63 @@ def test_message_metadata_reaches_session_serialization_and_report_input() -> No
     assert len(captured) == 1
     message = captured[0].session.incidents[0].msg
     assert (message.raw_norm, message.game_time_sec, message.ts, message.raw) == (raw, 1022, 1122.0, raw)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("ㅅ1발 새끼들아", "시발 새끼들아"),  # 초성 + 숫자 + 글자
+        ("tlqkf 뭐하냐", "시발 뭐하냐"),  # 영타
+        ("wlfkf whssk", "지랄 존나"),
+        ("아 ㅈㄹ하네", "아 지랄하네"),  # 초성
+        ("ㅗㅗㅗㅗ", "엿먹어"),  # 손가락 욕은 몇 번을 반복해도
+        ("c발 진짜", "시발 진짜"),
+        ("개쉑", "개새끼"),
+        ("ㄴㄱㅁ", "느금마"),
+    ],
+)
+def test_bypass_spellings_are_restored(text, expected):
+    from clean_chat.modules.parse.normalization import normalize
+
+    assert normalize(text)[0] == expected
+
+
+@pytest.mark.parametrize(
+    "text", ["다시 발로 차", "시바견 귀엽다", "병사 신호", "what the", "용 먼저 치자 ㄱㄱ", "ㅗ", "새끼 고양이"]
+)
+def test_ordinary_text_is_not_rewritten_by_bypass_lexicon(text):
+    from clean_chat.modules.parse.normalization import normalize
+
+    assert normalize(text) == (text, [])
+
+
+def test_afk_warning_is_not_chat_and_is_cut_from_merged_lines():
+    """자리비움 경고는 `이름: 내용` 꼴이지만 게임 안내다. 채팅 뒤에 이어 붙어 읽혀도 채팅 본문에 넣지 않는다 (실제 게임 기록)."""
+    from clean_chat.core.schemas import ParseRequest, RawLine
+    from clean_chat.modules.parse.impl import run
+
+    def parse(text: str):
+        return run(ParseRequest(line=RawLine(id="t", ts=0, source="ocr", text=text), my_name="나")).message
+
+    assert parse("자리비움 경고: 게임에 적극적으로 참여해야 합니다.그렇지않으면 대기 상태로 표시됩니다.") is None
+    merged = parse(
+        "[전체] 별빛라면 (멜): 지1랄 났네 자리비움 경고 게임에 적극적으로 참여해야 합니다 그렇지않으면 대기 상태로 표시됩니다."
+    )
+    assert merged.text == "지1랄 났네" and merged.text_norm == "지랄 났네"
+    assert parse("[전체] 별빛라면 (멜): 자리비움 경고 떴네").text == "자리비움 경고 떴네"  # 채팅에서 말한 것은 그대로
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "[00:12]물비늘(쓰레쉬):ㅎㅇ잘부탁해",
+        "[00:12]물비늘 (쓰레쉬): ㅎㅇ잘부탁해",
+        "[00:12][팀]물비늘(쓰레쉬): ㅎㅇ잘부탁해",
+    ],
+)
+def test_bracketed_game_time_stuck_to_the_nickname(raw: str) -> None:
+    """OCR 이 대괄호 시간 뒤 띄어쓰기를 빠뜨려도 채팅으로 읽는다 (합성 영상 점검에서 채팅 절반이 여기서 사라짐)."""
+    message = run(request(raw)).message
+    assert message is not None
+    assert (message.speaker, message.champion, message.text) == ("물비늘", "쓰레쉬", "ㅎㅇ잘부탁해")
+    assert message.game_time_sec == 12

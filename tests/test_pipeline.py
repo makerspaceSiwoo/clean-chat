@@ -1,5 +1,7 @@
 """연결 구조 (구성): 가짜 모듈로 흐름 A/B, 게임 세션, 종료 배치가 제대로 이어지는지. 모듈 로직은 보지 않는다."""
 
+import pytest
+
 from clean_chat.core.config import FIXTURES
 from clean_chat.core.engine import Engine
 from clean_chat.core.jsonl import read_jsonl
@@ -15,6 +17,7 @@ from clean_chat.core.schemas import (
     RawLine,
     ReportKind,
     ReportRequest,
+    Source,
 )
 from clean_chat.core.sources import DemoLineSource
 from clean_chat.session.fake import FakePhaseDetector
@@ -40,7 +43,9 @@ def test_demo_game_wiring():
     assert eng.error is None
     assert phases == [GamePhase.IN_GAME, GamePhase.POST_GAME]
     assert [i.msg.id for i in incidents] == ["L0", "L2", "L3", "L4", "L5"]  # 핑(L1)·잡음(L6)은 parse 가 걸러냄
-    assert [i.decision.action for i in incidents] == ["show", "show_masked", "show_rewritten", "hide", "hide"]
+    # L2(욕설 + 혼잣말)는 욕설을 뺀 문장으로 보여 준다. ** 로 가리지 않는다.
+    assert [i.decision.action for i in incidents] == ["show", "show_rewritten", "show_rewritten", "hide", "hide"]
+    assert [i.decision.display_text for i in incidents][1] == "아 내가 실수함"
     session = eng.repository.load("20251112-125820")
     assert session == read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session  # 같은 시나리오
     (result,) = results
@@ -51,12 +56,13 @@ def test_demo_game_wiring():
     assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "얼음땡")]
 
 
-def test_rewrite_only_for_l2_with_feedback():
+def test_rewrite_for_mild_chat_and_abusive_chat_with_feedback():
+    """rewrite 는 L1(욕설만 지우기)과 L2 이상 + 피드백(피드백만 다듬기)에서만 부른다. L0 과 피드백 없는 L2·L3 은 안 부른다."""
     called: list[str] = []
     base = fixture_modules()
     mods = fixture_modules(rewrite=lambda req: called.append(req.message.id) or base.run("rewrite", req))
     _engine(mods).start(block=True)
-    assert called == ["L3"]
+    assert called == ["L2", "L3"]
 
 
 def test_analyze_gets_history_and_players():
@@ -114,11 +120,122 @@ def test_frame_without_overlap_is_all_new_and_empty_ocr_keeps_baseline():
     assert [ln.id for ln in dedup.new_lines(frame("A", "B", "C"))] == ["A", "B", "C"]
     assert [ln.id for ln in dedup.new_lines(frame("C", "D", "E"))] == ["D", "E"]
     assert [ln.id for ln in dedup.new_lines(frame("X", "Y"))] == ["X", "Y"]  # 연속성 검사 없이 바로 받아들인다
+    baseline = list(dedup.previous)
+    assert baseline[-2:] == ["X", "Y"]
     for empty in ([], frame(" "), frame("", "\t")):  # OCR 이 아무것도 못 읽은 화면이 여러 번 이어져도
         assert dedup.new_lines(empty) == []
-        assert dedup.previous == ["X", "Y"]  # 비교 기준은 그대로
+        assert dedup.previous == baseline  # 비교 기준은 그대로
     assert dedup.new_lines(frame("X", "Y")) == []  # 다시 보여도 이미 처리한 줄
     assert [ln.id for ln in dedup.new_lines(frame("Y", "Z"))] == ["Z"]
+
+
+# 실제 게임에서 같은 채팅 한 줄을 OCR 이 읽은 결과들 (2026-11-28, 반투명 채팅창 뒤로 게임 화면이 움직임).
+# 닉네임은 예시 이름으로 바꿨다 (실제 닉네임은 커밋하지 않는다).
+REAL_VARIANTS = [
+    "[전체] 밤하늘 별(나서스): 야 정글 글인*아 ㅇㅇ 치라고",
+    "[전체]밤하늘 별 (나서스): 야 정글 ㅇ치라고",
+    "[전체]밤하늘 별 (나서스): 야 정글 *기*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 별 (나서스): 야 정글 글**아 ㅇㅇ 치라고",
+    "[전체] 밤하늘 별(나서스): 야 정글 글*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 별(나서스): 야 정글 *1*아 ㅇ치라고",
+    "[전체] 밤하늘 ’  별(나서스): 야 정글 글*1*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 ‘  별(나서스): 야 정글 글**아 ㅇㅇ 치라고",
+]
+REAL_NOTICE = "다시하기 가능: 상대가 킬을 달성하기 전까지 누군가 님이 55초 동안 활동하지 않았습니다."
+
+
+def _frame(*texts: str) -> list[RawLine]:
+    return [RawLine(id=f"{i}:{t}", ts=0, text=t, source="ocr") for i, t in enumerate(texts)]
+
+
+def test_same_line_read_differently_is_not_new_again():
+    """같은 줄을 OCR 이 매번 다르게 읽어도 한 번만 새 줄로 본다. 똑같이 읽힌 다른 줄도 다시 내지 않는다."""
+    from clean_chat.core.pipeline import line_similarity
+
+    assert all(line_similarity(a, b) > 0 for a in REAL_VARIANTS for b in REAL_VARIANTS)
+    dedup = LineDedup()
+    seen = [ln.text for text in REAL_VARIANTS * 3 for ln in dedup.new_lines(_frame(REAL_NOTICE, text))]
+    assert seen == [REAL_NOTICE, REAL_VARIANTS[0]]
+    # 그 아래에 올라온 진짜 새 채팅은 놓치지 않는다.
+    new = "[전체] 밤하늘 별(나서스): 바론 가자"
+    assert [ln.text for ln in dedup.new_lines(_frame(REAL_NOTICE, REAL_VARIANTS[3], new))] == [new]
+    assert dedup.new_lines(_frame(REAL_VARIANTS[5], new)) == []
+
+
+def test_different_messages_from_same_speaker_are_different_lines():
+    from clean_chat.core.pipeline import line_similarity
+
+    head = "[전체] 밤하늘별 (가렌): "
+    assert line_similarity(head + "ㅇㅇ", head + "ㄴㄴ") == 0
+    assert line_similarity(head + "미드 와", head + "미드 가") == 0
+    assert line_similarity(head + "용 가자", "[전체] 초코우유 (리신): 용 가자") == 0  # 다른 사람의 같은 말
+    assert line_similarity(REAL_NOTICE, REAL_VARIANTS[0]) == 0
+
+
+def test_line_missed_in_one_frame_is_not_emitted_again():
+    """OCR 이 한 화면에서 줄을 빠뜨리거나 화면이 통째로 비어도, 다음 화면에서 이미 본 줄을 새 줄로 내지 않는다."""
+    dedup = LineDedup()
+    assert [ln.text for ln in dedup.new_lines(_frame("A: 하나", "B: 둘둘", "C: 셋셋셋"))] == [
+        "A: 하나",
+        "B: 둘둘",
+        "C: 셋셋셋",
+    ]
+    assert dedup.new_lines(_frame("A: 하나", "B: 둘둘")) == []  # 마지막 줄을 못 읽음
+    assert dedup.new_lines(_frame("A: 하나", "C: 셋셋셋")) == []  # 가운데 줄을 못 읽음
+    assert dedup.new_lines([]) == []
+    assert dedup.new_lines(_frame("A: 하나", "B: 둘둘", "C: 셋셋셋")) == []
+    assert [ln.text for ln in dedup.new_lines(_frame("B: 둘둘", "C: 셋셋셋", "D: 넷"))] == ["D: 넷"]
+
+
+def test_same_text_sent_several_times_counts_each_line():
+    """같은 사람이 ㅋㅋㅋ 를 여러 줄 연달아 쳐도 줄마다 한 번씩 센다. ㅋ 개수가 다르게 읽혀도 다시 세지 않는다."""
+    who = "[전체] 불꽃남자 (징크스): "
+    dedup = LineDedup()
+
+    def new(*texts: str) -> list[str]:
+        return [ln.text for ln in dedup.new_lines(_frame(*texts))]
+
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ") == ["A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ"]
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ") == [who + "ㅋㅋㅋㅋㅋㅋㅋ"]  # 둘째 줄
+    assert new("A: 하나", who + "ㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋㅋ") == []  # 같은 두 줄, ㅋ 개수만 다르게 읽힘
+    assert new(who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ", who + "ㅋㅋㅋㅋㅋㅋㅋ") == [
+        who + "ㅋㅋㅋㅋㅋㅋㅋ"
+    ]  # 셋째 줄
+    # 한 줄에 다 못 들어가 다음 줄로 넘어간 긴 ㅋㅋㅋ (OCR 모듈이 한 줄로 합쳐 준다) 도 개수 차이를 같은 줄로 본다.
+    long = who + "ㅋ" * 45
+    assert new(long) == [long] and new(who + "ㅋ" * 52) == [] and new(who + "ㅋ" * 39) == []
+
+
+def test_line_not_read_as_chat_is_retried_when_read_differently():
+    """첫 판독이 깨져 채팅으로 읽히지 않은 줄은, 다르게 읽혔을 때 한 번 더 내보낸다 (같은 판독이면 다시 내지 않는다)."""
+    dedup = LineDedup()
+    broken, fixed = (
+        "[03:35][전체]별빛라면(이즈리얼):넌 그냥 탈주해",
+        "[03:35] [전체] 별빛라면 (이즈리얼): 넌 그냥 탈주해",
+    )
+    first = dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋"))
+    assert [ln.text for ln in first] == ["A: 하나", broken, "C: 셋셋셋"]
+    dedup.retry(first[1])  # parse 가 채팅이 아니라고 함
+    assert dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋")) == []  # 똑같이 읽히면 그대로
+    assert [ln.text for ln in dedup.new_lines(_frame("A: 하나", fixed, "C: 셋셋셋"))] == [fixed]
+    assert dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋")) == []  # 한 번 다시 본 뒤에는 또 내지 않는다
+
+
+def test_line_that_is_never_chat_is_not_reemitted_forever():
+    """시스템 문구처럼 채팅이 아닌 줄은 조금씩 다르게 읽혀도 정해진 횟수까지만 다시 내보낸다 (실제 게임에서 24번 반복됨)."""
+    dedup = LineDedup()
+    variants = [
+        "가렌 님이 상단 포지션을 선택했습니다.",
+        "가렌 님이 상단 포지션을 선택했습니다",
+        "가렌 님이 상단포지션을 선택했습니다.",
+    ]
+    emitted = 0
+    for i in range(30):
+        for line in dedup.new_lines(_frame("A: 하나", variants[i % 3], "C: 셋셋셋")):
+            if line.text in variants:
+                emitted += 1
+                dedup.retry(line)  # parse 가 매번 채팅이 아니라고 함
+    assert emitted == 1 + LineDedup.RETRIES
 
 
 def test_process_frame_runs_ocr_then_lines():
@@ -159,3 +276,105 @@ def _analysis_for(base: ModuleSet, req):
     if req.message.id == "L9":
         return Analysis(msg_id="L9", level=0, model_version="test")
     return base.run("analyze", req)
+
+
+def test_speaker_is_one_person_per_nickname_and_champion():
+    """닉네임 + 챔피언이 한 사람이다. 닉네임 오독은 같은 챔피언 안에서만 한 사람으로 모은다."""
+    from clean_chat.core.pipeline import SpeakerBook
+    from clean_chat.core.schemas import ChatMessage, Player
+
+    def msg(speaker: str, champion: str | None) -> ChatMessage:
+        return ChatMessage(
+            id="m",
+            ts=0,
+            source="ocr",
+            channel="all",
+            speaker=speaker,
+            champion=champion,
+            text="x",
+            text_norm="x",
+            raw="x",
+        )
+
+    book = SpeakerBook()  # 명단 없음 → 처음 읽은 표기로 맞춘다
+    assert book.resolve(msg("밤하늘 별", "나서스"), []).speaker == "밤하늘 별"
+    assert book.resolve(msg("밤하늘 ’  별", "나서스"), []).speaker == "밤하늘 별"  # 실제 게임의 오독
+    assert book.resolve(msg("밤하늘 벌", "나서스"), []).speaker == "밤하늘 별"
+    assert book.resolve(msg("밤하늘 별", "티모"), []).speaker == "밤하늘 별"  # 같은 닉네임, 다른 사람
+    assert ("밤하늘 별", "티모") in book.seen and ("밤하늘 별", "나서스") in book.seen
+    assert book.resolve(msg("전혀다른이름", "나서스"), []).speaker == "전혀다른이름"  # 상대 팀의 같은 챔피언
+    assert book.resolve(msg("밤하늘 별", None), []).speaker == "밤하늘 별"  # 챔피언을 모르면 그대로
+
+    roster = [Player(name="밤하늘별", champion="가렌"), Player(name="초코우유", champion="리신")]
+    assert SpeakerBook().resolve(msg("밤하늘벌", "가렌"), roster).speaker == "밤하늘별"  # 명단의 표기로 맞춘다
+    assert SpeakerBook().resolve(msg("밤하늘벌", "리신"), roster).speaker == "밤하늘벌"  # 챔피언이 다르면 그대로
+
+
+# ── 깨진 채팅 머리 복구 (합성 영상 점검 2026-11-28) ─────────────────────────────────
+# 채팅창 뒤로 HUD 가 겹치면 OCR 이 머리를 "-[06:0거돌여울아렌):…" 처럼 읽는다 ("7]"→"거", "(" 빠짐).
+# 복구는 이미 본 사람과만 맞춘다. 틀린 사람에게 붙으면 신고·고소장이 엉뚱한 사람에게 가므로 애매하면 하지 않는다.
+def _real_parse_pipeline():
+    from clean_chat.modules.parse.impl import run as parse_run
+
+    return Pipelines(fixture_modules(parse=parse_run)).incoming
+
+
+def _raw(i: int, text: str) -> RawLine:
+    return RawLine(id=f"R{i}", ts=float(i), text=text, source=Source.OCR)
+
+
+def test_broken_head_is_repaired_with_a_speaker_seen_before():
+    incoming = _real_parse_pipeline()
+    incoming.parse(_raw(0, "[03:25] 돌여울 (가렌): 정글 미쳤나봐"))
+    for broken in ("-[06:0거돌여울아렌):리신 엄마없이자랐냐", "[06:0거돌여울가렌): 리신 엄마없이자랐냐"):
+        incoming.speakers.said.clear()
+        msg = incoming.parse(_raw(1, broken)).message
+        assert msg is not None, broken
+        assert (msg.speaker, msg.champion, msg.text) == ("돌여울", "가렌", "리신 엄마없이자랐냐")
+
+
+def test_broken_head_of_a_first_time_speaker_is_not_guessed():
+    incoming = _real_parse_pipeline()
+    incoming.parse(_raw(0, "[03:25] 여름비 (아리): 미드 미아"))
+    assert incoming.parse(_raw(1, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message is None
+
+
+def test_broken_head_is_not_repaired_when_two_people_are_similar():
+    from clean_chat.core.pipeline import SpeakerBook
+
+    book = SpeakerBook()
+    book.seen = [("돌여울", "가렌"), ("돌여을", "가렌")]  # 블라인드 픽: 양 팀에 가렌이 둘
+    assert book.repair_head("-[06:0거돌여어가렌):리신 엄마없이자랐냐", []) is None  # 둘 다 0.8 → 고르지 않는다
+    assert (
+        book.repair_head("-[06:0거돌여울아렌):리신 엄마없이자랐냐", []) == "돌여울 (가렌): 리신 엄마없이자랐냐"
+    )  # 0.8 대 0.6
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[전체]돌여울 (가렌):",  # 줄이 쪼개져 내용이 없는 화자 조각
+        "[04:25] 돌여울 (가렌)님이 적이 사라졌다고 알림",  # 시스템 알림 (콜론 없음)
+        "아까 한타에서 돌여울가렌이 진짜 잘했는데 다음엔 더 잘하자 (ㅋㅋ): 응",  # 머리가 너무 긴 문장
+    ],
+)
+def test_other_lines_are_not_repaired(text):
+    from clean_chat.core.pipeline import SpeakerBook
+
+    book = SpeakerBook()
+    book.seen = [("돌여울", "가렌")]
+    assert book.repair_head(text, []) is None
+
+
+def test_repaired_line_already_processed_is_not_counted_twice():
+    """같은 줄을 한 번은 바르게, 한 번은 깨지게 읽으면 신고 증거가 두 번 들어가지 않게 한다."""
+    incoming = _real_parse_pipeline()
+    assert incoming.parse(_raw(0, "[06:07] 돌여울 (가렌): 리신 엄마 없이 자랐냐")).message is not None
+    assert incoming.parse(_raw(1, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message is None
+
+
+def test_roster_is_used_for_repair_too():
+    incoming = _real_parse_pipeline()
+    incoming.roster.players = [Player(name="돌여울", champion="가렌"), Player(name="여름비", champion="아리")]
+    msg = incoming.parse(_raw(0, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message
+    assert msg is not None and msg.speaker == "돌여울"

@@ -343,3 +343,65 @@ def test_compressed_stretched_repetitions(jamo_font_path, text):
                     assert [span.text for row in find_repeat_rows(processed) for span in row.spans] == [text]
                 finally:
                     processed.close()
+
+
+def test_in_memory_frame_is_read_without_touching_disk(monkeypatch):
+    """앱의 실시간 캡처는 파일을 만들지 않고 Frame.image(메모리)로 넘긴다."""
+    pytest.importorskip("PIL")
+    from PIL import Image
+
+    from clean_chat.modules.ocr import impl
+
+    seen = []
+    monkeypatch.setattr(impl, "_load_image", lambda path: pytest.fail(f"디스크에서 읽으려 함: {path!r}"))
+    monkeypatch.setattr(impl, "_read_lines", lambda image: seen.append(image.size) or [])
+    with Image.new("RGB", (320, 90), "black") as image:
+        frame = Frame(id="F-mem", ts=0, image_path="", region=Region(x=0, y=0, w=320, h=90), image=image)
+        assert impl.run(frame).lines == []
+        assert seen == [(320, 90)]
+        assert image.getpixel((0, 0)) == (0, 0, 0)  # 넘겨받은 이미지는 닫지 않는다 (복사본만 닫는다)
+    assert "image" not in Frame.model_json_schema()["properties"]  # 주고받는 JSON 형식은 그대로
+
+
+@pytest.mark.parametrize(
+    ("read", "expected"),
+    [
+        # 실제 게임 화면에서 OCR 이 읽은 줄 (2026-11-28). ㅋ 를 다른 글자로 읽고, 콜론·띄어쓰기를 빠뜨리고, 괄호를 섞는다.
+        ("[전체]별빛라면(멜)ㅋㅋㅋㅋㅋㅋㅋ", "[전체] 별빛라면 (멜): ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[전체]별빛라면(멜):키키키ㅋ키키=", "[전체] 별빛라면 (멜): ㅋㅋㅋㅋㅋㅋ="),
+        ("[전체]별빛라면(멜]카크키카크코키", "[전체] 별빛라면 (멜): ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[팀]감자튀김(가렌) ㅋㅋㅋ흐ㅋ흐ㅋㅋㅋㅋㅋㅋㅋ", "[팀] 감자튀김 (가렌): ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ"),
+        ("ㅋㅋ브ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[전체] 감자튀김 [이즈리얼) 멍청한", "[전체] 감자튀김 (이즈리얼): 멍청한"),
+        ("[팀]감자튀김(가렌) 뭐하냐", "[팀] 감자튀김 (가렌): 뭐하냐"),
+        ("[03:35][전체]별빛라면(이즈리얼):넌 그냥 탈주해", "[03:35] [전체] 별빛라면 (이즈리얼): 넌 그냥 탈주해"),
+        # 팀 채팅은 채널 표시 없이 시간으로 시작한다 (합성 영상 점검, 2026-11-28)
+        ("[13:18]돌여울(가렌)정글니애미 용좀 치라고", "[13:18] 돌여울 (가렌): 정글니애미 용좀 치라고"),
+        ("[00:12]물비늘(쓰레쉬):ㅎㅇ잘부탁해", "[00:12] 물비늘 (쓰레쉬): ㅎㅇ잘부탁해"),
+        ("[02:53] 물비늘(쓰레쉬|): 바텀 라인 당겨", "[02:53] 물비늘 (쓰레쉬): 바텀 라인 당겨"),
+    ],
+)
+def test_common_misreads_are_tidied(read, expected):
+    from clean_chat.modules.ocr.textfix import tidy
+
+    assert tidy(read) == expected
+    assert tidy(expected) == expected  # 이미 바른 줄은 그대로
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[팀] 밤하늘별 (가렌): 다들 화이팅",
+        "감자튀김 (가렌) 님이 적이 사라졌다고 알림",  # 채널 표시가 없는 시스템 문구에는 콜론을 넣지 않는다
+        "[04:25] 여름비 (아리)님이 적이 사라졌다고 알림",  # 시간으로 시작해도 "(챔피언)님이" 알림은 채팅이 아니다
+        "[08:16]밤도토리(리 신)님이 지원을 요청합니다.",
+        "[05:55] 적 팀이 드래곤을 처치했습니다!",
+        "[전체]별빛라면(멜)",  # 내용이 없으면 그대로
+        "쿠키 먹고 싶다 키카",  # 짧은 낱말은 웃음으로 바꾸지 않는다
+        "카카오톡 코코넛",
+    ],
+)
+def test_tidy_leaves_other_lines_alone(text):
+    from clean_chat.modules.ocr.textfix import tidy
+
+    assert tidy(text) == text

@@ -16,6 +16,8 @@ from PySide6.QtCore import QObject, QStandardPaths, QTimer, Signal
 from PySide6.QtGui import QImage
 from PySide6.QtWidgets import QApplication
 
+INTERVAL_MS = 1000  # 미리보기를 새로 가져오는 주기
+
 
 def build_snapshot_library(output: Path) -> None:
     source = Path(__file__).with_name("region_snapshot.m")
@@ -76,6 +78,9 @@ def mac_snapshot(rect, scale: float) -> QImage:
 
 
 class RegionPreview(QObject):
+    """오버레이 좌표의 사각형만 주기적으로 한 장 가져온다 (우리 앱 창은 캡처에서 뺀다)."""
+
+    OK = "오버레이 아래 화면 · 이미지 미리보기"
     image = Signal(QImage)
     status = Signal(str)
 
@@ -95,7 +100,7 @@ class RegionPreview(QObject):
         if self.timer.isActive():
             return
         self.status.emit("오버레이 아래 첫 이미지를 가져오는 중")
-        self.timer.start(200)
+        self.timer.start(INTERVAL_MS)
         self._tick()
 
     def stop(self) -> None:
@@ -141,7 +146,7 @@ class RegionPreview(QObject):
                     self.excluded.add(hwnd)
                 local = rect.translated(-screen.geometry().topLeft())
                 self._show(screen.grabWindow(0, *local.getRect()).toImage())
-            self.timer.setInterval(200)
+            self.timer.setInterval(INTERVAL_MS)
         except Exception as exc:
             self.image.emit(QImage())
             self.status.emit(f"미리보기 재시도 중 · {exc}")
@@ -151,4 +156,4 @@ class RegionPreview(QObject):
         if image.isNull():
             raise RuntimeError("화면 이미지가 비어 있습니다.")
         self.image.emit(image)
-        self.status.emit("오버레이 아래 화면 · 이미지 미리보기")
+        self.status.emit(self.OK)

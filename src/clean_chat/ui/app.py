@@ -61,11 +61,12 @@ class App(QObject):
             self.sampler.permission_needed.connect(self.client.show_capture_settings)
             self.sampler.status.connect(self._status)
             self.sampler.failed.connect(self.capture_failed)
-            self.sampler.ended.connect(self.stop)
             self.client.btn_start.clicked.connect(self.toggle)
             self.client.btn_lock.clicked.connect(self.toggle_editing)
             self.bridge.row.connect(self.show_row)
-            self.client.game_caption.setText("오버레이를 실행하고 위치를 잠그면 게임 창을 찾아 감시")
+            self.client.game_caption.setText(
+                "위치를 잠그면 오버레이가 가린 영역의 채팅을 읽습니다 (게임 창은 찾지 않음)"
+            )
         else:
             self.client.preview_card.hide()
             self.client.btn_start.hide()
@@ -124,7 +125,7 @@ class App(QObject):
     def _status(self, text: str) -> None:
         if not self.failure:
             self.client.statusBar().showMessage(text)
-            if self.armed and self.sampler and self.sampler.preview_only and not self.client.preview_count:
+            if self.armed and self.client.preview_toggle.isChecked() and not self.client.preview_count:
                 self.client.preview_image.setText(text)
 
     @Slot(str)
@@ -156,10 +157,6 @@ class App(QObject):
         if self.engine.phase == GamePhase.POST_GAME and not self.engine.dismiss_result():
             return
         self.save_name()
-        self.sampler.preview_only = self.client.preview_only.isChecked()
-        self.client.preview_only.setEnabled(False)
-        if self.sampler.preview_only:
-            self.client.pages.setCurrentWidget(self.client.preview_page)
         self.armed = True
         self.failure = ""
         self.overlay.clear_chat()
@@ -193,9 +190,6 @@ class App(QObject):
         if self.sampler:
             self.session_started |= self.sampler.source.running
             self.sampler.stop()
-            self.client.preview_only.setEnabled(True)
-            if self.sampler.preview_only:
-                self.client.show_phase(self.engine.phase, None)
         self.overlay.hide()
         self.client.region_state.setText("위치 조정 대기")
         self.client.btn_start.setEnabled(not self.session_started and self.engine.error is None)
@@ -220,23 +214,22 @@ class App(QObject):
         if self.failure:
             c.set_status("멈춤", f"{self.failure} · 오버레이를 종료한 뒤 다시 실행하세요.")
         elif not self.armed:
-            c.set_status("중지됨", "오버레이를 실행하면 채팅창을 가리고, 위치를 잠그면 채팅 필터가 동작합니다.")
+            c.set_status(
+                "중지됨",
+                "오버레이를 실행해 채팅창을 가리고 위치를 잠그면 채팅 필터가 동작합니다. 끝낼 때는 오버레이 종료.",
+            )
         elif self.overlay.editing:
             c.set_status(
                 "실행 중 · 위치 조정",
                 "오버레이를 드래그하고 가장자리로 크기를 맞춰 채팅 5~6줄을 모두 가린 뒤 위치 잠금을 누르세요.",
             )
-        elif self.sampler.preview_only:
-            c.set_status("실행 중 · 화면 미리보기", "OCR 없이 오버레이 아래 화면을 0.2초마다 확인합니다.")
         elif self.engine.phase == GamePhase.IN_GAME:
             c.set_status(
-                "실행 중 · 게임 중", "채팅을 읽어 필터링하고 있습니다. 게임이 끝나면 오버레이가 자동으로 닫힙니다."
+                "실행 중 · 게임 중",
+                "오버레이가 가린 영역의 채팅을 읽어 필터링하고 있습니다. 게임이 끝나면 오버레이 종료를 누르세요.",
             )
         else:
-            c.set_status(
-                "실행 중 · 게임 대기",
-                "게임이 시작되면 채팅창 위에 오버레이가 뜨고, 게임이 끝나면 자동으로 닫힙니다.",
-            )
+            c.set_status("실행 중 · 준비 중", "화면 기록 권한을 확인한 뒤 채팅을 읽기 시작합니다.")
         c.set_overlay_state(self.armed, self.overlay.editing)
 
     @Slot(object, object)
@@ -301,10 +294,30 @@ def prepare() -> bool:
 
         if SetupDialog().exec() != QDialog.Accepted:
             return False
-    if setup.models_ready():
-        # 모델을 불러오는 데 몇 초 걸린다. 첫 채팅에서 멈추지 않게 미리 불러온다.
-        threading.Thread(target=setup.warm_up, daemon=True, name="model-warm-up").start()
+    # OCR 엔진과 분석 모델을 띄우는 데 몇 초 걸린다. 첫 채팅에서 멈추지 않게 앱을 열자마자 준비한다.
+    threading.Thread(target=setup.prepare_models, daemon=True, name="model-warm-up").start()
+    capture_log()
     return True
+
+
+def capture_log() -> None:
+    """실시간 판독 기록을 이 PC의 사용자 데이터 폴더에 남긴다 (캡처 크기, 걸린 시간, 새로 읽은 줄).
+
+    채팅 원문이 들어가므로 밖으로 보내지 않고, 최근 기록만 둔다 (1MB × 3개).
+    """
+    import logging
+    from logging.handlers import RotatingFileHandler
+
+    logger = logging.getLogger("clean_chat.capture")
+    if logger.handlers:
+        return
+    folder = settings.store_dir / "logs"
+    folder.mkdir(parents=True, exist_ok=True)
+    handler = RotatingFileHandler(folder / "capture.log", maxBytes=1_000_000, backupCount=2, encoding="utf-8")
+    handler.setFormatter(logging.Formatter("%(asctime)s %(message)s"))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
 
 
 def run_app(pipelines: Pipelines, source: LineSource | FrameSource, detector: PhaseDetector) -> int:

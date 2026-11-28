@@ -1,9 +1,8 @@
-"""숨김·폭주·재보정과 오버레이 아래 창의 좌표 변환 회귀 검사."""
+"""숨김·폭주·재보정과 오버레이 영역 캡처 회귀 검사."""
 
 import os
 import threading
 import time
-from pathlib import Path
 
 import pytest
 
@@ -13,17 +12,15 @@ pytest.importorskip("PySide6")
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PIL import Image, ImageDraw
-from PySide6.QtCore import QRect, QSettings, Qt
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QColor, QImage
-from PySide6.QtMultimedia import QVideoFrame
 
 from clean_chat.core.engine import Engine
 from clean_chat.core.grabber import ScreenGrabber, TextChangeGate
 from clean_chat.core.pipeline import LineDedup, Pipelines
-from clean_chat.core.schemas import OcrResult, RawLine, Region
+from clean_chat.core.schemas import GamePhase, OcrResult, RawLine, Region
 from clean_chat.modules.parse.notices import system_notice
 from clean_chat.ui.app import App
-from clean_chat.ui.capture import crop_frame, pixel_crop
 from helpers import fixture_modules, fixture_pairs
 
 
@@ -39,16 +36,15 @@ def snapshot(y=None, background=(45, 74, 86)):
 def test_hidden_idle_first_call_scroll_and_watchdog():
     gate = TextChangeGate()
     gate.observe(snapshot(), 0)
-    assert not gate.observe(snapshot(background=(93, 63, 85)), 0.2)
-    assert gate.interval_ms(0.2) == 200
-    assert gate.observe(snapshot(110), 0.4)
-    assert gate.interval_ms(0.4) == 100
-    assert not gate.observe(snapshot(110, (55, 74, 61)), 0.5)
-    assert gate.observe(snapshot(92), 0.6)
-    assert gate.interval_ms(1.61) == 200
-    assert gate.observe(snapshot(92), 1.61)
-    assert not gate.observe(snapshot(), 1.7)
-    assert gate.observe(snapshot(92), 1.8)
+    assert gate.interval_ms(0) == 1000  # 채팅 영역은 1초마다 확인한다 (예전 0.1~0.2초)
+    assert not gate.observe(snapshot(background=(93, 63, 85)), 0.5)  # 글자 없이 배경만 바뀜 → OCR 안 함
+    assert gate.observe(snapshot(110), 2)  # 새 글자
+    assert not gate.observe(snapshot(110, (55, 74, 61)), 2.5)
+    assert gate.observe(snapshot(92), 4)  # 채팅이 밀려 올라감
+    assert not gate.observe(snapshot(92), 4.5)  # 방금 읽은 화면 그대로
+    assert gate.observe(snapshot(92), 5.01)  # 글자가 보이는 동안은 변화를 못 잡아도 1초마다 다시 읽는다
+    assert not gate.observe(snapshot(), 6)  # 빈 화면은 3초마다만
+    assert gate.observe(snapshot(92), 7)
 
 
 def test_scroll_preserves_repeated_calls_and_hidden_history():
@@ -66,35 +62,21 @@ def test_scroll_preserves_repeated_calls_and_hidden_history():
     assert read("E", "용", "용", "후퇴", "핑", "바론") == ["후퇴", "핑", "바론"]
 
 
-def test_retina_external_screen_and_native_crop():
-    bounds = QRect(-1000, 100, 800, 600)
-    rect = pixel_crop(bounds, QRect(-940, 300, 120, 100), 1600, 1200)
-    assert rect == QRect(120, 400, 240, 200)
-    assert pixel_crop(bounds, QRect(-1010, 100, 200, 100), 1600, 1200).isEmpty()
-    image = QImage(1600, 1200, QImage.Format_RGB32)
-    image.fill(QColor("black"))
-    image.setPixelColor(120, 400, QColor("red"))
-    crop = crop_frame(QVideoFrame(image), rect)
-    assert (crop.width(), crop.height()) == (240, 200)
-    assert crop.pixelColor(0, 0) == QColor("red")
-
-
 def test_capture_buffer_bounded_order_cleanup_and_stop():
     src = ScreenGrabber()
     roi = Region(x=0, y=0, w=400, h=150)
     src.begin()
     for n in range(8):
         src.offer(snapshot(background=(n, n, n)), roi)
-    assert src.dropped == 2
+    assert src.dropped == 6  # 최근 2장만 둔다 (한 장에 보이는 채팅이 모두 들어 있다)
     frames = src.frames()
     first = next(frames)
-    with Image.open(first.image_path) as img:
-        assert img.getpixel((0, 0)) == (2, 2, 2)
+    assert first.image.getpixel((0, 0)) == (6, 6, 6)
+    assert first.image_path == "" and "image" not in first.model_dump()  # 디스크에 쓰지 않고 메모리로만 넘긴다
     src.invalidate()
     assert not src.current(first)
     src.finish()
     assert list(frames) == []
-    assert not Path(first.image_path).exists()
     src.stop()
 
 
@@ -149,27 +131,50 @@ def test_live_ocr_and_rewrite_do_not_block_capture_or_next_call(monkeypatch):
     assert not engine._thread.is_alive()
 
 
+def fake_region_capture(monkeypatch, color=Qt.red):
+    """실제 화면 대신 단색 이미지를 돌려주는 영역 캡처 (모든 OS에서 macOS 의 비동기 경로로 검사한다)."""
+    from types import SimpleNamespace
+
+    from clean_chat.ui import region_preview
+
+    calls = []
+
+    def capture(rect, scale):
+        calls.append(rect)
+        image = QImage(round(rect.width() * scale), round(rect.height() * scale), QImage.Format_RGB32)
+        image.fill(color)
+        return image
+
+    monkeypatch.setattr(region_preview, "mac_snapshot", capture)
+    monkeypatch.setattr(region_preview, "sys", SimpleNamespace(platform="darwin"))
+    return calls
+
+
 def test_ui_start_lock_pause_stop_and_failure_preserves_cover(tmp_path, monkeypatch):
+    """게임 창을 찾지 않는다. 위치 잠금 = 게임 시작, 오버레이 종료 = 게임 끝."""
     src = ScreenGrabber()
     prefs = QSettings(str(tmp_path / "overlay.ini"), QSettings.IniFormat)
     monkeypatch.setattr("clean_chat.ui.app.QSettings", lambda *args: prefs)
     monkeypatch.setattr("clean_chat.ui.capture.capture_allowed", lambda: True)
-    monkeypatch.setattr("clean_chat.ui.capture.game_window", lambda *args: None)
+    fake_region_capture(monkeypatch)
     app = App(Pipelines(fixture_modules()), src, src)
-    app.client.preview_only.setChecked(False)
     app.show()
     assert not app.overlay.isVisible()
     app.client.btn_start.click()
     assert app.overlay.isVisible() and app.overlay.editing
+    assert not src.running  # 위치를 맞추는 동안은 시작하지 않는다
     app.client.btn_lock.click()
     assert app.overlay.windowFlags() & Qt.WindowTransparentForInput
-    assert app.sampler.timer.isActive()
+    assert app.sampler.timer.isActive() and app.sampler.sampling
+    assert src.running  # 잠근 순간 게임 시작
     app.client.btn_lock.click()
-    assert not app.sampler.timer.isActive()
+    assert not app.sampler.timer.isActive() and not app.sampler.sampling
+    assert src.running  # 영역을 다시 맞추는 동안에도 게임 기록은 이어진다
     app.capture_failed("캡처 실패")
     assert app.overlay.isVisible()
     app.client.btn_start.click()
     assert not app.overlay.isVisible()
+    assert not src.running  # 오버레이 종료 = 게임 끝
     app.shutdown()
     app.client.close()
 
@@ -180,7 +185,8 @@ def test_unknown_and_player_chat_never_become_system_notices():
     assert system_notice("판독 실패") is None
 
 
-def test_sampler_reads_all_six_rows_from_game_frame(tmp_path, monkeypatch):
+def test_sampler_sends_only_the_overlay_region_to_ocr(monkeypatch):
+    """감시 모드는 오버레이가 가린 사각형만 가져와 OCR 대기열에 넣는다 (게임 창 전체를 받지 않는다)."""
     from PySide6.QtWidgets import QApplication, QWidget
 
     from clean_chat.ui.capture import WindowSampler
@@ -188,30 +194,31 @@ def test_sampler_reads_all_six_rows_from_game_frame(tmp_path, monkeypatch):
     qt = QApplication.instance() or QApplication([])
     overlay = QWidget()
     overlay.setGeometry(120, 230, 200, 120)
-    bounds = QRect(100, 200, 640, 480)
-    game = QImage(640, 480, QImage.Format_RGB32)
-    game.fill(Qt.black)
-    for row in range(6):
-        game.setPixelColor(20, 30 + 20 * row, QColor("red"))
+    overlay.show()
+    monkeypatch.setattr("clean_chat.ui.capture.capture_allowed", lambda: True)
+    calls = fake_region_capture(monkeypatch)
+    # 글자 변화 판단은 다른 테스트가 본다. 여기서는 가져온 영역을 모두 OCR 로 보낸다.
+    monkeypatch.setattr(TextChangeGate, "observe", lambda self, image, now: True)
     src = ScreenGrabber()
     sampler = WindowSampler(src, overlay)
-    sampler.window_id = 7
-    sampler.sampling = True
-    sampler.sink.setVideoFrame(QVideoFrame(game))
-    monkeypatch.setattr("clean_chat.ui.capture.game_window", lambda _id: (7, "game", bounds))
-    # 이 테스트의 좌표는 Qt 논리 좌표와 네이티브 좌표가 같은 화면을 사용한다.
-    monkeypatch.setattr("clean_chat.ui.capture.native_rect", lambda _id: overlay.geometry())
-    sampler._sample()
-    # 새 영역의 첫 검사는 초기 기준 화면으로 쓰일 수도 있다. 주기 재검사를 앞당긴다.
-    sampler.gate.last_check = float("-inf")
-    sampler._sample()
-    frames = src.frames()
-    frame = next(frames)
-    with Image.open(frame.image_path) as img:
-        assert img.size == (200, 120)
-        assert all(img.getpixel((0, 20 * r)) == (255, 0, 0) for r in range(6))
+    previews, statuses = [], []
+    sampler.preview.connect(previews.append)
+    sampler.status.connect(statuses.append)
+    sampler.start()
+    assert src.running and sampler.sampling
+    sampler.region_preview.pending.result(timeout=2)
+    sampler.region_preview._tick()  # 가져온 이미지를 처리한다
+    assert len(src._pending) == 1  # 대기열에 없으면 아래 next() 가 끝없이 기다린다
+    frame = next(src.frames())
+    scale = overlay.screen().devicePixelRatio()
+    assert frame.image.size == (round(200 * scale), round(120 * scale)) and frame.image_path == ""
+    assert frame.image.getpixel((0, 0)) == (255, 0, 0)
+    assert calls[0] == overlay.geometry()  # 요청한 영역은 오버레이 사각형뿐
+    assert any(not image.isNull() for image in previews)  # 읽는 영역을 클라이언트에 그대로 보여 준다
+    assert statuses[-1] == "채팅 감시 중"
     sampler.stop()
-    frames.close()
+    assert not src.running and not sampler.timer.isActive()
+    overlay.close()
     qt.processEvents()
 
 
@@ -237,10 +244,11 @@ def test_broad_fighting_effects_do_not_run_ocr_every_sample():
     assert len(simulate(False)) < 20
     with_call = simulate(True)
     assert len(with_call) < 20
-    assert any(4000 < tick <= 4400 for tick in with_call)
+    assert any(4000 <= tick <= 6000 for tick in with_call)  # 콜이 뜨고 2초 안에 읽는다
 
 
-def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypatch):
+def test_preview_refreshes_and_toggle_only_hides_the_image(tmp_path, monkeypatch):
+    """미리보기는 표시만 켜고 끈다. 위치를 잠그면 미리보기와 상관없이 항상 OCR 로 읽는다."""
     source = ScreenGrabber()
     prefs = QSettings(str(tmp_path / "preview.ini"), QSettings.IniFormat)
     monkeypatch.setattr("clean_chat.ui.app.QSettings", lambda *args: prefs)
@@ -264,8 +272,6 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
 
     monkeypatch.setattr("clean_chat.ui.capture.capture_allowed", check_permission)
     monkeypatch.setattr(region_preview, "mac_snapshot", capture)
-    monkeypatch.setattr("clean_chat.ui.capture.game_window", lambda *args: pytest.fail("preview queried LoL"))
-    monkeypatch.setattr(source, "begin", lambda: pytest.fail("preview started OCR"))
     app = App(Pipelines(), source, source)
     app.show()
     app.client.btn_start.click()
@@ -298,6 +304,14 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
     assert app.client.preview_count == 1
     assert app.client.preview_image.pixmap().toImage().pixelColor(0, 0) == QColor(Qt.red)
     assert app.overlay.windowFlags() & Qt.WindowTransparentForInput
+    assert source.running and app.sampler.sampling  # 미리보기를 켠 채로도 OCR 로 읽는 중
+    app.client.preview_toggle.setChecked(False)  # 미리보기 끔 → 이미지만 숨기고 판독은 계속
+    tick()
+    assert app.client.preview_image.pixmap().isNull() and "꺼짐" in app.client.preview_info.text()
+    assert source.running and app.sampler.sampling and preview.timer.isActive()
+    app.client.preview_toggle.setChecked(True)  # 실행 중에도 다시 켤 수 있다
+    tick()
+    assert app.client.preview_count == 1 and not app.client.preview_image.pixmap().isNull()
     app.client.btn_lock.click()
     assert not preview.timer.isActive() and app.client.preview_image.pixmap().isNull()
     color[0] = Qt.green
@@ -311,8 +325,9 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
     assert calls[-1] == app.overlay.geometry()
     app.client.btn_start.click()
     assert app.client.preview_image.pixmap().isNull() and not preview.timer.isActive()
-    assert prefs.contains("overlay/geometry")
+    assert prefs.contains("overlay/geometry") and not source.running  # 오버레이 종료 = 게임 끝
     queries_before_restart = len(permission_queries)
+    app.on_phase(GamePhase.POST_GAME, None)  # 엔진이 게임 끝을 알림 (이 테스트는 엔진을 돌리지 않는다)
     app.client.btn_start.click()
     assert app.overlay.editing and not preview.timer.isActive()
     assert len(permission_queries) == queries_before_restart

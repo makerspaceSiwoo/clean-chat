@@ -35,6 +35,7 @@
 
 ```
 ① Frame          { id, ts, image_path, region{x,y,w,h} }
+                 (앱의 실시간 캡처는 image_path 를 비우고 메모리 이미지 `image` 로 넘긴다. JSON 에는 나오지 않는다)
    OcrResult      { frame_id, lines: RawLine[] }                ← 보이는 줄 전부 (프레임 사이 중복 제거는 구성)
    RawLine        { id, ts, text, source: ocr|demo|self_input, ocr_confidence? }
 ② ParseRequest   { line: RawLine, my_name }                     ← 내 입력은 source=self_input (본문만)
@@ -45,8 +46,8 @@
                   ← target = 공격 대상의 **닉네임** (한 명으로 못 좁히면 포지션 단어 "정글", 없으면 null) — ADR-0020
 ④ RewriteRequest { message: ChatMessage, analysis: Analysis, players: Player[] = [] }
    Rewrite        { msg_id, rewritten?, backend }
-⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir?, evidence_ids?, evidence[], applied_charge_ids[] }
-   ReportDraft    { kind, speaker, text, incident_ids[], pdf_path?, evidence[], applied_charge_ids[] }
+⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, champion?, complainant?, output_dir?, evidence_ids?, evidence[], applied_charge_ids[] }
+   ReportDraft    { kind, speaker, champion?, text, incident_ids[], pdf_path?, evidence[], applied_charge_ids[] }
 
 구성 (core/)
    Decision       { msg_id, is_me, action, display_text?, target?, report, complaint_candidate, reason }   ← core/policy.py
@@ -62,6 +63,7 @@
 - `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질 · `threat` 협박(ADR-0021)
 - `action` (타 유저): `show` · `show_masked` · `show_rewritten` · `hide`
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
+- `show_masked` · `copy_masked` 는 더 이상 만들지 않는다(예전 기록·예시 호환용으로 값만 남김). L1 은 `show_rewritten`/`copy_rewritten`(욕설을 뺀 문장) 또는 `hide`/`block` 이다.
 - `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료. report 는 `post_game` 에서만 실행
 - `kind`: `report` 신고 문구 · `complaint` 고소장 초안(+PDF)
 
@@ -69,6 +71,7 @@
 
 - core는 요청의 경기·화자와 `report` 또는 `complaint_candidate` 표시를 기준으로 원문을 추린다. `evidence_ids`를 생략하면 해당 기록 전체, 목록을 주면 그중 일치하는 기록만 `evidence`에 시간순으로 담는다. `ChatMessage.raw`는 OCR 원본 줄이고 `text`는 정규화 전 본문이다. `ts`는 유닉스 시각이다.
 - 고소장 후보의 분석 유형 `threat`, `family_insult`, `sexual_harassment`는 각각 초안의 `threat`(협박죄), `insult`(모욕죄), `tme`(통신매체이용음란죄)에 연결한다. 이는 초안에 표시할 분류다. `coerce`, `extort`, `privacy`, `defame`도 전체 카탈로그에 보존한다. 대응 분석 신호가 없는 항목은 자동 적용하지 않는다.
+- 신고·고소 대상 한 사람은 **닉네임 + 챔피언**이다(`speaker` + `champion`). 채팅에는 태그 없는 닉네임만 보여서 닉네임이 같은 다른 사람이 있을 수 있다. `champion` 이 없으면 예전처럼 닉네임만으로 고른다.
 - `ReportRequest.applied_charge_ids`는 core가 계산한다. 같은 화자의 고소장 후보 전체를 기준으로 중복을 제거하며, 증거 첨부 선택과 독립적이다. 신고 요청이나 일치하는 유형이 없는 경우 빈 목록이다. 클라이언트는 이 ID를 그대로 적용해 `CHARGE_CATALOG`에서 조회하고, 미리보기와 PDF에 쓴다(사용자 선택 없음).
 - report 모듈은 요청의 원문으로 문서 본문을 작성하고 실제 인용한 `incident_ids`를 반환한다. core는 모듈 호출 경계에서 이 ID를 첨부 대상과 대조해 결과의 `evidence`를 채우고, 요청과 동일한 `applied_charge_ids`를 결과에 싣는다. 예전 결과를 읽을 때 새 필드는 빈 목록으로 시작한다.
 

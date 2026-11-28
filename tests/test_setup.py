@@ -154,3 +154,33 @@ def test_built_app_refuses_interpreter_style_arguments():
 
     assert desktop.unexpected_args(["--demo"]) == [] and desktop.unexpected_args(["-psn_0_12345", "--check"]) == []
     assert desktop.unexpected_args(["-B", "-c", "from multiprocessing.resource_tracker import main;main(5)"])
+
+
+def test_capture_log_records_sizes_and_new_lines(tmp_path, monkeypatch):
+    """실시간 판독 기록: 캡처 크기 · 걸린 시간 · 새 줄. 사용자 데이터 폴더에만 남긴다."""
+    import logging
+
+    pytest.importorskip("PySide6")
+    pytest.importorskip("PIL")
+    from PIL import Image
+
+    from clean_chat.core.pipeline import Pipelines
+    from clean_chat.core.schemas import Frame, OcrResult, RawLine, Region
+    from clean_chat.ui import app
+    from helpers import fixture_modules
+
+    logger = logging.getLogger("clean_chat.capture")
+    monkeypatch.setattr(logger, "handlers", [])
+    monkeypatch.setattr(settings, "store_dir", tmp_path)
+    app.capture_log()
+    line = RawLine(id="r1", ts=0, source="ocr", text="[전체] 얼음땡 (다리우스): 테스트 줄")
+    pipes = Pipelines(fixture_modules(ocr=lambda frame: OcrResult(frame_id=frame.id, lines=[line])))
+    with Image.new("RGB", (822, 320)) as image:
+        frame = Frame(id="0-a", ts=0, image_path="", region=Region(x=0, y=0, w=822, h=320), image=image)
+        assert pipes.incoming.read_frame(frame) == [line]
+        assert pipes.incoming.read_frame(frame) == []
+    for handler in logger.handlers:
+        handler.close()
+    text = (tmp_path / "logs" / "capture.log").read_text(encoding="utf-8")
+    assert "캡처 822x320" in text and "읽은 줄 1 · 새 줄 1" in text and "+ [전체] 얼음땡 (다리우스): 테스트 줄" in text
+    assert "읽은 줄 1 · 새 줄 0" in text

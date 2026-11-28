@@ -20,7 +20,7 @@ const NOT_CALLED = {
 };
 const ACTION_KO = {
   show: "그대로 표시",
-  show_masked: "비속어 가림",
+  show_masked: "비속어 가림 (예전 방식)",
   show_rewritten: "피드백만 표시",
   hide: "숨김",
 };

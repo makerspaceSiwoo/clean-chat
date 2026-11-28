@@ -52,8 +52,17 @@ def run(req: AnalyzeRequest) -> Analysis:
     try:
         scores = _predict_harm(msg.text_norm)
         target = _guess_target(msg, req.history, req.players)
+        if (context := _threat_in_context(msg, req.history, req.players)) is not None:
+            # "너 진짜 죽인다" 는 문장만으로는 게임 안의 말일 수 있다. 바로 앞에서 누군가를 공격하던 화자가 했으면 협박
+            scores[HarmType.THREAT.value] = _RULE_SCORE
+            attacked, interrupted = context
+            # 공격 뒤에 아무도 끼어들지 않았으면 "너" 는 공격받던 사람이다. 누가 끼어들었으면("그만해") 문장으로 추정한 대상을 쓴다
+            target = (target or attacked) if interrupted else (attacked or target)
         implied = None if target else _implied_target(msg, req.players)
         level, harm_types, target = _decide_level(scores, target, implied)
+        if _only_position_slur(msg.text_norm, scores):
+            # "숟가락아 와드 좀 박아" — 얕잡아 부른 낱말만 지우고 나머지는 보여 준다 (신고 대상은 아님)
+            level, harm_types, target = Level.L1_MILD, [HarmType.PROFANITY], None
         if level == Level.L0_CLEAN:  # 정상이면 나머지는 빈 값
             return Analysis(msg_id=msg.id, level=level, model_version=_model_version())
         return Analysis(
@@ -78,9 +87,12 @@ def _predict_harm(text_norm: str) -> dict[str, float]:
     명시적인 욕설은 규칙이, 욕설 없는 비난·정치질·패드립·성희롱·협박은 모델이 잡는다. 욕설(profanity)은 규칙 점수만 쓴다.
     """
     scores = _rule_scores(text_norm)
+    kill_only = lexicon.KILL_TALK.search(text_norm) and not lexicon.THREAT.search(text_norm)
     for name, score in model.predict(text_norm).items():
-        if name == HarmType.THREAT.value and lexicon.GAME_TALK.search(text_norm):
-            continue  # 게임 안의 말("다음 용 때 다 죽인다")은 모델이 협박이라 해도 받지 않는다. 명시적 협박은 규칙이 잡는다
+        if name == HarmType.THREAT.value and (lexicon.GAME_TALK.search(text_norm) or kill_only):
+            # 게임 안의 말("다음 용 때 다 죽인다")은 모델이 협박이라 해도 받지 않는다. 명시적 협박은 규칙이 잡는다.
+            # 현실 표지 없이 "죽인다" 뿐인 말도 문장만으로는 받지 않는다 → 비난(L2). 협박인지는 문맥(_threat_in_context)이 정한다
+            continue
         if name not in _RULE_ONLY and score > scores.get(name, 0.0):
             scores[name] = round(score, 4)
     return scores
@@ -92,7 +104,7 @@ def _rule_scores(text_norm: str) -> dict[str, float]:
         HarmType.PROFANITY: any(w in text_norm for w in lexicon.PROFANITY),
         HarmType.FAMILY_INSULT: any(w in text_norm for w in lexicon.FAMILY_INSULT),
         HarmType.SEXUAL_HARASSMENT: any(w in text_norm for w in lexicon.SEXUAL),
-        HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)),
+        HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)) or _kill_talk(text_norm),
         HarmType.INSTIGATION: bool(lexicon.INSTIGATION.search(text_norm)),
         HarmType.THREAT: bool(lexicon.THREAT.search(text_norm)),
     }
@@ -246,7 +258,8 @@ def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | 
     - 명단이 없을 때 문장 **중간·끝**의 챔피언 이름: ("이즈리얼", 욕설이 바로 옆에 붙었는가)
       "그걸 못 치냐 이즈"(비난 → 대상), "ㅂㅅ 티모 꺼져"(사람을 가리키는 욕설이 붙음 → 대상),
       "아 시발 블츠 그랩에 또 끌렸네"(감탄 욕설뿐 → 대상 아님, 혼잣말)
-    - "너"·"니" 로만 부른 말(앞 대화가 없어 누구인지 모름): (None, False) → 등급은 사람을 향한 것으로 보되 target 은 비운다
+    - "너"·"니" 로만 부른 말, 욕으로 부르는 말("멍청아")·꺼지라는 명령("접어라"): (None, False)
+      → 누구인지 몰라도 사람을 향한 말이므로 등급은 그렇게 보되 target 은 비운다
     """
     text = message.text_norm
     if not players:
@@ -256,9 +269,61 @@ def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | 
                 if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
                     near = " ".join(tokens[max(0, i - 1) : i + 2])
                     return canonical(name), any(w in near for w in lexicon.PERSON_INSULT)
-    if lexicon.SECOND_PERSON.search(text):
+    if lexicon.SECOND_PERSON.search(text) or _kill_talk(text):
+        return None, False
+    if lexicon.ADDRESSED.search(text) and not lexicon.SELF_TALK.search(text):
         return None, False
     return None
+
+
+CONTEXT_THREAT_SEC = 900.0  # 앞선 공격과 이어진 말로 보는 시간 (judge.VEILED_THREAT_SEC 와 같게)
+_SELF_BLAME = re.compile(r"내\s?(실수|잘못|탓)")
+
+
+def _threat_in_context(
+    message: ChatMessage, history: list[ChatMessage], players: list[Player]
+) -> tuple[str | None, bool] | None:
+    """죽인다·찾아간다·끝나고 보자 같은 말을, 같은 화자가 바로 앞에서 누군가를 공격(L2 이상)하던 중에 했는가.
+
+    돌려주는 값: 협박이 아니면 None, 협박이면 (앞선 공격의 대상 닉네임 또는 None, 그 뒤에 다른 사람이 말했는가)
+    예) "서폿 병신아 뭐하냐" 뒤의 "너 진짜 죽인다" → 협박 / 앞선 공격 없이 "너 진짜 죽인다" → None (비난 L2)
+        "탑 내가 죽인다 ㄱㄱ", "상대 정글 찾아가서 잡자" → 게임 낱말이 있으면 None
+    judge._follow_up 이 끝난 게임 전체에 쓰는 것과 같은 기준을, 실시간에는 앞 대화(history)로 적용한다.
+    """
+    text = message.text_norm
+    if lexicon.GAME_TALK.search(text) or _SELF_BLAME.search(text):
+        return None
+    if not (lexicon.KILL_TALK.search(text) or lexicon.THREAT_VEILED.search(text)):
+        return None
+    for i in range(len(history) - 1, -1, -1):
+        prev = history[i]
+        if prev.speaker != message.speaker or prev.is_me != message.is_me:
+            continue
+        if message.ts - prev.ts > CONTEXT_THREAT_SEC:
+            break
+        scores = _predict_harm(prev.text_norm)
+        prev_target = _guess_target(prev, history[:i], players)
+        implied = None if prev_target else _implied_target(prev, players)
+        level, _, prev_target = _decide_level(scores, prev_target, implied)
+        if level >= Level.L2_ABUSIVE:
+            interrupted = any(h.speaker != message.speaker for h in history[i + 1 :])
+            return prev_target, interrupted
+    return None
+
+
+def _kill_talk(text_norm: str) -> bool:
+    """게임 낱말 없이 죽이겠다고 하는 말인가 ("죽인다"). "바론 죽인다 다 와" 는 게임 안의 말이다."""
+    return bool(lexicon.KILL_TALK.search(text_norm)) and not lexicon.GAME_TALK.search(text_norm)
+
+
+def _only_position_slur(text_norm: str, scores: dict[str, float]) -> bool:
+    """걸린 것이 포지션을 얕잡아 부르는 말뿐인가 ("도구야 궁 체크"). 약한 욕설이라 L1 로 본다."""
+    if {name for name, score in scores.items() if score >= THRESHOLD} != {HarmType.PROFANITY.value}:
+        return False
+    rest = text_norm
+    for slur in lexicon.POSITION_SLURS:
+        rest = rest.replace(slur, " ")
+    return rest != text_norm and not any(word in rest for word in lexicon.PROFANITY)
 
 
 def _find_profanity(message: ChatMessage) -> list[str]:

@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from clean_chat.core.game import GameStateMachine, MemorySessionRepository, PostGameBatch, SessionRepository
 from clean_chat.core.grabber import ScreenGrabber
 from clean_chat.core.modules import ModuleNotImplemented
-from clean_chat.core.pipeline import LineDedup, Pipelines
+from clean_chat.core.pipeline import Pipelines
 from clean_chat.core.policy import decide_incoming
 from clean_chat.core.schemas import (
     Analysis,
@@ -261,14 +261,14 @@ class Engine:
     def _capture_live(self, source: ScreenGrabber) -> None:
         incoming = self.pipelines.incoming
         order = 0
-        epoch = None
         capacity = threading.BoundedSemaphore(6)
 
         def deliver(frame: Frame, index: int, msg: ChatMessage, analysis: Analysis, rewrite: bool) -> None:
             try:
                 if not source.current(frame):
                     return
-                rw = incoming.filters.rewrite(msg, analysis) if rewrite else None
+                # L1 은 로컬에서 욕설만 지우므로 바로 처리한다. LLM 순화(L2 이상)만 작업 스레드로 보낸다.
+                rw = incoming.filters.rewrite(msg, analysis) if rewrite or analysis.level == Level.L1_MILD else None
             except Exception as exc:
                 rw = None  # 순화 실패 시 원문은 가린다.
                 for fn in self._error_listeners:
@@ -291,10 +291,6 @@ class Engine:
                 if not source.current(frame):
                     continue
                 self._refresh_players()
-                current_epoch = frame.id.partition("-")[0]
-                if current_epoch != epoch:
-                    incoming.dedup = LineDedup()
-                    epoch = current_epoch
                 for line in incoming.read_frame(frame):
                     if not source.current(frame):
                         break
@@ -302,7 +298,10 @@ class Engine:
                     parsed = incoming.parse(line)
                     msg = parsed.message
                     if msg is None:
-                        if (notice := parsed.system_text or system_notice(line.text)) and source.current(frame):
+                        notice = parsed.system_text or system_notice(line.text)
+                        if not notice:
+                            incoming.dedup.retry(line)  # 채팅도 시스템 문구도 아님 → 다르게 읽히면 다시 본다
+                        elif source.current(frame):
                             self._row(frame, order, notice)
                         continue
                     if self.pipelines.sent_log.is_echo(msg):
