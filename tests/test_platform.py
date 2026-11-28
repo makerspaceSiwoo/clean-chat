@@ -58,3 +58,17 @@ def test_llm_settings_save_and_clear_keep_other_lines(tmp_path):
     save_llm_settings("test-key-1234", env_file, {})
     clear_llm_settings(env_file, {})
     assert not env_file.exists()
+
+
+def test_desktop_entry_excludes_simulator():
+    """설치 파일의 진입점(clean_chat.desktop)은 개발용 시뮬레이터를 불러오지 않고, 빌드도 시뮬레이터를 뺀다."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    code = "import sys, clean_chat.desktop; print(any(m.startswith('clean_chat.sim') for m in sys.modules))"
+    loaded = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
+    assert loaded.stdout.strip() == "False"
+    build = (Path(__file__).resolve().parents[1] / "scripts" / "build_desktop.py").read_text(encoding="utf-8")
+    assert '"clean_chat.sim"' in build and "--exclude-module" in build
+    assert '"desktop.py"' in build and '"__main__.py"' not in build
