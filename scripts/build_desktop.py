@@ -1,7 +1,8 @@
 """현재 OS용 독립 실행 앱을 dist에 만든다.
 
-uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
-analyze extra(torch·transformers)를 빼고 빌드하면 분류 모델 없이 규칙만 쓰는 앱이 되고,
+uv run --extra ui --extra ocr --extra analyze-app --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+analyze 분류 모델은 ONNX(onnxruntime · tokenizers, analyze-app extra)로 돌린다. torch·transformers(analyze extra)는
+학습용이라 깔려 있어도 넣지 않는다. analyze-app extra 를 빼고 빌드하면 분류 모델 없이 규칙만 쓰는 앱이 되고,
 rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 쓰는 앱이 된다.
 설치 파일에는 게임 오버레이로 모듈을 실행하는 메인 앱(clean_chat.desktop)만 넣고, 시뮬레이터는 뺀다.
 analyze 모델 가중치(약 440MB)는 넣지 않는다. 앱이 첫 실행 준비 화면에서 사용자 데이터 폴더에 내려받는다.
@@ -16,6 +17,9 @@ from pathlib import Path
 import PyInstaller.__main__
 
 ROOT = Path(__file__).resolve().parents[1]
+# 학습·평가·ONNX 내보내기에만 쓰는 패키지 (analyze extra). 앱은 ONNX 로 추론만 하므로 넣지 않는다.
+# 개발 PC 에서 analyze extra 가 깔린 채로 빌드해도 1GB 가까운 torch 가 들어가지 않게 한다.
+TRAINING_ONLY = ("torch", "transformers", "sklearn", "scipy", "onnx")
 BUNDLE_ID = "com.cleanchat.desktop"  # macOS 가 화면 기록 권한을 이 ID 에 묶는다. 바꾸면 권한을 다시 받아야 한다.
 
 
@@ -66,9 +70,7 @@ def build(distpath: Path = ROOT / "dist") -> None:
             "clean_chat.modules",
             "--exclude-module",  # 개발용 모듈 시뮬레이터(uv run sim)는 설치 파일에 넣지 않는다.
             "clean_chat.sim",
-            # 학습·평가에만 쓰는 패키지는 넣지 않는다 (앱은 torch·transformers 로 추론만 한다).
-            "--exclude-module",
-            "sklearn",
+            *[arg for module in TRAINING_ONLY for arg in ("--exclude-module", module)],
             "--add-data",
             f"{ROOT / 'fixtures' / 'scenario'}:fixtures/scenario",
             "--add-data",

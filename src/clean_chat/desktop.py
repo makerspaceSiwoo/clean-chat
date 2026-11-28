@@ -15,7 +15,7 @@ from clean_chat.core.platform import use_utf8_console
 SCENARIO = FIXTURES / "scenario"
 
 
-CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "torch", "transformers", "huggingface_hub", "litellm")
+CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "onnxruntime", "tokenizers", "huggingface_hub", "litellm")
 
 
 ARGS = ("--demo", "--check")
@@ -50,7 +50,7 @@ def check() -> int:
         from clean_chat.ui.window_bounds import capture_allowed
 
         lines.append(f"화면 기록 권한: {'있음' if capture_allowed(request=False) else '없음 (위치를 잠글 때 요청)'}")
-    if "torch" not in failed and "transformers" not in failed and setup.models_ready():
+    if "onnxruntime" not in failed and "tokenizers" not in failed and setup.models_ready():
         lines.append(f"analyze 모델: {setup.warm_up() or '불러오지 못함'}")
     else:
         lines.append("analyze 모델: 없음 (첫 실행 준비 화면에서 내려받음)")
