@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QSettings, Slot
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from clean_chat.core.config import clear_llm_settings, current_llm_key, save_llm_settings, settings
@@ -16,6 +17,8 @@ from clean_chat.ui.bridge import EngineBridge, OutgoingRunner
 from clean_chat.ui.client import ClientWindow
 from clean_chat.ui.overlay import OverlayWindow
 
+ICON = Path(__file__).with_name("assets") / "icon.png"
+
 
 class App(QObject):
     def __init__(
@@ -26,6 +29,7 @@ class App(QObject):
         history_path: Path | None = None,
     ) -> None:
         qt = QApplication.instance() or QApplication(sys.argv)
+        qt.setWindowIcon(QIcon(str(ICON)))  # 창 제목줄·작업 표시줄·Dock 아이콘
         super().__init__()
         self.qt = qt
         self.engine = Engine(pipelines, source, detector)

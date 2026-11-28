@@ -19,14 +19,17 @@ def build(distpath: Path = ROOT / "dist") -> None:
     if sys.platform not in {"win32", "darwin"}:
         raise SystemExit("macOS 또는 Windows에서 실행하세요.")
     os.chdir(ROOT)
-    options = []
+    assets = ROOT / "src" / "clean_chat" / "ui" / "assets"
+    # 실행 파일 아이콘(Windows .ico · macOS .icns)과, 실행 중 창·작업 표시줄 아이콘으로 쓸 PNG.
+    icon = assets / ("icon.icns" if sys.platform == "darwin" else "icon.ico")
+    options = ["--icon", str(icon), "--add-data", f"{assets / 'icon.png'}:clean_chat/ui/assets"]
     name = "Clean Chat"
     if sys.platform == "darwin":
         from clean_chat.ui.region_preview import build_snapshot_library
 
         lib = ROOT / "build" / "native" / "region_snapshot.dylib"
         build_snapshot_library(lib)
-        options = ["--add-binary", f"{lib}:clean_chat/ui"]
+        options.extend(["--add-binary", f"{lib}:clean_chat/ui"])
         identity = os.environ.get("CLEAN_CHAT_CODESIGN_IDENTITY")
         if identity and identity != "-":
             options.extend(["--codesign-identity", identity, "--osx-bundle-identifier", "com.cleanchat.desktop"])
