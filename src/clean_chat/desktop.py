@@ -15,7 +15,7 @@ from clean_chat.core.platform import use_utf8_console
 SCENARIO = FIXTURES / "scenario"
 
 
-CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "onnxruntime", "tokenizers", "huggingface_hub", "litellm")
+CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "onnxruntime", "tokenizers", "huggingface_hub")
 
 
 ARGS = ("--demo", "--check")

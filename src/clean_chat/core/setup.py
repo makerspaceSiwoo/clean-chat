@@ -137,14 +137,3 @@ def prepare_models() -> None:
     warm_up_ocr()
     if models_ready():
         warm_up()
-    warm_up_llm()
-
-
-def warm_up_llm() -> bool:
-    """순화에 쓰는 LLM 호출 패키지를 미리 불러온다. 처음 불러오는 데 2초쯤 걸려 첫 순화가 3초 제한을 넘겼다."""
-    try:
-        from clean_chat.modules.rewrite import backend
-
-        return backend._sdk() is not None
-    except Exception:
-        return False
