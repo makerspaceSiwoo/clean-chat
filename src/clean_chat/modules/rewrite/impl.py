@@ -487,5 +487,11 @@ def run(req: RewriteRequest) -> Rewrite:
             _LOG.info("[최종] backend=rule — AI 생성이 아닌 예비 규칙, %.3f초", time.monotonic() - started)
             return Rewrite(msg_id=req.message.id, rewritten=codec.restore(result), backend="rule")
         _LOG.info("[예비 규칙] 거절=%s", ", ".join(failures) or "3초 제한")
+    # 다듬지 못했어도 피드백 조각 자체는 욕설이 없고(위에서 확인) 원문에 있던 말이다. 숨기지 않고 그대로 보여 준다.
+    # 숨기면 "욕설에 섞인 게임 피드백만 남긴다"는 기능이 Gemini 응답 하나에 좌우된다.
+    plain = " ".join(spans)
+    if plain.strip() and not _still_abusive(plain, profanity) and len(plain) <= 180:
+        _LOG.info("[최종] backend=rule — 다듬지 못해 피드백 조각을 그대로 사용 (%.3f초)", time.monotonic() - started)
+        return Rewrite(msg_id=req.message.id, rewritten=codec.restore(plain), backend="rule")
     _LOG.info("[최종] null — 규칙에 없는 표현 또는 안전한 변환 불가 (%.3f초)", time.monotonic() - started)
     return empty

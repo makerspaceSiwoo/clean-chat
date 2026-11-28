@@ -734,3 +734,50 @@ def test_ordinary_sentences_are_not_treated_as_addressed_insults(text):
         raw=text,
     )
     assert int(impl.run(AnalyzeRequest(message=message, history=[], players=[])).level) <= 1
+
+
+@pytest.mark.parametrize(
+    ("text", "level", "spans"),
+    [
+        ("숟가락아 와드 좀 박아", 1, ["숟가락"]),  # 얕잡아 부르는 말만 → 약한 욕설 (그 낱말만 지운다)
+        ("도구야 궁 체크", 1, ["도구"]),
+        ("백정 뭐하냐", 2, ["백정"]),  # 비난과 함께면 그 포지션 사람을 향한 말
+        ("탑신병자 또 죽네 뭐하냐", 2, ["탑신병자"]),
+        ("개못하쥬", 2, []),  # 이름이 없어도 남을 깎아내리는 말
+        ("죽인다", 2, []),
+        ("상체 뭐하냐", 2, []),
+    ],
+)
+def test_position_slurs_and_untargeted_insults(text, level, spans):
+    out = impl.run(_req(text))
+    assert int(out.level) == level and out.profanity_spans == spans
+
+
+@pytest.mark.parametrize(
+    "text", ["내가 개못하네", "바론 죽인다 다 와", "레벨 차이 나네", "상체 운동 해야지 ㅋㅋ", "서폿 와드 좀 박아줘"]
+)
+def test_self_talk_game_talk_and_plain_references_stay_clean(text):
+    assert int(impl.run(_req(text)).level) == 0, text
+
+
+@pytest.mark.parametrize(
+    ("text", "feedback"),
+    [
+        # 욕설에 섞인 게임 지시는 피드백 조각으로 뽑는다 (욕설·부른 대상·군말은 뺀다).
+        ("서폿 병신아 시야 좀 잡아라", "시야 좀 잡아라"),
+        ("원딜 병신아 cs 먹지마", "cs 먹지마"),
+        ("탑 병신아 라인 밀지마", "라인 밀지마"),
+        ("미드 병신아 타워 치지마", "타워 치지마"),
+        ("정글 병신아 장로 쳐", "장로 쳐"),
+        ("정글 병신아 유충 쳐", "유충 쳐"),
+        ("서폿 병신아 스펠 체크 좀", "스펠 체크 좀"),
+        ("미드 병신아 궁 체크해", "궁 체크해"),
+        ("정글 병신아 바위게 잡자", "바위게 잡자"),
+        ("탑 병신아 라인 프리징 해", "라인 프리징 해"),
+        ("백정 병신아 바론 잡자", "바론 잡자"),
+    ],
+)
+def test_feedback_is_extracted_from_abusive_instructions(text, feedback):
+    out = impl.run(_req(text))
+    assert int(out.level) >= 2 and out.feedback_spans == [feedback]
+    assert "병신" in out.profanity_spans

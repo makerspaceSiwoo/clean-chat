@@ -54,6 +54,9 @@ def run(req: AnalyzeRequest) -> Analysis:
         target = _guess_target(msg, req.history, req.players)
         implied = None if target else _implied_target(msg, req.players)
         level, harm_types, target = _decide_level(scores, target, implied)
+        if _only_position_slur(msg.text_norm, scores):
+            # "숟가락아 와드 좀 박아" — 얕잡아 부른 낱말만 지우고 나머지는 보여 준다 (신고 대상은 아님)
+            level, harm_types, target = Level.L1_MILD, [HarmType.PROFANITY], None
         if level == Level.L0_CLEAN:  # 정상이면 나머지는 빈 값
             return Analysis(msg_id=msg.id, level=level, model_version=_model_version())
         return Analysis(
@@ -92,7 +95,7 @@ def _rule_scores(text_norm: str) -> dict[str, float]:
         HarmType.PROFANITY: any(w in text_norm for w in lexicon.PROFANITY),
         HarmType.FAMILY_INSULT: any(w in text_norm for w in lexicon.FAMILY_INSULT),
         HarmType.SEXUAL_HARASSMENT: any(w in text_norm for w in lexicon.SEXUAL),
-        HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)),
+        HarmType.BLAME: bool(lexicon.BLAME.search(text_norm)) or _kill_talk(text_norm),
         HarmType.INSTIGATION: bool(lexicon.INSTIGATION.search(text_norm)),
         HarmType.THREAT: bool(lexicon.THREAT.search(text_norm)),
     }
@@ -257,9 +260,26 @@ def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | 
                 if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
                     near = " ".join(tokens[max(0, i - 1) : i + 2])
                     return canonical(name), any(w in near for w in lexicon.PERSON_INSULT)
-    if lexicon.SECOND_PERSON.search(text) or lexicon.ADDRESSED.search(text):
+    if lexicon.SECOND_PERSON.search(text) or _kill_talk(text):
+        return None, False
+    if lexicon.ADDRESSED.search(text) and not lexicon.SELF_TALK.search(text):
         return None, False
     return None
+
+
+def _kill_talk(text_norm: str) -> bool:
+    """게임 낱말 없이 죽이겠다고 하는 말인가 ("죽인다"). "바론 죽인다 다 와" 는 게임 안의 말이다."""
+    return bool(lexicon.KILL_TALK.search(text_norm)) and not lexicon.GAME_TALK.search(text_norm)
+
+
+def _only_position_slur(text_norm: str, scores: dict[str, float]) -> bool:
+    """걸린 것이 포지션을 얕잡아 부르는 말뿐인가 ("도구야 궁 체크"). 약한 욕설이라 L1 로 본다."""
+    if {name for name, score in scores.items() if score >= THRESHOLD} != {HarmType.PROFANITY.value}:
+        return False
+    rest = text_norm
+    for slur in lexicon.POSITION_SLURS:
+        rest = rest.replace(slur, " ")
+    return rest != text_norm and not any(word in rest for word in lexicon.PROFANITY)
 
 
 def _find_profanity(message: ChatMessage) -> list[str]:

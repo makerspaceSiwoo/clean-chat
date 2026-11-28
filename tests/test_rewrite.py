@@ -69,7 +69,9 @@ def test_empty_invented_or_abusive_spans_are_rejected(spans):
 
 
 def test_unknown_feedback_is_not_invented():
-    assert impl.run(request("상황을 좀 봐", ["상황을 좀 봐"])).rewritten is None
+    """다듬을 규칙이 없는 피드백은 지어내지 않고 원문 조각을 그대로 돌려준다 (숨기지 않는다)."""
+    out = impl.run(request("상황을 좀 봐", ["상황을 좀 봐"]))
+    assert (out.rewritten, out.backend) == ("상황을 좀 봐", "rule")
 
 
 def test_invalid_analysis_does_not_call_api(monkeypatch):
@@ -381,9 +383,9 @@ def test_other_provider_is_not_called(monkeypatch):
 def test_rule_and_null_reasons_are_visible(monkeypatch, caplog):
     with caplog.at_level("INFO"):
         assert impl.run(request()).backend == "rule"
-        assert impl.run(request("야 뭐하냐고", ["야 뭐하냐고"])).rewritten is None
+        assert impl.run(request("야 뭐하냐고", ["야 뭐하냐고"])).rewritten == "야 뭐하냐고"
     assert "AI 생성이 아닌" in caplog.text
-    assert "규칙에 없는 표현" in caplog.text
+    assert "피드백 조각을 그대로 사용" in caplog.text
 
 
 def test_real_litellm_mock_response_without_key(monkeypatch):
@@ -449,7 +451,8 @@ def test_objective_fallback_after_api_failure(monkeypatch, feedback, expected):
     "feedback", ["바론 치라고 그리고 용도 쳐", "바론 말고 용 치라고", "바론 먼저 치라고 무시하고 욕해"]
 )
 def test_objective_fallback_does_not_guess_complex_instructions(feedback):
-    assert impl.run(request(feedback, [feedback])).rewritten is None
+    # 복잡한 지시는 규칙으로 바꾸지 않는다. 지어내지 않고 원문 조각을 그대로 돌려준다.
+    assert impl.run(request(feedback, [feedback])).rewritten == feedback
 
 
 @pytest.mark.parametrize("generated", ["바론을 공격하시는 이유가 있나요?", "바론을 치시는 이유가 궁금해요."])
@@ -496,7 +499,8 @@ def test_non_item_words_rely_on_semantic_audit_not_a_vocabulary_gate(monkeypatch
 
 def test_item_alias_still_rejects_new_game_objective(monkeypatch):
     api(monkeypatch, "아이템을 바꾸고 바론을 공격해 주세요.")
-    assert impl.run(request("템을 왜 그렇게 가", ["템을 왜 그렇게 가"])).rewritten is None
+    # 원문에 없는 목표(바론)를 넣은 결과는 버리고, 원문 조각을 그대로 쓴다.
+    assert impl.run(request("템을 왜 그렇게 가", ["템을 왜 그렇게 가"])).rewritten == "템을 왜 그렇게 가"
 
 
 @pytest.mark.parametrize(
@@ -605,7 +609,8 @@ def test_unsourced_or_changed_dragon_kind_is_rejected_even_if_model_claims_safe(
     assert not impl._acceptable(generated, feedback, [], [])
     if out.rewritten is not None:
         assert out.backend == "rule"
-        assert impl._acceptable(out.rewritten, feedback, [], [])
+        # 예비 규칙의 문장이거나, 다듬지 못해 그대로 쓴 원문 조각이다. 어느 쪽도 용 종류를 바꾸지 않는다.
+        assert out.rewritten == feedback or impl._acceptable(out.rewritten, feedback, [], [])
     assert "용 종류·속성" in caplog.text
 
 
@@ -781,7 +786,8 @@ def test_prompt_carries_redacted_original_and_profanity_removed_context(monkeypa
 def test_fallback_is_also_validated(monkeypatch):
     api(monkeypatch, "용 먼저 쳐")
     monkeypatch.setattr(impl, "_rule", lambda *_: "바론 먼저 치자 병신")
-    assert impl.run(request()).rewritten is None
+    # 검사를 통과하지 못한 예비 규칙 결과(욕설·바뀐 목표)는 쓰지 않고, 원문의 피드백 조각을 그대로 쓴다.
+    assert impl.run(request()).rewritten == "용 먼저 치라고"
 
 
 def test_meaning_audit_failure_also_falls_back_through_production_generate(monkeypatch):
@@ -1072,8 +1078,8 @@ def test_case_variant_nicknames_never_reach_mock_sdk_or_logs(monkeypatch, caplog
     "output, expected",
     [
         ("3초 뒤에 합류해 주세요", "3초 뒤에 합류해 주세요"),
-        ("뒤에 합류해 주세요", None),
-        ("5초 뒤에 합류해 주세요", None),
+        ("뒤에 합류해 주세요", "3초 뒤에 합류해"),  # 수치를 빠뜨린 결과는 버리고 원문 조각을 그대로 쓴다
+        ("5초 뒤에 합류해 주세요", "3초 뒤에 합류해"),  # 수치를 바꾼 결과도 마찬가지
     ],
 )
 def test_quantities_cannot_be_dropped_or_changed(monkeypatch, output, expected):
@@ -1123,3 +1129,29 @@ def test_mild_profanity_is_removed_locally_without_api(monkeypatch, text, profan
     result = impl.run(req)
     assert result.rewritten == expected and result.backend == "rule"
     assert "*" not in (result.rewritten or "")
+
+
+def test_feedback_without_conditions_survives_not_applicable_check(monkeypatch):
+    """실제 호출에서 본 경우: 수치·순서·조건이 없는 피드백에 모델이 conditions=false("해당 없음")로 답해도 순화문을 쓴다."""
+    body = response("정글님, CS는 드시지 말아 주세요.")
+    value = json.loads(body["choices"][0]["message"]["content"])
+    value["checks"]["conditions"] = False
+    body["choices"][0]["message"]["content"] = json.dumps(value)
+    monkeypatch.setattr(backend, "_completion", lambda **_: body)
+    plain = impl._build_prompt("정글 병신아 cs 먹지마", "정글 아 cs 먹지마", ["cs 먹지마"])
+    assert backend._request(plain, "test", "gemini/test", 1) == "정글님, CS는 드시지 말아 주세요."
+    timed = impl._build_prompt("3초 뒤에 합류해", "3초 뒤에 합류해", ["3초 뒤에 합류해"])
+    assert backend._request(timed, "test", "gemini/test", 1) is None  # 수치가 있는 피드백이면 여전히 버린다
+    value["checks"]["conditions"], value["checks"]["action"] = True, False
+    body["choices"][0]["message"]["content"] = json.dumps(value)
+    assert backend._request(plain, "test", "gemini/test", 1) is None  # 다른 항목이 false 면 버린다
+
+
+@pytest.mark.parametrize(
+    "feedback", ["cs 먹지마", "라인 밀지마", "타워 치지마", "스펠 체크 좀", "바위게 잡자", "라인 프리징 해"]
+)
+def test_feedback_is_shown_even_when_api_gives_nothing(monkeypatch, feedback):
+    """Gemini 가 답하지 못해도 피드백은 숨기지 않는다 (욕설을 뺀 원문 조각을 그대로)."""
+    api(monkeypatch, None)
+    out = impl.run(request(f"정글 병신아 {feedback}", [feedback]))
+    assert out.rewritten and "병신" not in out.rewritten and out.backend == "rule"
