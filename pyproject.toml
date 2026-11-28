@@ -22,7 +22,9 @@ ocr = [
     "pillow>=10.0",
     "numpy>=1.26",
     "mss>=9.0",            # 화면 캡처 core/grabber.py (Mac에서도 설치 가능, 실제 사용은 Windows)
-    # OCR 엔진 · Windows 캡처 라이브러리는 OPEN-02/03 실측 후 추가 (win32 마커 필수)
+    "rapidocr>=3.10.0,<4",
+    "onnxruntime>=1.20,<1.24; sys_platform == 'darwin'",
+    "onnxruntime>=1.32,<2; sys_platform != 'darwin'",
 ]
 analyze = [
     "torch>=2.3",

@@ -23,3 +23,16 @@ uv run pytest tests/test_ocr.py        # 자동 테스트 (구현 전이면 skip
 uv run python scripts/pack_context.py ocr   # 웹 AI 채팅에 첨부할 맥락 묶음
 ```
 모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).
+
+## 현재 구현 — RapidOCR + PP-OCRv5 한국어
+
+- Windows와 macOS 모두 RapidOCR의 CPU ONNX Runtime을 사용한다. 환경 변수 설정 없이 이 엔진이 기본으로 실행된다.
+- 검출 모델: `ch_PP-OCRv5_det_mobile.onnx`. 인식 모델: `korean_PP-OCRv5_rec_mobile.onnx`.
+- 설치: `uv sync --extra ocr`. 실행: `uv run --extra ocr sim ocr`.
+- 최초 추론 시 SDK가 필요한 모델을 `.clean-chat/rapidocr/`에 자동 다운로드하고 해시를 검증한다. 첫 실행은 인터넷이 필요하며 이후에는 캐시를 재사용한다. 모델 가중치는 커밋하지 않는다.
+- ONNX Runtime은 macOS에서 `>=1.20,<1.24`, 다른 OS에서 `>=1.32,<2`를 사용한다. Intel/Apple Silicon Mac의 휠 의존성 해석을 확인했지만 Mac 실기기 추론은 미검증이다.
+- 엔진은 프로세스 안에서 재사용한다. EasyOCR 의존성과 어댑터를 제거했다. 기존 `CLEAN_CHAT_OCR_ENGINE` 환경 변수는 사용하지 않는다.
+- 이미지 전체를 한 번 인식하고 같은 행의 영역을 왼쪽부터 합친다. 행 신뢰도는 영역 신뢰도의 최솟값이다. 실패 시 원인을 로그에 남기고 `OcrResult(frame_id=..., lines=[])`를 반환한다.
+- 사전과 실제 모델 내부 문자 목록에 `ㅋ`, `ㅗ`, `ㅅ`, `ㅂ`이 포함돼 있다. 포함 여부가 실제 인식률을 보장하지는 않는다.
+- [합성 이미지 18장 비교](BENCHMARK.md)에서 CER 13.73%, 평균 1.451초, 자모 욕설 0/9였다. 사용자의 전환 요청에 따라 기본 엔진을 변경했다(ADR-0023). 자모 욕설·속도 개선과 실제 게임 캡처 재평가는 후속 과제다.
+- Windows 내장 OCR 브리지는 비교 측정용으로만 유지한다.
