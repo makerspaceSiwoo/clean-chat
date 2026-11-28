@@ -13,6 +13,10 @@ from clean_chat.modules.parse.normalization import normalize
 _CHANNEL = re.compile(r"^[\[(（［][ \t]*(팀|전체)[ \t]*[\])）］][ \t]*")
 _HEADER_TEXT = r"[^:;：；()（）\[\]［］\r\n]+?"
 _SPEAKER = re.compile(rf"({_HEADER_TEXT})(?:[ \t]*[(（]({_HEADER_TEXT})[)）])?[ \t]*[:;：；][ \t]?([^\r\n]*)")
+_AFK_WARNING = re.compile(r"자리\s?비움\s?경고")
+_AFK_TAIL = re.compile(r"\s*자리\s?비움\s?경고\s*:?\s*게임에")
+
+
 _SYSTEM = re.compile(
     rf"{_HEADER_TEXT}(?:[ \t]*[(（]{_HEADER_TEXT}[)）])?[ \t]*님이 "
     r"(?:[^\r\n]*(?:신호를 보냈습니다|처치했습니다)|게임을 (?:종료했습니다|떠났습니다))[.!]?"
@@ -62,8 +66,11 @@ def run(req: ParseRequest) -> ParseResult:
         if channel is None and _is_system(rest):
             return ParseResult(line_id=line.id, message=None)
         speaker, champion, body = _split_speaker(rest)
-        if speaker is None:
+        if speaker is None or _AFK_WARNING.fullmatch(speaker.strip()):
+            # "자리비움 경고: 게임에 적극적으로 …" 는 `이름: 내용` 꼴이지만 게임이 띄우는 안내다.
             return ParseResult(line_id=line.id, message=None)
+        # OCR 이 바로 아랫줄의 자리비움 안내를 채팅 뒤에 이어 붙여 읽는 일이 있다 → 안내 부분은 떼어 낸다.
+        body = _AFK_TAIL.split(body, maxsplit=1)[0]
         is_me = bool(req.my_name) and speaker == req.my_name
         channel = channel or Channel.UNKNOWN
     if not body.strip():

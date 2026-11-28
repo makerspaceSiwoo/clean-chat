@@ -672,3 +672,65 @@ def test_weights_repo_ids_and_missing_owner(monkeypatch):
     with pytest.raises(ValueError):
         weights.repo_id("judge")
     assert "model.safetensors" in weights.FILES and set(weights.MODELS) == {"classifier", "judge"}
+
+
+@pytest.mark.parametrize(
+    ("text", "level", "harm"),
+    [
+        # 실제 게임 테스트에서 놓친 말 (2026-11-28). 이름이 없어도 사람에게 하는 말은 L2 이상으로 본다.
+        ("볍신련아", 2, "profanity"),
+        ("법신련아", 2, "profanity"),  # 화면에서 볍신을 법신으로 읽음
+        ("개색기야", 2, "profanity"),
+        ("멍청아", 2, "profanity"),
+        ("접어라", 2, "blame"),
+        ("겜 접어라", 2, "blame"),
+        ("tlgkf", 1, "profanity"),  # 화면에서 tlqkf 를 tlgkf 로 읽음 (대상 없는 욕설)
+        ("니엄마창년", 3, "family_insult"),
+        ("니엄마보지", 3, "sexual_harassment"),
+        ("니애미", 3, "family_insult"),
+    ],
+)
+def test_slang_and_addressed_insults_from_real_game(text, level, harm):
+    from clean_chat.core.schemas import AnalyzeRequest, ChatMessage
+    from clean_chat.modules.analyze import impl
+    from clean_chat.modules.parse.normalization import normalize
+
+    norm, hints = normalize(text)
+    message = ChatMessage(
+        id="m",
+        ts=0,
+        source="ocr",
+        channel="all",
+        speaker="얼음땡",
+        champion="멜",
+        text=text,
+        text_norm=norm,
+        hints=hints,
+        raw=text,
+    )
+    analysis = impl.run(AnalyzeRequest(message=message, history=[], players=[]))
+    assert int(analysis.level) == level and harm in [h.value for h in analysis.harm_types]
+
+
+@pytest.mark.parametrize(
+    "text", ["접어둔 종이", "멍청하게 죽었네 내가", "새끼 고양이 귀엽다", "훈련아 가자", "바론 가자 바론"]
+)
+def test_ordinary_sentences_are_not_treated_as_addressed_insults(text):
+    from clean_chat.core.schemas import AnalyzeRequest, ChatMessage
+    from clean_chat.modules.analyze import impl
+    from clean_chat.modules.parse.normalization import normalize
+
+    norm, hints = normalize(text)
+    message = ChatMessage(
+        id="m",
+        ts=0,
+        source="ocr",
+        channel="all",
+        speaker="얼음땡",
+        champion="멜",
+        text=text,
+        text_norm=norm,
+        hints=hints,
+        raw=text,
+    )
+    assert int(impl.run(AnalyzeRequest(message=message, history=[], players=[])).level) <= 1

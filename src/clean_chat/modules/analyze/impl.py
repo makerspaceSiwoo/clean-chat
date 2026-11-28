@@ -246,7 +246,8 @@ def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | 
     - 명단이 없을 때 문장 **중간·끝**의 챔피언 이름: ("이즈리얼", 욕설이 바로 옆에 붙었는가)
       "그걸 못 치냐 이즈"(비난 → 대상), "ㅂㅅ 티모 꺼져"(사람을 가리키는 욕설이 붙음 → 대상),
       "아 시발 블츠 그랩에 또 끌렸네"(감탄 욕설뿐 → 대상 아님, 혼잣말)
-    - "너"·"니" 로만 부른 말(앞 대화가 없어 누구인지 모름): (None, False) → 등급은 사람을 향한 것으로 보되 target 은 비운다
+    - "너"·"니" 로만 부른 말, 욕으로 부르는 말("멍청아")·꺼지라는 명령("접어라"): (None, False)
+      → 누구인지 몰라도 사람을 향한 말이므로 등급은 그렇게 보되 target 은 비운다
     """
     text = message.text_norm
     if not players:
@@ -256,7 +257,7 @@ def _implied_target(message: ChatMessage, players: list[Player]) -> tuple[str | 
                 if len(name) >= 2 and name not in AMBIGUOUS and word.startswith(name) and _called(name, word):
                     near = " ".join(tokens[max(0, i - 1) : i + 2])
                     return canonical(name), any(w in near for w in lexicon.PERSON_INSULT)
-    if lexicon.SECOND_PERSON.search(text):
+    if lexicon.SECOND_PERSON.search(text) or lexicon.ADDRESSED.search(text):
         return None, False
     return None
 

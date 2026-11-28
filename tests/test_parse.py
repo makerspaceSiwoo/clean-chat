@@ -660,3 +660,19 @@ def test_ordinary_text_is_not_rewritten_by_bypass_lexicon(text):
     from clean_chat.modules.parse.normalization import normalize
 
     assert normalize(text) == (text, [])
+
+
+def test_afk_warning_is_not_chat_and_is_cut_from_merged_lines():
+    """자리비움 경고는 `이름: 내용` 꼴이지만 게임 안내다. 채팅 뒤에 이어 붙어 읽혀도 채팅 본문에 넣지 않는다 (실제 게임 기록)."""
+    from clean_chat.core.schemas import ParseRequest, RawLine
+    from clean_chat.modules.parse.impl import run
+
+    def parse(text: str):
+        return run(ParseRequest(line=RawLine(id="t", ts=0, source="ocr", text=text), my_name="나")).message
+
+    assert parse("자리비움 경고: 게임에 적극적으로 참여해야 합니다.그렇지않으면 대기 상태로 표시됩니다.") is None
+    merged = parse(
+        "[전체] 에휴에요 (멜): 지1랄 났네 자리비움 경고 게임에 적극적으로 참여해야 합니다 그렇지않으면 대기 상태로 표시됩니다."
+    )
+    assert merged.text == "지1랄 났네" and merged.text_norm == "지랄 났네"
+    assert parse("[전체] 에휴에요 (멜): 자리비움 경고 떴네").text == "자리비움 경고 떴네"  # 채팅에서 말한 것은 그대로
