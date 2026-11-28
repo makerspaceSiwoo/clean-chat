@@ -632,3 +632,31 @@ def test_message_metadata_reaches_session_serialization_and_report_input() -> No
     assert len(captured) == 1
     message = captured[0].session.incidents[0].msg
     assert (message.raw_norm, message.game_time_sec, message.ts, message.raw) == (raw, 1022, 1122.0, raw)
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("ㅅ1발 새끼들아", "시발 새끼들아"),  # 초성 + 숫자 + 글자
+        ("tlqkf 뭐하냐", "시발 뭐하냐"),  # 영타
+        ("wlfkf whssk", "지랄 존나"),
+        ("아 ㅈㄹ하네", "아 지랄하네"),  # 초성
+        ("ㅗㅗㅗㅗ", "엿먹어"),  # 손가락 욕은 몇 번을 반복해도
+        ("c발 진짜", "시발 진짜"),
+        ("개쉑", "개새끼"),
+        ("ㄴㄱㅁ", "느금마"),
+    ],
+)
+def test_bypass_spellings_are_restored(text, expected):
+    from clean_chat.modules.parse.normalization import normalize
+
+    assert normalize(text)[0] == expected
+
+
+@pytest.mark.parametrize(
+    "text", ["다시 발로 차", "시바견 귀엽다", "병사 신호", "what the", "용 먼저 치자 ㄱㄱ", "ㅗ", "새끼 고양이"]
+)
+def test_ordinary_text_is_not_rewritten_by_bypass_lexicon(text):
+    from clean_chat.modules.parse.normalization import normalize
+
+    assert normalize(text) == (text, [])
