@@ -24,21 +24,15 @@ uv run python scripts/pack_context.py ocr   # 웹 AI 채팅에 첨부할 맥락 
 ```
 모듈 코드를 고친 뒤 시뮬레이터에서 [실행]만 다시 누르면 됩니다(서버를 다시 켤 필요 없음).
 
-## 현재 구현 — 속도 우선
+## 현재 구현 — RapidOCR + PP-OCRv5 한국어
 
-- 한국어 Windows 내장 OCR로 채팅 이미지 전체를 **한 번만** 인식합니다. PowerShell 엔진은 같은 프로세스 안에서 재사용합니다.
-- 원본 RGB 해상도를 유지합니다. 확대, 행 검출/분할, 반복 자모 픽셀 분석, 대비 변경 재인식은 실행하지 않습니다. 긴 변이 2600px를 넘는 큰 이미지만 축소합니다.
-- `image_path`는 이미 채팅창 영역이므로 화면 좌표 `region`으로 다시 자르지 않습니다.
-- 기존 줄바꿈 병합과 OcrResult JSON 계약, 콘솔 텍스트 표시를 유지합니다. 신뢰도는 Windows 엔진에서 제공하지 않으므로 `None`입니다.
-- `ㅋㅋㅋ`, `ㅗㅗㅗ`, 작은 한글/컬러 글자의 정확도는 보조 인식 버전보다 낮아질 수 있습니다. 사전이나 문맥으로 원문을 추측해 대체하지 않습니다.
-- 기존 `repeats.py`와 `alphabet.py`의 후보 재검사 코드는 기본 OCR 경로에서 호출하지 않습니다. 출력의 한국어·영어·숫자·기호 제한은 유지하며 판독 불가 문자는 `�`로 표시합니다.
-- 모델 호출 1회가 전체 실행시간 1초를 보장하는 것은 아닙니다. 시뮬레이터는 매번 새 프로세스를 만들므로 엔진 초기화가 매번 포함됩니다.
-- Windows PowerShell과 한국어 OCR 언어 팩이 필요합니다. PaddleOCR는 사용하지 않습니다.
-
-```powershell
-uv run sim ocr
-$env:PYTHONUTF8 = "1"
-uv run pytest -q
-```
-
-Windows OCR API: https://learn.microsoft.com/en-us/uwp/api/windows.media.ocr.ocrengine
+- Windows와 macOS 모두 RapidOCR의 CPU ONNX Runtime을 사용한다. 환경 변수 설정 없이 이 엔진이 기본으로 실행된다.
+- 검출 모델: `ch_PP-OCRv5_det_mobile.onnx`. 인식 모델: `korean_PP-OCRv5_rec_mobile.onnx`.
+- 설치: `uv sync --extra ocr`. 실행: `uv run --extra ocr sim ocr`.
+- 최초 추론 시 SDK가 필요한 모델을 `.clean-chat/rapidocr/`에 자동 다운로드하고 해시를 검증한다. 첫 실행은 인터넷이 필요하며 이후에는 캐시를 재사용한다. 모델 가중치는 커밋하지 않는다.
+- ONNX Runtime은 macOS에서 `>=1.20,<1.24`, 다른 OS에서 `>=1.32,<2`를 사용한다. Intel/Apple Silicon Mac의 휠 의존성 해석을 확인했지만 Mac 실기기 추론은 미검증이다.
+- 엔진은 프로세스 안에서 재사용한다. EasyOCR 의존성과 어댑터를 제거했다. 기존 `CLEAN_CHAT_OCR_ENGINE` 환경 변수는 사용하지 않는다.
+- 이미지 전체를 한 번 인식하고 같은 행의 영역을 왼쪽부터 합친다. 행 신뢰도는 영역 신뢰도의 최솟값이다. 실패 시 원인을 로그에 남기고 `OcrResult(frame_id=..., lines=[])`를 반환한다.
+- 사전과 실제 모델 내부 문자 목록에 `ㅋ`, `ㅗ`, `ㅅ`, `ㅂ`이 포함돼 있다. 포함 여부가 실제 인식률을 보장하지는 않는다.
+- [합성 이미지 18장 비교](BENCHMARK.md)에서 CER 13.73%, 평균 1.451초, 자모 욕설 0/9였다. 사용자의 전환 요청에 따라 기본 엔진을 변경했다(ADR-0023). 자모 욕설·속도 개선과 실제 게임 캡처 재평가는 후속 과제다.
+- Windows 내장 OCR 브리지는 비교 측정용으로만 유지한다.

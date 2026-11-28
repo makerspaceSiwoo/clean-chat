@@ -79,10 +79,6 @@ function showResult(ev) {
   $("output").textContent = hasOutput ? JSON.stringify(ev.output, null, 2) : "";
   $("used-input-box").hidden = ev.input == null;
   $("used-input").textContent = ev.input == null ? "" : JSON.stringify(ev.input, null, 2);
-  if (hasOutput && state.current?.name === "ocr") {
-    const text = ev.output.lines.map((line) => line.text).join("\n");
-    if (text) log(text);
-  }
 }
 function resetResult() {
   showResult({ status: "idle", output: null, error: "", input: null, durationMs: null });

@@ -1,7 +1,5 @@
 """① ocr 모듈 (담당자 소유). AI 모듈이라 출력 형식만 자동 검사하고, 정확도는 실측으로 본다."""
 
-import sys
-import time
 from pathlib import Path
 
 import pytest
@@ -33,7 +31,7 @@ def test_fast_path_uses_original_size_and_exactly_one_ocr_call(frame, monkeypatc
 
 
 def test_fast_preprocess_only_shrinks_oversized_input():
-    from PIL import Image
+    Image = pytest.importorskip("PIL.Image")
 
     with Image.new("RGB", (3000, 600)) as image, impl._preprocess(image) as processed:
         assert processed.size == (2600, 520)
@@ -88,27 +86,47 @@ def test_empty_result(frame, monkeypatch):
     assert impl.run(frame).lines == []
 
 
-def test_load_failure_is_not_empty_result(frame):
-    frame.image_path += ".missing"
-    with pytest.raises(FileNotFoundError):
-        impl.run(frame)
+@pytest.mark.parametrize(
+    "failure, error_type",
+    [("missing", FileNotFoundError), ("corrupt", None), ("engine", RuntimeError), ("preprocess", RuntimeError)],
+)
+def test_failure_returns_empty_result_and_logs_cause(frame, monkeypatch, caplog, failure, error_type):
+    """파일·전처리·엔진 실패는 원인을 기록하고 다음 프레임 처리를 막지 않는다."""
+    import logging
 
-
-def test_corrupt_image_is_reported(frame):
     from PIL import UnidentifiedImageError
 
-    Path(frame.image_path).write_bytes(b"invalid png")
-    with pytest.raises(UnidentifiedImageError):
-        impl.run(frame)
+    if failure == "missing":
+        frame.image_path += ".missing"
+    elif failure == "corrupt":
+        Path(frame.image_path).write_bytes(b"invalid png")
+        error_type = UnidentifiedImageError
+    else:
+
+        def fail(image):
+            raise RuntimeError("OCR unavailable")
+
+        target = "_read_lines" if failure == "engine" else "_preprocess"
+        monkeypatch.setattr(impl, target, fail)
+
+    with caplog.at_level(logging.ERROR, logger=impl.__name__):
+        result = impl.run(frame)
+    assert result.frame_id == frame.id
+    assert result.lines == []
+    record = next(record for record in caplog.records if record.name == impl.__name__)
+    assert frame.id in record.getMessage()
+    assert record.exc_info is not None
+    assert record.exc_info[0] is error_type
+
+    monkeypatch.setattr(impl, "_load_image", lambda path: FakeImage())
+    monkeypatch.setattr(impl, "_preprocess", lambda image: FakeImage())
+    monkeypatch.setattr(impl, "_read_lines", lambda image: [("다음 프레임", 0.9)])
+    assert impl.run(frame).lines[0].text == "다음 프레임"
 
 
-def test_engine_failure_is_reported(frame, monkeypatch):
-    def fail(image):
-        raise RuntimeError("OCR unavailable")
-
-    monkeypatch.setattr(impl, "_read_lines", fail)
-    with pytest.raises(RuntimeError, match="OCR unavailable"):
-        impl.run(frame)
+class FakeImage:
+    def close(self):
+        pass
 
 
 def test_merge_keeps_messages_and_unknown_confidence():
@@ -127,44 +145,16 @@ def test_merge_keeps_messages_and_unknown_confidence():
     ]
 
 
-@pytest.mark.windows
-@pytest.mark.skipif(sys.platform != "win32", reason="Windows 내장 OCR 실측")
-def test_windows_ocr_real_image(frame):
-    """합성 한국어 이미지를 실제 엔진으로 두 번 읽어 초기 로딩·반복 처리까지 확인한다."""
-    from PIL import Image, ImageDraw, ImageFont
+def test_layout_groups_fragments_and_sorts_rows():
+    """닉네임·본문을 같은 행에 묶고 행 순서를 유지한다."""
+    from clean_chat.modules.ocr.layout import group_rows
 
-    from clean_chat.modules.ocr.windows import WindowsOcr
-
-    font_path = Path("C:/Windows/Fonts/malgun.ttf")
-    if not font_path.exists():
-        pytest.skip("합성 이미지용 맑은 고딕 없음")
-    with Image.new("RGB", (700, 150), "black") as image:
-        draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(str(font_path), 26)
-        draw.text((12, 10), "안녕하세요 테스트 채팅입니다", fill="white", font=font)
-        draw.text((12, 75), "다음 문장도 잘 읽어 주세요", fill="white", font=font)
-        image.save(frame.image_path)
-    engine = WindowsOcr()
-    try:
-        image = impl._load_image(frame.image_path)
-        processed = image.resize((image.width * 2, image.height * 2), Image.Resampling.LANCZOS)
-        try:
-            for _ in range(2):
-                started = time.perf_counter()
-                lines = engine.read(processed)
-                elapsed = time.perf_counter() - started
-                assert len(lines) == 2
-                assert "안녕하세요" in lines[0][0]
-                assert "다음" in lines[1][0]
-                assert all(confidence is None for _, confidence in lines)
-                print(f"Windows OCR elapsed: {elapsed:.3f}s")
-        finally:
-            processed.close()
-            image.close()
-        with Image.new("L", (100, 100), "white") as blank:
-            assert engine.read(blank) == []
-    finally:
-        engine.close()
+    results = [
+        ([[80, 10], [150, 10], [150, 30], [80, 30]], "안녕하세요", 0.8),
+        ([[0, 50], [100, 50], [100, 70], [0, 70]], "다음 줄", 0.9),
+        ([[0, 10], [70, 10], [70, 30], [0, 30]], "[팀] 테스트:", 0.95),
+    ]
+    assert group_rows(results) == [("[팀] 테스트: 안녕하세요", 0.8), ("다음 줄", 0.9)]
 
 
 @pytest.fixture
@@ -255,6 +245,79 @@ def test_retry_requires_preserved_content():
 def test_damaged_next_header_is_not_merged():
     lines = [("[팀] 테스트: 첫 문장", None), ("[71111 테스트 (가렌 ㅋㅋㅋㅋ", None)]
     assert impl._merge_wrapped_lines(lines) == lines
+
+
+def test_benchmark_metrics_preserve_jamo_counts_and_spatial_context():
+    from clean_chat.modules.ocr.benchmark import compare
+
+    exact = compare("테스트: ㅅㅂ ㅋㅋㅋㅋ ㅗㅗ", "테스트: ㅅㅂ ㅋㅋㅋㅋ ㅗㅗ")
+    assert exact == {
+        "edits": 0,
+        "characters": 15,
+        "jamo_total": 3,
+        "jamo_correct": 3,
+        "abuse_total": 2,
+        "abuse_correct": 2,
+    }
+    missing = compare("테스트: ㅅㅂ ㅋㅋㅋㅋ ㅗㅗ", "테스트: ㅅㅂ ㅋㅋㅋ ㅗ")
+    assert missing["edits"] == 2
+    assert missing["jamo_correct"] == 1
+    assert missing["abuse_correct"] == 1
+    assert compare("ㅅㅂ", "ㅅㅂㅂ")["abuse_correct"] == 0
+    assert compare("가", "가")["edits"] == 0
+
+
+def test_rapid_candidate_config_cache_and_bgr(monkeypatch, capsys):
+    import sys
+    from types import SimpleNamespace
+
+    Image = pytest.importorskip("PIL.Image")
+    pytest.importorskip("numpy")
+    from clean_chat.modules.ocr.rapid import RapidOcr
+
+    configs = []
+
+    class Reader:
+        def __init__(self, params):
+            configs.append(params)
+
+        def __call__(self, image):
+            assert image[0, 0].tolist() == [0, 0, 255]
+            return SimpleNamespace(
+                boxes=[[[0, 0], [10, 0], [10, 10], [0, 10]]], txts=["ㅅㅂ"], scores=[0.9], elapse=0.1234
+            )
+
+    enums = SimpleNamespace(ONNXRUNTIME="onnxruntime", PPOCRV5="PP-OCRv5", MOBILE="mobile", KOREAN="korean")
+    monkeypatch.setitem(
+        sys.modules,
+        "rapidocr",
+        SimpleNamespace(EngineType=enums, LangRec=enums, ModelType=enums, OCRVersion=enums, RapidOCR=Reader),
+    )
+    engine = RapidOcr()
+    with Image.new("RGB", (20, 20), "red") as image:
+        assert engine.read(image) == [("ㅅㅂ", 0.9)]
+    assert configs[0]["Rec.lang_type"] == "korean"
+    assert configs[0]["Rec.ocr_version"] == "PP-OCRv5"
+    assert configs[0]["Global.log_level"] == "error"
+    assert capsys.readouterr().out == "OCR 응답시간: 0.123초\n"
+    assert ".clean-chat" in Path(configs[0]["Global.model_root_dir"]).parts
+
+
+def test_default_rapid_engine_is_cached_without_windows_dependency(monkeypatch):
+    from clean_chat.modules.ocr import rapid
+
+    class Engine:
+        pass
+
+    monkeypatch.delenv("CLEAN_CHAT_OCR_ENGINE", raising=False)
+    monkeypatch.setattr(rapid, "RapidOcr", Engine)
+    impl._get_engine.cache_clear()
+    try:
+        first = impl._get_engine()
+        assert isinstance(first, Engine)
+        assert impl._get_engine() is first
+    finally:
+        impl._get_engine.cache_clear()
 
 
 @pytest.mark.parametrize("text", ["ㅋㅋㅋㅋㅋㅋ", "ㅎㅎㅎㅎㅎㅎ", "ㅗㅗㅗㅗㅗㅗ"])
