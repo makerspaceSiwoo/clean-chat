@@ -48,9 +48,10 @@ class OverlayWindow(QWidget):
         self.setWindowFlag(Qt.WindowDoesNotAcceptFocus, not editing)
         self.show()
         if QApplication.platformName() == "cocoa":
-            from clean_chat.ui.window_bounds import join_fullscreen_spaces
+            from clean_chat.ui.window_bounds import join_fullscreen_spaces, stay_in_background
 
             join_fullscreen_spaces(int(self.winId()))
+            stay_in_background(int(self.winId()))  # 오버레이를 눌러도 클라이언트 창이 앞으로 나오지 않게
 
     def _edges(self, point):
         return (point.x() < 8, point.y() < 6, point.x() >= self.width() - 8, point.y() >= self.height() - 6)

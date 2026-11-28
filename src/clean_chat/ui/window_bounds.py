@@ -135,3 +135,32 @@ def join_fullscreen_spaces(view_id: int) -> None:
         # CanJoinAllSpaces, FullScreenAuxiliary. 상호 배타적인 이동/주 창 플래그는 해제한다.
         flags = (flags & ~(2 | (1 << 7) | (1 << 9))) | 1 | (1 << 8)
         set_flags(window, objc.sel_registerName(b"setCollectionBehavior:"), flags)
+
+
+def stay_in_background(view_id: int) -> bool:
+    """오버레이를 눌러도 우리 앱이 활성화되지 않게 한다 (macOS). 적용했으면 True.
+
+    macOS 는 앱의 창 하나를 누르면 앱 전체를 활성화하고, 그때 클라이언트 창도 함께 앞으로 나온다.
+    오버레이(NSPanel)에 "활성화하지 않는 패널" 속성을 주면 오버레이만 따로 눌리고 입력도 받는다.
+    게임이나 다른 앱은 그대로 활성 상태로 남는다. Qt 가 창 속성을 바꾸면 초기화되므로 그때마다 다시 부른다.
+    """
+    if sys.platform != "darwin":
+        return False
+    objc = ctypes.CDLL("/usr/lib/libobjc.A.dylib")
+    objc.sel_registerName.argtypes = [ctypes.c_char_p]
+    objc.sel_registerName.restype = ctypes.c_void_p
+    objc.objc_getClass.argtypes = [ctypes.c_char_p]
+    objc.objc_getClass.restype = ctypes.c_void_p
+    send = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(("objc_msgSend", objc))
+    is_kind = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(("objc_msgSend", objc))
+    get_mask = ctypes.CFUNCTYPE(ctypes.c_ulong, ctypes.c_void_p, ctypes.c_void_p)(("objc_msgSend", objc))
+    set_mask = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong)(("objc_msgSend", objc))
+    window = send(view_id, objc.sel_registerName(b"window"))
+    # 이 속성은 NSPanel 에만 줄 수 있다 (Qt.Tool 창이 NSPanel 이다).
+    if not window or not is_kind(window, objc.sel_registerName(b"isKindOfClass:"), objc.objc_getClass(b"NSPanel")):
+        return False
+    nonactivating = 1 << 7  # NSWindowStyleMaskNonactivatingPanel
+    mask = get_mask(window, objc.sel_registerName(b"styleMask"))
+    if not mask & nonactivating:
+        set_mask(window, objc.sel_registerName(b"setStyleMask:"), mask | nonactivating)
+    return True
