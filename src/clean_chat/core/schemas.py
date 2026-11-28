@@ -21,9 +21,13 @@ from __future__ import annotations
 from enum import IntEnum, StrEnum
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, computed_field, model_serializer, model_validator
 
-SCHEMA_VERSION = "2.0.0"
+from clean_chat.core.charges import CHARGE_CATALOG, ChargeId
+
+SCHEMA_VERSION = "2.1.0"
+# 2.1.0: 신고·고소 초안의 원문 증거(evidence)와 적용된 혐의 ID(applied_charge_ids), ParseResult.system_text 추가
+#        (데스크톱 클라이언트용, 기존 입력·출력과 호환)
 # 2.0.0: raw_norm・game_time_sec를 ChatMessage 내부로 이동. 1.1.0 ParseResult 입력은 읽을 때 변환한다.
 # 1.1.0: ParseResult에 raw_norm(복원 줄)과 game_time_sec(게임 경과 초) 추가. 기존 출력은 None 기본값으로 호환.
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
@@ -160,6 +164,7 @@ class ChatMessage(BaseModel):
 
 
 class ParseResult(BaseModel):
+    system_text: str | None = None  # parse가 식별해 재구성한 시스템 문구. 판독 불명은 None.
     line_id: str
     message: ChatMessage | None  # 채팅이 아닌 줄(시스템 메시지, 핑, 잡음)은 None
 
@@ -181,6 +186,13 @@ class ParseResult(BaseModel):
             if field in data:
                 message.setdefault(field, data[field])
         return {**data, "message": message}
+
+    @model_serializer(mode="wrap")
+    def _serialize(self, handler):
+        fields = handler(self)
+        if self.system_text is None:
+            fields.pop("system_text", None)
+        return fields
 
 
 # ── ③ analyze: 관계·등급·피드백 ──────────────────────────────
@@ -267,12 +279,54 @@ class GameSession(BaseModel):
 
 
 # ── ⑤ report: 신고 문구 / 고소장 (게임 종료 후에만) ──────────────
+# 고소장 후보로 표시된 사건에만 적용하는 초안 분류표. 유해 유형만으로 범죄 성립을 판정하지 않는다.
+_COMPLAINT_CHARGE_BY_HARM = {
+    HarmType.THREAT: ChargeId.THREAT,
+    HarmType.FAMILY_INSULT: ChargeId.INSULT,
+    HarmType.SEXUAL_HARASSMENT: ChargeId.SEXUAL_MESSAGE,
+}
+
+
 class ReportRequest(BaseModel):
     kind: ReportKind
     session: GameSession  # 이번 게임 기록 전체. report → decision.report, complaint → complaint_candidate 기록만 쓴다
     speaker: str  # 대상 닉네임
     complainant: str | None = None  # 고소인(사용자) 이름. complaint 일 때만
     output_dir: str | None = None  # PDF 저장 폴더. complaint 일 때만. 상대 경로면 레포 루트 기준 (resolve_repo_path)
+
+    evidence_ids: tuple[str, ...] | None = None  # None이면 해당 화자의 대상 기록 전체, 빈 목록이면 첨부 없음
+
+    def _incidents(self) -> list[Incident]:
+        complaint = self.kind == ReportKind.COMPLAINT
+        return [
+            inc
+            for inc in self.session.incidents
+            if inc.msg.speaker == self.speaker
+            and not inc.msg.is_me
+            and inc.msg.source != Source.SELF_INPUT
+            and (inc.decision.complaint_candidate if complaint else inc.decision.report)
+        ]
+
+    @computed_field
+    @property
+    def evidence(self) -> tuple[ChatMessage, ...]:
+        """현재 초안에 첨부할 원본 메시지. 같은 시각이면 세션 기록 순서를 유지한다."""
+        selected = None if self.evidence_ids is None else set(self.evidence_ids)
+        messages = [inc.msg for inc in self._incidents() if selected is None or inc.msg.id in selected]
+        return tuple(sorted(messages, key=lambda msg: msg.ts))
+
+    @computed_field
+    @property
+    def applied_charge_ids(self) -> tuple[ChargeId, ...]:
+        if self.kind != ReportKind.COMPLAINT:
+            return ()
+        applied = {
+            _COMPLAINT_CHARGE_BY_HARM[harm]
+            for inc in self._incidents()
+            for harm in inc.analysis.harm_types
+            if harm in _COMPLAINT_CHARGE_BY_HARM
+        }
+        return tuple(charge for charge in CHARGE_CATALOG if charge in applied)
 
 
 class ReportDraft(BaseModel):
@@ -281,6 +335,8 @@ class ReportDraft(BaseModel):
     text: str  # report: 그대로 붙여넣을 신고 문구 / complaint: 사건 경위
     incident_ids: list[str]
     pdf_path: str | None = None  # complaint 일 때 저장한 PDF 경로
+    evidence: tuple[ChatMessage, ...] = ()  # 초안이 인용한 원문. 예전 결과에는 없을 수 있다.
+    applied_charge_ids: tuple[ChargeId, ...] = ()
 
 
 # ── 구성: 게임 종료 결과 (POST_GAME 배치 처리 → "이번 게임 결과" 화면) ──

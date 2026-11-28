@@ -147,11 +147,12 @@ def find_repeat_rows(image: object) -> list[TextRow]:
         for left, right in glyphs:
             candidate = _classify(row[:, left:right], templates)
             char = candidate[0] if candidate else None
+            # 간격 허용치(글자 폭 대비). 띄어쓰기 한 칸이 글자 폭의 약 0.9 라서 그보다 작아야 "ㅋ ㅋ ㅋ" 를 묶지 않는다.
             compatible = (
                 group
                 and char == previous_char
                 and left - group[-1][1]
-                <= (group[-1][1] - group[-1][0]) * {"ㅋ": 1.0, "ㅎ": 0.65, "ㅗ": 0.5}.get(char, 0)
+                <= (group[-1][1] - group[-1][0]) * {"ㅋ": 0.75, "ㅎ": 0.65, "ㅗ": 0.5}.get(char, 0)
                 and 0.8 <= (right - left) / (group[-1][1] - group[-1][0]) <= 1.25
             )
             if not compatible:

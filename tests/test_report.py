@@ -169,3 +169,19 @@ def test_complaint_without_evidence(complaint):
     assert "고소장 초안에 포함할 채팅 기록이 없습니다." in draft.text
     assert "채팅 기록 0건" in draft.text
     assert "고소인 서명:" in draft.text
+
+
+def test_complaint_uses_default_model_with_key_only(complaint, monkeypatch):
+    monkeypatch.setenv("LITELLM_LOCAL_MODEL_COST_MAP", "True")
+    litellm = pytest.importorskip("litellm")
+    from clean_chat.modules.report import impl
+
+    monkeypatch.setenv("LLM_API_KEY", "test-key")  # 앱 설정은 키만 저장한다
+    calls = []
+    summary = "전체 채팅에서 가족을 언급한 비하 표현과 비속어를 사용한 표현이 포함된 메시지 1건이 확인됩니다."
+    completion = litellm.completion
+    monkeypatch.setattr(
+        litellm, "completion", lambda **kwargs: calls.append(kwargs) or completion(**kwargs, mock_response=summary)
+    )
+    assert f"사건 경위: {summary}" in run(complaint).text
+    assert calls[0]["model"] == impl.DEFAULT_MODEL == "gemini/gemini-3.1-flash-lite"

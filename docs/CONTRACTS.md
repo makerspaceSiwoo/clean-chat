@@ -45,8 +45,8 @@
                   ← target = 공격 대상의 **닉네임** (한 명으로 못 좁히면 포지션 단어 "정글", 없으면 null) — ADR-0020
 ④ RewriteRequest { message: ChatMessage, analysis: Analysis, players: Player[] = [] }
    Rewrite        { msg_id, rewritten?, backend }
-⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir? }
-   ReportDraft    { kind, speaker, text, incident_ids[], pdf_path? }
+⑤ ReportRequest  { kind: report|complaint, session: GameSession, speaker, complainant?, output_dir?, evidence_ids?, evidence[], applied_charge_ids[] }
+   ReportDraft    { kind, speaker, text, incident_ids[], pdf_path?, evidence[], applied_charge_ids[] }
 
 구성 (core/)
    Decision       { msg_id, is_me, action, display_text?, target?, report, complaint_candidate, reason }   ← core/policy.py
@@ -64,6 +64,13 @@
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
 - `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료. report 는 `post_game` 에서만 실행
 - `kind`: `report` 신고 문구 · `complaint` 고소장 초안(+PDF)
+
+### 신고·고소 초안의 근거 (1.1.0)
+
+- core는 요청의 경기·화자와 `report` 또는 `complaint_candidate` 표시를 기준으로 원문을 추린다. `evidence_ids`를 생략하면 해당 기록 전체, 목록을 주면 그중 일치하는 기록만 `evidence`에 시간순으로 담는다. `ChatMessage.raw`는 OCR 원본 줄이고 `text`는 정규화 전 본문이다. `ts`는 유닉스 시각이다.
+- 고소장 후보의 분석 유형 `threat`, `family_insult`, `sexual_harassment`는 각각 초안의 `threat`(협박죄), `insult`(모욕죄), `tme`(통신매체이용음란죄)에 연결한다. 이는 초안에 표시할 분류다. `coerce`, `extort`, `privacy`, `defame`도 전체 카탈로그에 보존한다. 대응 분석 신호가 없는 항목은 자동 적용하지 않는다.
+- `ReportRequest.applied_charge_ids`는 core가 계산한다. 같은 화자의 고소장 후보 전체를 기준으로 중복을 제거하며, 증거 첨부 선택과 독립적이다. 신고 요청이나 일치하는 유형이 없는 경우 빈 목록이다. 클라이언트는 이 ID를 그대로 적용해 `CHARGE_CATALOG`에서 조회하고, 미리보기와 PDF에 쓴다(사용자 선택 없음).
+- report 모듈은 요청의 원문으로 문서 본문을 작성하고 실제 인용한 `incident_ids`를 반환한다. core는 모듈 호출 경계에서 이 ID를 첨부 대상과 대조해 결과의 `evidence`를 채우고, 요청과 동일한 `applied_charge_ids`를 결과에 싣는다. 예전 결과를 읽을 때 새 필드는 빈 목록으로 시작한다.
 
 ### 조각(span) 규칙
 - `profanity_spans`, `feedback_spans` 는 `message.text`(원문)에 **그대로 있는** 조각입니다. 정책표가 비속어를 `**` 로 가리고(L1), rewrite 가 피드백 조각을 다듬습니다.
@@ -102,3 +109,7 @@ uv run pytest tests/test_parse.py                     # 구현하면 자동 검�
 `플레이어_랜덤4자리`로 치환합니다. 챔피언명은 그대로 전송하며 대응표는 로컬 메모리에만 둡니다.
 선택된 피드백의 코드가 정확히 보존된 응답만 원래 닉네임으로 복원합니다. 누락·변형·추가는
 로컬 순화 규칙으로 대체하며, 규칙도 코드를 보존하지 못하면 None을 반환합니다.
+
+### 데스크톱의 시스템 메시지
+
+`ParseResult.system_text`는 인식된 핑·시스템 이벤트를 사용자에게 보여 줄 문구입니다. 유저 채팅은 기존의 `message`로 전달합니다. `system_text`의 기본값은 `None`이며 JSON에서는 생략합니다. 예전 모듈에서 `message=None`만 반환하면 인식 가능한 정형 알림만 복원합니다.

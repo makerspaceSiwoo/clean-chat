@@ -364,11 +364,13 @@ def test_gemini_key_alias_and_model_normalization(monkeypatch, tmp_path):
     assert REAL_OPTIONS()["LLM_MODEL"] == "gemini/team-model-2"
 
 
-def test_no_default_model_before_team_decides(monkeypatch, tmp_path):
+def test_default_model_when_unset(monkeypatch, tmp_path):
     monkeypatch.setattr(backend, "ROOT", tmp_path)
     for key in ("LLM_API_KEY", "GEMINI_API_KEY", "LLM_MODEL", "LLM_BACKEND"):
         monkeypatch.delenv(key, raising=False)
-    assert REAL_OPTIONS()["LLM_MODEL"] == ""
+    # 앱 설정은 키만 받는다. 모델은 모듈 기본값을 쓰고, 키는 채우지 않는다.
+    assert REAL_OPTIONS()["LLM_MODEL"] == backend.DEFAULT_MODEL == "gemini/gemini-3.1-flash-lite"
+    assert REAL_OPTIONS()["LLM_API_KEY"] == ""
 
 
 def test_other_provider_is_not_called(monkeypatch):

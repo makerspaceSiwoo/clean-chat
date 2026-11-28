@@ -13,6 +13,8 @@ from clean_chat.core.schemas import Channel, HarmType, Incident, ReportDraft, Re
 
 logger = logging.getLogger(__name__)
 KST = timezone(timedelta(hours=9))
+# LLM_MODEL이 없을 때 쓰는 report 기본 모델 (2027-05 종료 예정). 키가 없으면 호출하지 않는다.
+DEFAULT_MODEL = "gemini/gemini-3.1-flash-lite"
 HARM_LABELS = {
     HarmType.PROFANITY: "욕설",
     HarmType.FAMILY_INSULT: "패드립",
@@ -81,7 +83,7 @@ def _summarize(incidents: list[Incident]) -> str:
         facts.append(f"{channel}에서 {labels}에 해당하는 것으로 분류된 메시지 {count}건")
     fallback = f"게임 중 피고소인이 작성한 기록 중 {' 및 '.join(facts)}이 확인됩니다."
 
-    model = os.getenv("LLM_MODEL", "").strip()
+    model = os.getenv("LLM_MODEL", "").strip() or DEFAULT_MODEL
     api_key = os.getenv("LLM_API_KEY", "").strip()
     if not model.startswith("gemini/") or not api_key:
         return fallback

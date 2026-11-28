@@ -36,12 +36,12 @@ uv run --no-env-file --extra report pytest tests/test_report.py
 모델이나 키가 비어 있으면 채널·분류·건수로 사건 경위를 작성합니다. 테스트는 LiteLLM의
 `mock_response`로 키 없이 Gemini 연결 경로를 검증합니다.
 
-Gemini 모델과 키가 준비되면 실행 프로세스의 환경 변수에 `LLM_MODEL`과
-`LLM_API_KEY`를 설정합니다. `report` 모듈은 두 값을 프로세스 환경에서만 읽습니다.
+키가 준비되면 실행 프로세스의 환경 변수에 `LLM_API_KEY`를 설정합니다. 모델은 기본값
+`gemini/gemini-3.1-flash-lite`(`impl.DEFAULT_MODEL`)를 쓰고, `LLM_MODEL`을 설정하면 그 값이 우선합니다. `report` 모듈은 두 값을 프로세스 환경에서만 읽습니다.
 키는 비밀번호 관리자나 터미널의 숨김 입력으로 환경에 주입하세요.
 
 ```bash
-export LLM_MODEL='gemini/<모델 ID>'
+export LLM_MODEL='gemini/<모델 ID>'  # 선택: 기본 모델 대신 쓸 때만
 uv run --no-env-file --extra report sim report
 ```
 

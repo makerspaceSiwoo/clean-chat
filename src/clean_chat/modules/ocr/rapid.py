@@ -1,7 +1,8 @@
 """기본 OCR: RapidOCR + PP-OCRv5 한국어 mobile, CPU ONNX Runtime."""
 
-from pathlib import Path
 from threading import Lock
+
+from clean_chat.core.config import STORE
 
 
 class RapidOcr:
@@ -10,7 +11,8 @@ class RapidOcr:
     def __init__(self) -> None:
         from rapidocr import EngineType, LangRec, ModelType, OCRVersion, RapidOCR
 
-        root = Path(__file__).resolve().parents[4] / ".clean-chat" / "rapidocr"
+        # 개발 중에는 레포의 .clean-chat/rapidocr, 설치한 앱에서는 사용자 데이터 폴더 (앱 묶음 안에 쓰지 않는다)
+        root = STORE / "rapidocr"
         self._reader = RapidOCR(
             params={
                 "Global.model_root_dir": str(root),

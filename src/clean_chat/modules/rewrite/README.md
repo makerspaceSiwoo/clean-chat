@@ -12,7 +12,7 @@ uv run sim rewrite
 uv run pytest tests/test_rewrite.py -q
 ```
 
-로컬 `.env`에 `LLM_BACKEND=api`, `LLM_MODEL=gemini/<모델명>`, `GEMINI_API_KEY=<키>`를 설정합니다.
+로컬 `.env`에 `LLM_BACKEND=api`, `GEMINI_API_KEY=<키>`를 설정합니다. 모델은 기본값 `gemini/gemini-3.1-flash-lite`(`backend.DEFAULT_MODEL`)를 쓰고, `LLM_MODEL=gemini/<모델명>`을 설정하면 그 값이 우선합니다.
 `LLM_API_KEY`도 지원하며, 설정이 없거나 호출 실패/거절/시간 초과면 예비 규칙 또는 `rewritten=None`입니다.
 키·원문 로그·실행 결과 CSV는 커밋하지 않습니다. `LLM_BACKEND=rule`은 API 없이 제한된 예비 규칙만 씁니다.
 

@@ -56,3 +56,14 @@ def test_l3_outgoing_is_blocked_even_with_feedback():
 def test_mask_longest_span_first():
     assert mask_profanity("개새끼 새끼", ["새끼", "개새끼"]) == "** **"
     assert mask_profanity("정상 문장", []) == "정상 문장"
+
+
+@pytest.mark.parametrize(
+    "strength, action", [("low", Action.SHOW), ("normal", Action.SHOW_MASKED), ("high", Action.HIDE)]
+)
+def test_strength_changes_mild_chat_only(strength: str, action: Action, monkeypatch: pytest.MonkeyPatch) -> None:
+    from clean_chat.core.config import settings
+
+    monkeypatch.setattr(settings, "filter_strength", strength)
+    assert decide_incoming(_msg("x"), _an(1)).action == action
+    assert decide_incoming(_msg("x"), _an(3)).action == Action.HIDE

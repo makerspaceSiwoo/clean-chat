@@ -83,7 +83,16 @@ def invoke(name: str, fn: Callable[[Any], Any], item: BaseModel) -> BaseModel:
         raise ModuleNotImplemented(name, str(e)) from e
     if not isinstance(out, BaseModel):
         raise TypeError(f"모듈 '{name}' 이 {spec.output_model.__name__} 대신 {type(out).__name__} 을 돌려줬습니다")
-    return spec.output_model.model_validate(out.model_dump())
+    result = spec.output_model.model_validate(out.model_dump())
+    if name == "report" and isinstance(item, ReportRequest):
+        if result.kind != item.kind or result.speaker != item.speaker:
+            raise ValueError("report 결과의 종류 또는 화자가 요청과 다릅니다.")
+        cited = set(result.incident_ids)
+        evidence = tuple(msg for msg in item.evidence if msg.id in cited)
+        if cited != {msg.id for msg in evidence}:
+            raise ValueError("report 결과에 이 요청의 첨부 대상이 아닌 기록 ID가 있습니다.")
+        result = result.model_copy(update={"evidence": evidence, "applied_charge_ids": item.applied_charge_ids})
+    return result
 
 
 def call(name: str, data: Mapping[str, Any] | BaseModel) -> BaseModel:

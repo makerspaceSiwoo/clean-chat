@@ -93,6 +93,34 @@ def test_frames_are_deduplicated_between_ocr_calls():
     assert [ln.id for ln in dedup.new_lines(lines[1:])] == ["x3"]  # 채팅창이 한 줄 밀려 올라감
 
 
+def test_empty_frame_keeps_previous_lines_for_overlap():
+    """채팅창이 잠깐 숨겨져 글자가 하나도 안 읽히면 겹침 기준을 바꾸지 않는다."""
+    lines = [RawLine(id=f"x{i}", ts=0, text=f"줄 {i}", source="ocr") for i in range(4)]
+    blank = RawLine(id="b", ts=0, text="   ", source="ocr")
+    dedup = LineDedup()
+    assert [ln.id for ln in dedup.new_lines(lines[:3])] == ["x0", "x1", "x2"]
+    assert dedup.new_lines([]) == [] and dedup.new_lines([blank]) == []  # 채팅창 숨김
+    assert dedup.new_lines(lines[:3]) == []  # 다시 보여도 이미 처리한 줄
+    assert [ln.id for ln in dedup.new_lines(lines[1:])] == ["x3"]
+
+
+def test_frame_without_continuity_is_ignored_until_confirmed():
+    """[A,B,C] 다음에 겹침 없는 [K] 가 나오면 OCR 오작동으로 보고 기준을 유지한다."""
+
+    def frame(*texts: str) -> list[RawLine]:
+        return [RawLine(id=t, ts=0, text=t, source="ocr") for t in texts]
+
+    dedup = LineDedup()
+    assert [ln.id for ln in dedup.new_lines(frame("A", "B", "C"))] == ["A", "B", "C"]
+    assert dedup.new_lines(frame("K")) == []  # 잡음 → 무시
+    assert dedup.previous == ["A", "B", "C"]
+    assert [ln.id for ln in dedup.new_lines(frame("C", "D", "E"))] == ["D", "E"]  # 빨리 밀려도 한 줄 겹치면 정상
+    # 숨김 동안 채팅이 많이 올라와 통째로 바뀐 화면은 연속으로 나오면 받아들인다.
+    assert dedup.new_lines(frame("X", "Y")) == [] and dedup.new_lines(frame("X", "Y")) == []
+    assert [ln.id for ln in dedup.new_lines(frame("X", "Y"))] == ["X", "Y"]
+    assert dedup.new_lines(frame("X", "Y")) == []
+
+
 def test_process_frame_runs_ocr_then_lines():
     frame: Frame = fixture_pairs("ocr")[0][0]
     p = Pipelines(fixture_modules())

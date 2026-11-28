@@ -61,6 +61,10 @@ class SentLog:
             self._prune(message.ts)
             return any(text == message.text.strip() for _, text in self._sent)
 
+    def clear(self) -> None:
+        with self._lock:
+            self._sent.clear()
+
     def _prune(self, now: float) -> None:
         """window_sec 보다 오래된 문장은 잊는다 (계속 쌓이지 않게)."""
         while self._sent and now - self._sent[0][0] > self.window_sec:
@@ -82,37 +86,68 @@ class MessageFilters:
 
     def __init__(self, modules: ModuleSet, roster: Roster, history_size: int = 10) -> None:
         self.modules, self.roster = modules, roster
+        self._rewrite_lock = threading.Lock()
         self.history: deque[ChatMessage] = deque(maxlen=history_size)
         self._lock = threading.Lock()
 
-    def run(self, message: ChatMessage) -> tuple[Analysis, Rewrite | None]:
+    def reset_history(self) -> None:
+        with self._lock:
+            self.history.clear()
+
+    def analyze(self, message: ChatMessage) -> Analysis:
         with self._lock:
             req = AnalyzeRequest(message=message, history=list(self.history), players=self.roster.players)
-            analysis: Analysis = self.modules.run("analyze", req)
+            analysis = self.modules.run("analyze", req)
             self.history.append(message)
-            rw = None
-            if analysis.level >= Level.L2_ABUSIVE and analysis.feedback_spans:
-                rw = self.modules.run(
+            return analysis
+
+    def rewrite(self, message: ChatMessage, analysis: Analysis) -> Rewrite | None:
+        if analysis.level >= Level.L2_ABUSIVE and analysis.feedback_spans:
+            with self._rewrite_lock:
+                return self.modules.run(
                     "rewrite", RewriteRequest(message=message, analysis=analysis, players=self.roster.players)
                 )
-            return analysis, rw
+        return None
+
+    def run(self, message: ChatMessage) -> tuple[Analysis, Rewrite | None]:
+        analysis = self.analyze(message)
+        return analysis, self.rewrite(message, analysis)
 
 
 class LineDedup:
-    """OCR 은 보이는 줄을 전부 돌려준다. 앞 프레임에서 이미 처리한 줄을 건너뛴다 (채팅창은 위로 밀려 올라감).
+    """이전 화면의 끝과 현재 화면의 시작에서 겹치는 가장 긴 줄 목록을 찾아 새 줄만 돌려준다.
 
-    기준: 최근 window 줄 안에 같은 text 가 있으면 이미 본 줄. (같은 문장을 다시 친 경우는 OPEN-13 에서 다듬는다)
+    채팅창은 위로 밀릴 뿐 한 번에 통째로 바뀌지 않는다. 그래서 이전 화면과 한 줄도 겹치지 않는 화면은
+    OCR 오작동(빈 화면에서 잡음 인식 등)으로 보고 버린다. 같은 화면이 CONFIRM_FRAMES 번 연속 나오면
+    (예: 채팅창이 숨겨진 동안 채팅이 많이 올라온 경우) 실제 화면으로 받아들인다.
     """
 
-    def __init__(self, window: int = 30) -> None:
-        self._seen: deque[str] = deque(maxlen=window)
-        self._lock = threading.Lock()
+    CONFIRM_FRAMES = 3
+
+    def __init__(self) -> None:
+        self.previous: list[str] = []
+        self._pending: list[str] = []
+        self._pending_count = 0
 
     def new_lines(self, lines: list[RawLine]) -> list[RawLine]:
-        with self._lock:
-            fresh = [ln for ln in lines if ln.text.strip() not in self._seen]
-            self._seen.extend(ln.text.strip() for ln in fresh)
-            return fresh
+        lines = [line for line in lines if line.text.strip()]
+        if not lines:
+            return []  # 채팅창이 잠깐 숨겨짐 → 비교 기준을 바꾸지 않는다.
+        current = [" ".join(line.text.split()) for line in lines]
+        overlap = min(len(self.previous), len(current))
+        while overlap and self.previous[-overlap:] != current[:overlap]:
+            overlap -= 1
+        if self.previous and overlap == 0 and not self._confirmed(current):
+            return []  # 연속성 없음 → 오작동으로 보고 기준을 유지한다.
+        self._pending, self._pending_count = [], 0
+        self.previous = current
+        return lines[overlap:]
+
+    def _confirmed(self, current: list[str]) -> bool:
+        """겹치지 않는 같은 화면이 연속으로 CONFIRM_FRAMES 번 나왔는지 센다."""
+        self._pending_count = self._pending_count + 1 if current == self._pending else 1
+        self._pending = current
+        return self._pending_count >= self.CONFIRM_FRAMES
 
 
 class IncomingPipeline:
@@ -124,15 +159,19 @@ class IncomingPipeline:
 
     def process_frame(self, frame: Frame) -> list[Incident]:
         """[Windows 실제 앱] 캡처 이미지 1장 → 새 채팅 줄들 처리"""
+        return [inc for line in self.read_frame(frame) if (inc := self.process_line(line))]
+
+    def read_frame(self, frame: Frame) -> list[RawLine]:
         result: OcrResult = self.modules.run("ocr", frame)
-        return [inc for line in self.dedup.new_lines(result.lines) if (inc := self.process_line(line))]
+        return self.dedup.new_lines(result.lines)
+
+    def parse(self, line: RawLine) -> ParseResult:
+        return self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
 
     def process_line(self, line: RawLine) -> Incident | None:
-        """채팅 한 줄 (OCR 결과 / 데모 재생). 채팅이 아닌 줄이나 내가 보낸 문장의 재인식이면 None"""
-        parsed: ParseResult = self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
-        if parsed.message is None or self.sent_log.is_echo(parsed.message):
+        msg = self.parse(line).message
+        if msg is None or self.sent_log.is_echo(msg):
             return None
-        msg = parsed.message
         analysis, rw = self.filters.run(msg)
         return Incident(msg=msg, analysis=analysis, decision=decide_incoming(msg, analysis, rw), rewrite=rw)
 
@@ -175,6 +214,12 @@ class Pipelines:
         filters = MessageFilters(self.modules, self.roster)
         self.incoming = IncomingPipeline(self.modules, filters, self.sent_log, self.roster)
         self.outgoing = OutgoingPipeline(self.modules, filters, self.sent_log)
+
+    def reset_session(self) -> None:
+        self.sent_log.clear()
+        self.incoming.filters.reset_history()
+        self.incoming.dedup = LineDedup()
+        self.set_players([])
 
     def set_players(self, players: list[Player]) -> None:
         self.roster.players = list(players)
