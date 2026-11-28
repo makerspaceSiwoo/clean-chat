@@ -15,6 +15,7 @@ import threading
 import time
 import uuid
 from collections import deque
+from difflib import SequenceMatcher
 
 from clean_chat.core.config import settings
 from clean_chat.core.modules import ModuleSet
@@ -114,27 +115,94 @@ class MessageFilters:
         return analysis, self.rewrite(message, analysis)
 
 
-class LineDedup:
-    """이전 화면의 끝과 현재 화면의 시작에서 겹치는 가장 긴 줄 목록을 찾아 새 줄만 돌려준다.
+def _key(text: str) -> str:
+    """비교용 글자만 남긴다. 띄어쓰기·기호는 OCR 이 읽을 때마다 달라져서 뺀다."""
+    return "".join(ch for ch in text.casefold() if ch.isalnum())
 
-    비교 기준(previous)은 마지막으로 **글자를 읽은** 화면이다. OCR 이 아무것도 읽지 못한 화면(채팅창 숨김,
-    OCR 실패)은 기준을 덮어쓰지 않는다. 기준이 지워지면 채팅창이 다시 보일 때 이미 처리한 줄을 새 줄로 본다.
-    이전 화면과 한 줄도 겹치지 않으면(숨김 동안 채팅이 많이 올라옴) 보이는 줄을 모두 새 줄로 본다.
+
+def line_similarity(a: str, b: str) -> float:
+    """두 줄이 같은 채팅 줄을 읽은 것이면 0보다 큰 값(같을수록 1에 가깝다), 다른 줄이면 0.
+
+    같은 줄도 OCR 이 읽을 때마다 조금씩 다르게 읽는다 (반투명 배경 뒤로 게임 화면이 움직여서).
+    `화자: 내용` 은 화자와 내용을 따로 본다. 화자 부분이 길어서 통째로 비교하면 같은 사람의 다른 말이 같은 줄로 보인다.
+    """
+    if a == b:
+        return 1.0
+    head_a, sep_a, body_a = a.partition(":")
+    head_b, sep_b, body_b = b.partition(":")
+    if sep_a and sep_b and _key(body_a) and _key(body_b):
+        head = SequenceMatcher(None, _key(head_a), _key(head_b)).ratio()
+        body = SequenceMatcher(None, _key(body_a), _key(body_b)).ratio()
+        return (head + body) / 2 if head >= HEAD_SIMILARITY and body >= BODY_SIMILARITY else 0.0
+    whole = SequenceMatcher(None, _key(a), _key(b)).ratio()
+    return whole if whole >= LINE_SIMILARITY else 0.0
+
+
+HEAD_SIMILARITY = 0.7  # 화자 부분 ("[전체] 닉네임 (챔피언)")
+BODY_SIMILARITY = 0.7  # 내용 부분. 실제 게임에서 같은 줄을 읽은 변형들이 0.78 이상이었다.
+LINE_SIMILARITY = 0.75  # `화자: 내용` 꼴이 아닌 줄 (시스템 메시지 등)
+
+
+class LineDedup:
+    """화면의 줄을 지금까지 본 줄과 순서대로 맞춰 보고, 마지막으로 맞은 줄 아래의 줄만 새 줄로 돌려준다.
+
+    - 같은 줄인지는 글자가 '거의 같은지'로 본다 (line_similarity). 한 줄이 다르게 읽혀도 나머지 줄은 그대로 맞는다.
+    - 직전 화면 하나가 아니라 최근에 본 줄 목록(history)과 비교한다. OCR 이 한 화면에서 줄을 빠뜨려도
+      다음 화면에서 그 줄을 새 줄로 다시 내지 않는다.
+    - 같은 말이 연달아 올라오면(용, 용) 화면의 앞쪽 줄부터 맞춰서 뒤의 것을 새 줄로 본다.
+    - OCR 이 아무것도 읽지 못한 화면(채팅창 숨김, 인식 실패)은 목록을 바꾸지 않는다.
+    - 맞는 줄이 하나도 없으면(숨김 동안 채팅이 많이 올라옴) 보이는 줄을 모두 새 줄로 본다.
+    - 채팅으로 읽히지 않은 줄은 retry() 로 표시해 둔다. 그 줄이 다음에 다르게 읽히면 한 번 더 내보낸다
+      (첫 판독이 깨져서 채팅을 놓치는 일을 줄인다).
     """
 
+    HISTORY = 12  # 비교할 최근 줄 수. 화면에 보이는 줄(5~6줄)보다 넉넉하게.
+
     def __init__(self) -> None:
-        self.previous: list[str] = []
+        self.previous: list[str] = []  # 최근에 본 줄 (오래된 것부터)
+        self._unread: set[str] = set()  # previous 중 채팅으로 읽히지 않은 줄
 
     def new_lines(self, lines: list[RawLine]) -> list[RawLine]:
         lines = [line for line in lines if line.text.strip()]
         if not lines:
             return []  # 읽은 글자가 없음 → 비교 기준을 그대로 둔다.
         current = [" ".join(line.text.split()) for line in lines]
-        overlap = min(len(self.previous), len(current))
-        while overlap and self.previous[-overlap:] != current[:overlap]:
-            overlap -= 1
-        self.previous = current
-        return lines[overlap:]
+        fresh = self._last_match(current) + 1
+        again = [j for j in range(fresh) if self._reread(current[j])]
+        self.previous = (self.previous + current[fresh:])[-self.HISTORY :]
+        self._unread &= set(self.previous)
+        return [lines[j] for j in again] + lines[fresh:]
+
+    def retry(self, line: RawLine) -> None:
+        """이 줄은 채팅으로 읽히지 않았다. 같은 줄이 다르게 읽히면 다시 내보내도록 표시한다."""
+        text = " ".join(line.text.split())
+        if text in self.previous:
+            self._unread.add(text)
+
+    def _reread(self, text: str) -> bool:
+        """이미 본 줄이지만 채팅으로 읽히지 않았고, 이번에는 다르게 읽혔는가. 맞으면 새 판독으로 바꿔 둔다."""
+        for old in self._unread:
+            if old != text and line_similarity(old, text):
+                self._unread.discard(old)
+                self.previous[self.previous.index(old)] = text
+                return True
+        return False
+
+    def _last_match(self, current: list[str]) -> int:
+        """history 와 순서를 지키며 가장 잘 맞춘 짝에서, 마지막으로 맞은 current 줄의 위치 (없으면 -1).
+
+        점수가 같으면 current 의 앞쪽 줄과 맞춘 쪽을 고른다 (연달아 올라온 같은 말의 뒤쪽을 새 줄로 보려고).
+        """
+        best = [(0.0, 1)] * (len(current) + 1)  # (점수 합, -마지막으로 맞은 위치) — 맞은 줄이 없으면 1
+        for old in self.previous:
+            row = [(0.0, 1)]
+            for j, text in enumerate(current, start=1):
+                options = [best[j], row[j - 1]]
+                if score := line_similarity(old, text):
+                    options.append((best[j - 1][0] + score, -(j - 1)))
+                row.append(max(options))
+            best = row
+        return -best[-1][1]
 
 
 class IncomingPipeline:
@@ -156,7 +224,10 @@ class IncomingPipeline:
         return self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
 
     def process_line(self, line: RawLine) -> Incident | None:
-        msg = self.parse(line).message
+        parsed = self.parse(line)
+        msg = parsed.message
+        if msg is None and not parsed.system_text:
+            self.dedup.retry(line)  # 채팅도 시스템 문구도 아님 → 다르게 읽히면 다시 본다
         if msg is None or self.sent_log.is_echo(msg):
             return None
         analysis, rw = self.filters.run(msg)

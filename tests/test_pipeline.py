@@ -114,11 +114,85 @@ def test_frame_without_overlap_is_all_new_and_empty_ocr_keeps_baseline():
     assert [ln.id for ln in dedup.new_lines(frame("A", "B", "C"))] == ["A", "B", "C"]
     assert [ln.id for ln in dedup.new_lines(frame("C", "D", "E"))] == ["D", "E"]
     assert [ln.id for ln in dedup.new_lines(frame("X", "Y"))] == ["X", "Y"]  # 연속성 검사 없이 바로 받아들인다
+    baseline = list(dedup.previous)
+    assert baseline[-2:] == ["X", "Y"]
     for empty in ([], frame(" "), frame("", "\t")):  # OCR 이 아무것도 못 읽은 화면이 여러 번 이어져도
         assert dedup.new_lines(empty) == []
-        assert dedup.previous == ["X", "Y"]  # 비교 기준은 그대로
+        assert dedup.previous == baseline  # 비교 기준은 그대로
     assert dedup.new_lines(frame("X", "Y")) == []  # 다시 보여도 이미 처리한 줄
     assert [ln.id for ln in dedup.new_lines(frame("Y", "Z"))] == ["Z"]
+
+
+# 실제 게임에서 같은 채팅 한 줄을 OCR 이 읽은 결과들 (2026-11-28, 반투명 채팅창 뒤로 게임 화면이 움직임).
+REAL_VARIANTS = [
+    "[전체] 오른은 죽었다(나서스): 야 정글 글인*아 ㅇㅇ 치라고",
+    "[전체]오른은 죽었다 (나서스): 야 정글 ㅇ치라고",
+    "[전체]오른은 죽었다 (나서스): 야 정글 *기*아 ㅇㅇ치라고",
+    "[전체] 오른은 죽었다 (나서스): 야 정글 글**아 ㅇㅇ 치라고",
+    "[전체] 오른은 죽었다(나서스): 야 정글 글*아 ㅇㅇ치라고",
+    "[전체] 오른은 죽었다(나서스): 야 정글 *1*아 ㅇ치라고",
+    "[전체] 오른은 ’  죽었다(나서스): 야 정글 글*1*아 ㅇㅇ치라고",
+    "[전체] 오른은 ‘  죽었다(나서스): 야 정글 글**아 ㅇㅇ 치라고",
+]
+REAL_NOTICE = "다시하기 가능: 상대가 킬을 달성하기 전까지 누군가 님이 55초 동안 활동하지 않았습니다."
+
+
+def _frame(*texts: str) -> list[RawLine]:
+    return [RawLine(id=f"{i}:{t}", ts=0, text=t, source="ocr") for i, t in enumerate(texts)]
+
+
+def test_same_line_read_differently_is_not_new_again():
+    """같은 줄을 OCR 이 매번 다르게 읽어도 한 번만 새 줄로 본다. 똑같이 읽힌 다른 줄도 다시 내지 않는다."""
+    from clean_chat.core.pipeline import line_similarity
+
+    assert all(line_similarity(a, b) > 0 for a in REAL_VARIANTS for b in REAL_VARIANTS)
+    dedup = LineDedup()
+    seen = [ln.text for text in REAL_VARIANTS * 3 for ln in dedup.new_lines(_frame(REAL_NOTICE, text))]
+    assert seen == [REAL_NOTICE, REAL_VARIANTS[0]]
+    # 그 아래에 올라온 진짜 새 채팅은 놓치지 않는다.
+    new = "[전체] 오른은 죽었다(나서스): 바론 가자"
+    assert [ln.text for ln in dedup.new_lines(_frame(REAL_NOTICE, REAL_VARIANTS[3], new))] == [new]
+    assert dedup.new_lines(_frame(REAL_VARIANTS[5], new)) == []
+
+
+def test_different_messages_from_same_speaker_are_different_lines():
+    from clean_chat.core.pipeline import line_similarity
+
+    head = "[전체] 밤하늘별 (가렌): "
+    assert line_similarity(head + "ㅇㅇ", head + "ㄴㄴ") == 0
+    assert line_similarity(head + "미드 와", head + "미드 가") == 0
+    assert line_similarity(head + "용 가자", "[전체] 초코우유 (리신): 용 가자") == 0  # 다른 사람의 같은 말
+    assert line_similarity(REAL_NOTICE, REAL_VARIANTS[0]) == 0
+
+
+def test_line_missed_in_one_frame_is_not_emitted_again():
+    """OCR 이 한 화면에서 줄을 빠뜨리거나 화면이 통째로 비어도, 다음 화면에서 이미 본 줄을 새 줄로 내지 않는다."""
+    dedup = LineDedup()
+    assert [ln.text for ln in dedup.new_lines(_frame("A: 하나", "B: 둘둘", "C: 셋셋셋"))] == [
+        "A: 하나",
+        "B: 둘둘",
+        "C: 셋셋셋",
+    ]
+    assert dedup.new_lines(_frame("A: 하나", "B: 둘둘")) == []  # 마지막 줄을 못 읽음
+    assert dedup.new_lines(_frame("A: 하나", "C: 셋셋셋")) == []  # 가운데 줄을 못 읽음
+    assert dedup.new_lines([]) == []
+    assert dedup.new_lines(_frame("A: 하나", "B: 둘둘", "C: 셋셋셋")) == []
+    assert [ln.text for ln in dedup.new_lines(_frame("B: 둘둘", "C: 셋셋셋", "D: 넷"))] == ["D: 넷"]
+
+
+def test_line_not_read_as_chat_is_retried_when_read_differently():
+    """첫 판독이 깨져 채팅으로 읽히지 않은 줄은, 다르게 읽혔을 때 한 번 더 내보낸다 (같은 판독이면 다시 내지 않는다)."""
+    dedup = LineDedup()
+    broken, fixed = (
+        "[03:35][전체]별빛라면(이즈리얼):넌 그냥 탈주해",
+        "[03:35] [전체] 별빛라면 (이즈리얼): 넌 그냥 탈주해",
+    )
+    first = dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋"))
+    assert [ln.text for ln in first] == ["A: 하나", broken, "C: 셋셋셋"]
+    dedup.retry(first[1])  # parse 가 채팅이 아니라고 함
+    assert dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋")) == []  # 똑같이 읽히면 그대로
+    assert [ln.text for ln in dedup.new_lines(_frame("A: 하나", fixed, "C: 셋셋셋"))] == [fixed]
+    assert dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋")) == []  # 한 번 다시 본 뒤에는 또 내지 않는다
 
 
 def test_process_frame_runs_ocr_then_lines():
