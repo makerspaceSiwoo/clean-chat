@@ -127,15 +127,16 @@ def test_frame_without_overlap_is_all_new_and_empty_ocr_keeps_baseline():
 
 
 # 실제 게임에서 같은 채팅 한 줄을 OCR 이 읽은 결과들 (2026-11-28, 반투명 채팅창 뒤로 게임 화면이 움직임).
+# 닉네임은 예시 이름으로 바꿨다 (실제 닉네임은 커밋하지 않는다).
 REAL_VARIANTS = [
-    "[전체] 오른은 죽었다(나서스): 야 정글 글인*아 ㅇㅇ 치라고",
-    "[전체]오른은 죽었다 (나서스): 야 정글 ㅇ치라고",
-    "[전체]오른은 죽었다 (나서스): 야 정글 *기*아 ㅇㅇ치라고",
-    "[전체] 오른은 죽었다 (나서스): 야 정글 글**아 ㅇㅇ 치라고",
-    "[전체] 오른은 죽었다(나서스): 야 정글 글*아 ㅇㅇ치라고",
-    "[전체] 오른은 죽었다(나서스): 야 정글 *1*아 ㅇ치라고",
-    "[전체] 오른은 ’  죽었다(나서스): 야 정글 글*1*아 ㅇㅇ치라고",
-    "[전체] 오른은 ‘  죽었다(나서스): 야 정글 글**아 ㅇㅇ 치라고",
+    "[전체] 밤하늘 별(나서스): 야 정글 글인*아 ㅇㅇ 치라고",
+    "[전체]밤하늘 별 (나서스): 야 정글 ㅇ치라고",
+    "[전체]밤하늘 별 (나서스): 야 정글 *기*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 별 (나서스): 야 정글 글**아 ㅇㅇ 치라고",
+    "[전체] 밤하늘 별(나서스): 야 정글 글*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 별(나서스): 야 정글 *1*아 ㅇ치라고",
+    "[전체] 밤하늘 ’  별(나서스): 야 정글 글*1*아 ㅇㅇ치라고",
+    "[전체] 밤하늘 ‘  별(나서스): 야 정글 글**아 ㅇㅇ 치라고",
 ]
 REAL_NOTICE = "다시하기 가능: 상대가 킬을 달성하기 전까지 누군가 님이 55초 동안 활동하지 않았습니다."
 
@@ -153,7 +154,7 @@ def test_same_line_read_differently_is_not_new_again():
     seen = [ln.text for text in REAL_VARIANTS * 3 for ln in dedup.new_lines(_frame(REAL_NOTICE, text))]
     assert seen == [REAL_NOTICE, REAL_VARIANTS[0]]
     # 그 아래에 올라온 진짜 새 채팅은 놓치지 않는다.
-    new = "[전체] 오른은 죽었다(나서스): 바론 가자"
+    new = "[전체] 밤하늘 별(나서스): 바론 가자"
     assert [ln.text for ln in dedup.new_lines(_frame(REAL_NOTICE, REAL_VARIANTS[3], new))] == [new]
     assert dedup.new_lines(_frame(REAL_VARIANTS[5], new)) == []
 
@@ -293,13 +294,13 @@ def test_speaker_is_one_person_per_nickname_and_champion():
         )
 
     book = SpeakerBook()  # 명단 없음 → 처음 읽은 표기로 맞춘다
-    assert book.resolve(msg("오른은 죽었다", "나서스"), []).speaker == "오른은 죽었다"
-    assert book.resolve(msg("오른은 ’  죽었다", "나서스"), []).speaker == "오른은 죽었다"  # 실제 게임의 오독
-    assert book.resolve(msg("오른은 죽었디", "나서스"), []).speaker == "오른은 죽었다"
-    assert book.resolve(msg("오른은 죽었다", "티모"), []).speaker == "오른은 죽었다"  # 같은 닉네임, 다른 사람
-    assert ("오른은 죽었다", "티모") in book.seen and ("오른은 죽었다", "나서스") in book.seen
+    assert book.resolve(msg("밤하늘 별", "나서스"), []).speaker == "밤하늘 별"
+    assert book.resolve(msg("밤하늘 ’  별", "나서스"), []).speaker == "밤하늘 별"  # 실제 게임의 오독
+    assert book.resolve(msg("밤하늘 벌", "나서스"), []).speaker == "밤하늘 별"
+    assert book.resolve(msg("밤하늘 별", "티모"), []).speaker == "밤하늘 별"  # 같은 닉네임, 다른 사람
+    assert ("밤하늘 별", "티모") in book.seen and ("밤하늘 별", "나서스") in book.seen
     assert book.resolve(msg("전혀다른이름", "나서스"), []).speaker == "전혀다른이름"  # 상대 팀의 같은 챔피언
-    assert book.resolve(msg("오른은 죽었다", None), []).speaker == "오른은 죽었다"  # 챔피언을 모르면 그대로
+    assert book.resolve(msg("밤하늘 별", None), []).speaker == "밤하늘 별"  # 챔피언을 모르면 그대로
 
     roster = [Player(name="밤하늘별", champion="가렌"), Player(name="초코우유", champion="리신")]
     assert SpeakerBook().resolve(msg("밤하늘벌", "가렌"), roster).speaker == "밤하늘별"  # 명단의 표기로 맞춘다

@@ -672,7 +672,7 @@ def test_afk_warning_is_not_chat_and_is_cut_from_merged_lines():
 
     assert parse("자리비움 경고: 게임에 적극적으로 참여해야 합니다.그렇지않으면 대기 상태로 표시됩니다.") is None
     merged = parse(
-        "[전체] 에휴에요 (멜): 지1랄 났네 자리비움 경고 게임에 적극적으로 참여해야 합니다 그렇지않으면 대기 상태로 표시됩니다."
+        "[전체] 별빛라면 (멜): 지1랄 났네 자리비움 경고 게임에 적극적으로 참여해야 합니다 그렇지않으면 대기 상태로 표시됩니다."
     )
     assert merged.text == "지1랄 났네" and merged.text_norm == "지랄 났네"
-    assert parse("[전체] 에휴에요 (멜): 자리비움 경고 떴네").text == "자리비움 경고 떴네"  # 채팅에서 말한 것은 그대로
+    assert parse("[전체] 별빛라면 (멜): 자리비움 경고 떴네").text == "자리비움 경고 떴네"  # 채팅에서 말한 것은 그대로
