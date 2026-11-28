@@ -248,7 +248,11 @@ def _follow_up(msg: ChatMessage, analysis: Analysis, earlier: list[Evidence], me
     if HarmType.THREAT in analysis.harm_types and analysis.target is None and last is not None:
         # 협박(ADR-0021)인데 문장에 대상이 없으면 앞서 공격하던 사람에게 한 말로 본다
         return _evidence(msg, int(Level.L3_LEGAL), analysis.harm_types, last.target, last.toward_me)
-    veiled = lexicon.THREAT_VEILED.search(text) and not lexicon.GAME_TALK.search(text) and not SELF_TALK.search(text)
+    game = lexicon.GAME_TALK.search(text)
+    veiled = lexicon.THREAT_VEILED.search(text) and not game and not SELF_TALK.search(text)
+    # "죽인다" 는 게임에서도 늘 쓰는 말이라 문장만으로는 협박이 아니다. 공격하던 사람이 이어서 했을 때만 협박
+    # ("내가 죽인다" 처럼 '내가' 가 있어도 자책이 아니므로 SELF_TALK 로 빼지 않는다)
+    veiled = veiled or (lexicon.KILL_TALK.search(text) and not game)
     if veiled and last is not None and msg.ts - last.ts <= VEILED_THREAT_SEC:
         # 암시적 협박("끝나고 보자", "각오해라"): 문장만으로는 알 수 없고, 그 사람을 공격하던 유저가 이어서 했을 때만 협박
         types = [t for t in HarmType if t in analysis.harm_types or t == HarmType.THREAT]
