@@ -30,6 +30,7 @@ analyze = [
     "torch>=2.3",
     "transformers>=4.44",
     "scikit-learn>=1.5",
+    "onnx>=1.17",
 ]
 report = [
     "litellm>=1.110.2",
