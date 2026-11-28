@@ -361,3 +361,40 @@ def test_in_memory_frame_is_read_without_touching_disk(monkeypatch):
         assert seen == [(320, 90)]
         assert image.getpixel((0, 0)) == (0, 0, 0)  # 넘겨받은 이미지는 닫지 않는다 (복사본만 닫는다)
     assert "image" not in Frame.model_json_schema()["properties"]  # 주고받는 JSON 형식은 그대로
+
+
+@pytest.mark.parametrize(
+    ("read", "expected"),
+    [
+        # 실제 게임 화면에서 OCR 이 읽은 줄 (2026-11-28). ㅋ 를 다른 글자로 읽고, 콜론·띄어쓰기를 빠뜨리고, 괄호를 섞는다.
+        ("[전체]에휴에요(멜)ㅋㅋㅋㅋㅋㅋㅋ", "[전체] 에휴에요 (멜): ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[전체]에휴에요(멜):키키키ㅋ키키=", "[전체] 에휴에요 (멜): ㅋㅋㅋㅋㅋㅋ="),
+        ("[전체]에휴에요(멜]카크키카크코키", "[전체] 에휴에요 (멜): ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[팀]잠만보(가렌) ㅋㅋㅋ흐ㅋ흐ㅋㅋㅋㅋㅋㅋㅋ", "[팀] 잠만보 (가렌): ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ"),
+        ("ㅋㅋ브ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋㅋ"),
+        ("[전체] 잠만보 [이즈리얼) 멍청한", "[전체] 잠만보 (이즈리얼): 멍청한"),
+        ("[팀]잠만보(가렌) 뭐하냐", "[팀] 잠만보 (가렌): 뭐하냐"),
+        ("[03:35][전체]별빛라면(이즈리얼):넌 그냥 탈주해", "[03:35] [전체] 별빛라면 (이즈리얼): 넌 그냥 탈주해"),
+    ],
+)
+def test_common_misreads_are_tidied(read, expected):
+    from clean_chat.modules.ocr.textfix import tidy
+
+    assert tidy(read) == expected
+    assert tidy(expected) == expected  # 이미 바른 줄은 그대로
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[팀] 밤하늘별 (가렌): 다들 화이팅",
+        "잠만보 (가렌) 님이 적이 사라졌다고 알림",  # 채널 표시가 없는 시스템 문구에는 콜론을 넣지 않는다
+        "[전체]에휴에요(멜)",  # 내용이 없으면 그대로
+        "쿠키 먹고 싶다 키카",  # 짧은 낱말은 웃음으로 바꾸지 않는다
+        "카카오톡 코코넛",
+    ],
+)
+def test_tidy_leaves_other_lines_alone(text):
+    from clean_chat.modules.ocr.textfix import tidy
+
+    assert tidy(text) == text

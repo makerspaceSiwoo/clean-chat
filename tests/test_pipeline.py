@@ -217,6 +217,23 @@ def test_line_not_read_as_chat_is_retried_when_read_differently():
     assert dedup.new_lines(_frame("A: 하나", broken, "C: 셋셋셋")) == []  # 한 번 다시 본 뒤에는 또 내지 않는다
 
 
+def test_line_that_is_never_chat_is_not_reemitted_forever():
+    """시스템 문구처럼 채팅이 아닌 줄은 조금씩 다르게 읽혀도 정해진 횟수까지만 다시 내보낸다 (실제 게임에서 24번 반복됨)."""
+    dedup = LineDedup()
+    variants = [
+        "가렌 님이 상단 포지션을 선택했습니다.",
+        "가렌 님이 상단 포지션을 선택했습니다",
+        "가렌 님이 상단포지션을 선택했습니다.",
+    ]
+    emitted = 0
+    for i in range(30):
+        for line in dedup.new_lines(_frame("A: 하나", variants[i % 3], "C: 셋셋셋")):
+            if line.text in variants:
+                emitted += 1
+                dedup.retry(line)  # parse 가 매번 채팅이 아니라고 함
+    assert emitted == 1 + LineDedup.RETRIES
+
+
 def test_process_frame_runs_ocr_then_lines():
     frame: Frame = fixture_pairs("ocr")[0][0]
     p = Pipelines(fixture_modules())

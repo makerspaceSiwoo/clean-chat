@@ -108,8 +108,15 @@ def _merge_wrapped_lines(lines: list[tuple[str, float | None]]) -> list[tuple[st
 def _to_raw_lines(frame: Frame, lines: list[tuple[str, float | None]]) -> list[RawLine]:
     """(텍스트, 신뢰도) → RawLine(id, ts=frame.ts, text, source=ocr, ocr_confidence). id 는 앱 실행 중 유일하게."""
     from .alphabet import restrict
+    from .textfix import tidy
 
     return [
-        RawLine(id=f"ocr-{uuid4().hex}", ts=frame.ts, text=restrict(text), source=Source.OCR, ocr_confidence=confidence)
+        RawLine(
+            id=f"ocr-{uuid4().hex}",
+            ts=frame.ts,
+            text=tidy(restrict(text)),
+            source=Source.OCR,
+            ocr_confidence=confidence,
+        )
         for text, confidence in lines
     ]

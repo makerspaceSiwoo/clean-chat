@@ -158,15 +158,18 @@ class LineDedup:
     - 같은 말이 연달아 올라오면(용, 용) 화면의 앞쪽 줄부터 맞춰서 뒤의 것을 새 줄로 본다.
     - OCR 이 아무것도 읽지 못한 화면(채팅창 숨김, 인식 실패)은 목록을 바꾸지 않는다.
     - 맞는 줄이 하나도 없으면(숨김 동안 채팅이 많이 올라옴) 보이는 줄을 모두 새 줄로 본다.
-    - 채팅으로 읽히지 않은 줄은 retry() 로 표시해 둔다. 그 줄이 다음에 다르게 읽히면 한 번 더 내보낸다
-      (첫 판독이 깨져서 채팅을 놓치는 일을 줄인다).
+    - 채팅으로 읽히지 않은 줄은 retry() 로 표시해 둔다. 그 줄이 다음에 다르게 읽히면 다시 내보낸다
+      (첫 판독이 깨져서 채팅을 놓치는 일을 줄인다). 한 줄에 RETRIES 번까지만 — 시스템 문구처럼 원래
+      채팅이 아닌 줄이 읽힐 때마다 끝없이 다시 나오지 않게.
     """
 
     HISTORY = 12  # 비교할 최근 줄 수. 화면에 보이는 줄(5~6줄)보다 넉넉하게.
+    RETRIES = 2  # 채팅으로 읽히지 않은 줄을 다시 내보내는 횟수
 
     def __init__(self) -> None:
         self.previous: list[str] = []  # 최근에 본 줄 (오래된 것부터)
-        self._unread: set[str] = set()  # previous 중 채팅으로 읽히지 않은 줄
+        self._unread: dict[str, int] = {}  # previous 중 채팅으로 읽히지 않은 줄 → 남은 재시도 횟수
+        self._left: dict[str, int] = {}  # 다시 내보낸 줄 → 이번에도 채팅이 아니면 이어 쓸 남은 횟수
 
     def new_lines(self, lines: list[RawLine]) -> list[RawLine]:
         lines = [line for line in lines if line.text.strip()]
@@ -176,20 +179,24 @@ class LineDedup:
         fresh = self._last_match(current) + 1
         again = [j for j in range(fresh) if self._reread(current[j])]
         self.previous = (self.previous + current[fresh:])[-self.HISTORY :]
-        self._unread &= set(self.previous)
+        self._unread = {text: left for text, left in self._unread.items() if text in self.previous}
+        self._left = {text: left for text, left in self._left.items() if text in self.previous}
         return [lines[j] for j in again] + lines[fresh:]
 
     def retry(self, line: RawLine) -> None:
         """이 줄은 채팅으로 읽히지 않았다. 같은 줄이 다르게 읽히면 다시 내보내도록 표시한다."""
         text = " ".join(line.text.split())
-        if text in self.previous:
-            self._unread.add(text)
+        if text in self.previous and text not in self._unread:
+            left = self._left.pop(text, self.RETRIES)
+            if left > 0:
+                self._unread[text] = left
 
     def _reread(self, text: str) -> bool:
         """이미 본 줄이지만 채팅으로 읽히지 않았고, 이번에는 다르게 읽혔는가. 맞으면 새 판독으로 바꿔 둔다."""
-        for old in self._unread:
+        for old, left in self._unread.items():
             if old != text and line_similarity(old, text):
-                self._unread.discard(old)
+                del self._unread[old]
+                self._left[text] = left - 1  # 이번 판독도 채팅이 아니라고 하면(retry) 남은 횟수만큼만 더 본다
                 self.previous[self.previous.index(old)] = text
                 return True
         return False
