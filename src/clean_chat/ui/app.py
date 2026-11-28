@@ -5,6 +5,7 @@ import threading
 from pathlib import Path
 
 from PySide6.QtCore import QLockFile, QObject, QSettings, Slot
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QDialog
 
 from clean_chat.core.config import clear_llm_settings, current_llm_key, save_llm_settings, settings
@@ -17,6 +18,8 @@ from clean_chat.ui.bridge import EngineBridge, OutgoingRunner
 from clean_chat.ui.client import ClientWindow
 from clean_chat.ui.overlay import OverlayWindow
 
+ICON = Path(__file__).with_name("assets") / "icon.png"
+
 
 class App(QObject):
     def __init__(
@@ -27,6 +30,7 @@ class App(QObject):
         history_path: Path | None = None,
     ) -> None:
         qt = QApplication.instance() or QApplication(sys.argv)
+        qt.setWindowIcon(QIcon(str(ICON)))  # 창 제목줄·작업 표시줄·Dock 아이콘
         super().__init__()
         self.qt = qt
         self.engine = Engine(pipelines, source, detector)
@@ -287,7 +291,8 @@ def prepare() -> bool:
     """중복 실행 확인 + 첫 실행 준비(Gemini API 키 입력, analyze 모델 내려받기). 시작하면 안 되면 False."""
     from clean_chat.core import setup
 
-    QApplication.instance() or QApplication(sys.argv)
+    qt = QApplication.instance() or QApplication(sys.argv)
+    qt.setWindowIcon(QIcon(str(ICON)))  # 첫 실행 준비 화면에도 아이콘이 보이게
     if not single_instance(settings.store_dir / "app.lock"):
         print("Clean Chat 이 이미 실행 중입니다.", file=sys.stderr)
         return False
