@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 
 from clean_chat.core.config import resolve_repo_path
+from clean_chat.modules.analyze import judge_model, model
 
 OWNER_ENV = "CLEAN_CHAT_HF_OWNER"
 DEFAULT_OWNER = "seeyouspace0"  # 가중치를 올린 Hugging Face 계정
@@ -37,15 +38,25 @@ def repo_id(name: str, owner: str | None = None) -> str:
     return f"{owner}/{MODELS[name][1]}"
 
 
+def folder(name: str) -> Path:
+    """모델을 불러오는 폴더 (model.py · judge_model.py 와 같은 곳, 환경 변수로 바꾼 경로 포함)."""
+    return {"classifier": model.model_dir, "judge": judge_model.model_dir}[name]()
+
+
+def missing(names: list[str] | None = None) -> list[str]:
+    """아직 받지 않은 모델 이름. 파일이 하나라도 없으면 받지 않은 것으로 본다."""
+    return [name for name in names or list(MODELS) if not all((folder(name) / f).is_file() for f in FILES)]
+
+
 def download(names: list[str], owner: str | None = None, revision: str | None = None) -> list[Path]:
-    """Hub → models/<폴더>. 이미 같은 파일이 있으면 다시 받지 않는다."""
+    """Hub → 모델 폴더. 이미 같은 파일이 있으면 다시 받지 않는다."""
     from huggingface_hub import snapshot_download
 
     out = []
     for name in names:
-        folder = resolve_repo_path(MODELS[name][0])
-        snapshot_download(repo_id(name, owner), local_dir=folder, allow_patterns=FILES, revision=revision)
-        out.append(folder)
+        target = folder(name)
+        snapshot_download(repo_id(name, owner), local_dir=target, allow_patterns=FILES, revision=revision)
+        out.append(target)
     return out
 
 

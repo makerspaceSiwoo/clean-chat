@@ -1,8 +1,10 @@
 """현재 OS용 독립 실행 앱을 dist에 만든다.
 
-uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
-rewrite·report extra 없이 빌드하면 LLM 없이 로컬 규칙만 쓰는 앱이 된다.
+uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+analyze extra(torch·transformers)를 빼고 빌드하면 분류 모델 없이 규칙만 쓰는 앱이 되고,
+rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 쓰는 앱이 된다.
 설치 파일에는 게임 오버레이로 모듈을 실행하는 메인 앱(clean_chat.desktop)만 넣고, 시뮬레이터는 뺀다.
+analyze 모델 가중치(약 440MB)는 넣지 않는다. 앱이 첫 실행 준비 화면에서 사용자 데이터 폴더에 내려받는다.
 """
 
 import importlib.util
@@ -48,6 +50,7 @@ def build(distpath: Path = ROOT / "dist") -> None:
         [
             "--name",
             name,
+            "--noconfirm",  # 이전 빌드 결과(dist)가 있어도 묻지 않고 덮어쓴다
             "--windowed",
             "--onedir",
             "--specpath",
@@ -61,12 +64,9 @@ def build(distpath: Path = ROOT / "dist") -> None:
             "clean_chat.modules",
             "--exclude-module",  # 개발용 모듈 시뮬레이터(uv run sim)는 설치 파일에 넣지 않는다.
             "clean_chat.sim",
-            # analyze 모델 가중치는 비공개 Hugging Face 저장소라 설치 파일에 없다(규칙만으로 동작).
-            # torch·transformers가 깔린 환경에서 빌드하면 1.6GB로 커지고 데모가 멈춰서 빼 둔다.
+            # 학습·평가에만 쓰는 패키지는 넣지 않는다 (앱은 torch·transformers 로 추론만 한다).
             "--exclude-module",
-            "torch",
-            "--exclude-module",
-            "transformers",
+            "sklearn",
             "--add-data",
             f"{ROOT / 'fixtures' / 'scenario'}:fixtures/scenario",
             "--add-data",
