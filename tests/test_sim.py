@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from clean_chat.core.modules import MODULES
+from clean_chat.core.schemas import ParseResult
 from clean_chat.sim import inputs
 from clean_chat.sim.server import ClientGone, make_server, module_list, resolve_input, run_module
 from clean_chat.sim.views import VIEW_NAMES
@@ -66,8 +67,10 @@ def test_image_saved_safely_and_only_for_image_modules(tmp_path):
 
 
 # ── 실행 (하위 프로세스) ──
-def test_unimplemented_module_streams_steps_and_not_implemented():
-    logs, result = _run("parse", {"simple": {"text": "[팀] 불꽃남자 (징크스): ㅎㅇ"}})
+def test_unimplemented_module_streams_steps_and_not_implemented(monkeypatch):
+    logs, result = _run(
+        "parse", {"simple": {"text": "[팀] 불꽃남자 (징크스): ㅎㅇ"}}, monkeypatch, target="unimplemented"
+    )
     assert result["status"] == "not_implemented" and "parse" in result["error"]
     text = _text(logs)
     assert "입력 검증" in text and "run() 실행" in text and "구현이 아직 없습니다" in text
@@ -78,7 +81,7 @@ def test_ok_shows_prints_logs_and_output(monkeypatch):
     req = fixture_pairs("parse")[0][0].model_dump(mode="json")
     logs, result = _run("parse", {"input": req}, monkeypatch, target="ok")
     assert result["status"] == "ok"
-    assert result["output"] == {"line_id": req["line"]["id"], "message": None}
+    assert result["output"] == ParseResult(line_id=req["line"]["id"], message=None).model_dump(mode="json")
     text = _text(logs)
     assert "디버그 출력: 줄 분해 시작" in text and "로그도 콘솔로" in text and "출력 형식 OK" in text
     assert any(e["stream"] == "stderr" for e in logs)  # logging 은 stderr
@@ -141,7 +144,9 @@ def test_module_list_has_forms_and_examples():
     assert next(m for m in items if m["name"] == "ocr")["form"][0]["type"] == "image"
 
 
-def test_http_static_api_and_stream():
+def test_http_static_api_and_stream(monkeypatch):
+    monkeypatch.setenv("CLEAN_CHAT_SIM_TARGET", "sim_fakes:ok")
+    monkeypatch.setenv("PYTHONPATH", str(TESTS))
     httpd = make_server(0)
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{httpd.server_address[1]}"
@@ -161,7 +166,10 @@ def test_http_static_api_and_stream():
             assert r.headers["Content-Type"].startswith("application/x-ndjson")
             events = [json.loads(line) for line in r.read().decode().splitlines() if line.strip()]
         assert events[0]["type"] == "log" and events[-1]["type"] == "result"
-        assert events[-1]["status"] == "not_implemented"
+        assert events[-1]["status"] == "ok"
+        assert events[-1]["output"] == ParseResult(line_id=events[-1]["input"]["line"]["id"], message=None).model_dump(
+            mode="json"
+        )
         with pytest.raises(urllib.error.HTTPError) as e:
             urllib.request.urlopen(f"{base}/../pyproject.toml", timeout=5)
         assert e.value.code == 404
