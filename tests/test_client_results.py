@@ -154,3 +154,39 @@ def test_capture_preview_option_is_a_switch():
     assert switch.isChecked() and client.preview_info.text() == "캡처 미리보기"
     assert not switch.grab().isNull()  # 켜진 모습·꺼진 모습을 그릴 수 있다
     client.close()
+
+
+def test_chat_log_shows_every_chat_of_last_game_and_survives_restart(tmp_path):
+    """채팅 기록 화면: 신고 여부와 상관없이 직전 게임의 채팅을 모두 보여 주고, 앱을 다시 열어도 남는다."""
+    from PySide6.QtWidgets import QApplication
+
+    from clean_chat.core.config import FIXTURES
+    from clean_chat.core.jsonl import read_jsonl
+    from clean_chat.core.schemas import GamePhase, ReportRequest
+    from clean_chat.ui.client import LOG_COLUMNS, NAV, ClientWindow
+
+    QApplication.instance() or QApplication([])
+    session = read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session
+    history = tmp_path / "recent-results.json"
+    client = ClientWindow(history)
+    assert client.log_table.rowCount() == 0 and not client.btn_copy_log.isEnabled()
+    client.show_phase(GamePhase.POST_GAME, session)  # 오버레이 종료 직후
+    table = client.log_table
+    assert table.rowCount() == len(session.incidents) == 5
+    cells = [[table.item(r, c).text() for c in range(len(LOG_COLUMNS))] for r in range(table.rowCount())]
+    by_text = {row[2]: row for row in cells}
+    assert by_text["다들 화이팅"][4] == "L0" and by_text["다들 화이팅"][7] == "그대로 표시"  # 신고와 무관한 줄도 보인다
+    mild = by_text["아 ㅅㅂ 내가 실수함"]
+    assert mild[3] == "아 시발 내가 실수함" and mild[8] == "아 내가 실수함" and mild[9] == ""
+    assert any(row[7] == "숨김" and row[9] in ("신고", "고소 후보") for row in cells)
+    assert "채팅 5줄" in client.log_meta.text()
+    client.copy_chat_log()
+    copied = QApplication.clipboard().text().splitlines()
+    assert copied[0].split("\t") == list(LOG_COLUMNS) and len(copied) == 6
+    client.nav_buttons[NAV.index("채팅 기록")].click()  # 왼쪽 메뉴에서 연다
+    assert client.pages.currentIndex() == NAV.index("채팅 기록") and table.isVisibleTo(client)
+    client.close()
+
+    reopened = ClientWindow(history)  # 앱을 다시 열어도 직전 게임 기록이 남아 있다
+    assert reopened.log_table.rowCount() == 5 and reopened.btn_copy_log.isEnabled()
+    reopened.close()
