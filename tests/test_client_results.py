@@ -132,3 +132,25 @@ def test_nav_follows_accessibility_press_and_key_button_keeps_width() -> None:
     assert client.btn_key_show.text() == "숨기기"
     assert (client.btn_key_show.width(), client.llm_key.width()) == before
     client.close()
+
+
+def test_capture_preview_option_is_a_switch():
+    """캡처 미리보기는 스위치로 켜고 끈다 (클릭·스페이스). 판독(OCR)과는 무관하다."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QCheckBox
+
+    from clean_chat.ui.client import ClientWindow
+    from clean_chat.ui.client_widgets import Switch
+
+    QApplication.instance() or QApplication([])
+    client = ClientWindow()
+    switch = client.preview_toggle
+    assert isinstance(switch, Switch) and not isinstance(switch, QCheckBox)
+    assert switch.isChecked() and switch.accessibleName() == "읽고 있는 영역 보기"
+    QTest.mouseClick(switch, Qt.LeftButton)
+    assert not switch.isChecked() and "꺼짐" in client.preview_info.text()
+    QTest.keyClick(switch, Qt.Key_Space)
+    assert switch.isChecked() and client.preview_info.text() == "캡처 미리보기"
+    assert not switch.grab().isNull()  # 켜진 모습·꺼진 모습을 그릴 수 있다
+    client.close()

@@ -5,8 +5,20 @@ from html import escape
 from pathlib import Path
 
 from PySide6.QtCore import QPoint, QRect, QSize, Qt, Signal
-from PySide6.QtGui import QGuiApplication, QIcon, QKeyEvent, QKeySequence, QMouseEvent, QPixmap, QShortcut
+from PySide6.QtGui import (
+    QColor,
+    QGuiApplication,
+    QIcon,
+    QKeyEvent,
+    QKeySequence,
+    QMouseEvent,
+    QPainter,
+    QPen,
+    QPixmap,
+    QShortcut,
+)
 from PySide6.QtWidgets import (
+    QAbstractButton,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -158,6 +170,36 @@ def button(text: str, role: str = "", large: bool = False) -> QPushButton:
     if large:
         widget.setProperty("size", "large")
     return widget
+
+
+class Switch(QAbstractButton):
+    """켜고 끄는 스위치. 체크박스처럼 isChecked · setChecked · toggled 를 쓴다 (스페이스·클릭으로 전환)."""
+
+    def __init__(self, name: str, checked: bool = False) -> None:
+        super().__init__()
+        self.setCheckable(True)
+        self.setChecked(checked)
+        self.setAccessibleName(name)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFixedSize(44, 24)
+
+    def sizeHint(self) -> QSize:
+        return QSize(44, 24)
+
+    def paintEvent(self, _event) -> None:
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        track = self.rect().adjusted(1, 1, -1, -1)
+        on = self.isChecked()
+        painter.setPen(QPen(QColor(ACCENT), 2) if self.hasFocus() else Qt.NoPen)
+        painter.setBrush(QColor(ACCENT if on else "#C9CED6") if self.isEnabled() else QColor("#EEF0F3"))
+        painter.drawRoundedRect(track, track.height() / 2, track.height() / 2)
+        knob = track.height() - 6
+        x = track.right() - knob - 2 if on else track.left() + 3
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor("white"))
+        painter.drawEllipse(x, track.top() + 3, knob, knob)
 
 
 def card(title: str = "", role: str = "card") -> tuple[QFrame, QVBoxLayout]:

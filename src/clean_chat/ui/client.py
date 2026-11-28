@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 
 from clean_chat.core.config import resolve_repo_path
 from clean_chat.core.schemas import GamePhase, GameSession, Incident, PostGameResult, ReportDraft
-from clean_chat.ui.client_widgets import STYLE, SelectCard, button, card, heading, label, restyle, scroll_page
+from clean_chat.ui.client_widgets import STYLE, SelectCard, Switch, button, card, heading, label, restyle, scroll_page
 from clean_chat.ui.complaint import ComplaintEditor, quote
 
 NAV = ("홈 · 오버레이", "신고 메시지", "고소장", "설정")
@@ -234,15 +234,20 @@ class ClientWindow(QMainWindow):
         home.addLayout(recent)
 
         preview, content = card("캡처 미리보기")
-        self.preview_toggle = QCheckBox("읽고 있는 영역 보기")  # 표시만 켜고 끈다. 채팅 판독(OCR)과는 무관하다.
-        self.preview_toggle.setChecked(True)
+        # 표시만 켜고 끄는 스위치. 채팅 판독(OCR)과는 무관하다.
+        self.preview_toggle = Switch("읽고 있는 영역 보기", checked=True)
         self.preview_toggle.toggled.connect(self._preview_toggled)
+        toggle_row = QHBoxLayout()
+        toggle_row.setSpacing(10)
+        toggle_row.addWidget(label("읽고 있는 영역 보기", "label"))
+        toggle_row.addWidget(self.preview_toggle)
+        toggle_row.addStretch(1)
         self.preview_info = label("위치 잠금 대기", "caption")
         self.preview_image = label("위치 잠금 후 첫 이미지가 표시됩니다.", "muted")
         self.preview_image.setAlignment(Qt.AlignCenter)
         self.preview_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self.preview_image.setMinimumHeight(115)
-        content.addWidget(self.preview_toggle)
+        content.addLayout(toggle_row)
         content.addWidget(self.preview_info)
         content.addWidget(self.preview_image)
         self.preview_card = preview
