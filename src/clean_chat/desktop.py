@@ -27,24 +27,40 @@ def unexpected_args(args: list[str]) -> list[str]:
 
 
 def check() -> int:
-    """`--check` — 화면 없이 앱이 쓰는 패키지를 불러 보고, analyze 모델이 있으면 불러온다. 문제가 있으면 1."""
+    """`--check` — 화면 없이 앱이 쓰는 패키지를 불러 보고, analyze 모델이 있으면 불러온다. 문제가 있으면 1.
+
+    결과는 화면에 찍고 사용자 데이터 폴더의 logs/check.txt 에도 남긴다. Finder 나 `open` 으로 실행하면
+    출력이 보이지 않고, 화면 기록 권한은 앱을 직접 실행했을 때의 값이 진짜이기 때문이다.
+    """
     import importlib
 
     from clean_chat.core import setup
+    from clean_chat.core.config import settings
 
-    failed = []
+    lines, failed = [], []
     for name in CHECK_PACKAGES:
         try:
             importlib.import_module(name)
-            print(f"ok   {name}")
+            lines.append(f"ok   {name}")
         except Exception as exc:  # 설치 파일에서 빠진 패키지를 한 번에 모두 보여 준다
             failed.append(name)
-            print(f"FAIL {name}: {type(exc).__name__}: {exc}")
-    print(f"Gemini API 키: {'있음' if setup.key_ready() else '없음 (첫 실행 준비 화면에서 입력)'}")
+            lines.append(f"FAIL {name}: {type(exc).__name__}: {exc}")
+    lines.append(f"Gemini API 키: {'있음' if setup.key_ready() else '없음 (첫 실행 준비 화면에서 입력)'}")
+    if sys.platform == "darwin" and "PySide6" not in failed:
+        from clean_chat.ui.window_bounds import capture_allowed
+
+        lines.append(f"화면 기록 권한: {'있음' if capture_allowed(request=False) else '없음 (위치를 잠글 때 요청)'}")
     if "torch" not in failed and "transformers" not in failed and setup.models_ready():
-        print(f"analyze 모델: {setup.warm_up() or '불러오지 못함'}")
+        lines.append(f"analyze 모델: {setup.warm_up() or '불러오지 못함'}")
     else:
-        print("analyze 모델: 없음 (첫 실행 준비 화면에서 내려받음)")
+        lines.append("analyze 모델: 없음 (첫 실행 준비 화면에서 내려받음)")
+    print("\n".join(lines))
+    try:
+        folder = settings.store_dir / "logs"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "check.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    except OSError:
+        pass
     return 1 if failed else 0
 
 
