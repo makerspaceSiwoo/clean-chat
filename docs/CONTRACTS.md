@@ -63,6 +63,7 @@
 - `harm_types`: `profanity` 욕설 · `family_insult` 패드립 · `sexual_harassment` 성희롱 · `blame` 비난 · `instigation` 정치질 · `threat` 협박(ADR-0021)
 - `action` (타 유저): `show` · `show_masked` · `show_rewritten` · `hide`
 - `action` (내 채팅): `copy` · `copy_masked` · `copy_rewritten` · `block`
+- `show_masked` · `copy_masked` 는 더 이상 만들지 않는다(예전 기록·예시 호환용으로 값만 남김). L1 은 `show_rewritten`/`copy_rewritten`(욕설을 뺀 문장) 또는 `hide`/`block` 이다.
 - `phase`: `idle` 대기 · `in_game` 게임 중 · `post_game` 게임 종료. report 는 `post_game` 에서만 실행
 - `kind`: `report` 신고 문구 · `complaint` 고소장 초안(+PDF)
 

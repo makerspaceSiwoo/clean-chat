@@ -267,7 +267,8 @@ class Engine:
             try:
                 if not source.current(frame):
                     return
-                rw = incoming.filters.rewrite(msg, analysis) if rewrite else None
+                # L1 은 로컬에서 욕설만 지우므로 바로 처리한다. LLM 순화(L2 이상)만 작업 스레드로 보낸다.
+                rw = incoming.filters.rewrite(msg, analysis) if rewrite or analysis.level == Level.L1_MILD else None
             except Exception as exc:
                 rw = None  # 순화 실패 시 원문은 가린다.
                 for fn in self._error_listeners:

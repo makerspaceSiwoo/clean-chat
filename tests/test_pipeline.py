@@ -40,7 +40,9 @@ def test_demo_game_wiring():
     assert eng.error is None
     assert phases == [GamePhase.IN_GAME, GamePhase.POST_GAME]
     assert [i.msg.id for i in incidents] == ["L0", "L2", "L3", "L4", "L5"]  # 핑(L1)·잡음(L6)은 parse 가 걸러냄
-    assert [i.decision.action for i in incidents] == ["show", "show_masked", "show_rewritten", "hide", "hide"]
+    # L2(욕설 + 혼잣말)는 욕설을 뺀 문장으로 보여 준다. ** 로 가리지 않는다.
+    assert [i.decision.action for i in incidents] == ["show", "show_rewritten", "show_rewritten", "hide", "hide"]
+    assert [i.decision.display_text for i in incidents][1] == "아 내가 실수함"
     session = eng.repository.load("20251112-125820")
     assert session == read_jsonl(FIXTURES / "report" / "input.jsonl", ReportRequest)[0].session  # 같은 시나리오
     (result,) = results
@@ -51,12 +53,13 @@ def test_demo_game_wiring():
     assert [(c.kind, c.speaker) for c in result.complaints] == [(ReportKind.COMPLAINT, "얼음땡")]
 
 
-def test_rewrite_only_for_l2_with_feedback():
+def test_rewrite_for_mild_chat_and_abusive_chat_with_feedback():
+    """rewrite 는 L1(욕설만 지우기)과 L2 이상 + 피드백(피드백만 다듬기)에서만 부른다. L0 과 피드백 없는 L2·L3 은 안 부른다."""
     called: list[str] = []
     base = fixture_modules()
     mods = fixture_modules(rewrite=lambda req: called.append(req.message.id) or base.run("rewrite", req))
     _engine(mods).start(block=True)
-    assert called == ["L3"]
+    assert called == ["L2", "L3"]
 
 
 def test_analyze_gets_history_and_players():

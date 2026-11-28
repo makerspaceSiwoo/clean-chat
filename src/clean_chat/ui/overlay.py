@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QListWidget, QListWidgetItem, QVBoxLayout, QWidget
 
-from clean_chat.core.schemas import Action, Incident, Region
+from clean_chat.core.schemas import Action, Incident, Level, Region
 
 
 class OverlayWindow(QWidget):
@@ -119,7 +119,9 @@ class OverlayWindow(QWidget):
         if not inc:
             return
         if inc.decision.action == Action.BLOCK:
-            self.show_error("전송이 차단되었습니다.")
+            # L1(욕설뿐인 혼잣말)은 욕설을 빼면 남는 말이 없어서 복사할 것이 없다. L2 이상은 차단.
+            mild = inc.analysis.level == Level.L1_MILD
+            self.show_error("욕설을 빼면 보낼 내용이 없습니다." if mild else "전송이 차단되었습니다.")
         elif text := inc.decision.display_text:
             QApplication.clipboard().setText(text)
             self.show_error("복사했습니다. 게임에 직접 붙여넣으세요.")

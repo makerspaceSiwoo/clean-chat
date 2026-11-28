@@ -75,7 +75,7 @@ def test_unknown_feedback_is_not_invented():
 def test_invalid_analysis_does_not_call_api(monkeypatch):
     api(monkeypatch, "용 먼저 치자")
     req = request()
-    req.analysis.level = 1
+    req.analysis.level = 0
     assert impl.run(req).rewritten is None
     req.analysis.level = 2
     req.analysis.msg_id = "different"
@@ -1101,3 +1101,25 @@ def test_old_requests_still_default_to_empty_roster():
     data = request().model_dump()
     data.pop("players", None)
     assert RewriteRequest.model_validate(data).players == []
+
+
+@pytest.mark.parametrize(
+    ("text", "profanity", "expected"),
+    [
+        ("아 ㅅㅂ 내가 실수함", ["ㅅㅂ"], "아 내가 실수함"),
+        ("ㅈㄴ 잘하네 미드", ["ㅈㄴ"], "잘하네 미드"),
+        ("와 ** 진짜 잘한다", [], "와 진짜 잘한다"),  # 게임 자체 필터가 남긴 ** 도 지운다
+        ("아 ㅅㅂ", ["ㅅㅂ"], None),  # 욕설을 빼면 남는 말이 없음
+        ("ㅅ1발 새끼들아", ["ㅅ1발", "새끼"], None),  # 조사가 붙은 낱말은 통째로 지운다
+        ("ㅗㅗㅗㅗ", ["ㅗㅗ"], None),
+    ],
+)
+def test_mild_profanity_is_removed_locally_without_api(monkeypatch, text, profanity, expected):
+    """L1 은 외부 호출 없이 욕설이 든 낱말만 지운다. ** 로 가리지 않는다."""
+    monkeypatch.setattr(backend, "generate", lambda *args, **kwargs: pytest.fail("L1 에서 API 를 불렀다"))
+    req = request()
+    req.message.text, req.analysis.level = text, 1
+    req.analysis.profanity_spans, req.analysis.feedback_spans = profanity, []
+    result = impl.run(req)
+    assert result.rewritten == expected and result.backend == "rule"
+    assert "*" not in (result.rewritten or "")

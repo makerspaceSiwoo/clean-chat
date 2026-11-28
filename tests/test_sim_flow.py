@@ -76,7 +76,9 @@ def test_clean_sample_shows_everything_and_reports_nothing(all_fallback):
 def test_abusive_sample_masks_hides_and_reports(all_fallback):
     events = _run("abusive")
     actions = {i["msg"]["text"]: i["decision"]["action"] for i in _incidents(events)}
-    assert actions["ㅂㅅ같이 하네 kkkk ^^; omw ㅇㅇㅇ"] == "show_masked"
+    assert actions["ㅂㅅ같이 하네 kkkk ^^; omw ㅇㅇㅇ"] == "show_rewritten"  # L1: 욕설을 뺀 문장 (** 로 가리지 않음)
+    shown = {i["msg"]["text"]: i["decision"]["display_text"] for i in _incidents(events)}
+    assert shown["ㅂㅅ같이 하네 kkkk ^^; omw ㅇㅇㅇ"] == "하네 kkkk ^^; omw ㅇㅇㅇ"
     assert actions["ZZZZZZZZ 넌 그냥 탈주해 ♡♡♡"] == "hide"
     assert {r["speaker"] for r in _post_game(events)["reports"]} == {"별빛라면", "불꽃남자"}
     assert events[-1] == {"event": "done", "summary": events[-1]["summary"]}
@@ -281,8 +283,8 @@ def test_empty_rewrite_is_logged_as_warning(monkeypatch, tmp_path):
 
     monkeypatch.setattr(modules, "load", lambda name: null_rewrite if name == "rewrite" else _not_implemented)
     _, records = _logged_run(tmp_path, "blame_feedback")
-    (warn,) = [r for r in records if r["type"] == "failure" and r["stage"] == "rewrite"]
-    assert (warn["kind"], warn["severity"]) == ("empty_result", "warning")
+    warns = [r for r in records if r["type"] == "failure" and r["stage"] == "rewrite"]
+    assert warns and all((warn["kind"], warn["severity"]) == ("empty_result", "warning") for warn in warns)
 
 
 def test_stop_outside_modules_names_the_stage(all_fallback, monkeypatch, tmp_path):

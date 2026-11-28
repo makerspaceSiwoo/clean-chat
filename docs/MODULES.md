@@ -12,7 +12,7 @@
 | ① | **ocr** | 채팅창 이미지 → 텍스트 줄 | `Frame` → `OcrResult` | OCR 엔진 (OPEN-03) | Mac 개발 / Windows 실측 | ★★★ |
 | ② | **parse** | 줄 → **채팅만** (시스템 메시지·핑 제외, 규칙 코드) + 우회어 정규화 | `ParseRequest` → `ParseResult` | 규칙 (정규식·사전) | 모두 | ★★ |
 | ③ | **analyze** | **누가 누구에게** 욕하는지(대상), 욕설 등급 L0~L3, 유형, 비속어·**피드백 조각** | `AnalyzeRequest` → `Analysis` | **로컬** 소형 분류 모델 + 규칙 | 모두 + Colab | ★★★ |
-| ④ | **rewrite** | 피드백 조각 → **순화한 문장** 1개 | `RewriteRequest` → `Rewrite` | **외부 LLM API** (실패 시 규칙) | 모두 | ★★ |
+| ④ | **rewrite** | 욕설을 빼고 남은 말 → **보여 줄 문장** 1개 (L1 욕설 제거 · L2↑ 피드백 순화) | `RewriteRequest` → `Rewrite` | **외부 LLM API** (실패 시 규칙) | 모두 | ★★ |
 | ⑤ | **report** | 게임 기록 → **신고 문구 / 고소장 초안 PDF** | `ReportRequest` → `ReportDraft` | 템플릿 + **외부 LLM API**(사건 경위) | 모두 | ★★ |
 | – | 공통 | 라벨링 1인 100문장 | `data/labeled/` | – | – | ★ |
 
@@ -25,7 +25,7 @@
 | 모듈 | 방식 | 이유 (예상치, 실측은 sim 의 `durationMs`) |
 |---|---|---|
 | ③ analyze | **로컬 소형 분류 모델** + 규칙 (LLM 아님) | 모든 채팅마다 실행 → 로컬 CPU 1문장 10~50ms. API 는 0.5~2초라 너무 느림 |
-| ④ rewrite | **외부 LLM API** | L2↑ & 피드백일 때만 실행 → API 0.5~1.5초. 로컬 LLM 은 CPU 1~4초, 앱 +1~2GB, 게임과 CPU·GPU 경쟁 |
+| ④ rewrite | **외부 LLM API** (L1 은 로컬 규칙) | L1 은 외부 호출 없이 욕설만 지움(즉시). L2↑ & 피드백일 때만 API 실행 → 0.5~1.5초. 로컬 LLM 은 CPU 1~4초, 앱 +1~2GB, 게임과 CPU·GPU 경쟁 |
 | ⑤ report | 템플릿 + **외부 LLM API** (사건 경위 문장만) | 게임 끝난 뒤 실행. 앱 크기를 늘리지 않음 |
 
 - API 키는 `.env` 에만 둡니다(git 금지). 키가 없거나 실패·시간 초과면 앱을 멈추지 말고 **규칙·템플릿으로 대체**하거나 `rewritten=None` 을 돌려줍니다.

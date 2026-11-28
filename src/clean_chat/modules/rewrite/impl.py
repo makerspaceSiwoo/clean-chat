@@ -1,4 +1,7 @@
-"""④ rewrite: 분석된 피드백만 공손한 문장으로 바꾸고 불확실한 결과는 버린다."""
+"""④ rewrite: 욕설을 빼고 남은 말만 보여 줄 문장으로 만든다. 불확실한 결과는 버린다.
+
+L1(대상 없는 욕설)은 욕설이 든 낱말을 지운 문장, L2 이상은 분석된 피드백만 공손하게 다듬은 문장이다.
+"""
 
 from __future__ import annotations
 
@@ -193,6 +196,28 @@ def _still_abusive(text: str, profanity: list[str] | None = None) -> bool:
     )
 
 
+_MASKED = re.compile(r"\*+")  # 게임 자체 필터나 OCR 이 남긴 가림 표시
+
+
+def _without_profanity(original: str, profanity: list[str]) -> str | None:
+    """욕설이 든 낱말을 통째로 지우고 남은 말을 돌려준다. 남는 말이 없거나 여전히 거칠면 None.
+
+    예) "아 ㅅㅂ 내가 실수함" → "아 내가 실수함" / "아 ㅅㅂ" → None / "ㅅ1발 새끼들아" → None
+    조사·어미가 붙은 낱말("새끼들아", "ㅂㅅ아")은 욕설만 빼면 부스러기가 남으므로 낱말째 지운다.
+    """
+    spans = [span for span in dict.fromkeys(profanity) if span.strip()]
+    kept = [
+        word
+        for word in original.split()
+        if not any(span in word for span in spans) and not _MASKED.search(word) and not _still_abusive(word)
+    ]
+    text = " ".join(kept)
+    letters = sum(ch.isalnum() for ch in text)
+    if (len(kept) < 2 and letters < 3) or not any("가" <= ch <= "힣" or ch.isascii() and ch.isalnum() for ch in text):
+        return None  # "아", "ㅋㅋ" 처럼 뜻 있는 말이 남지 않음
+    return None if _still_abusive(text, spans) else text
+
+
 def _rule(spans: list[str], original: str, champions: list[str] | None = None) -> str | None:
     """검토한 표현만 변환한다. 모르는 표현·복수 지시는 새 내용을 만들지 않고 포기한다."""
     if len(spans) != 1:
@@ -344,6 +369,7 @@ def run(req: RewriteRequest) -> Rewrite:
     입력: RewriteRequest(message, analysis) → 출력: Rewrite(msg_id, rewritten, backend)
     예) "야 정글 ㅂㅅ아 용 먼저 치라고", feedback_spans=["용 먼저 치라고"] → "용 먼저 치자"
     예) "아 정글 ㅂㅅ 왜 안 와", feedback_spans=["왜 안 와"] → "정글 합류 부탁해요"
+    예) L1 "아 ㅅㅂ 내가 실수함", profanity_spans=["ㅅㅂ"] → "아 내가 실수함" (로컬 처리, 남는 말이 없으면 None)
     순서: 입력 검사 → 원문/욕설 제거 본문/피드백 전송 → 생성/출력 검사 → 실패 시 예비 규칙
     주의: 3초 제한. 원문/분석을 수정하지 않고, 알려진 닉네임·raw는 전송하지 않는다.
           API 실패·거절·지연 시 안전한 예비 규칙 또는 None. 원문에 없는 내용을 지어내지 않는다.
@@ -357,9 +383,14 @@ def run(req: RewriteRequest) -> Rewrite:
         len(req.message.text),
         len(req.analysis.feedback_spans),
     )
-    if req.analysis.msg_id != req.message.id or req.analysis.level < 2:
-        _LOG.info("[최종] null — 분석 ID 불일치 또는 L2 미만")
+    if req.analysis.msg_id != req.message.id or req.analysis.level < 1:
+        _LOG.info("[최종] null — 분석 ID 불일치 또는 L0")
         return empty
+    if req.analysis.level == 1:
+        # L1(대상 없는 욕설)은 자주 나온다. 외부 호출 없이 욕설만 지워서 바로 돌려준다.
+        result = _without_profanity(req.message.text, req.analysis.profanity_spans)
+        _LOG.info("[최종] backend=rule — L1 욕설 제거, 결과=%s", "있음" if result else "null (남는 말이 없음)")
+        return empty.model_copy(update={"rewritten": result})
     spans = list(dict.fromkeys(s.strip() for s in req.analysis.feedback_spans if s.strip()))
     original = req.message.text
     if not spans:

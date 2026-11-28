@@ -43,6 +43,8 @@ macOS에서 처음 위치를 잠글 때 화면 기록을 허용한 뒤 시스템
 
 새 채팅은 최근에 본 줄과 순서대로 맞춰 보고, 마지막으로 맞은 줄 아래의 줄만 고릅니다. 같은 줄인지는 글자가 "거의 같은지"로 봅니다(띄어쓰기·기호 무시, 화자와 내용을 따로 비교). 반투명 채팅창 뒤로 게임 화면이 움직여서 같은 줄도 OCR이 읽을 때마다 조금씩 다르게 읽기 때문입니다. OCR이 아무것도 읽지 못한 화면(채팅창 숨김, 인식 실패)은 비교 기준을 바꾸지 않습니다. 채팅으로 읽히지 않은 줄은 다음에 다르게 읽히면 한 번 더 확인합니다.
 
+욕설은 `**`로 가려서 보여 주지 않습니다. 대상 없는 욕설(L1)은 욕설을 뺀 문장으로 보여 주고(`아 ㅅㅂ 내가 실수함` → `아 내가 실수함`), 욕설뿐이면 숨깁니다. 내 채팅도 같아서, 욕설뿐이면 복사할 내용이 없습니다.
+
 신고·고소 대상은 **닉네임 + 챔피언**으로 구분합니다. 닉네임이 같아도 챔피언이 다르면 다른 사람으로 나누고, OCR이 같은 사람의 닉네임을 조금 다르게 읽으면(같은 챔피언, 거의 같은 닉네임) 한 사람으로 모읍니다.
 
 **독립 앱 빌드** · 각 OS에서 `uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py`를 실행합니다. 설치 파일에는 게임 오버레이로 모듈을 실행하는 메인 앱만 들어가고 시뮬레이터는 빠집니다. 분류 모델을 돌리는 패키지(torch·transformers)가 들어가서 macOS 앱은 약 1.6GB입니다. 모델 가중치와 Gemini API 키는 넣지 않고, 받는 사람이 첫 실행 준비 화면에서 내려받고 입력합니다. `analyze` extra를 빼고 빌드하면 규칙만 쓰는 작은 앱이 되고, rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 씁니다. 모델은 rewrite·report가 각자 기본 모델(`gemini/gemini-3.1-flash-lite`)을 쓰고, `LLM_MODEL`을 설정하면 그 값이 우선합니다. macOS 확인용 빌드는 `dist/Clean Chat Preview.app`입니다. 배포용은 `CLEAN_CHAT_CODESIGN_IDENTITY`에 사용할 코드 서명 인증서를 지정하면 `dist/Clean Chat.app`으로 생성됩니다. 업데이트 간 권한을 유지하려면 같은 서명 ID로 빌드합니다. Windows 결과는 `dist/Clean Chat/Clean Chat.exe`이고, 같은 폴더의 라이브러리도 함께 배포합니다. 빌드한 앱은 `--check` 인자로 필요한 패키지가 모두 들어갔는지 점검할 수 있습니다. GitHub Actions의 `build-desktop`(Actions 탭에서 수동 실행 또는 `test` 브랜치 push)이 두 OS의 설치 파일을 만들어 Artifacts에 올립니다.

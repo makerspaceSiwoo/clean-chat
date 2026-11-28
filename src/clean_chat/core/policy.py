@@ -12,7 +12,10 @@ MASK = "**"
 
 
 def mask_profanity(text: str, spans: list[str]) -> str:
-    """원문에서 비속어 조각만 ** 로 가린다. 예) ("아 ㅅㅂ 내가 실수함", ["ㅅㅂ"]) → "아 ** 내가 실수함"."""
+    """원문에서 비속어 조각만 ** 로 가린다. 정책표는 더 이상 쓰지 않는다 (화면·클립보드에 ** 를 내지 않음).
+
+    예) ("아 ㅅㅂ 내가 실수함", ["ㅅㅂ"]) → "아 ** 내가 실수함"
+    """
     for span in sorted({s for s in spans if s}, key=len, reverse=True):  # 긴 조각부터 (겹침 방지)
         text = text.replace(span, MASK)
     return text
@@ -25,11 +28,18 @@ def _rewritten(analysis: Analysis, rewrite: Rewrite | None) -> str | None:
     return rewrite.rewritten or None
 
 
+def _cleaned(rewrite: Rewrite | None) -> str | None:
+    """L1: 욕설을 뺀 문장. 욕설뿐이라 남는 말이 없거나 순화에 실패했으면 None. ** 로 가린 글은 쓰지 않는다."""
+    text = rewrite.rewritten if rewrite else None
+    return text if text and MASK[0] not in text else None
+
+
 def decide_incoming(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | None = None) -> Decision:
     """흐름 A · 다른 유저 채팅 (SPEC 5-1).
 
-    L0 → 그대로 / L1 → 비속어만 가림 / L2 + 피드백 → 피드백 문장만(신고) / L2 → 숨김(신고)
+    L0 → 그대로 / L1 → 욕설을 뺀 문장, 남는 말이 없으면 숨김 / L2 + 피드백 → 피드백 문장만(신고) / L2 → 숨김(신고)
     L3 → 숨김, 피드백이 있으면 피드백만 (신고 + 고소 후보). 순화 실패(None)면 숨김.
+    욕설을 ** 로 가려서 보여 주지 않는다 (가려도 욕설이 있었다는 것이 보여 기분이 상한다).
     내가 게임에 직접 친 채팅(is_me)은 그대로 표시한다.
     """
 
@@ -55,7 +65,9 @@ def decide_incoming(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | Non
             return out(Action.SHOW, msg.text, "낮음 · L1 혼잣말 표시")
         if settings.filter_strength == "high":
             return out(Action.HIDE, None, "높음 · L1 숨김")
-        return out(Action.SHOW_MASKED, mask_profanity(msg.text, analysis.profanity_spans), "L1 → 비속어만 가림")
+        if cleaned := _cleaned(rewrite):
+            return out(Action.SHOW_REWRITTEN, cleaned, "L1 → 욕설을 뺀 문장 표시")
+        return out(Action.HIDE, None, "L1 → 욕설뿐이라 숨김")
     rewritten = _rewritten(analysis, rewrite)
     if level == Level.L2_ABUSIVE:
         if rewritten:
@@ -69,7 +81,8 @@ def decide_incoming(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | Non
 def decide_outgoing(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | None = None) -> Decision:
     """흐름 B · 내 채팅 (SPEC 5-2). 신고·고소 표시는 하지 않는다.
 
-    L0 → 그대로 복사 / L1 → 비속어만 가려 복사 / L2 + 피드백 → 피드백 문장 복사 / 그 외(L2, L3, 순화 실패) → 차단
+    L0 → 그대로 복사 / L1 → 욕설을 뺀 문장 복사, 남는 말이 없으면 복사할 내용 없음(차단)
+    L2 + 피드백 → 피드백 문장 복사 / 그 외(L2, L3, 순화 실패) → 차단
     """
 
     def out(action: Action, text: str | None, reason: str) -> Decision:
@@ -81,7 +94,9 @@ def decide_outgoing(msg: ChatMessage, analysis: Analysis, rewrite: Rewrite | Non
     if level == Level.L0_CLEAN:
         return out(Action.COPY, msg.text, "내 채팅 L0 → 그대로 전송")
     if level == Level.L1_MILD:
-        return out(Action.COPY_MASKED, mask_profanity(msg.text, analysis.profanity_spans), "내 채팅 L1 → 비속어만 가림")
+        if cleaned := _cleaned(rewrite):
+            return out(Action.COPY_REWRITTEN, cleaned, "내 채팅 L1 → 욕설을 뺀 문장 전송")
+        return out(Action.BLOCK, None, "내 채팅 L1 → 욕설뿐이라 복사할 내용 없음")
     rewritten = _rewritten(analysis, rewrite)
     if level == Level.L2_ABUSIVE and rewritten:
         return out(Action.COPY_REWRITTEN, rewritten, "내 채팅 L2 + 피드백 → 피드백만 전송")
