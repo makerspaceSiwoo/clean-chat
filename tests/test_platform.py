@@ -78,3 +78,37 @@ def test_desktop_entry_excludes_simulator():
     body = entry[entry.index("def app()") :]
     assert body.index("multiprocessing.freeze_support()") < body.index("use_utf8_console()")
     assert '"desktop.py"' in build and '"__main__.py"' not in build
+
+
+def test_windowed_app_without_console_gets_log_streams(tmp_path, monkeypatch):
+    """Windows 설치 파일(콘솔 없는 창 앱)은 sys.stdout·sys.stderr 가 None 이다. 진행 막대(tqdm)가 쓰다 죽지 않게
+    logs/console.log 로 돌린다 ("'NoneType' object has no attribute 'write'" 로 모델 내려받기 실패)."""
+    import sys
+
+    from clean_chat import desktop
+    from clean_chat.core.config import settings
+
+    monkeypatch.setattr(settings, "store_dir", tmp_path)
+    monkeypatch.setattr(sys, "stdout", None)
+    monkeypatch.setattr(sys, "stderr", None)
+    desktop.ensure_std_streams()
+    try:
+        assert sys.stdout is sys.stderr is not None
+        print("진행 막대", file=sys.stderr)
+        sys.stderr.flush()
+        assert "진행 막대" in (tmp_path / "logs" / "console.log").read_text(encoding="utf-8")
+    finally:
+        sys.stderr.close()
+
+
+def test_terminal_streams_are_left_alone(monkeypatch):
+    import io
+    import sys
+
+    from clean_chat import desktop
+
+    out, err = io.StringIO(), io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    monkeypatch.setattr(sys, "stderr", err)
+    desktop.ensure_std_streams()
+    assert sys.stdout is out and sys.stderr is err
