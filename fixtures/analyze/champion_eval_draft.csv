@@ -1,0 +1,44 @@
+text,text_norm,hints,level,harm_types,profanity_spans,has_feedback,feedback,target,split,writer,note
+이즈 궁 좋았어,이즈 궁 좋았어,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+케틀 덫 조심해,케틀 덫 조심해,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+야스오 바람 장막 빠졌어,야스오 바람 장막 빠졌어,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+블츠 그랩 쿨이야 지금 싸우자,블츠 그랩 쿨이야 지금 싸우자,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+볼베 궁 쓰면 다이브 가자,볼베 궁 쓰면 다이브 가자,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+카타 로밍 갔어 바텀 조심,카타 로밍 갔어 바텀 조심,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+말파 궁 있을 때 한타 열자,말파 궁 있을 때 한타 열자,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+트페 궁 켰어 사이드 빼,트페 궁 켰어 사이드 빼,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+아리 매혹 잘 맞혔다,아리 매혹 잘 맞혔다,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+우리 베인 후반에 캐리한다 지켜주자,우리 베인 후반에 캐리한다 지켜주자,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+리븐 진짜 잘하네 솔킬 두 번,리븐 진짜 잘하네 솔킬 두 번,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+초가 스택 많이 쌓였네 ㄷㄷ,초가 스택 많이 쌓였네 ㄷㄷ,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+아 시발 블츠 그랩에 또 끌렸네,아 시발 블츠 그랩에 또 끌렸네,,1,profanity,시발,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+존나 아깝다 카타 한 대 남았는데,존나 아깝다 카타 한 대 남았는데,,1,profanity,존나,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+야스오 또 던지네 과학이다,야스오 또 던지네 과학이다,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+이즈 스킬을 하나도 못 맞히네,이즈 스킬을 하나도 못 맞히네,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+케틀 사거리 그렇게 긴데 왜 맨날 물리냐,케틀 사거리 그렇게 긴데 왜 맨날 물리냐,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+블츠 그랩 한 번을 못 맞히네 눈 감고 하냐,블츠 그랩 한 번을 못 맞히네 눈 감고 하냐,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+마이 그렇게 할 거면 겜 꺼라,마이 그렇게 할 거면 겜 꺼라,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+볼베 한타 좀 와라 캠프만 돌지 말고,볼베 한타 좀 와라 캠프만 돌지 말고,,2,blame,,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+카타 로밍 좀 가라 라인에서 뭐 하냐,카타 로밍 좀 가라 라인에서 뭐 하냐,,2,blame,,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+말파 궁 좀 써라 아끼다 지겠다,말파 궁 좀 써라 아끼다 지겠다,,2,blame,,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+트페 궁은 장식이냐,트페 궁은 장식이냐,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+우리 베인 딜이 유미만도 못하네,우리 베인 딜이 유미만도 못하네,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+리븐 존나 못하네 진짜,리븐 존나 못하네 진짜,,2,profanity|blame,존나,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+아리 병신아,아리 병신아,,2,profanity,병신,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+초가 시발 궁 좀 제대로 써,초가 시발 궁 좀 제대로 써,,2,profanity|blame,시발,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+다들 야스 신고해 고의로 던진다,다들 야스 신고해 고의로 던진다,,2,blame|instigation,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+얘들아 티모 차단하고 하자,얘들아 티모 차단하고 하자,,2,instigation,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+상대 럭스 스킬 하나도 못 맞히네 허접,상대 럭스 스킬 하나도 못 맞히네 허접,,2,blame,,0,,enemy,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+쓰레쉬 랜턴을 왜 거기다 던지냐 생각이 없네,쓰레쉬 랜턴을 왜 거기다 던지냐 생각이 없네,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+이즈 너네 엄마가 그렇게 키웠냐,이즈 너네 엄마가 그렇게 키웠냐,,3,family_insult,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+케틀 부모님 안 계시냐,케틀 부모님 안 계시냐,,3,family_insult,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+마이 니애미 시발,마이 니애미 시발,,3,profanity|family_insult,니애미|시발,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+블츠 느금마,블츠 느금마,,3,family_insult,느금마,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+아리 유저 여자냐 밤에 만나서 놀자 야한 거,아리 유저 여자냐 밤에 만나서 놀자 야한 거,,3,sexual_harassment,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+럭스 하는 애 가슴 크냐,럭스 하는 애 가슴 크냐,,3,sexual_harassment,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+볼베 부모가 뭘 가르쳤냐 갱 좀 와라,볼베 부모가 뭘 가르쳤냐 갱 좀 와라,,3,family_insult|blame,,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+카타 걸레,카타 걸레,,3,sexual_harassment,걸레,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+로크 갱 호응 좋았어,로크 갱 호응 좋았어,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+로크 그 챔으로 그것밖에 못 하냐,로크 그 챔으로 그것밖에 못 하냐,,2,blame,,0,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+자헨 탑 잘 버티네,자헨 탑 잘 버티네,,0,,,0,,none,test,AI(claude),챔피언 이름 시험 초안 · 검수 전
+자헨 텔 좀 타라 구경만 하냐,자헨 텔 좀 타라 구경만 하냐,,2,blame,,1,,team,test,AI(claude),챔피언 이름 시험 초안 · 검수 전

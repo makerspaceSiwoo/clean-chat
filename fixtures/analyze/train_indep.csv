@@ -1,0 +1,1245 @@
+id,text,text_norm,hints,level,harm_types,profanity_spans,has_feedback,feedback,target,split,writer,note,category,pair_id
+T1001,와 원딜 ㅁㅊ ㄹㅇ 개잘함 캐리머신ㄷㄷ,와 원딜 미친 ㄹㅇ 개잘함 캐리머신ㄷㄷ,lexicon:ㅁㅊ,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · ㅁㅊ=감탄(칭찬),clean_trap,p01
+T1002,와 원딜 ㅁㅊ거임? 거길 왜 혼자 들어감,와 원딜 미친거임? 거길 왜 혼자 들어감,lexicon:ㅁㅊ,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 미친거임?을 욕설 낱말로 보지 않음,plain_blame,p01
+T1003,나 0/7임 ㅈㅅ 내가 던짐,나 0/7임 ㅈㅅ 내가 던짐,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p02
+T1004,야스오 0/7 실화임?ㅋㅋㅋ 레전드네,야스오 0/7 실화임?ㅋㅋㅋ 레전드네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p02
+T1005,한타때 제드 만나면 바로 죽여,한타때 제드 만나면 바로 죽여,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p03
+T1006,현실에서 만나면 진짜 죽여버림 제드 너,현실에서 만나면 진짜 죽여버림 제드 너,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p03
+T1007,리신 지금 어디야? 갱 가능?,리신 지금 어디야? 갱 가능?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p04
+T1008,리신 지금 어디서 뭐함 갱을 한번도 안옴,리신 지금 어디서 뭐함 갱을 한번도 안옴,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 갱 지적이라 has_feedback=1,plain_blame,p04
+T1009,아 내가 진짜 못했다 미안ㅠㅠ,아 내가 진짜 못했다 미안ㅠㅠ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p05
+T1010,아 탑이 진짜 못한다 답없음,아 탑이 진짜 못한다 답없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p05
+T1011,그만싸워 얘들아 겜하자 제발,그만싸워 얘들아 겜하자 제발,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p06
+T1012,그만하고 얘들아 미드 신고나 하자 제발,그만하고 얘들아 미드 신고나 하자 제발,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,p06
+T1013,계속 욕하면 차단함 ㅇㅇ,계속 욕하면 차단함 ㅇㅇ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p07
+T1014,계속 욕하면 니네집 찾아감 ㅇㅇ,계속 욕하면 니네집 찾아감 ㅇㅇ,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p07
+T1015,방금 채팅 캡처해둠 끝나고 신고할게,방금 채팅 캡처해둠 끝나고 신고할게,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p08
+T1016,방금 채팅 캡처해둠 니 학교에 다 뿌릴게,방금 채팅 캡처해둠 니 학교에 다 뿌릴게,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p08
+T1017,케틀 3/0/5네 ㄷㄷ 잘컸다,케틀 3/0/5네 ㄷㄷ 잘컸다,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p09
+T1018,케틀 0/5/3이네 ㄷㄷ 잘도컸다,케틀 0/5/3이네 ㄷㄷ 잘도컸다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p09
+T1019,바론 죽인다 다 모여ㄱㄱ,바론 죽인다 다 모여ㄱㄱ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p10
+T1020,너 죽인다 집주소 다 땄음ㄱㄱ,너 죽인다 집주소 다 땄음ㄱㄱ,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p10
+T1021,럭스 찾아간다 궁 빠졌음 ㄱㄱ,럭스 찾아간다 궁 빠졌음 ㄱㄱ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p11
+T1022,럭스 찾아간다 겜끝나고 현실로 ㄱㄱ,럭스 찾아간다 겜끝나고 현실로 ㄱㄱ,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p11
+T1023,서폿 와드 어디 박았어?,서폿 와드 어디 박았어?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p12
+T1024,서폿 와드를 어디 박는거임 하나도 안보임,서폿 와드를 어디 박는거임 하나도 안보임,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 와드 지적이라 has_feedback=1,plain_blame,p12
+T1025,블츠 그랩 미쳤다 ㄹㅇ 신들림,블츠 그랩 미쳤다 ㄹㅇ 신들림,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p13
+T1026,블츠 그랩 미쳤다 ㄹㅇ 미니언만 끌어옴ㅋㅋ,블츠 그랩 미쳤다 ㄹㅇ 미니언만 끌어옴ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p13
+T1027,아 ㅈㅅ 내 스펠실수 플 잘못누름,아 ㅈㅅ 내 스펠실수 플 잘못누름,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p14
+T1028,아 ㅅㅂ 내 스펠실수 플 잘못누름,아 시발 내 스펠실수 플 잘못누름,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p14
+T1029,정글 차이 난다 우리 리신 개잘해,정글 차이 난다 우리 리신 개잘해,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p15
+T1030,정글 차이 난다 우리 리신은 관광객임,정글 차이 난다 우리 리신은 관광객임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p15
+T1031,이즈님 잘하시네요 ㄹㅇ 배우고감,이즈님 잘하시네요 ㄹㅇ 배우고감,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p16
+T1032,이즈님 잘하시네요 ㄹㅇ 스킬 다 빗나가시고,이즈님 잘하시네요 ㄹㅇ 스킬 다 빗나가시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p16
+T1033,아깝다 진짜 한대였는데ㅠ,아깝다 진짜 한대였는데ㅠ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p17
+T1034,ㅈㄴ 아깝다 진짜 한대였는데,존나 아깝다 진짜 한대였는데,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p17
+T1035,티모 버섯 개사기네 다 죽네ㅋㅋ,티모 버섯 개사기네 다 죽네ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p18
+T1036,티모 개못하네 맨날 죽네ㅋㅋ,티모 개못하네 맨날 죽네ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p18
+T1037,탑 또 잡혔어? ㄱㅊ 내가 갈게,탑 또 잡혔어? ㄱㅊ 내가 갈게,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p19
+T1038,탑 또 잡혔어? ㅋㅋ 기부천사 납셨네,탑 또 잡혔어? ㅋㅋ 기부천사 납셨네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p19
+T1039,누가 던진거야 방금? 아 나구나 ㅈㅅ,누가 던진거야 방금? 아 나구나 ㅈㅅ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p20
+T1040,누가 던진거야 방금? 아 베인이구나 역시,누가 던진거야 방금? 아 베인이구나 역시,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p20
+T1041,신고는 겜끝나고 할게 일단 겜하자,신고는 겜끝나고 할게 일단 겜하자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p21
+T1042,신고는 겜끝나고 다같이 하자 일단 샤코부터,신고는 겜끝나고 다같이 하자 일단 샤코부터,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,p21
+T1043,아리 궁 없음 지금 죽이자,아리 궁 없음 지금 죽이자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p22
+T1044,아리 뇌 없음 ㅂㅅ임 그냥,아리 뇌 없음 병신임 그냥,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p22
+T1045,미친 한타 뭐임ㅋㅋㅋ 개쩔었다,미친 한타 뭐임ㅋㅋㅋ 개쩔었다,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 미친=감탄,clean_trap,p23
+T1046,미친 한타 뭐임 ㅅㅂ 개망했네,미친 한타 뭐임 시발 개망했네,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p23
+T1047,유미 왜 안붙어? 렉걸림?,유미 왜 안붙어? 렉걸림?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p24
+T1048,유미 왜 안붙음 붙는게 일인데 그것도 못함,유미 왜 안붙음 붙는게 일인데 그것도 못함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p24
+T1049,엄마가 밥먹으래 ㅈㅅ 5분만 버텨줘,엄마가 밥먹으래 ㅈㅅ 5분만 버텨줘,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p25
+T1050,니엄마가 밥은 주냐 그따위로 겜하는데,니엄마가 밥은 주냐 그따위로 겜하는데,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p25
+T1051,럭스 스킨 예쁘다 어디서 삼?,럭스 스킨 예쁘다 어디서 삼?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p26
+T1052,럭스 유저 예쁘냐 사진좀 보내봐 벗은걸로,럭스 유저 예쁘냐 사진좀 보내봐 벗은걸로,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p26
+T1053,정글 죽었어? 용 포기하자 그럼,정글 죽었어? 용 포기하자 그럼,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p27
+T1054,정글 또 죽었어? 용이나 좀 챙겨 제발 답답하네,정글 또 죽었어? 용이나 좀 챙겨 제발 답답하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p27
+T1055,원딜 뒤로 빠져 내가 앞에 설게,원딜 뒤로 빠져 내가 앞에 설게,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p28
+T1056,원딜 뒤로 좀 빠져 ㅂㅅ아 맨날 앞에 서있네,원딜 뒤로 좀 빠져 병신아 맨날 앞에 서있네,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p28
+T1057,말파 궁 지렸다 ㅁㅊㅋㅋㅋ,말파 궁 지렸다 미친ㅋㅋㅋ,lexicon:ㅁㅊ,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · ㅁㅊ=감탄(칭찬),clean_trap,p29
+T1058,말파 궁 지렸다 ㅋㅋ 허공에 박는 클라스,말파 궁 지렸다 ㅋㅋ 허공에 박는 클라스,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p29
+T1059,내 딜량 꼴찌네 ㅋㅋ 반성함,내 딜량 꼴찌네 ㅋㅋ 반성함,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p30
+T1060,딜량 꼴찌가 징크스네 ㅋㅋ 서폿보다 낮음,딜량 꼴찌가 징크스네 ㅋㅋ 서폿보다 낮음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p30
+T1061,아 손가락 잘라야겠다 내 컨 뭐임ㅋㅋ,아 손가락 잘라야겠다 내 컨 뭐임ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 과장된 자책,clean_trap,p31
+T1062,야스오 손가락 잘라야겠다 컨 뭐임ㅋㅋ,야스오 손가락 잘라야겠다 컨 뭐임ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 조롱으로 봄. 신체 위협(threat)으로 읽을 여지 있음,plain_blame,p31
+T1063,ㅇㅈ 내 잘못임 그만 뭐라해,ㅇㅈ 내 잘못임 그만 뭐라해,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p32
+T1064,ㅇㅈ 다 니달리 잘못임 계속 뭐라해 얘들아,ㅇㅈ 다 니달리 잘못임 계속 뭐라해 얘들아,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,p32
+T1065,이번판 지면 나 접는다 ㄹㅇ,이번판 지면 나 접는다 ㄹㅇ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p33
+T1066,이번판 지면 마이 너는 접어라 ㄹㅇ,이번판 지면 마이 너는 접어라 ㄹㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p33
+T1067,쓰레쉬 랜턴 타! 살려줄게,쓰레쉬 랜턴 타! 살려줄게,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p34
+T1068,쓰레쉬 랜턴 좀 줘라 ㅅㅂ 구경만 하냐,쓰레쉬 랜턴 좀 줘라 시발 구경만 하냐,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p34
+T1069,카직스 6렙이다 탑 조심해,카직스 6렙이다 탑 조심해,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p35
+T1070,카직스 아직 4렙이네 ㅋㅋ 정글에서 캠핑함?,카직스 아직 4렙이네 ㅋㅋ 정글에서 캠핑함?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p35
+T1071,와 죽을뻔 ㅋㅋ 심장 터지는줄,와 죽을뻔 ㅋㅋ 심장 터지는줄,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p36
+T1072,와 ㅈㄴ 죽을뻔 ㅋㅋ 심장 터지는줄,와 존나 죽을뻔 ㅋㅋ 심장 터지는줄,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p36
+T1073,미드 어디갔어? 미아핑 찍어줘,미드 어디갔어? 미아핑 찍어줘,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p37
+T1074,미드 어디갔냐고 미아핑도 안찍음 맨날,미드 어디갔냐고 미아핑도 안찍음 맨날,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 미아핑 지적이라 has_feedback=1,plain_blame,p37
+T1075,쟤네 정글 미쳤나봐 탑만 5번옴ㅋㅋ,쟤네 정글 미쳤나봐 탑만 5번옴ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 상대 정글 동선에 대한 감탄. 비난 아님으로 봄,clean_trap,p38
+T1076,우리 정글 미쳤나봐 탑을 한번도 안옴,우리 정글 미쳤나봐 탑을 한번도 안옴,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p38
+T1077,봇 터졌네 ㄱㅊ 후반가자,봇 터졌네 ㄱㅊ 후반가자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p39
+T1078,원딜이 다 터뜨렸네 ㄹㅇ 사람아님,원딜이 다 터뜨렸네 ㄹㅇ 사람아님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p39
+T1079,세트 형 든든하다 ㄹㅇ 아빠같음,세트 형 든든하다 ㄹㅇ 아빠같음,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p40
+T1080,세트 니 아빠도 너처럼 못하냐 ㄹㅇ,세트 니 아빠도 너처럼 못하냐 ㄹㅇ,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p40
+T1081,소라카 누나 힐 감사합니다ㅠㅠ,소라카 누나 힐 감사합니다ㅠㅠ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p41
+T1082,소라카 누나 힐말고 다른것도 해줘 밤에ㅎㅎ,소라카 누나 힐말고 다른것도 해줘 밤에ㅎㅎ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 돌려 말한 성희롱,family_or_sexual,p41
+T1083,피즈 진짜 사람임? 개잘해 무섭다,피즈 진짜 사람임? 개잘해 무섭다,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p42
+T1084,피즈 진짜 사람임? 봇전 AI가 더 잘할듯,피즈 진짜 사람임? 봇전 AI가 더 잘할듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p42
+T1085,나 트롤 아님 진짜 렉걸려서 그럼,나 트롤 아님 진짜 렉걸려서 그럼,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p43
+T1086,누누 트롤임 진짜 다들 신고 ㄱ,누누 트롤임 진짜 다들 신고 ㄱ,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,p43
+T1087,ㅎㅇ 다들 즐겜합시다~,ㅎㅇ 다들 즐겜합시다~,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p44
+T1088,ㅎㅇ 요네는 오늘도 즐겜하시네요~ 혼자만,ㅎㅇ 요네는 오늘도 즐겜하시네요~ 혼자만,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p44
+T1089,다 죽여버려 ㅋㅋㅋ 펜타 각,다 죽여버려 ㅋㅋㅋ 펜타 각,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p45
+T1090,다 죽여버린다 ㅋㅋ 니 집앞에서 기다림,다 죽여버린다 ㅋㅋ 니 집앞에서 기다림,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,p45
+T1091,베인 왜 죽었어? 갱 왔었어?,베인 왜 죽었어? 갱 왔었어?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p46
+T1092,베인 왜 죽었어? 아 그냥 걸어들어가셨구나,베인 왜 죽었어? 아 그냥 걸어들어가셨구나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p46
+T1093,원딜 차이 지리네 우리 자야 고마워,원딜 차이 지리네 우리 자야 고마워,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p47
+T1094,원딜 차이 지리네 gg 우리 자야 뭐함,원딜 차이 지리네 gg 우리 자야 뭐함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,p47
+T1095,혼자 다니면 죽어 같이 다니자,혼자 다니면 죽어 같이 다니자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p48
+T1096,혼자 다니지 말라고 탈론 귀가 없냐 같이 좀 다녀,혼자 다니지 말라고 탈론 귀가 없냐 같이 좀 다녀,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p48
+T1097,ㅋㅋㅋ 방금 내 플 봤냐 벽에 박음 흑역사,ㅋㅋㅋ 방금 내 플 봤냐 벽에 박음 흑역사,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p49
+T1098,ㅋㅋㅋ 방금 그브 플 봤냐 벽에 박음 하이라이트 각,ㅋㅋㅋ 방금 그브 플 봤냐 벽에 박음 하이라이트 각,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p49
+T1099,차단할게 더 말걸지마,차단할게 더 말걸지마,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_trap,p50
+T1100,차단해도 소용없음 니 계정 끝까지 따라다님,차단해도 소용없음 니 계정 끝까지 따라다님,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 계속 따라다니며 괴롭힘,threat,p50
+T1102,아 ㅅㅂ 트린 또 죽었네 ㅂㅅ인가,아 시발 트린 또 죽었네 병신인가,lexicon:ㅅㅂ|lexicon:ㅂㅅ,2,profanity|blame,ㅅㅂ|ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p51
+T1103,ㅈㄹ났네 진짜 이판,지랄났네 진짜 이판,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p52
+T1104,ㅈㄹ났네 진짜 우리 서폿 혼자 쇼함,지랄났네 진짜 우리 서폿 혼자 쇼함,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p52
+T1105,개같네 렉 존나걸림,개같네 렉 존나걸림,,1,profanity,개같네|존나,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p53
+T1106,개같네 샤코 존나못함,개같네 샤코 존나못함,,2,profanity|blame,개같네|존나,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p53
+T1108,tlqkf 이걸 지네 미드 새끼때문에,시발 이걸 지네 미드 새끼때문에,lexicon:tlqkf,2,profanity|blame,tlqkf|새끼,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p54
+T1109,아오 병신같이 죽었네 나,아오 병신같이 죽었네 나,,1,profanity,병신,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 자책에 욕설,profanity_alone,p55
+T1110,아오 병신같이 죽네 카타 또,아오 병신같이 죽네 카타 또,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p55
+T1111,시1발 큐 왜이럼,시발 큐 왜이럼,noise_removed,1,profanity,시1발,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p56
+T1112,시1발 정글 왜이럼 진짜,시발 정글 왜이럼 진짜,noise_removed,2,profanity|blame,시1발,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p56
+T1113,ㅆㅂ 망겜 접어야지,씨발 망겜 접어야지,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p57
+T1114,ㅆㅂ 망겜 다리우스나 접어라 좀,씨발 망겜 다리우스나 접어라 좀,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p57
+T1115,하 지랄맞네 오늘 팀운,하 지랄맞네 오늘 팀운,,1,profanity,지랄,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,p58
+T1116,하 지랄하네 오늘 룰루,하 지랄하네 오늘 룰루,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,p58
+T1117,ㅈㄴ 졸리다 ㅅㅂ 막판임,존나 졸리다 시발 막판임,lexicon:ㅅㅂ|lexicon:ㅈㄴ,1,profanity,ㅈㄴ|ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T1118,와 씨발 깜짝아 부쉬에 뭐있었음,와 씨발 깜짝아 부쉬에 뭐있었음,,1,profanity,씨발,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T1119,존나 배고프다 겜 언제끝남,존나 배고프다 겜 언제끝남,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T1120,용 30초 봇 밀고 모이자,용 30초 봇 밀고 모이자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p59
+T1121,용 30초라고 원딜 귀먹음? 봇 밀고 모여 좀,용 30초라고 원딜 귀먹음? 봇 밀고 모여 좀,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p59
+T1122,탑 텔 있음? 용한타 텔 ㄱㄴ?,탑 텔 있음? 용한타 텔 ㄱㄴ?,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p60
+T1123,탑 텔은 장식임? 용한타에 텔 좀 타라 답답아,탑 텔은 장식임? 용한타에 텔 좀 타라 답답아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p60
+T1124,미드 로밍감 봇 사려,미드 로밍감 봇 사려,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p61
+T1125,미드 로밍감ㅋㅋ 가서 또 죽으러 가시는중,미드 로밍감ㅋㅋ 가서 또 죽으러 가시는중,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p61
+T1126,정글 블루 나 줘 마나없음,정글 블루 나 줘 마나없음,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p62
+T1127,정글 블루 좀 줘라 ㅈㄴ 이기적이네 다 처먹냐,정글 블루 좀 줘라 존나 이기적이네 다 처먹냐,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ|처먹냐,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p62
+T1128,서폿 핑와 하나만 사줘,서폿 핑와 하나만 사줘,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p63
+T1129,서폿 핑와 하나를 안사네 ㅋㅋ 돈모아서 뭐함 와드좀 사,서폿 핑와 하나를 안사네 ㅋㅋ 돈모아서 뭐함 와드좀 사,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p63
+T1130,바론 ㄱㄱ 쟤네 셋 죽음,바론 ㄱㄱ 쟤네 셋 죽음,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p64
+T1131,바론 ㄱㄱ 아지르는 버려 넷이 하자 쟤 없는셈 쳐,바론 ㄱㄱ 아지르는 버려 넷이 하자 쟤 없는셈 쳐,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 따돌리기 선동,instigation,p64
+T1132,이즈 궁 있어? 있으면 한타 열게,이즈 궁 있어? 있으면 한타 열게,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p65
+T1133,이즈 궁 있어? 있어봤자 또 허공이겠지만ㅋ,이즈 궁 있어? 있어봤자 또 허공이겠지만ㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p65
+T1134,gg 수고했어요 다들,gg 수고했어요 다들,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,p66
+T1135,gg 수고했어요 우리 니달리 빼고ㅋ,gg 수고했어요 우리 니달리 빼고ㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,p66
+T1136,ㅎㅇㅎㅇ 나 서폿감,ㅎㅇㅎㅇ 나 서폿감,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1137,상대 플 없음 3분뒤 돌아옴,상대 플 없음 3분뒤 돌아옴,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1138,봇 와드 박음 정글 위쪽임,봇 와드 박음 정글 위쪽임,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1139,ㄱㄱ 전령 풀자 탑에,ㄱㄱ 전령 풀자 탑에,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1140,나 집감 템사고옴,나 집감 템사고옴,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1141,점멸 4분 20초,점멸 4분 20초,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1142,ㅇㅋ 내가 이니시함 따라와,ㅇㅋ 내가 이니시함 따라와,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1143,억제기 밀고 빠지자 욕심ㄴㄴ,억제기 밀고 빠지자 욕심ㄴㄴ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1144,미드 미아 르블 위로감,미드 미아 르블 위로감,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1145,한타 말고 스플하자 잭스 잘컸음,한타 말고 스플하자 잭스 잘컸음,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1146,ㄱㅊㄱㅊ 후반가면 우리가 이김,ㄱㅊㄱㅊ 후반가면 우리가 이김,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1147,장로 1분전 시야 잡자,장로 1분전 시야 잡자,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1148,나 궁 30초 기다려줘,나 궁 30초 기다려줘,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1149,레드 누가먹음? 케틀 줘,레드 누가먹음? 케틀 줘,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1150,오 나이스 ㅋㅋ 잘했다,오 나이스 ㅋㅋ 잘했다,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1151,ㅇㅈ 방금건 싸울만했음,ㅇㅈ 방금건 싸울만했음,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1152,저녁 뭐먹지 치킨 땡김 ㅋㅋ,저녁 뭐먹지 치킨 땡김 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,clean_call,
+T1153,진짜 ㅂㅅ같이 하네 야스오,진짜 병신같이 하네 야스오,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1154,ㅈㄹ하지마 베인 니가 제일 못함,지랄하지마 베인 니가 제일 못함,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1155,개ㅅㄲ야 그걸 왜 뺏어먹어 마이,개새끼야 그걸 왜 뺏어먹어 마이,lexicon:ㅅㄲ,2,profanity|blame,개ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1156,ㄷㅊ 좀 티모 입만 살았네,닥쳐 좀 티모 입만 살았네,lexicon:ㄷㅊ,2,profanity|blame,ㄷㅊ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1157,ㄲㅈ 유미 쓸모가 없어 ㄹㅇ,꺼져 유미 쓸모가 없어 ㄹㅇ,lexicon:ㄲㅈ,2,profanity|blame,ㄲㅈ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1158,우리 탑 ㅈㄴ 못해 ㅂㅅ임 ㄹㅇ,우리 탑 존나 못해 병신임 ㄹㅇ,lexicon:ㅂㅅ|lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ|ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1159,병1신 정글 진짜 답없다,병신 정글 진짜 답없다,noise_removed,2,profanity|blame,병1신,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1160,미드 새끼 겜 던지네 미친놈,미드 새끼 겜 던지네 미친놈,,2,profanity|blame,새끼|미친놈,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1161,야 이 빡대가리 원딜아 생각을 해,야 이 빡대가리 원딜아 생각을 해,,2,profanity|blame,빡대가리,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1162,제드 저 새끼 숟가락만 얹음,제드 저 새끼 숟가락만 얹음,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1163,시@발 서폿 진짜 개노답,시발 서폿 진짜 개노답,noise_removed,2,profanity|blame,시@발,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1164,꺼져 리신 니 얼굴보기 싫음,꺼져 리신 니 얼굴보기 싫음,,2,profanity|blame,꺼져,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1165,ㅁㅊ놈인가 카이사 혼자 쇼하네,미친놈인가 카이사 혼자 쇼하네,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1166,럭스 대가리 장식이냐 등신아,럭스 대가리 장식이냐 등신아,,2,profanity|blame,등신,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1167,저 또라이 트페 또 혼자감,저 또라이 트페 또 혼자감,,2,profanity|blame,또라이,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1168,탑 ㅅㄲ 진짜 사람새끼냐,탑 새끼 진짜 사람새끼냐,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ|새끼,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1169,지랄도 풍년이네 이렐 0/9가 입터네,지랄도 풍년이네 이렐 0/9가 입터네,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1170,아가리 닫아 진 니가 뭘 했다고,아가리 닫아 진 니가 뭘 했다고,,2,profanity|blame,아가리,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1171,서폿 ㅂㅅ ㅇㅈ? 어 ㅇㅈ,서폿 병신 ㅇㅈ? 어 ㅇㅈ,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1172,쓰레기새끼 누누 겜 망치는게 취미냐,쓰레기새끼 누누 겜 망치는게 취미냐,,2,profanity|blame,쓰레기새끼,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1173,원딜 좆도 못하면서 말은 많네,원딜 좆도 못하면서 말은 많네,,2,profanity|blame,좆도,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T1174,탑 진짜 왜 그럼 겜하기 싫음?,탑 진짜 왜 그럼 겜하기 싫음?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1175,베이가 너때문에 졌음 ㄹㅇ,베이가 너때문에 졌음 ㄹㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1176,실력이 없으면 연습을 하고와 카밀,실력이 없으면 연습을 하고와 카밀,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1177,못하면 가만히나 있어 세나,못하면 가만히나 있어 세나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1178,정글이 제일 문제임 이판,정글이 제일 문제임 이판,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1179,답없다 우리 미드 걍 구멍임,답없다 우리 미드 걍 구멍임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1180,이게 다 드레이븐 탓임 반박불가,이게 다 드레이븐 탓임 반박불가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1181,서폿 진짜 최악이다 만나본 중에,서폿 진짜 최악이다 만나본 중에,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1182,개념이 없네 녹턴 남의 킬만 먹고,개념이 없네 녹턴 남의 킬만 먹고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1183,쓸모가 없다 진짜 오른 뭐하러 왔음,쓸모가 없다 진짜 오른 뭐하러 왔음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1184,원딜 수준 심각함 ㄹㅇ 겜을 모름,원딜 수준 심각함 ㄹㅇ 겜을 모름,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1185,트롤이네 신지드 일부러 죽는거 다보임,트롤이네 신지드 일부러 죽는거 다보임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1186,눈치도 없고 실력도 없고 아칼리 진짜 민폐,눈치도 없고 실력도 없고 아칼리 진짜 민폐,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T1187,정글님 대단하시네요 갱 0회 달성 ㅊㅋㅊㅋ,정글님 대단하시네요 갱 0회 달성 ㅊㅋㅊㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1188,와 야스오 장인이시다 죽는 장인ㅋㅋ,와 야스오 장인이시다 죽는 장인ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1189,미드 혹시 발로 함?,미드 혹시 발로 함?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1190,럭스 모니터 꺼놓고 하는중?,럭스 모니터 꺼놓고 하는중?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1191,원딜 딜량 서폿이랑 비슷한데 실화?,원딜 딜량 서폿이랑 비슷한데 실화?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1192,우리 탑 기부왕이네 상대 가렌 풀템줌,우리 탑 기부왕이네 상대 가렌 풀템줌,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1193,리신 눈 감고 하는건 컨셉임?,리신 눈 감고 하는건 컨셉임?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1194,쟤네 정글은 사람인데 우리 정글은 뭐지,쟤네 정글은 사람인데 우리 정글은 뭐지,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1195,서폿님 혹시 관전모드세요?,서폿님 혹시 관전모드세요?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1196,카타 오늘 처음 깔았음? ㅋㅋ,카타 오늘 처음 깔았음? ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1197,제드가 0/8인건 상대가 잘해서겠지 그치?,제드가 0/8인건 상대가 잘해서겠지 그치?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1198,이야 티모 덕분에 상대가 행복해보임,이야 티모 덕분에 상대가 행복해보임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1199,봇전 뛰다 오셨나 우리 그브,봇전 뛰다 오셨나 우리 그브,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1200,원딜 cs 20분에 80개 ㅋㅋ 미니언이 무서움?,원딜 cs 20분에 80개 ㅋㅋ 미니언이 무서움?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1201,ad diff 지린다 진짜ㅋㅋ 우리 케틀 숨쉬기만 함,ad diff 지린다 진짜ㅋㅋ 우리 케틀 숨쉬기만 함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1202,탑은 그냥 상대팀 6번째 멤버인듯,탑은 그냥 상대팀 6번째 멤버인듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1203,아리 매혹 맞추면 로또 사야됨,아리 매혹 맞추면 로또 사야됨,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1204,누가 유미 좀 깨워봐 자는듯,누가 유미 좀 깨워봐 자는듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1205,마이 형 겜은 5명이서 하는거 알지?,마이 형 겜은 5명이서 하는거 알지?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1206,역시 우리 미드 기대를 저버리지 않네 또 죽음,역시 우리 미드 기대를 저버리지 않네 또 죽음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1207,jg diff ㅋㅋ 우리 엘리스는 구경꾼,jg diff ㅋㅋ 우리 엘리스는 구경꾼,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1208,티어 어디서 샀냐 사일러스 ㅋㅋ,티어 어디서 샀냐 사일러스 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1209,초등학생 동생이 해도 이거보단 낫겠다 진,초등학생 동생이 해도 이거보단 낫겠다 진,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1210,서폿 덕분에 1대2 연습 잘하고 있음 ㄳ,서폿 덕분에 1대2 연습 잘하고 있음 ㄳ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1211,오 피오라 드디어 1킬 축하파티 열어야됨,오 피오라 드디어 1킬 축하파티 열어야됨,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1212,혹시 대리 맡긴 계정임? 빅토르 실력 왜이럼,혹시 대리 맡긴 계정임? 빅토르 실력 왜이럼,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1213,킨드 딜 8천ㅋㅋㅋ 30분인데 탱커냐고,킨드 딜 8천ㅋㅋㅋ 30분인데 탱커냐고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T1214,바이님 궁은 아껴뒀다 다음판에 쓰시게요?,바이님 궁은 아껴뒀다 다음판에 쓰시게요?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 돌려 말한 궁 사용 지적이라 has_feedback=1 (애매),indirect_blame,
+T1215,아 ㅅㅂ 정글 용 좀 치라고 몇번말함,아 시발 정글 용 좀 치라고 몇번말함,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1216,서폿 와드좀 박아 맵이 깜깜하잖아 생각없냐,서폿 와드좀 박아 맵이 깜깜하잖아 생각없냐,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1217,탑 텔 타라고 ㅂㅅ아 한타 다 끝났다,탑 텔 타라고 병신아 한타 다 끝났다,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1218,한타때 궁 좀 써 오리아나 아끼다 똥된다 맨날,한타때 궁 좀 써 오리아나 아끼다 똥된다 맨날,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1219,집가라고 좀 케틀 피 100으로 뭐하냐 답답해 죽겠네,집가라고 좀 케틀 피 100으로 뭐하냐 답답해 죽겠네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1220,합류 안함? 갱플 혼자 파밍만 하냐 이기적이네,합류 안함? 갱플 혼자 파밍만 하냐 이기적이네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1221,ㅈㄴ 못하네 진짜 레오나 이니시를 걸어야 될거아냐,존나 못하네 진짜 레오나 이니시를 걸어야 될거아냐,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1222,미드 라인 좀 밀고 로밍가 생각없이 돌아다니지 말고,미드 라인 좀 밀고 로밍가 생각없이 돌아다니지 말고,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1223,뭐하냐 헤카림 전령 풀라고 들고 다니다 끝나겠다 개답답하네,뭐하냐 헤카림 전령 풀라고 들고 다니다 끝나겠다 개답답하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1224,징크스 뒤에서 딜만 해 왜 자꾸 앞으로 기어나옴 ㅁㅊ거야?,징크스 뒤에서 딜만 해 왜 자꾸 앞으로 기어나옴 미친거야?,lexicon:ㅁㅊ,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전 · 미친거야?를 욕설 낱말로 보지 않음,feedback_mixed,
+T1225,새끼야 바론 스틸당하잖아 강타 좀 써 니달리,새끼야 바론 스틸당하잖아 강타 좀 써 니달리,,2,profanity|blame,새끼,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1226,노틸 그랩 좀 맞춰봐 하나를 못맞추네 그리고 시야 좀 잡아,노틸 그랩 좀 맞춰봐 하나를 못맞추네 그리고 시야 좀 잡아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T1227,다들 탑 신고ㄱㄱ 고의트롤임,다들 탑 신고ㄱㄱ 고의트롤임,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1228,얘들아 베인 리폿 박자 9명이서,얘들아 베인 리폿 박자 9명이서,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1229,미드 뮤트하고 우리끼리 하자 ㅇㅈ?,미드 뮤트하고 우리끼리 하자 ㅇㅈ?,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1230,원딜 말 듣지마 다들 무시해 쟤 그냥 없는사람,원딜 말 듣지마 다들 무시해 쟤 그냥 없는사람,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1231,겜끝나고 샤코 신고 다 해줘 상대팀도 ㅂㅌ,겜끝나고 샤코 신고 다 해줘 상대팀도 ㅂㅌ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1232,이판 범인 누군지 알지? 다같이 정글 욕해,이판 범인 누군지 알지? 다같이 정글 욕해,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1233,report 유미 plz 다같이 ㄱㄱ,report 유미 plz 다같이 ㄱㄱ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1234,서폿한테 아무도 핑 찍어주지마 왕따시켜,서폿한테 아무도 핑 찍어주지마 왕따시켜,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1235,상대팀님들 우리 야스오 신고좀요 ㅈㅂ,상대팀님들 우리 야스오 신고좀요 ㅈㅂ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1236,다들 ㅇㅈ하지? 트린 저 ㅂㅅ때문에 진거 신고 ㄱ,다들 ㅇㅈ하지? 트린 저 병신때문에 진거 신고 ㄱ,lexicon:ㅂㅅ,2,profanity|blame|instigation,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,instigation,
+T1237,니네 엄마도 니 겜하는거 보면 울겠다,니네 엄마도 니 겜하는거 보면 울겠다,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1238,부모님이 그렇게 가르쳤냐 정글아,부모님이 그렇게 가르쳤냐 정글아,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1239,느금마 ㅋㅋ 원딜 수준,느금마 ㅋㅋ 원딜 수준,,3,profanity|family_insult|blame,느금마,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1240,엄마 없냐 럭스 누가 키웠음,엄마 없냐 럭스 누가 키웠음,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1241,니애미 ㅅㅂ 탑 꼬라지,니애미 시발 탑 꼬라지,lexicon:ㅅㅂ,3,profanity|family_insult|blame,니애미|ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1242,애비가 누군지는 아냐 ㅋㅋ 제드,애비가 누군지는 아냐 ㅋㅋ 제드,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1243,아리 유저 여자임? 가슴 사이즈 뭐임ㅎ,아리 유저 여자임? 가슴 사이즈 뭐임ㅎ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1244,서폿 누나 나랑 잘래? ㅎㅎ,서폿 누나 나랑 잘래? ㅎㅎ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1245,징크스 너 여자면 몸사진 보내봐 버스태워줌,징크스 너 여자면 몸사진 보내봐 버스태워줌,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1246,유미 닉이 야하네 밤에 뭐하냐 방잡을래ㅎ,유미 닉이 야하네 밤에 뭐하냐 방잡을래ㅎ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1247,ㅅㅅ하자 럭스 ㅋㅋ ㅈㄴ 꼴리네,섹스하자 럭스 ㅋㅋ 존나 꼴리네,lexicon:ㅈㄴ|lexicon:ㅅㅅ,3,profanity|sexual_harassment,ㅅㅅ|ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T1248,니 아이피 땄다 신상 털어서 올림 기대해,니 아이피 땄다 신상 털어서 올림 기대해,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,
+T1249,어느 피시방임? 지금 감 얼굴 좀 보자 뼈 부러뜨려줌,어느 피시방임? 지금 감 얼굴 좀 보자 뼈 부러뜨려줌,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,
+T1250,닉 외웠다 매판 저격해서 따라다니면서 괴롭혀줌 평생,닉 외웠다 매판 저격해서 따라다니면서 괴롭혀줌 평생,,3,threat,,0,,,train,"AI(claude, 독립 작성 T1)",독립 작성 학습 문장 · 검수 전,threat,
+T2001,용 1분 20초 남음 바텀 라인 먼저 밀자,용 1분 20초 남음 바텀 라인 먼저 밀자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2002,상대 정글 탑에서 보임 바텀 다이브 가능,상대 정글 탑에서 보임 바텀 다이브 가능,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2003,바론 시야 먼저 잡고 치자 핑와 두 개 있음,바론 시야 먼저 잡고 치자 핑와 두 개 있음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2004,나 800골 모자람 한 웨이브만 먹고 합류할게,나 800골 모자람 한 웨이브만 먹고 합류할게,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2005,상대 원딜 점멸 12분 30초에 돌아옴,상대 원딜 점멸 12분 30초에 돌아옴,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2006,전령 탑에 풀자 1차 피 절반임,전령 탑에 풀자 1차 피 절반임,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2007,지금 글골 2천 앞섬 급하게 싸울 필요 없음,지금 글골 2천 앞섬 급하게 싸울 필요 없음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2008,이번 판 평균 티어 플4라네,이번 판 평균 티어 플4라네,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2009,아리 궁 없음 지금 들어가도 됨,아리 궁 없음 지금 들어가도 됨,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2010,cs 분당 8개 유지 중 템 곧 나옴,cs 분당 8개 유지 중 템 곧 나옴,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2011,3용 스택임 다음 용이 영혼,3용 스택임 다음 용이 영혼,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2012,봇 2차 밀고 귀환하자,봇 2차 밀고 귀환하자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2013,억제기 재생 40초 남음 그 전에 바론,억제기 재생 40초 남음 그 전에 바론,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2014,나 승급전임 다들 잘 부탁,나 승급전임 다들 잘 부탁,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2015,레드 내가 먹어도 됨? 리쉬 고마움,레드 내가 먹어도 됨? 리쉬 고마움,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2016,gg 수고 다음 판도 이렇게만,gg 수고 다음 판도 이렇게만,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2017,상대 조합 후반형이라 25분 전에 끝내야 됨,상대 조합 후반형이라 25분 전에 끝내야 됨,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2018,오리 궁 쿨 40초 그 뒤에 한타 열자,오리 궁 쿨 40초 그 뒤에 한타 열자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2019,와드 다 떨어짐 귀환해서 제어와드 사 옴,와드 다 떨어짐 귀환해서 제어와드 사 옴,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,
+T2020,탑 텔 있음 바텀 싸움 열어도 됨,탑 텔 있음 바텀 싸움 열어도 됨,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p01
+T2021,탑 텔 있는데 안 탐 관전하러 온 사람임,탑 텔 있는데 안 탐 관전하러 온 사람임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p01
+T2022,미드 플 없음 4분 뒤에 돌아,미드 플 없음 4분 뒤에 돌아,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p02
+T2023,미드 플 없음 뇌도 없음,미드 플 없음 뇌도 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p02
+T2024,사이드 내가 밀게 넷은 미드 대치만 해줘,사이드 내가 밀게 넷은 미드 대치만 해줘,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p03
+T2025,사이드 내가 밀게 원딜은 미드에서 던지지만 마 숨만 쉬어,사이드 내가 밀게 원딜은 미드에서 던지지만 마 숨만 쉬어,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p03
+T2026,잭스 사이드 못 막음 둘이 가야 함,잭스 사이드 못 막음 둘이 가야 함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p04
+T2027,잭스 사이드에서 혼자 5뎃 박음 둘이 가도 못 살림,잭스 사이드에서 혼자 5뎃 박음 둘이 가도 못 살림,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 잭스가 우리 팀이라는 전제. 챔피언을 지목한 비난으로 봄,plain_blame,p04
+T2028,상대 서폿 로밍 감 미드 조심,상대 서폿 로밍 감 미드 조심,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p05
+T2029,우리 서폿 로밍 감 근데 가서 죽음 그럴 거면 라인에 있어 민폐임,우리 서폿 로밍 감 근데 가서 죽음 그럴 거면 라인에 있어 민폐임,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p05
+T2030,딜량 보니까 탱이 부족하네 나 가엔 갈게,딜량 보니까 탱이 부족하네 나 가엔 갈게,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_call,p06
+T2031,딜량 보니까 원딜이 부족하네 서폿보다 낮음,딜량 보니까 원딜이 부족하네 서폿보다 낮음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p06
+T2032,나 1/7/2네 이번 판은 내가 범인임 미안,나 1/7/2네 이번 판은 내가 범인임 미안,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p07
+T2033,제드 1/7/2네 이번 판은 범인 찾을 필요가 없음,제드 1/7/2네 이번 판은 범인 찾을 필요가 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p07
+T2034,내 cs 15분에 80개 실화냐 연습 더 해야겠다,내 cs 15분에 80개 실화냐 연습 더 해야겠다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p08
+T2035,원딜 cs 15분에 80개 실화냐 서폿이 먹은 거 아니고?,원딜 cs 15분에 80개 실화냐 서폿이 먹은 거 아니고?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p08
+T2036,야스오 딜량 4만 미쳤다 혼자 다 함,야스오 딜량 4만 미쳤다 혼자 다 함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p09
+T2037,야스오 딜량 4천 미쳤다 서폿이랑 동률,야스오 딜량 4천 미쳤다 서폿이랑 동률,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p09
+T2038,정글 승률 62퍼네 믿고 간다,정글 승률 62퍼네 믿고 간다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p10
+T2039,정글 승률 38퍼네 믿을 게 없다,정글 승률 38퍼네 믿을 게 없다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p10
+T2040,리신 이번 판 갱 몇 번 올 수 있어? 탑 라인 밀려 있음,리신 이번 판 갱 몇 번 올 수 있어? 탑 라인 밀려 있음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p11
+T2041,리신 이번 판 갱 몇 번 왔는지 세어봄? 0번임,리신 이번 판 갱 몇 번 왔는지 세어봄? 0번임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p11
+T2042,서폿 시야 점수 60 뭐냐 장인이네,서폿 시야 점수 60 뭐냐 장인이네,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p12
+T2043,서폿 시야 점수 6 뭐냐 장신구는 장식이네,서폿 시야 점수 6 뭐냐 장신구는 장식이네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p12
+T2044,저걸 살아나네 이즈 대단하다 진짜,저걸 살아나네 이즈 대단하다 진짜,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p13
+T2045,저걸 죽네 이즈 대단하다 진짜,저걸 죽네 이즈 대단하다 진짜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p13
+T2046,탑님 덕분에 이겼네요 감사합니다,탑님 덕분에 이겼네요 감사합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p14
+T2047,탑님 덕분에 졌네요 감사합니다,탑님 덕분에 졌네요 감사합니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p14
+T2048,내 킬관여 20퍼네 반성 중,내 킬관여 20퍼네 반성 중,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p15
+T2049,미드 킬관여 20퍼네 혼자 다른 게임 하는 중,미드 킬관여 20퍼네 혼자 다른 게임 하는 중,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p15
+T2050,케틀 다이아 찍었던 사람 맞네 라인전 깔끔,케틀 다이아 찍었던 사람 맞네 라인전 깔끔,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p16
+T2051,케틀 다이아 찍었던 사람 맞음? 라인전은 아이언인데,케틀 다이아 찍었던 사람 맞음? 라인전은 아이언인데,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p16
+T2052,브론즈 때 생각나네 그땐 나도 이랬음 ㅋㅋ,브론즈 때 생각나네 그땐 나도 이랬음 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p17
+T2053,럭스 보니까 브론즈 때 생각나네 그때 팀원이 딱 이랬음,럭스 보니까 브론즈 때 생각나네 그때 팀원이 딱 이랬음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p17
+T2054,상대 정글이 우리 정글보다 2렙 높음 카정 조심하자,상대 정글이 우리 정글보다 2렙 높음 카정 조심하자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p18
+T2055,상대 정글이 우리 정글보다 2렙 높음 사람 차이가 이렇게 큼,상대 정글이 우리 정글보다 2렙 높음 사람 차이가 이렇게 큼,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p18
+T2056,원딜 차이 난다 우리 원딜 잘하네,원딜 차이 난다 우리 원딜 잘하네,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p19
+T2057,원딜 차이 난다 우리 원딜이 지는 쪽으로,원딜 차이 난다 우리 원딜이 지는 쪽으로,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p19
+T2058,궁 타이밍 뭐임 가렌? 방금 거 예술이었음,궁 타이밍 뭐임 가렌? 방금 거 예술이었음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p20
+T2059,궁 타이밍 뭐임 가렌? 풀피에 쓰는 건 처음 봄,궁 타이밍 뭐임 가렌? 풀피에 쓰는 건 처음 봄,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p20
+T2060,티모 데스 0 유지 중 이대로만 가자,티모 데스 0 유지 중 이대로만 가자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p21
+T2061,티모 킬 0 유지 중 기록 세우는 듯,티모 킬 0 유지 중 기록 세우는 듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p21
+T2062,나 분당 딜 300 나옴 템 잘못 감 인정,나 분당 딜 300 나옴 템 잘못 감 인정,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p22
+T2063,아리 분당 딜 300 나옴 미니언이 더 아프겠다,아리 분당 딜 300 나옴 미니언이 더 아프겠다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p22
+T2064,동선 어디부터 시작함 정글? 리쉬 맞춰줄게,동선 어디부터 시작함 정글? 리쉬 맞춰줄게,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p23
+T2065,동선 어디서 배움 정글? 강의 들었으면 환불받아,동선 어디서 배움 정글? 강의 들었으면 환불받아,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p23
+T2066,탑 솔킬 두 번 땄네 이 구도에서 그게 되나,탑 솔킬 두 번 땄네 이 구도에서 그게 되나,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p24
+T2067,탑 솔킬 두 번 줬네 이 구도에서 그게 되나,탑 솔킬 두 번 줬네 이 구도에서 그게 되나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p24
+T2068,방금 한타는 내가 진입각 잘못 봄 그게 패인,방금 한타는 내가 진입각 잘못 봄 그게 패인,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p25
+T2069,방금 한타는 블츠 그랩이 탱커만 끌어옴 그게 패인,방금 한타는 블츠 그랩이 탱커만 끌어옴 그게 패인,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p25
+T2070,진 4궁 다 맞히네 사람인가,진 4궁 다 맞히네 사람인가,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p26
+T2071,진 4궁 다 빗나가네 눈 감고 함?,진 4궁 다 빗나가네 눈 감고 함?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p26
+T2072,실드 타이밍 덕에 살았음 서폿 고수네요,실드 타이밍 덕에 살았음 서폿 고수네요,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p27
+T2073,실드를 죽은 다음에 주시네요 서폿 고수네요,실드를 죽은 다음에 주시네요 서폿 고수네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p27
+T2074,미드 로밍 세 번에 3킬 효율 미쳤다,미드 로밍 세 번에 3킬 효율 미쳤다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p28
+T2075,미드 로밍 세 번에 3뎃 효율 미쳤다,미드 로밍 세 번에 3뎃 효율 미쳤다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,p28
+T2076,원딜 지금 템 뭐 감? 방관 필요함,원딜 지금 템 뭐 감? 방관 필요함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p29
+T2077,원딜 지금 템 뭐 감 그 빌드로는 딜이 나올 수가 없음 못 배웠네,원딜 지금 템 뭐 감 그 빌드로는 딜이 나올 수가 없음 못 배웠네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p29
+T2078,탑 왜 죽었어? 상대 정글 왔어?,탑 왜 죽었어? 상대 정글 왔어?,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p30
+T2079,탑 왜 또 죽어 정글 안 와도 지잖아,탑 왜 또 죽어 정글 안 와도 지잖아,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p30
+T2080,그건 내가 못한 거 맞음 변명 안 함,그건 내가 못한 거 맞음 변명 안 함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p31
+T2081,그건 미드가 못한 거 맞음 변명하지 마,그건 미드가 못한 거 맞음 변명하지 마,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p31
+T2082,나 때문에 진 판임 다들 미안,나 때문에 진 판임 다들 미안,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p32
+T2083,제드 때문에 진 판임 딴 이유 없음,제드 때문에 진 판임 딴 이유 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p32
+T2084,서폿 뒤에 있어도 됨 딜은 내가 받을게,서폿 뒤에 있어도 됨 딜은 내가 받을게,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p33
+T2085,서폿 뒤에만 있네 하는 게 없음,서폿 뒤에만 있네 하는 게 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p33
+T2086,리신 못하는 판도 있지 다음 판 잘하면 됨,리신 못하는 판도 있지 다음 판 잘하면 됨,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p34
+T2087,리신 못하는 판만 있네 잘하는 판이 없음,리신 못하는 판만 있네 잘하는 판이 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p34
+T2088,원딜 탓 그만해 딜량은 1등임,원딜 탓 그만해 딜량은 1등임,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p35
+T2089,원딜 탓 맞음 딜량 꼴등임,원딜 탓 맞음 딜량 꼴등임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p35
+T2090,정글 실력 문제 아님 조합이 불리했음,정글 실력 문제 아님 조합이 불리했음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p36
+T2091,정글 실력 문제 맞음 조합은 유리했음,정글 실력 문제 맞음 조합은 유리했음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,p36
+T2092,와 야스오 미친 무빙 ㄷㄷ 그걸 다 피하네,와 야스오 미친 무빙 ㄷㄷ 그걸 다 피하네,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 미친=감탄,clean_trap,p37
+T2093,와 야스오 미친놈 무빙 ㅋㅋ 그걸 다 맞네,와 야스오 미친놈 무빙 ㅋㅋ 그걸 다 맞네,,2,profanity|blame,미친놈,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p37
+T2094,아 깜짝이야 탑 살았네 죽은 줄,아 깜짝이야 탑 살았네 죽은 줄,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p38
+T2095,아 병신이야 탑 또 죽었네 벌써 6뎃,아 병신이야 탑 또 죽었네 벌써 6뎃,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p38
+T2096,럭스 q 적중률 지린다 80퍼는 될 듯,럭스 q 적중률 지린다 80퍼는 될 듯,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 지린다=감탄,clean_trap,p39
+T2097,럭스 q 적중률 지랄났다 8퍼는 될 듯,럭스 q 적중률 지랄났다 8퍼는 될 듯,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p39
+T2098,미드 개잘하네 15분 200cs,미드 개잘하네 15분 200cs,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 개-는 강조 접두사,clean_trap,p40
+T2099,미드 개못하네 15분 90cs 병신인가,미드 개못하네 15분 90cs 병신인가,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p40
+T2100,다음 한타에서 만나면 원딜부터 죽인다,다음 한타에서 만나면 원딜부터 죽인다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p41
+T2101,게임 끝나고 만나면 진짜 죽인다 장난 아님,게임 끝나고 만나면 진짜 죽인다 장난 아님,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p41
+T2102,상대 본진까지 찾아간다 넥서스 앞에서 보자,상대 본진까지 찾아간다 넥서스 앞에서 보자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p42
+T2103,니 집까지 찾아간다 현관 앞에서 보자,니 집까지 찾아간다 현관 앞에서 보자,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p42
+T2104,닉네임 캡처해 둠 끝나고 신고함,닉네임 캡처해 둠 끝나고 신고함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p43
+T2105,닉네임 캡처해 둠 신상 털어서 커뮤에 올림,닉네임 캡처해 둠 신상 털어서 커뮤에 올림,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p43
+T2106,너 어디 있는지 알아 블루 부쉬지 와드 박아둠,너 어디 있는지 알아 블루 부쉬지 와드 박아둠,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p44
+T2107,너 어디 사는지 알아 아이디로 다 찾아둠,너 어디 사는지 알아 아이디로 다 찾아둠,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p44
+T2108,이 판 끝날 때까지 미드만 따라다니면서 갱 간다,이 판 끝날 때까지 미드만 따라다니면서 갱 간다,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p45
+T2109,이 판 끝나도 계속 따라다닌다 매 판 저격해서 괴롭혀 줌,이 판 끝나도 계속 따라다닌다 매 판 저격해서 괴롭혀 줌,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p45
+T2110,차단함 더 말 안 섞음,차단함 더 말 안 섞음,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p46
+T2111,차단해도 소용없음 부계로 계속 찾아감 일상생활 못 하게 해줌,차단해도 소용없음 부계로 계속 찾아감 일상생활 못 하게 해줌,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,p46
+T2112,우리 엄마도 롤 하는데 실버임 ㅋㅋ,우리 엄마도 롤 하는데 실버임 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p47
+T2113,니 엄마도 롤 하냐 그 손은 유전이네,니 엄마도 롤 하냐 그 손은 유전이네,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p47
+T2114,부모님이 밥 먹으래 5분 안에 끝내자,부모님이 밥 먹으래 5분 안에 끝내자,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p48
+T2115,부모님이 그렇게 가르쳤냐 못 배운 티 남,부모님이 그렇게 가르쳤냐 못 배운 티 남,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p48
+T2116,아리 스킨 예쁘네 새로 나온 거임?,아리 스킨 예쁘네 새로 나온 거임?,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p49
+T2117,아리 하는 거 보니 여자네 예쁘면 몸 사진 보내봐,아리 하는 거 보니 여자네 예쁘면 몸 사진 보내봐,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p49
+T2118,서폿 목소리 좋다 디코 콜 깔끔하네,서폿 목소리 좋다 디코 콜 깔끔하네,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p50
+T2119,서폿 목소리 좋다 밤에 내는 소리도 들려줘 봐,서폿 목소리 좋다 밤에 내는 소리도 들려줘 봐,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p50
+T2120,다들 정글 탓 그만하자 아직 20분임,다들 정글 탓 그만하자 아직 20분임,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p51
+T2121,다들 정글 탓 해라 20분 동안 한 게 없음,다들 정글 탓 해라 20분 동안 한 게 없음,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,p51
+T2122,계속 욕하면 끝나고 신고할게 그만해,계속 욕하면 끝나고 신고할게 그만해,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p52
+T2123,끝나고 탑 다 같이 신고하자 9인 신고 ㄱ,끝나고 탑 다 같이 신고하자 9인 신고 ㄱ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,p52
+T2124,다들 원딜 좀 지켜주자 딜은 얘가 다 함,다들 원딜 좀 지켜주자 딜은 얘가 다 함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p53
+T2125,다들 원딜 버리자 지켜줘도 딜을 안 함,다들 원딜 버리자 지켜줘도 딜을 안 함,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,p53
+T2126,미드 말 듣자 콜 정확함,미드 말 듣자 콜 정확함,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p54
+T2127,미드 말 듣지 마 다들 뮤트해 쟤 콜대로 해서 3뎃임,미드 말 듣지 마 다들 뮤트해 쟤 콜대로 해서 3뎃임,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,p54
+T2128,서폿 용 쪽 와드 하나만 부탁,서폿 용 쪽 와드 하나만 부탁,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p55
+T2129,서폿 용 쪽 와드 하나를 못 박냐 20분째 시야 점수 4임 좀 박아,서폿 용 쪽 와드 하나를 못 박냐 20분째 시야 점수 4임 좀 박아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p55
+T2130,탑 합류 가능? 지금 용 싸움 5대4임,탑 합류 가능? 지금 용 싸움 5대4임,,0,,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,clean_trap,p56
+T2131,탑 합류 좀 해라 니 혼자 라인 먹는 동안 4대5로 세 번 짐 이기적이네,탑 합류 좀 해라 니 혼자 라인 먹는 동안 4대5로 세 번 짐 이기적이네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p56
+T2132,아 ㅅㅂ 강타 싸움 짐 내 실수,아 시발 강타 싸움 짐 내 실수,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p57
+T2133,아 ㅅㅂ 리신 강타 싸움 또 짐 손이 없냐,아 시발 리신 강타 싸움 또 짐 손이 없냐,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p57
+T2134,존나 아깝다 딜 50만 더 있었으면,존나 아깝다 딜 50만 더 있었으면,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p58
+T2135,존나 아깝다 원딜 새끼 평타 한 대를 안 침,존나 아깝다 원딜 새끼 평타 한 대를 안 침,,2,profanity|blame,존나|새끼,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p58
+T2136,ㅈㄴ 안 풀리네 오늘 3연패,존나 안 풀리네 오늘 3연패,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p59
+T2137,ㅈㄴ 안 풀리네 서폿이 3연속으로 던져서,존나 안 풀리네 서폿이 3연속으로 던져서,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p59
+T2138,시1발 플 실수로 눌렀다,시발 플 실수로 눌렀다,noise_removed,1,profanity,시1발,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p60
+T2139,시1발 가렌 플 그렇게 쓸 거면 스펠 지워라,시발 가렌 플 그렇게 쓸 거면 스펠 지워라,noise_removed,2,profanity|blame,시1발,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p60
+T2140,아 tlqkf 렉 걸림 핑 180,아 시발 렉 걸림 핑 180,lexicon:tlqkf,1,profanity,tlqkf,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p61
+T2141,아 tlqkf 티모 핑 180이냐 반응이 왜 그 모양임,아 시발 티모 핑 180이냐 반응이 왜 그 모양임,lexicon:tlqkf,2,profanity|blame,tlqkf,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p61
+T2142,ㅁㅊ 이걸 지네 골드 5천 앞섰는데,미친 이걸 지네 골드 5천 앞섰는데,lexicon:ㅁㅊ,1,profanity,ㅁㅊ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p62
+T2143,ㅁㅊ 미드 이걸 지네 골드 5천 앞서고 혼자 던짐,미친 미드 이걸 지네 골드 5천 앞서고 혼자 던짐,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p62
+T2144,개같네 진짜 cs 또 놓침,개같네 진짜 cs 또 놓침,,1,profanity,개같네,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p63
+T2145,개같네 진짜 정글이 라인 cs까지 뺏어 먹음,개같네 진짜 정글이 라인 cs까지 뺏어 먹음,,2,profanity|blame,개같네,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p63
+T2146,ㅈㄹ났다 내 승률 43퍼 됨,지랄났다 내 승률 43퍼 됨,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p64
+T2147,ㅈㄹ났다 이즈 승률 43퍼가 랭을 왜 돌림,지랄났다 이즈 승률 43퍼가 랭을 왜 돌림,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p64
+T2148,와 씨발 한 대 차이로 죽네,와 씨발 한 대 차이로 죽네,,1,profanity,씨발,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p65
+T2149,와 씨발 블츠 그랩 아홉 번에 0번 맞힘,와 씨발 블츠 그랩 아홉 번에 0번 맞힘,,2,profanity|blame,씨발,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p65
+T2150,ㅆㅂ 텔 잘못 탐,씨발 텔 잘못 탐,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,p66
+T2151,ㅆㅂ 탑 텔 또 잘못 탐 지도 안 봄?,씨발 탑 텔 또 잘못 탐 지도 안 봄?,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,p66
+T2152,ㅈ같다 연패 구간 또 시작,좆같다 연패 구간 또 시작,lexicon:ㅈ같다,1,profanity,ㅈ같다,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T2153,아 빡쳐 존나 못했다 내가,아 빡쳐 존나 못했다 내가,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T2154,아 씹 포탑 한 대 남기고 귀환함,아 씹 포탑 한 대 남기고 귀환함,,1,profanity,씹,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T2155,젠장 ㅅ1ㅂ 이게 왜 안 맞아,젠장 시발 이게 왜 안 맞아,lexicon:ㅅ1ㅂ|noise_removed,1,profanity,ㅅ1ㅂ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T2156,지랄맞네 오늘 큐 운,지랄맞네 오늘 큐 운,,1,profanity,지랄,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T2157,0/8 찍고 채팅 치는 ㅂㅅ이 있네 제드,0/8 찍고 채팅 치는 병신이 있네 제드,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2158,닥쳐 케틀 딜량 꼴찌가 말이 많음,닥쳐 케틀 딜량 꼴찌가 말이 많음,,2,profanity|blame,닥쳐,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2159,딜 8천 원딜 ㅅㄲ가 훈수 둠 ㅋㅋ,딜 8천 원딜 새끼가 훈수 둠 ㅋㅋ,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2160,꺼져 그냥 럭스 니 없는 판이 승률 더 높음,꺼져 그냥 럭스 니 없는 판이 승률 더 높음,,2,profanity|blame,꺼져,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2161,분당 cs 4개 ㅂㅅ 야스오 랭에서 보기 싫다,분당 cs 4개 병신 야스오 랭에서 보기 싫다,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2162,매혹 열 번 중 한 번 맞음 병1신임 아리?,매혹 열 번 중 한 번 맞음 병신임 아리?,noise_removed,2,profanity|blame,병1신,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2163,정글 새끼 15분 동안 갱 0회 통계가 증명함,정글 새끼 15분 동안 갱 0회 통계가 증명함,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2164,이 판 mvp는 0/7 가렌임 ㅄ 인증,이 판 mvp는 0/7 가렌임 병신 인증,lexicon:ㅄ,2,profanity|blame,ㅄ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2165,티어값 못 하는 미친놈이네 미드 승률 41퍼 이유 있음,티어값 못 하는 미친놈이네 미드 승률 41퍼 이유 있음,,2,profanity|blame,미친놈,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2166,ㅈㄴ 못하네 서폿 와드 0개 실화냐,존나 못하네 서폿 와드 0개 실화냐,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2167,지랄하지 마 탑 솔킬 세 번 주고 정글 탓?,지랄하지 마 탑 솔킬 세 번 주고 정글 탓?,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2168,리신 ㄱㅅㄲ 인섹을 우리 쪽으로 참,리신 개새끼 인섹을 우리 쪽으로 참,lexicon:ㄱㅅㄲ,2,profanity|blame,ㄱㅅㄲ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2169,원딜 ㅁㅊ놈임? 풀피 탱커를 왜 침,원딜 미친놈임? 풀피 탱커를 왜 침,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2170,진짜 좆도 못하네 이즈 스킬샷 적중률 10퍼,진짜 좆도 못하네 이즈 스킬샷 적중률 10퍼,,2,profanity|blame,좆,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2171,말 걸지 마 병신아 0/6 블츠 주제에,말 걸지 마 병신아 0/6 블츠 주제에,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2172,cs를 서폿이 다 처먹네 미친새끼 원딜 40개 됨,cs를 서폿이 다 처먹네 미친새끼 원딜 40개 됨,,2,profanity|blame,미친새끼,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T2173,제드 0/6이면 그냥 못하는 거임,제드 0/6이면 그냥 못하는 거임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2174,솔직히 이 판 패인은 정글임 오브젝트 0개,솔직히 이 판 패인은 정글임 오브젝트 0개,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2175,못하면 겸손하기라도 해 케틀,못하면 겸손하기라도 해 케틀,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2176,라인전부터 진 건 탑 본인 실력임,라인전부터 진 건 탑 본인 실력임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2177,서폿 실력이 이 티어가 아님 대리 받았네,서폿 실력이 이 티어가 아님 대리 받았네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2178,한타마다 제일 먼저 죽는 사람이 야스오임 매번,한타마다 제일 먼저 죽는 사람이 야스오임 매번,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2179,실력 없으면 말이라도 줄여라 미드,실력 없으면 말이라도 줄여라 미드,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2180,럭스 스킬 하나도 못 맞히면서 왜 미드 옴,럭스 스킬 하나도 못 맞히면서 왜 미드 옴,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2181,이 게임은 원딜이 망침 그게 사실임,이 게임은 원딜이 망침 그게 사실임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2182,판단이 전부 틀림 리신 넌 하는 것마다 손해임,판단이 전부 틀림 리신 넌 하는 것마다 손해임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2183,티모 픽한 순간부터 4대5였음 쓸모가 없음,티모 픽한 순간부터 4대5였음 쓸모가 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2184,정글이 못해서 라인 세 개가 다 터짐,정글이 못해서 라인 세 개가 다 터짐,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2185,가렌 그 실력으로 랭 돌리면 민폐임,가렌 그 실력으로 랭 돌리면 민폐임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2186,딜도 못 넣고 살지도 못함 그게 이즈임,딜도 못 넣고 살지도 못함 그게 이즈임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T2187,정글님 캠프 도는 솜씨는 일품이시네요 갱만 빼고요,정글님 캠프 도는 솜씨는 일품이시네요 갱만 빼고요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2188,15분 cs 62개면 서폿 템 가는 게 맞지 않나 원딜,15분 cs 62개면 서폿 템 가는 게 맞지 않나 원딜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2189,혹시 봇전 처음이심? 아 이즈 말하는 거,혹시 봇전 처음이심? 아 이즈 말하는 거,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2190,상대 미드는 로밍 다니던데 우리 미드는 관광 다님,상대 미드는 로밍 다니던데 우리 미드는 관광 다님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2191,딜량 그래프에서 제드 찾는 데 한참 걸림,딜량 그래프에서 제드 찾는 데 한참 걸림,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2192,탑 2/9는 전략임? 상대 키워서 방심시키는,탑 2/9는 전략임? 상대 키워서 방심시키는,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2193,와드보다 시야 기여 낮은 서폿은 처음 봄,와드보다 시야 기여 낮은 서폿은 처음 봄,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2194,리신 덕에 상대 정글 승급하겠다,리신 덕에 상대 정글 승급하겠다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2195,봇 듀오 중에 원딜이 누구임? 딜량으로는 구분 안 됨,봇 듀오 중에 원딜이 누구임? 딜량으로는 구분 안 됨,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2196,럭스 궁 적중률 통계 내면 로또 확률 나옴,럭스 궁 적중률 통계 내면 로또 확률 나옴,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2197,야스오 10뎃 파워스파이크 언제 옴? 기다리는 중,야스오 10뎃 파워스파이크 언제 옴? 기다리는 중,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2198,같은 골드인데 상대 탑이랑은 다른 게임 하는 듯 우리 탑,같은 골드인데 상대 탑이랑은 다른 게임 하는 듯 우리 탑,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2199,kda 0.3 찍기도 쉽지 않은데 그걸 해내네 케틀,kda 0.3 찍기도 쉽지 않은데 그걸 해내네 케틀,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2200,블츠님 그랩은 관상용이신가요,블츠님 그랩은 관상용이신가요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2201,원딜 diff 숫자로 보면 2.3만 대 6천 ㅇㅇ,원딜 diff 숫자로 보면 2.3만 대 6천 ㅇㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2202,미드 승률 39퍼에 300판이면 표본은 충분하네,미드 승률 39퍼에 300판이면 표본은 충분하네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2203,아리 이 정도면 상대 팀 여섯 번째 선수 아님?,아리 이 정도면 상대 팀 여섯 번째 선수 아님?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2204,티모 버섯이 본체보다 딜 많이 넣음 ㄹㅇ,티모 버섯이 본체보다 딜 많이 넣음 ㄹㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2205,가렌님 e 돌면서 무슨 생각 하세요 궁금해서요,가렌님 e 돌면서 무슨 생각 하세요 궁금해서요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2206,봇한테 지는 사람 실존했네 우리 정글,봇한테 지는 사람 실존했네 우리 정글,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2207,킬 스틸은 정확하네 스킬샷은 다 빗나가면서 이즈,킬 스틸은 정확하네 스킬샷은 다 빗나가면서 이즈,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2208,20분에 신발 하나 나온 정글 처음 봄 신기록,20분에 신발 하나 나온 정글 처음 봄 신기록,,2,blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T2209,정글 용 좀 쳐 3용째 그냥 줌 눈이 없음?,정글 용 좀 쳐 3용째 그냥 줌 눈이 없음?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2210,원딜 ㅂㅅ아 뒤에서 평타만 쳐 앞으로 걷지 말고,원딜 병신아 뒤에서 평타만 쳐 앞으로 걷지 말고,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2211,와드 좀 사 서폿 시야 점수 9는 심하잖아 양심 없네,와드 좀 사 서폿 시야 점수 9는 심하잖아 양심 없네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2212,궁 아끼다 죽지 말고 써 제드 벌써 세 번째임 답답하네,궁 아끼다 죽지 말고 써 제드 벌써 세 번째임 답답하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2213,귀환해라 탑 피 200으로 버티다 또 죽지 말고 ㅈㄴ 못하네,귀환해라 탑 피 200으로 버티다 또 죽지 말고 존나 못하네,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2214,한타 때 합류 좀 해 미드 사이드에서 cs만 먹으니 4대5로 지지 생각이 없음,한타 때 합류 좀 해 미드 사이드에서 cs만 먹으니 4대5로 지지 생각이 없음,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2215,야스오 들어가지 마 니가 들어가면 5뎃 확정임 시발,야스오 들어가지 마 니가 들어가면 5뎃 확정임 시발,,2,profanity|blame,시발,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2216,바론 시야부터 잡아 정글 강타만 믿다가 두 번 뺏김 못 믿겠음,바론 시야부터 잡아 정글 강타만 믿다가 두 번 뺏김 못 믿겠음,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2217,럭스 뒤로 빠져 맨날 앞에서 잘리잖아 뇌 빼고 함?,럭스 뒤로 빠져 맨날 앞에서 잘리잖아 뇌 빼고 함?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2218,포탑 좀 쳐라 케틀 사거리 650으로 뭐 하는 거임 새끼가,포탑 좀 쳐라 케틀 사거리 650으로 뭐 하는 거임 새끼가,,2,profanity|blame,새끼,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2219,그랩 탱커한테 쓰지 마 블츠 원딜을 끌어 그걸 설명해야 됨?,그랩 탱커한테 쓰지 마 블츠 원딜을 끌어 그걸 설명해야 됨?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2220,전령 풀어 리신 들고 15분째 산책 중이네 한심,전령 풀어 리신 들고 15분째 산책 중이네 한심,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2221,티모 라인 좀 밀어 로밍도 못 가는데 라인도 못 밂 ㅈㄹ,티모 라인 좀 밀어 로밍도 못 가는데 라인도 못 밂 지랄,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2222,핑 찍으면 빼라고 가렌 세 번 찍었는데 세 번 죽음 눈 없음?,핑 찍으면 빼라고 가렌 세 번 찍었는데 세 번 죽음 눈 없음?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2223,딜템 가지 말고 탱템 가 탑 0/5가 무슨 딜템이야 주제 파악 좀,딜템 가지 말고 탱템 가 탑 0/5가 무슨 딜템이야 주제 파악 좀,,2,blame,,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2224,로밍 올 거면 라인 밀고 와 아리 cs 30개 버리고 와서 킬도 못 먹네 병신같이,로밍 올 거면 라인 밀고 와 아리 cs 30개 버리고 와서 킬도 못 먹네 병신같이,,2,profanity|blame,병신,1,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T2225,다들 리신 신고해 주세요 고의 트롤임 15분 7뎃,다들 리신 신고해 주세요 고의 트롤임 15분 7뎃,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2226,제드 뮤트하고 넷이서 하자 없는 사람 치자,제드 뮤트하고 넷이서 하자 없는 사람 치자,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2227,원딜 빼고 넷이 한타 열자 쟤는 버려,원딜 빼고 넷이 한타 열자 쟤는 버려,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 한타 지시가 있으나 따돌리기가 목적이라 has_feedback=0,instigation,
+T2228,끝나고 서폿 신고 부탁 상대 팀도 해줘요,끝나고 서폿 신고 부탁 상대 팀도 해줘요,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2229,전챗으로 말함 우리 탑 신고 좀 0/9임,전챗으로 말함 우리 탑 신고 좀 0/9임,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2230,야스오한테 아무도 힐 주지 마 킬도 양보하지 말고,야스오한테 아무도 힐 주지 마 킬도 양보하지 말고,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2231,이 판 범인 투표하자 난 미드 한 표 다들 동의?,이 판 범인 투표하자 난 미드 한 표 다들 동의?,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2232,럭스 말에 아무도 대답하지 마 무시가 답,럭스 말에 아무도 대답하지 마 무시가 답,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2233,다 같이 정글 탓 맞지? 통계 보면 답 나옴 다들 한마디씩 해,다 같이 정글 탓 맞지? 통계 보면 답 나옴 다들 한마디씩 해,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2234,케틀 ㅂㅅ 다들 신고 박아 리폿 4개면 정지됨,케틀 병신 다들 신고 박아 리폿 4개면 정지됨,lexicon:ㅂㅅ,2,profanity|blame|instigation,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2235,가렌 캠프 다 뺏어 먹자 어차피 쓸모없으니 다들 협조,가렌 캠프 다 뺏어 먹자 어차피 쓸모없으니 다들 협조,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,instigation,
+T2236,니 애미 없냐 ㅋㅋ 0/8 박고,니 애미 없냐 ㅋㅋ 0/8 박고,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 애미를 욕설 조각으로 볼지 애매 — 조각에서 뺌,family_or_sexual,
+T2237,부모가 불쌍하다 이런 걸 낳고 키웠으니,부모가 불쌍하다 이런 걸 낳고 키웠으니,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2238,느금마 안부 좀 전해줘 원딜,느금마 안부 좀 전해줘 원딜,,3,profanity|family_insult,느금마,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2239,엄마 없이 자란 티가 플레이에서 남,엄마 없이 자란 티가 플레이에서 남,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2240,니 아빠도 직장에서 이렇게 던지냐 집안 내력이네,니 아빠도 직장에서 이렇게 던지냐 집안 내력이네,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2241,ㄴㄱㅁ 정글 갱을 안 옴,느금마 정글 갱을 안 옴,lexicon:ㄴㄱㅁ,3,profanity|family_insult|blame,ㄴㄱㅁ,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2242,서폿 여자임? 이기면 속옷 색 알려줘,서폿 여자임? 이기면 속옷 색 알려줘,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2243,럭스 유저면 가슴 사이즈나 불러봐 ㅋㅋ,럭스 유저면 가슴 사이즈나 불러봐 ㅋㅋ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2244,캐리해 줄 테니까 끝나고 벗은 사진 보내,캐리해 줄 테니까 끝나고 벗은 사진 보내,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2245,여자면 서폿이나 하지 말고 내 밑에 깔려 있어 시발,여자면 서폿이나 하지 말고 내 밑에 깔려 있어 시발,,3,profanity|sexual_harassment,시발,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2246,너 같은 애는 침대에서나 쓸모 있음 게임은 접어,너 같은 애는 침대에서나 쓸모 있음 게임은 접어,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T2247,전적 사이트에 니 아이디 박제하고 학교까지 알아낸다,전적 사이트에 니 아이디 박제하고 학교까지 알아낸다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,
+T2248,pc방 어딘지 말해 지금 간다 손가락 부러뜨려 줌,pc방 어딘지 말해 지금 간다 손가락 부러뜨려 줌,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,
+T2249,니 실명이랑 폰 번호 찾는 거 10분이면 됨 기대해,니 실명이랑 폰 번호 찾는 거 10분이면 됨 기대해,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전,threat,
+T2250,앞으로 니 큐 잡힐 때마다 저격 들어가서 다 던져줌 접을 때까지,앞으로 니 큐 잡힐 때마다 저격 들어가서 다 던져줌 접을 때까지,,3,threat,,0,,,train,"AI(claude, 독립 작성 T2)",독립 작성 학습 문장 · 검수 전 · 게임 밖까지 이어지는 지속 괴롭힘 예고로 봄,threat,
+T3001,정글님 수고 많으십니다 덕분에 용 다 챙겼네요,정글님 수고 많으십니다 덕분에 용 다 챙겼네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p01
+T3002,정글님 수고 많으십니다 덕분에 용 네 개 다 뺏겼네요,정글님 수고 많으십니다 덕분에 용 네 개 다 뺏겼네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p01
+T3003,리신님 갱 감사합니다 덕분에 라인 편해졌어요,리신님 갱 감사합니다 덕분에 라인 편해졌어요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p02
+T3004,리신님 갱 감사합니다 덕분에 상대 탑이 더블킬 먹었네요,리신님 갱 감사합니다 덕분에 상대 탑이 더블킬 먹었네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p02
+T3005,와 딜 진짜 잘 넣으시네요 원딜님 한타 다 이기겠어요,와 딜 진짜 잘 넣으시네요 원딜님 한타 다 이기겠어요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p03
+T3006,와 딜 진짜 잘 넣으시네요 원딜님 서폿보다 딜량이 낮으시고,와 딜 진짜 잘 넣으시네요 원딜님 서폿보다 딜량이 낮으시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p03
+T3007,와드 꼼꼼하게 박아주셔서 든든합니다 서폿님,와드 꼼꼼하게 박아주셔서 든든합니다 서폿님,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p04
+T3008,와드를 20분 동안 딱 두 개 박아주셔서 참 든든합니다 서폿님,와드를 20분 동안 딱 두 개 박아주셔서 참 든든합니다 서폿님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p04
+T3009,미드님 로밍 타이밍 정말 좋으시네요 배우고 갑니다,미드님 로밍 타이밍 정말 좋으시네요 배우고 갑니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p05
+T3010,미드님 로밍 타이밍 정말 좋으시네요 가실 때마다 타워가 하나씩 밀리고,미드님 로밍 타이밍 정말 좋으시네요 가실 때마다 타워가 하나씩 밀리고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p05
+T3011,혼자서 버텨주셔서 고맙습니다 탑님 고생하셨어요,혼자서 버텨주셔서 고맙습니다 탑님 고생하셨어요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p06
+T3012,혼자서 일곱 번이나 죽어주셔서 고맙습니다 탑님 고생하셨어요,혼자서 일곱 번이나 죽어주셔서 고맙습니다 탑님 고생하셨어요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p06
+T3013,야스오님 대단하십니다 그걸 살아나가시네요,야스오님 대단하십니다 그걸 살아나가시네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p07
+T3014,야스오님 대단하십니다 그걸 또 들어가서 죽으시네요,야스오님 대단하십니다 그걸 또 들어가서 죽으시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p07
+T3015,저희 정글님은 동선이 참 깔끔하시네요 라인마다 다 들러주시고,저희 정글님은 동선이 참 깔끔하시네요 라인마다 다 들러주시고,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p08
+T3016,저희 정글님은 동선이 참 깔끔하시네요 라인은 한 번도 안 들르시고,저희 정글님은 동선이 참 깔끔하시네요 라인은 한 번도 안 들르시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p08
+T3017,스킬 다 맞히시는 거 보니 이즈님 연습 많이 하셨나 봐요,스킬 다 맞히시는 거 보니 이즈님 연습 많이 하셨나 봐요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p09
+T3018,스킬 하나도 못 맞히시는 거 보니 이즈님 오늘 처음 하시나 봐요,스킬 하나도 못 맞히시는 거 보니 이즈님 오늘 처음 하시나 봐요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p09
+T3019,혹시 블츠님 그랩 연습 따로 하세요? 너무 잘 끄셔서요,혹시 블츠님 그랩 연습 따로 하세요? 너무 잘 끄셔서요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p10
+T3020,혹시 블츠님 그랩은 미니언 끌려고 쓰시는 건가요? 열 번째 빗나가서요,혹시 블츠님 그랩은 미니언 끌려고 쓰시는 건가요? 열 번째 빗나가서요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p10
+T3021,제가 0/5라 죄송합니다 이번 판은 제 탓이 큽니다,제가 0/5라 죄송합니다 이번 판은 제 탓이 큽니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p11
+T3022,가렌님은 0/5 하시고도 당당하신 게 참 보기 좋습니다,가렌님은 0/5 하시고도 당당하신 게 참 보기 좋습니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p11
+T3023,럭스님 궁 타이밍 예술이네요 덕분에 살았습니다,럭스님 궁 타이밍 예술이네요 덕분에 살았습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p12
+T3024,럭스님 궁 타이밍 예술이네요 다 죽고 나서 쏘시는 거,럭스님 궁 타이밍 예술이네요 다 죽고 나서 쏘시는 거,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p12
+T3025,강타 잘 쓰셨어요 정글님 바론 먹은 게 컸습니다,강타 잘 쓰셨어요 정글님 바론 먹은 게 컸습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p13
+T3026,강타는 장식으로 드신 건가요 정글님 바론을 그렇게 뺏기시고,강타는 장식으로 드신 건가요 정글님 바론을 그렇게 뺏기시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p13
+T3027,원딜님이 저보다 훨씬 잘하시네요 믿고 따라갑니다,원딜님이 저보다 훨씬 잘하시네요 믿고 따라갑니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p14
+T3028,원딜님보다 대포미니언이 딜을 더 잘 넣는 것 같은데 제 착각인가요,원딜님보다 대포미니언이 딜을 더 잘 넣는 것 같은데 제 착각인가요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p14
+T3029,제드님 덕분에 이겼습니다 정말 꾸준히 잘하시네요,제드님 덕분에 이겼습니다 정말 꾸준히 잘하시네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p15
+T3030,제드님 덕분에 졌습니다 정말 꾸준히 던지시네요,제드님 덕분에 졌습니다 정말 꾸준히 던지시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p15
+T3031,서폿님 어디 가세요? 같이 용 보러 가실래요?,서폿님 어디 가세요? 같이 용 보러 가실래요?,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p16
+T3032,서폿님 어디 가세요? 원딜 버리고 산책 다니시는 게 취미세요?,서폿님 어디 가세요? 원딜 버리고 산책 다니시는 게 취미세요?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p16
+T3033,티모님 버섯 위치 좋네요 그 덕에 한 명 잡았어요,티모님 버섯 위치 좋네요 그 덕에 한 명 잡았어요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p17
+T3034,티모님 버섯만 심고 한타는 구경만 하시는 게 전략이신가요,티모님 버섯만 심고 한타는 구경만 하시는 게 전략이신가요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p17
+T3035,텔 타주셔서 한타 이겼습니다 감사합니다 탑님,텔 타주셔서 한타 이겼습니다 감사합니다 탑님,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p18
+T3036,텔은 아껴뒀다가 다음 판에 쓰실 건가 봐요 탑님 한타 세 번을 구경만 하시고,텔은 아껴뒀다가 다음 판에 쓰실 건가 봐요 탑님 한타 세 번을 구경만 하시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전 · 텔 사용 지적이 섞였지만 지시가 아닌 조롱으로 봄,indirect_blame,p18
+T3037,미드님 연세가 어떻게 되시길래 이렇게 침착하세요 대단합니다,미드님 연세가 어떻게 되시길래 이렇게 침착하세요 대단합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p19
+T3038,미드님 연세가 어떻게 되시길래 손이 이렇게 느리세요 솔킬을 네 번이나 주시고,미드님 연세가 어떻게 되시길래 손이 이렇게 느리세요 솔킬을 네 번이나 주시고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p19
+T3039,저도 예전에 그 실수 많이 했어요 괜찮습니다 원딜님,저도 예전에 그 실수 많이 했어요 괜찮습니다 원딜님,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p20
+T3040,제가 브론즈 때도 그런 실수는 안 했는데 원딜님은 참 한결같으시네요,제가 브론즈 때도 그런 실수는 안 했는데 원딜님은 참 한결같으시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p20
+T3041,아리님 매혹 맞히신 덕분에 깔끔했어요 굿입니다,아리님 매혹 맞히신 덕분에 깔끔했어요 굿입니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p21
+T3042,아리님 매혹은 허공에 쓰시는 게 컨셉이신가 봐요 오늘 하나도 못 맞히시네,아리님 매혹은 허공에 쓰시는 게 컨셉이신가 봐요 오늘 하나도 못 맞히시네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p21
+T3043,정글님 바쁘신데 탑까지 와주셔서 감사합니다,정글님 바쁘신데 탑까지 와주셔서 감사합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p22
+T3044,정글님 바쁘신데 탑은 15분째 못 오시는 거 다 이해합니다 카정당하시느라 정신없으시죠,정글님 바쁘신데 탑은 15분째 못 오시는 거 다 이해합니다 카정당하시느라 정신없으시죠,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p22
+T3045,10분에 CS 90개면 훌륭합니다 케틀님 잘 드시네요,10분에 CS 90개면 훌륭합니다 케틀님 잘 드시네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p23
+T3046,10분에 CS 31개면 서폿이랑 뭐가 다른지 여쭤봐도 될까요 케틀님,10분에 CS 31개면 서폿이랑 뭐가 다른지 여쭤봐도 될까요 케틀님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p23
+T3047,다리우스님 라인전 잘하시네요 상대가 숨도 못 쉬네요,다리우스님 라인전 잘하시네요 상대가 숨도 못 쉬네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p24
+T3048,다리우스님 라인전 그렇게 하시면 상대 탑이 참 좋아하시겠어요 벌써 4킬 주셨네요,다리우스님 라인전 그렇게 하시면 상대 탑이 참 좋아하시겠어요 벌써 4킬 주셨네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p24
+T3049,쓰레쉬님 랜턴 감사합니다 덕분에 살았네요,쓰레쉬님 랜턴 감사합니다 덕분에 살았네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p25
+T3050,쓰레쉬님 랜턴은 혼자 도망가실 때만 쓰시는군요 잘 봤습니다,쓰레쉬님 랜턴은 혼자 도망가실 때만 쓰시는군요 잘 봤습니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p25
+T3051,한타 때 포지션 좋으셨어요 원딜님 그래서 이긴 겁니다,한타 때 포지션 좋으셨어요 원딜님 그래서 이긴 겁니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p26
+T3052,한타 때마다 맨 앞에 서 계시는 그 포지션은 누구한테 배우신 건가요 원딜님,한타 때마다 맨 앞에 서 계시는 그 포지션은 누구한테 배우신 건가요 원딜님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p26
+T3053,나 3/9라 할 말이 없다 미안하다 얘들아,나 3/9라 할 말이 없다 미안하다 얘들아,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p27
+T3054,3/9 하신 분이 훈수를 두시네요 미드님 참 대단하십니다,3/9 하신 분이 훈수를 두시네요 미드님 참 대단하십니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p27
+T3055,마이님 백도어 판단 좋았습니다 그걸로 이겼네요,마이님 백도어 판단 좋았습니다 그걸로 이겼네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p28
+T3056,마이님 혼자 백도어 가다 다섯 번 잘리시는 판단은 참 일관되시네요,마이님 혼자 백도어 가다 다섯 번 잘리시는 판단은 참 일관되시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p28
+T3057,우리 정글님이 상대 정글보다 훨씬 잘하시네요 든든합니다,우리 정글님이 상대 정글보다 훨씬 잘하시네요 든든합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p29
+T3058,상대 정글이 우리 정글님보다 두 배는 잘하시네요 부럽습니다,상대 정글이 우리 정글님보다 두 배는 잘하시네요 부럽습니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p29
+T3059,레오나님 이니시 정말 잘 거시네요 따라가기 편합니다,레오나님 이니시 정말 잘 거시네요 따라가기 편합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p30
+T3060,레오나님 이니시를 혼자 거시고 혼자 죽으시는데 그걸 따라가라는 말씀인가요,레오나님 이니시를 혼자 거시고 혼자 죽으시는데 그걸 따라가라는 말씀인가요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p30
+T3061,솔킬 따신 거 봤습니다 미드님 잘하시네요,솔킬 따신 거 봤습니다 미드님 잘하시네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p31
+T3062,솔킬 따이신 거 봤습니다 미드님 벌써 세 번째시네요 참 잘하십니다,솔킬 따이신 거 봤습니다 미드님 벌써 세 번째시네요 참 잘하십니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p31
+T3063,후반에 캐리해 주실 거라 믿습니다 베인님 천천히 하세요,후반에 캐리해 주실 거라 믿습니다 베인님 천천히 하세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p32
+T3064,후반에 캐리하신다던 베인님 40분인데 아직 코어템이 하나시네요,후반에 캐리하신다던 베인님 40분인데 아직 코어템이 하나시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,p32
+T3065,그 나이 드시고 정글을 그렇게밖에 못 도시나요 리신님,그 나이 드시고 정글을 그렇게밖에 못 도시나요 리신님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3066,탑 차이가 이렇게 나는데 뭘 더 하라는 건지요 우리 탑님은 관광 오신 것 같고,탑 차이가 이렇게 나는데 뭘 더 하라는 건지요 우리 탑님은 관광 오신 것 같고,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3067,jg diff 라는 말이 왜 있는지 오늘 우리 정글님 보고 알았습니다,jg diff 라는 말이 왜 있는지 오늘 우리 정글님 보고 알았습니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3068,딜량 보니까 원딜님은 서폿 템 사시는 게 더 도움 되지 않을까요 진심으로 드리는 말입니다,딜량 보니까 원딜님은 서폿 템 사시는 게 더 도움 되지 않을까요 진심으로 드리는 말입니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3069,야스오 장인이시라더니 장인 정신으로 죽으시네요 0/8 ㅎㅎ,야스오 장인이시라더니 장인 정신으로 죽으시네요 0/8 ㅎㅎ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3070,혹시 관전 모드로 게임하시는 건가요 서폿님 스킬 쓰시는 걸 본 적이 없어서,혹시 관전 모드로 게임하시는 건가요 서폿님 스킬 쓰시는 걸 본 적이 없어서,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3071,미드님 혹시 발로 하세요? 아니면 모니터를 끄고 하시나,미드님 혹시 발로 하세요? 아니면 모니터를 끄고 하시나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3072,차라리 봇이 하는 게 낫겠다 싶을 정도네요 우리 탑 ㅎㅎ,차라리 봇이 하는 게 낫겠다 싶을 정도네요 우리 탑 ㅎㅎ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3073,그 실력으로 랭크 돌리시는 용기 하나는 인정합니다 럭스님,그 실력으로 랭크 돌리시는 용기 하나는 인정합니다 럭스님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3074,이 판 MVP는 단연 상대팀 여섯 번째 선수인 우리 원딜님이시죠,이 판 MVP는 단연 상대팀 여섯 번째 선수인 우리 원딜님이시죠,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3075,캠프만 드시다가 게임 끝나겠네요 정글님 농사 게임은 따로 있는데,캠프만 드시다가 게임 끝나겠네요 정글님 농사 게임은 따로 있는데,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3076,가렌으로 그렇게 죽는 것도 재능이라면 재능이시네요,가렌으로 그렇게 죽는 것도 재능이라면 재능이시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3077,티모 픽하실 때부터 수준을 알아봤어야 했는데 제 불찰입니다 ㅎㅎ,티모 픽하실 때부터 수준을 알아봤어야 했는데 제 불찰입니다 ㅎㅎ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T3078,용 끝나고 미드로 찾아갑니다 준비하세요,용 끝나고 미드로 찾아갑니다 준비하세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p33
+T3079,게임 끝나고 주소 알아내서 집으로 찾아갑니다 각오하세요,게임 끝나고 주소 알아내서 집으로 찾아갑니다 각오하세요,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p33
+T3080,아이디 기억해 뒀습니다 끝나고 신고하겠습니다,아이디 기억해 뒀습니다 끝나고 신고하겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p34
+T3081,아이디 기억해 뒀습니다 현실에서 마주치면 가만 안 둡니다,아이디 기억해 뒀습니다 현실에서 마주치면 가만 안 둡니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p34
+T3082,방금 채팅 캡처해서 고객센터에 다 알리겠습니다,방금 채팅 캡처해서 고객센터에 다 알리겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p35
+T3083,당신 신상 털어서 다니는 회사에 다 알리겠습니다,당신 신상 털어서 다니는 회사에 다 알리겠습니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p35
+T3084,부쉬 조심하세요 제가 렝가 어디 있는지 압니다,부쉬 조심하세요 제가 렝가 어디 있는지 압니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p36
+T3085,퇴근길 조심하세요 제가 당신 어디 사는지 압니다,퇴근길 조심하세요 제가 당신 어디 사는지 압니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p36
+T3086,한 번만 더 들어오면 타워 앞에서 바로 잡아 드립니다,한 번만 더 들어오면 타워 앞에서 바로 잡아 드립니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p37
+T3087,한 번만 더 그러면 직접 찾아가서 손가락을 부러뜨려 드립니다,한 번만 더 그러면 직접 찾아가서 손가락을 부러뜨려 드립니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p37
+T3088,앞으로 매 한타 따라 들어가서 제드만 물어 드릴게요,앞으로 매 한타 따라 들어가서 제드만 물어 드릴게요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p38
+T3089,앞으로 매 판 따라 들어가서 계정 접을 때까지 괴롭혀 드릴게요,앞으로 매 판 따라 들어가서 계정 접을 때까지 괴롭혀 드릴게요,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p38
+T3090,얼굴 좀 봅시다 미드로 오세요 바론 앞에서 다 죽여 놓겠습니다,얼굴 좀 봅시다 미드로 오세요 바론 앞에서 다 죽여 놓겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p39
+T3091,얼굴 좀 봅시다 주소 부르세요 가서 반쯤 죽여 놓겠습니다,얼굴 좀 봅시다 주소 부르세요 가서 반쯤 죽여 놓겠습니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,p39
+T3092,니 가족 사진까지 다 찾아놨다 커뮤니티마다 올려줄게,니 가족 사진까지 다 찾아놨다 커뮤니티마다 올려줄게,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,
+T3093,게임 끝나도 끝난 게 아닌 줄 알아라 니 직장 앞에서 기다린다,게임 끝나도 끝난 게 아닌 줄 알아라 니 직장 앞에서 기다린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,
+T3094,밤길에 뒤통수 조심하고 다녀라 농담으로 하는 말 아니다,밤길에 뒤통수 조심하고 다녀라 농담으로 하는 말 아니다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,threat,
+T3095,부모님이 그렇게 가르치시던가요 남한테 민폐나 끼치고 살라고,부모님이 그렇게 가르치시던가요 남한테 민폐나 끼치고 살라고,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3096,어머님이 이런 자식 낳고 미역국은 드셨답니까,어머님이 이런 자식 낳고 미역국은 드셨답니까,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3097,너희 아버지도 너처럼 무능해서 집안이 그 모양이냐,너희 아버지도 너처럼 무능해서 집안이 그 모양이냐,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3098,집에서도 부모 얼굴에 먹칠하는 게 일상이시죠 정글님,집에서도 부모 얼굴에 먹칠하는 게 일상이시죠 정글님,,3,family_insult|blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3099,니 애미 ㅈㄴ 불쌍하다 이런 걸 자식이라고 키우느라,니 애미 존나 불쌍하다 이런 걸 자식이라고 키우느라,lexicon:ㅈㄴ,3,profanity|family_insult,애미|ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3100,와드 없이 들어간 티가 미니맵에서 다 나네요 제 실수입니다,와드 없이 들어간 티가 미니맵에서 다 나네요 제 실수입니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p40
+T3101,엄마 없이 자란 티가 채팅에서 다 나네요,엄마 없이 자란 티가 채팅에서 다 나네요,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p40
+T3102,ㄴㄱㅁ 소리가 절로 나오네 탑 진짜,느금마 소리가 절로 나오네 탑 진짜,lexicon:ㄴㄱㅁ,3,profanity|family_insult|blame,ㄴㄱㅁ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3103,부모가 시발 뭘 먹여 키웠길래 사람이 저 모양이냐,부모가 시발 뭘 먹여 키웠길래 사람이 저 모양이냐,,3,profanity|family_insult,시발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3104,럭스 하는 거 보니 고수분이신가 본데 끝나고 듀오 한번 합시다,럭스 하는 거 보니 고수분이신가 본데 끝나고 듀오 한번 합시다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p41
+T3105,럭스 하는 거 보니 여자분이신가 본데 끝나고 밤에 따로 한번 봅시다 몸매가 궁금하네,럭스 하는 거 보니 여자분이신가 본데 끝나고 밤에 따로 한번 봅시다 몸매가 궁금하네,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p41
+T3106,서폿님 목소리 야하실 것 같은데 신음 소리 한번 들려줘요,서폿님 목소리 야하실 것 같은데 신음 소리 한번 들려줘요,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3107,아리 하는 여자는 침대에서도 그렇게 못하나,아리 하는 여자는 침대에서도 그렇게 못하나,,3,sexual_harassment|blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3108,게임은 못해도 벗겨 놓으면 볼만하겠네 사진이나 보내봐라,게임은 못해도 벗겨 놓으면 볼만하겠네 사진이나 보내봐라,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3109,오빠가 한번 안아줄 테니까 속옷 색깔이나 말해봐,오빠가 한번 안아줄 테니까 속옷 색깔이나 말해봐,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3110,ㅅㅂ 여자면 게임 말고 가슴 사이즈나 불러라,시발 여자면 게임 말고 가슴 사이즈나 불러라,lexicon:ㅅㅂ,3,profanity|sexual_harassment,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3111,소나 하시는 거 보니 본인도 가슴 크신가 봐요 한번 만져보고 싶네,소나 하시는 거 보니 본인도 가슴 크신가 봐요 한번 만져보고 싶네,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T3112,정글님 지금 어디쯤이세요 갱 한 번 와주실 수 있나요,정글님 지금 어디쯤이세요 갱 한 번 와주실 수 있나요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p42
+T3113,정글님 지금 20분 동안 뭐 하신 겁니까 대체,정글님 지금 20분 동안 뭐 하신 겁니까 대체,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p42
+T3114,저 때문에 진 겁니다 이건 누가 봐도요 죄송합니다,저 때문에 진 겁니다 이건 누가 봐도요 죄송합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p43
+T3115,미드 때문에 진 겁니다 이건 누가 봐도요,미드 때문에 진 겁니다 이건 누가 봐도요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p43
+T3116,저는 게임 이해도가 너무 떨어지네요 많이 배워야겠어요,저는 게임 이해도가 너무 떨어지네요 많이 배워야겠어요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p44
+T3117,서폿님은 게임 이해도가 너무 떨어지시네요,서폿님은 게임 이해도가 너무 떨어지시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p44
+T3118,탑이 저렇게 잘하면 질 수가 없습니다,탑이 저렇게 잘하면 질 수가 없습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p45
+T3119,탑이 저렇게 못하면 이길 수가 없습니다,탑이 저렇게 못하면 이길 수가 없습니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p45
+T3120,그만 자책하세요 야스오님 다들 실수하는 겁니다,그만 자책하세요 야스오님 다들 실수하는 겁니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p46
+T3121,그만 좀 던지세요 야스오님 보는 사람 생각도 하셔야죠,그만 좀 던지세요 야스오님 보는 사람 생각도 하셔야죠,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p46
+T3122,리신님은 정글 계속 하셔도 될 것 같습니다 정말 잘하세요,리신님은 정글 계속 하셔도 될 것 같습니다 정말 잘하세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p47
+T3123,리신님은 정글 하시면 안 될 것 같습니다 정말 못하세요,리신님은 정글 하시면 안 될 것 같습니다 정말 못하세요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p47
+T3124,이즈리얼이 딜 넣을 때까지 앞에서 버텨 드리겠습니다,이즈리얼이 딜 넣을 때까지 앞에서 버텨 드리겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p48
+T3125,이즈리얼이 딜을 저렇게 못 넣는데 무슨 한타를 합니까,이즈리얼이 딜을 저렇게 못 넣는데 무슨 한타를 합니까,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,p48
+T3126,원딜이 그걸 왜 혼자 들어갑니까 생각이 있는 겁니까,원딜이 그걸 왜 혼자 들어갑니까 생각이 있는 겁니까,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3127,한심하다 한심해 우리 원딜,한심하다 한심해 우리 원딜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3128,정글 실력이 그 정도면 일반 게임부터 다시 하세요,정글 실력이 그 정도면 일반 게임부터 다시 하세요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3129,원딜 옆에 붙어 있는 게 그렇게 어렵습니까 서폿은,원딜 옆에 붙어 있는 게 그렇게 어렵습니까 서폿은,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3130,가렌 당신은 팀에 도움이 하나도 안 됩니다,가렌 당신은 팀에 도움이 하나도 안 됩니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3131,기본도 안 된 사람이 미드를 잡으니까 판이 이 모양이지,기본도 안 된 사람이 미드를 잡으니까 판이 이 모양이지,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3132,내가 살다 살다 이렇게 못하는 탑은 처음 본다,내가 살다 살다 이렇게 못하는 탑은 처음 본다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3133,실력 없으면 겸손하기라도 해야지 제드는 말만 많네요,실력 없으면 겸손하기라도 해야지 제드는 말만 많네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3134,솔직히 말씀드리면 블츠님이 이 판에서 제일 못합니다,솔직히 말씀드리면 블츠님이 이 판에서 제일 못합니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3135,케틀 진짜 답답해서 못 봐주겠네 수준이 너무 낮다,케틀 진짜 답답해서 못 봐주겠네 수준이 너무 낮다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3136,이건 미드 잘못이 백 퍼센트입니다 변명하지 마세요,이건 미드 잘못이 백 퍼센트입니다 변명하지 마세요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3137,티모는 개념이 없네요 팀 게임인 걸 모르시나,티모는 개념이 없네요 팀 게임인 걸 모르시나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3138,실력도 없으면서 고집만 센 게 우리 정글 문제입니다,실력도 없으면서 고집만 센 게 우리 정글 문제입니다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3139,원딜 수준 보니까 이 판은 글렀네요,원딜 수준 보니까 이 판은 글렀네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3140,다 좋은데 탑 한 명이 게임을 망치고 있네요,다 좋은데 탑 한 명이 게임을 망치고 있네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3141,징크스 너 같은 사람 때문에 내가 랭크를 안 돌리는 거다,징크스 너 같은 사람 때문에 내가 랭크를 안 돌리는 거다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3142,세상에 저렇게 못하는 서폿을 팀으로 만나다니 운도 없지,세상에 저렇게 못하는 서폿을 팀으로 만나다니 운도 없지,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3143,그 실력에 남 탓은 참 잘하시네 아리,그 실력에 남 탓은 참 잘하시네 아리,,2,blame,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T3144,아 ㅅㅂ 오늘 진짜 너무하네요,아 시발 오늘 진짜 너무하네요,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p49
+T3145,아 ㅅㅂ 정글님 진짜 너무하시네요,아 시발 정글님 진짜 너무하시네요,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p49
+T3146,ㅂㅅ 같은 핑 때문에 오늘 판 다 날아가네,병신 같은 핑 때문에 오늘 판 다 날아가네,lexicon:ㅂㅅ,1,profanity,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p50
+T3147,ㅂㅅ 같은 탑 때문에 오늘 판 다 날아가네,병신 같은 탑 때문에 오늘 판 다 날아가네,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p50
+T3148,ㅈㄴ 못하네 진짜 내 나이가 아깝다,존나 못하네 진짜 내 나이가 아깝다,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p51
+T3149,원딜 ㅈㄴ 못하네 진짜 나이가 아깝다,원딜 존나 못하네 진짜 나이가 아깝다,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p51
+T3150,존나 못하네 나 오늘 왜 이러냐,존나 못하네 나 오늘 왜 이러냐,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p52
+T3151,존나 못하네 우리 원딜 오늘 왜 이러냐,존나 못하네 우리 원딜 오늘 왜 이러냐,,2,profanity|blame,존나,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p52
+T3152,지랄 맞네 오늘 핑 상태가,지랄 맞네 오늘 핑 상태가,,1,profanity,지랄,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p53
+T3153,지랄 맞네 저 야스오 하는 짓이,지랄 맞네 저 야스오 하는 짓이,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p53
+T3154,tlqkf 저걸 내가 놓치네,시발 저걸 내가 놓치네,lexicon:tlqkf,1,profanity,tlqkf,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p54
+T3155,tlqkf 저걸 가렌이 놓치네,시발 저걸 가렌이 놓치네,lexicon:tlqkf,2,profanity|blame,tlqkf,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p54
+T3156,시1발 내 손 꼴 좀 보세요,시발 내 손 꼴 좀 보세요,noise_removed,1,profanity,시1발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p55
+T3157,시1발 서폿 하는 꼴 좀 보세요,시발 서폿 하는 꼴 좀 보세요,noise_removed,2,profanity|blame,시1발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p55
+T3158,병1신 같은 실수 때문에 혈압 오른다,병신 같은 실수 때문에 혈압 오른다,noise_removed,1,profanity,병1신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p56
+T3159,병1신 같은 이즈 때문에 혈압 오른다,병신 같은 이즈 때문에 혈압 오른다,noise_removed,2,profanity|blame,병1신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p56
+T3160,존.나 답답하네 이 놈의 렉,존나 답답하네 이 놈의 렉,noise_removed,1,profanity,존.나,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p57
+T3161,존.나 답답하네 우리 정글 양반,존나 답답하네 우리 정글 양반,noise_removed,2,profanity|blame,존.나,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p57
+T3162,시발 진짜 야근 덕분에 암 걸리겠습니다,시발 진짜 야근 덕분에 암 걸리겠습니다,,1,profanity,시발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p58
+T3163,시발 진짜 서폿님 덕분에 암 걸리겠습니다,시발 진짜 서폿님 덕분에 암 걸리겠습니다,,2,profanity|blame,시발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p58
+T3164,개같이 졌네 진짜 꼴도 보기 싫다 이 게임,개같이 졌네 진짜 꼴도 보기 싫다 이 게임,,1,profanity,개같이,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,p59
+T3165,개같이 하네 진짜 꼴도 보기 싫다 베인,개같이 하네 진짜 꼴도 보기 싫다 베인,,2,profanity|blame,개같이,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,p59
+T3166,ㅈ같네 진짜 오늘 되는 게 하나도 없다,좆같네 진짜 오늘 되는 게 하나도 없다,lexicon:ㅈ같,1,profanity,ㅈ같네,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T3167,아 ㅁㅊ 점멸이 왜 안 눌려,아 미친 점멸이 왜 안 눌려,lexicon:ㅁㅊ,1,profanity,ㅁㅊ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T3168,하 시발 퇴근하고 딱 한 판 하는데 이게 뭐냐,하 시발 퇴근하고 딱 한 판 하는데 이게 뭐냐,,1,profanity,시발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T3169,ㅈㄹ 났네 서버가 또,지랄 났네 서버가 또,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T3170,ㅈㄹ하지 마세요 미드님 본인이 제일 못하면서,지랄하지 마세요 미드님 본인이 제일 못하면서,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3171,ㅁㅊ놈 아닙니까 저 리신,미친놈 아닙니까 저 리신,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3172,ㅅㄲ가 말귀를 못 알아먹네 제드 이 양반,새끼가 말귀를 못 알아먹네 제드 이 양반,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3173,ㄲㅈ세요 티모님 보기 싫으니까,꺼지세요 티모님 보기 싫으니까,lexicon:ㄲㅈ,2,profanity|blame,ㄲㅈ세요,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3174,ㄷㅊ고 게임이나 하시죠 야스오님,닥치고 게임이나 하시죠 야스오님,lexicon:ㄷㅊ,2,profanity|blame,ㄷㅊ고,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3175,개ㅅㄲ도 저 블츠보다는 그랩 잘 맞히겠다,개새끼도 저 블츠보다는 그랩 잘 맞히겠다,lexicon:ㅅㄲ,2,profanity|blame,개ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3176,럭스 저 ㅂㅅ은 왜 자꾸 혼자 다니나 몰라,럭스 저 병신은 왜 자꾸 혼자 다니나 몰라,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3177,ㅈ같이 하네 진짜 아리 어른이 참는다,좆같이 하네 진짜 아리 어른이 참는다,lexicon:ㅈ같,2,profanity|blame,ㅈ같이,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3178,서폿 새끼가 어른한테 말하는 버릇 좀 보소,서폿 새끼가 어른한테 말하는 버릇 좀 보소,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3179,미드 저 병신은 왜 계속 죽고만 있는 겁니까,미드 저 병신은 왜 계속 죽고만 있는 겁니까,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3180,사람이 말을 하면 좀 들으세요 시발 탑님,사람이 말을 하면 좀 들으세요 시발 탑님,,2,profanity|blame,시발,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3181,닥쳐라 케틀 니가 뭘 안다고 떠드냐,닥쳐라 케틀 니가 뭘 안다고 떠드냐,,2,profanity|blame,닥쳐라,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3182,꺼져 주시면 감사하겠습니다 다리우스 병신님,꺼져 주시면 감사하겠습니다 다리우스 병신님,,2,profanity|blame,꺼져|병신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3183,정글 이 미친놈은 대체 어디서 굴러온 겁니까,정글 이 미친놈은 대체 어디서 굴러온 겁니까,,2,profanity|blame,미친놈,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3184,쓰레기 같은 새끼네 우리 탑 말하는 거 보니,쓰레기 같은 새끼네 우리 탑 말하는 거 보니,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3185,마이 저 새끼 또 혼자 들어가서 죽었네 병신인가,마이 저 새끼 또 혼자 들어가서 죽었네 병신인가,,2,profanity|blame,새끼|병신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3186,지랄도 정도껏 하셔야죠 레오나님,지랄도 정도껏 하셔야죠 레오나님,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3187,좆도 못하면서 입만 살았네 징크스,좆도 못하면서 입만 살았네 징크스,,2,profanity|blame,좆도,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3188,저 등신 같은 원딜은 나이를 어디로 먹은 거냐,저 등신 같은 원딜은 나이를 어디로 먹은 거냐,,2,profanity|blame,등신,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T3189,정글님 용 좀 쳐주시겠어요 저희가 라인 밀어둘게요,정글님 용 좀 쳐주시겠어요 저희가 라인 밀어둘게요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p60
+T3190,정글님 용 좀 치시라고요 몇 번을 말해야 알아들으십니까 답답하게,정글님 용 좀 치시라고요 몇 번을 말해야 알아들으십니까 답답하게,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p60
+T3191,서폿님 와드 하나만 박아주세요 시야가 좀 없네요,서폿님 와드 하나만 박아주세요 시야가 좀 없네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p61
+T3192,서폿 ㅅㅂ 와드 좀 박으세요 시야가 하나도 없잖아요,서폿 시발 와드 좀 박으세요 시야가 하나도 없잖아요,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p61
+T3193,탑님 텔 타고 합류 부탁드립니다 한타 열릴 것 같아요,탑님 텔 타고 합류 부탁드립니다 한타 열릴 것 같아요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p62
+T3194,탑은 텔 타고 합류나 하세요 혼자 라인에서 한심하게 뭐 하는 겁니까,탑은 텔 타고 합류나 하세요 혼자 라인에서 한심하게 뭐 하는 겁니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p62
+T3195,원딜님 집 한번 다녀오세요 피가 너무 없으세요,원딜님 집 한번 다녀오세요 피가 너무 없으세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p63
+T3196,원딜 집 좀 가라고 귀환을 모르나 멍청하게 또 죽네,원딜 집 좀 가라고 귀환을 모르나 멍청하게 또 죽네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p63
+T3197,야스오님 궁 지금 쓰시면 됩니다 제가 띄울게요,야스오님 궁 지금 쓰시면 됩니다 제가 띄울게요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p64
+T3198,야스오 궁을 지금 쓰셔야죠 눈이 없으신 겁니까,야스오 궁을 지금 쓰셔야죠 눈이 없으신 겁니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p64
+T3199,미드님 로밍 가실 때 핑 한 번만 찍어주세요,미드님 로밍 가실 때 핑 한 번만 찍어주세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,p65
+T3200,미드님 로밍 가면 핑을 찍으셔야죠 기본이 안 되셨네 사람이,미드님 로밍 가면 핑을 찍으셔야죠 기본이 안 되셨네 사람이,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p65
+T3201,블츠 병신아 그랩 쓰지 말고 그냥 원딜 옆에 서 있어,블츠 병신아 그랩 쓰지 말고 그냥 원딜 옆에 서 있어,,2,profanity|blame,병신아,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3202,리신 ㅈㄴ 못하네 바위게라도 좀 챙겨라,리신 존나 못하네 바위게라도 좀 챙겨라,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3203,사거리 긴 챔피언으로 왜 앞에 서십니까 뒤로 빠지세요 케틀 이 답답한 양반아,사거리 긴 챔피언으로 왜 앞에 서십니까 뒤로 빠지세요 케틀 이 답답한 양반아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3204,속박을 먼저 쓰고 궁을 쓰셔야죠 럭스님 순서도 모르고 무슨 미드를 한다고,속박을 먼저 쓰고 궁을 쓰셔야죠 럭스님 순서도 모르고 무슨 미드를 한다고,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3205,가렌은 스플릿이나 하세요 한타 오면 방해만 되니까,가렌은 스플릿이나 하세요 한타 오면 방해만 되니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3206,제발 타워 좀 끼고 싸우세요 베인님 머리는 장식입니까,제발 타워 좀 끼고 싸우세요 베인님 머리는 장식입니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3207,이니시를 걸 거면 핑을 찍고 걸어라 레오나 혼자 죽지 말고 이 답답한 인간아,이니시를 걸 거면 핑을 찍고 걸어라 레오나 혼자 죽지 말고 이 답답한 인간아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3208,전령 좀 먹으라니까 우리 정글은 귀가 없나 봅니다,전령 좀 먹으라니까 우리 정글은 귀가 없나 봅니다,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3209,CS나 드세요 이즈님 싸움은 어차피 못하시니까,CS나 드세요 이즈님 싸움은 어차피 못하시니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3210,아리 ㅅㄲ야 사이드 좀 밀어 미드에서 춤만 추지 말고,아리 새끼야 사이드 좀 밀어 미드에서 춤만 추지 말고,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ야,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3211,바론 시야 좀 잡으세요 서폿이 그것도 안 하면 대체 뭘 합니까,바론 시야 좀 잡으세요 서폿이 그것도 안 하면 대체 뭘 합니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3212,한타 때는 제발 같이 계세요 티모님 버섯 심으러 다니는 게 무슨 도움이 됩니까,한타 때는 제발 같이 계세요 티모님 버섯 심으러 다니는 게 무슨 도움이 됩니까,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3213,징크스 시발 포지션 좀 뒤로 잡아라 몇 번을 죽냐,징크스 시발 포지션 좀 뒤로 잡아라 몇 번을 죽냐,,2,profanity|blame,시발,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3214,억제기 미는 게 먼저지 그걸 왜 쫓아갑니까 마이님은 생각이 없으세요,억제기 미는 게 먼저지 그걸 왜 쫓아갑니까 마이님은 생각이 없으세요,,2,blame,,1,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T3215,저는 끝나고 정글 신고하겠습니다 욕설이 너무 심하시네요,저는 끝나고 정글 신고하겠습니다 욕설이 너무 심하시네요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p66
+T3216,여러분 끝나고 정글 신고 한 번씩 부탁드립니다 실력이 너무 심하시네요,여러분 끝나고 정글 신고 한 번씩 부탁드립니다 실력이 너무 심하시네요,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,p66
+T3217,다들 제 탓인 거 아시죠 이 판은 죄송합니다,다들 제 탓인 거 아시죠 이 판은 죄송합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p67
+T3218,다들 원딜 탓인 거 아시죠 이 판은,다들 원딜 탓인 거 아시죠 이 판은,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,p67
+T3219,저는 미드 뮤트하고 그냥 게임에 집중하겠습니다,저는 미드 뮤트하고 그냥 게임에 집중하겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_trap,p68
+T3220,우리 넷이서 미드 뮤트하고 그냥 없는 사람 취급합시다,우리 넷이서 미드 뮤트하고 그냥 없는 사람 취급합시다,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,p68
+T3221,상대팀 분들도 우리 탑 신고 좀 해주세요 9데스입니다,상대팀 분들도 우리 탑 신고 좀 해주세요 9데스입니다,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3222,야스오 빼고 다 잘했습니다 다들 동의하시죠?,야스오 빼고 다 잘했습니다 다들 동의하시죠?,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3223,서폿한테는 아무도 핑 찍어주지 맙시다 도와줄 가치가 없어요,서폿한테는 아무도 핑 찍어주지 맙시다 도와줄 가치가 없어요,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3224,전챗으로 말씀드립니다 우리 리신이 범인이니 다 같이 신고 부탁드려요,전챗으로 말씀드립니다 우리 리신이 범인이니 다 같이 신고 부탁드려요,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3225,다 같이 케틀한테 한마디씩 합시다 그래야 정신을 차리죠,다 같이 케틀한테 한마디씩 합시다 그래야 정신을 차리죠,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3226,이 판 지면 전부 가렌 책임이니까 다들 리폿 누르세요,이 판 지면 전부 가렌 책임이니까 다들 리폿 누르세요,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3227,제드 저 사람 말은 들어주지 마세요 다들 무시하세요,제드 저 사람 말은 들어주지 마세요 다들 무시하세요,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3228,봇 듀오 분들 다 보셨죠 정글이 던지는 거 신고 꼭 하세요,봇 듀오 분들 다 보셨죠 정글이 던지는 거 신고 꼭 하세요,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3229,럭스한테 블루 주지 마세요 다 같이 왕따시킵시다,럭스한테 블루 주지 마세요 다 같이 왕따시킵시다,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3230,ㅅㅂ 다들 티모 신고해라 저건 사람이 아니다,시발 다들 티모 신고해라 저건 사람이 아니다,lexicon:ㅅㅂ,2,profanity|blame|instigation,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3231,항복 투표 올리고 탑 때문이라고 다 같이 전챗에 씁시다,항복 투표 올리고 탑 때문이라고 다 같이 전챗에 씁시다,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3232,나만 그렇게 생각하나 미드가 문제 맞지? 다들 한마디씩 해줘라,나만 그렇게 생각하나 미드가 문제 맞지? 다들 한마디씩 해줘라,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,instigation,
+T3233,바론 30초 뒤에 나옵니다 미리 시야 잡읍시다,바론 30초 뒤에 나옵니다 미리 시야 잡읍시다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3234,상대 정글 탑 쪽에서 보였습니다 봇은 편하게 하셔도 됩니다,상대 정글 탑 쪽에서 보였습니다 봇은 편하게 하셔도 됩니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3235,저 점멸 없습니다 4분 뒤에 돌아와요,저 점멸 없습니다 4분 뒤에 돌아와요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3236,미드 미아입니다 봇 조심하세요,미드 미아입니다 봇 조심하세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3237,용 한타는 제가 먼저 들어가겠습니다 따라와 주세요,용 한타는 제가 먼저 들어가겠습니다 따라와 주세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3238,퇴근하고 한 판 하는 건데 다들 즐겁게 합시다,퇴근하고 한 판 하는 건데 다들 즐겁게 합시다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3239,다음 용이 영혼이라 꼭 챙겨야 합니다,다음 용이 영혼이라 꼭 챙겨야 합니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3240,탑 타워 먼저 밀고 전령 풀겠습니다,탑 타워 먼저 밀고 전령 풀겠습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3241,상대 제드 궁 빠졌습니다 지금 싸워도 됩니다,상대 제드 궁 빠졌습니다 지금 싸워도 됩니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3242,애 재우고 와서 한 판 하는데 손이 굳었네요 ㅎㅎ,애 재우고 와서 한 판 하는데 손이 굳었네요 ㅎㅎ,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3243,사이드는 제가 밀 테니 네 분은 미드에서 버텨주세요,사이드는 제가 밀 테니 네 분은 미드에서 버텨주세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3244,억제기 재생까지 1분 남았습니다 서두릅시다,억제기 재생까지 1분 남았습니다 서두릅시다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3245,상대 원딜 집 갔으니 지금 바론 치면 됩니다,상대 원딜 집 갔으니 지금 바론 치면 됩니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3246,gg 수고하셨습니다 다들 좋은 저녁 되세요,gg 수고하셨습니다 다들 좋은 저녁 되세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3247,블루는 미드님 드릴게요 가져가세요,블루는 미드님 드릴게요 가져가세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3248,저 다음 레벨에 궁 찍힙니다 그때 갱 호응할게요,저 다음 레벨에 궁 찍힙니다 그때 갱 호응할게요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3249,상대 서폿 로밍 갔습니다 미드 뒤로 빠지세요,상대 서폿 로밍 갔습니다 미드 뒤로 빠지세요,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T3250,한타 말고 끊어 먹는 쪽으로 갑시다 조합이 그게 낫습니다,한타 말고 끊어 먹는 쪽으로 갑시다 조합이 그게 낫습니다,,0,,,0,,,train,"AI(claude, 독립 작성 T3)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4001,끝나고 니 집앞으로 찾아간데이 기다리라,끝나고 니 집앞으로 찾아간데이 기다리라,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p01
+T4002,궁 돌면 봇으로 찾아간데이 기다리라,궁 돌면 봇으로 찾아간데이 기다리라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p01
+T4003,야스오 니 현실에서 만나면 진짜 죽인다,야스오 니 현실에서 만나면 진짜 죽인다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p02
+T4004,야스오 한타서 만나면 내가 바로 죽인다 걱정ㄴㄴ,야스오 한타서 만나면 내가 바로 죽인다 걱정ㄴㄴ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p02
+T4005,니 아이디 다 적어놨다 신상 털어서 올린다,니 아이디 다 적어놨다 신상 털어서 올린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p03
+T4006,니 아이디 적어놨다 끝나고 친추 걸게,니 아이디 적어놨다 끝나고 친추 걸게,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p03
+T4007,니 학교 어딘지 안다 내일 교문앞에서 보자,니 학교 어딘지 안다 내일 교문앞에서 보자,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p04
+T4008,상대 정글 어딨는지 안다 용앞에서 보자,상대 정글 어딨는지 안다 용앞에서 보자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p04
+T4009,니 얼굴 박살낸다 주소 불러라,니 얼굴 박살낸다 주소 불러라,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p05
+T4010,쌍둥이 박살낸다 다 모여라,쌍둥이 박살낸다 다 모여라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p05
+T4011,매판 따라드가서 니 겜 다 터트려줄게 평생,매판 따라드가서 니 겜 다 터트려줄게 평생,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 계속 따라다니며 괴롭히겠다는 예고,threat,p06
+T4012,이번판 봇 따라가서 상대 다 터트려줄게,이번판 봇 따라가서 상대 다 터트려줄게,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p06
+T4013,피방 어딘지 말해라 가서 손모가지 부러뜨린다,피방 어딘지 말해라 가서 손모가지 부러뜨린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p07
+T4014,제드 어딘지 말해라 가서 잡아줌,제드 어딘지 말해라 가서 잡아줌,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p07
+T4015,밤길 조심해라 뒤에서 찌른데이,밤길 조심해라 뒤에서 찌른데이,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p08
+T4016,부쉬 조심해라 뒤에서 샤코 찌른데이,부쉬 조심해라 뒤에서 샤코 찌른데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p08
+T4017,니 가족까지 다 찾아내서 가만 안둔다,니 가족까지 다 찾아내서 가만 안둔다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 가족 언급이지만 모욕이 아니라 해악 예고,threat,p09
+T4018,상대 원딜 끝까지 찾아내서 가만 안둔다 ㅋㅋ,상대 원딜 끝까지 찾아내서 가만 안둔다 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p09
+T4019,니 닉 캡처해뒀다 번호랑 얼굴까지 다 깐다,니 닉 캡처해뒀다 번호랑 얼굴까지 다 깐다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,threat,p10
+T4020,니 닉 캡처해뒀다 끝나면 신고함,니 닉 캡처해뒀다 끝나면 신고함,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p10
+T4021,미드 니 엄마가 겜 그래 하라 카더나,미드 니 엄마가 겜 그래 하라 카더나,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p11
+T4022,미드 니 엄마가 밥무라 카면 갔다온나 괜찮음,미드 니 엄마가 밥무라 카면 갔다온나 괜찮음,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p11
+T4023,부모님이 불쌍하네 이런걸 낳아가,부모님이 불쌍하네 이런걸 낳아가,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p12
+T4024,울 부모님이 불쌍하네 내가 이따구로 해가 ㅋㅋ,울 부모님이 불쌍하네 내가 이따구로 해가 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p12
+T4025,서폿 여자제? 야한 목소리 함 들려도,서폿 여자제? 야한 목소리 함 들려도,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p13
+T4026,서폿 여자제? 내 동생도 서폿만 함 ㅋㅋ,서폿 여자제? 내 동생도 서폿만 함 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p13
+T4027,아리 니 벗은 사진 보내주면 버스태워줌,아리 니 벗은 사진 보내주면 버스태워줌,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p14
+T4028,아리 니 스킨 이쁘네 내가 버스태워줌,아리 니 스킨 이쁘네 내가 버스태워줌,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p14
+T4029,니 애비 없이 컸나,니 애비 없이 컸나,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p15
+T4030,니 와드 없이 왔나 조심해라,니 와드 없이 왔나 조심해라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p15
+T4031,럭스 오늘밤 내랑 자자 ㅋㅋ 몸으로 갚아라,럭스 오늘밤 내랑 자자 ㅋㅋ 몸으로 갚아라,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p16
+T4032,럭스 오늘 내랑 듀오하자 ㅋㅋ 잘하네,럭스 오늘 내랑 듀오하자 ㅋㅋ 잘하네,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p16
+T4033,리신 미친놈이가 거길 와 드가노,리신 미친놈이가 거길 와 드가노,,2,profanity|blame,미친놈,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p17
+T4034,리신 미쳤네 거길 드가서 다 잡노 ㄷㄷ,리신 미쳤네 거길 드가서 다 잡노 ㄷㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p17
+T4035,이즈 니 진짜 병신이제,이즈 니 진짜 병신이제,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p18
+T4036,이즈 니 진짜 고수제 ㄷㄷ,이즈 니 진짜 고수제 ㄷㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p18
+T4037,탑 저 새끼 또 죽었네,탑 저 새끼 또 죽었네,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p19
+T4038,탑 저거 또 솔킬땄네 미쳤다,탑 저거 또 솔킬땄네 미쳤다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p19
+T4039,닥치고 겜이나 해라 정글,닥치고 겜이나 해라 정글,,2,profanity|blame,닥치고,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p20
+T4040,싸우지말고 겜이나 하자 정글,싸우지말고 겜이나 하자 정글,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p20
+T4041,서폿 ㅂㅅ같이 또 물렸노,서폿 병신같이 또 물렸노,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p21
+T4042,서폿 기가막히게 또 물었노 굿,서폿 기가막히게 또 물었노 굿,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p21
+T4043,꺼지라 티모 니땜에 겜 터졌다,꺼지라 티모 니땜에 겜 터졌다,,2,profanity|blame,꺼지라,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p22
+T4044,티모 버섯땜에 상대 터졌다 ㅋㅋ 찢었다,티모 버섯땜에 상대 터졌다 ㅋㅋ 찢었다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p22
+T4045,원딜 ㅈㄴ 못하네 진짜,원딜 존나 못하네 진짜,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p23
+T4046,원딜 진짜 잘하네 미쳤다,원딜 진짜 잘하네 미쳤다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p23
+T4047,가렌 지랄하지말고 가만있어라,가렌 지랄하지말고 가만있어라,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p24
+T4048,가렌 무리하지말고 가만있어라 내 간다,가렌 무리하지말고 가만있어라 내 간다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p24
+T4049,미드 ㅁㅊ놈아 그걸 와 던지노,미드 미친놈아 그걸 와 던지노,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p25
+T4050,미드 미쳤다 그걸 와 피하노 ㄷㄷ,미드 미쳤다 그걸 와 피하노 ㄷㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p25
+T4051,블츠 그랩 드럽게 못하네 등신새끼,블츠 그랩 드럽게 못하네 등신새끼,,2,profanity|blame,등신새끼,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p26
+T4052,블츠 그랩 직이게 잘하네 괴물이가,블츠 그랩 직이게 잘하네 괴물이가,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p26
+T4053,정글 니 뭐하는데 지금 진짜,정글 니 뭐하는데 지금 진짜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p27
+T4054,정글 니 지금 뭐하는데? 갱 되나,정글 니 지금 뭐하는데? 갱 되나,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p27
+T4055,탑 니가 다 망쳤다 아이가,탑 니가 다 망쳤다 아이가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p28
+T4056,내가 다 망쳤다 아이가 미안타,내가 다 망쳤다 아이가 미안타,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p28
+T4057,원딜 때문에 졌다 이판은,원딜 때문에 졌다 이판은,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p29
+T4058,내 때문에 졌다 이판은 미안,내 때문에 졌다 이판은 미안,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p29
+T4059,케틀 니는 겜 접어라 재능없다,케틀 니는 겜 접어라 재능없다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p30
+T4060,나는 겜 접어야겠다 재능없네 ㅋㅋ,나는 겜 접어야겠다 재능없네 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p30
+T4061,서폿 생각이 없노 생각이,서폿 생각이 없노 생각이,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p31
+T4062,서폿 생각 있나? 내는 용 가고싶은데,서폿 생각 있나? 내는 용 가고싶은데,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p31
+T4063,미드 로밍 한번을 안오노 양심없나,미드 로밍 한번을 안오노 양심없나,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 로밍 지적이 섞여 has_feedback=1 로 봄,plain_blame,p32
+T4064,미드 로밍 한번 올수있나? 지금 각임,미드 로밍 한번 올수있나? 지금 각임,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p32
+T4065,제드 저거 고의로 던지는거임,제드 저거 고의로 던지는거임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p33
+T4066,제드 저거 일부러 유인하는거임 따라가지마라,제드 저거 일부러 유인하는거임 따라가지마라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p33
+T4067,탑 또 죽었나 몇번째고 정신차리라,탑 또 죽었나 몇번째고 정신차리라,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p34
+T4068,내 또 죽었나 몇번째고 정신차리자,내 또 죽었나 몇번째고 정신차리자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p34
+T4069,야스오 픽한거부터가 민폐다 니는,야스오 픽한거부터가 민폐다 니는,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p35
+T4070,야스오 픽한거 괜찮네 조합 맞다,야스오 픽한거 괜찮네 조합 맞다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p35
+T4071,정글 니 손이 문제다 손이,정글 니 손이 문제다 손이,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,p36
+T4072,내 손이 문제다 손이 ㅋㅋ 미안,내 손이 문제다 손이 ㅋㅋ 미안,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p36
+T4073,원딜님 0/7 실화임? 대단하시네예,원딜님 0/7 실화임? 대단하시네예,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p37
+T4074,내 0/7 실화임? 미안하데이,내 0/7 실화임? 미안하데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p37
+T4075,와 정글 갱 진짜 잘오네 한번도 안옴 ㅋㅋ,와 정글 갱 진짜 잘오네 한번도 안옴 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p38
+T4076,와 정글 갱 진짜 잘오네 고맙데이,와 정글 갱 진짜 잘오네 고맙데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p38
+T4077,서폿 딜량 봐라 미니언보다 안나오제,서폿 딜량 봐라 미니언보다 안나오제,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p39
+T4078,서폿 딜량 봐라 미쳤네 캐리했다,서폿 딜량 봐라 미쳤네 캐리했다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p39
+T4079,티모 그 실력으로 랭크를 돌리나 ㅋㅋ,티모 그 실력으로 랭크를 돌리나 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p40
+T4080,티모 그 실력이면 랭크 금방 올리겠네 ㅋㅋ,티모 그 실력이면 랭크 금방 올리겠네 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p40
+T4081,미드 봇이가? 움직임이 사람이 아닌데,미드 봇이가? 움직임이 사람이 아닌데,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p41
+T4082,미드 봇 올수있나? 다이브 각인데,미드 봇 올수있나? 다이브 각인데,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p41
+T4083,탑 혹시 발로 하나 ㅋㅋ,탑 혹시 발로 하나 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p42
+T4084,탑 혹시 텔 있나 ㅋㅋ,탑 혹시 텔 있나 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p42
+T4085,리신 덕분에 상대정글 잘컸네 고맙데이,리신 덕분에 상대정글 잘컸네 고맙데이,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p43
+T4086,리신 덕분에 우리 봇 잘컸네 고맙데이,리신 덕분에 우리 봇 잘컸네 고맙데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p43
+T4087,이즈 스킬 맞추는걸 본적이 없네 신기함,이즈 스킬 맞추는걸 본적이 없네 신기함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p44
+T4088,이즈 스킬 빗나가는걸 본적이 없네 신기함,이즈 스킬 빗나가는걸 본적이 없네 신기함,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p44
+T4089,원딜 cs 서폿한테 지는거 처음봄 ㅋㅋ,원딜 cs 서폿한테 지는거 처음봄 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p45
+T4090,원딜 cs 저래 잘먹는거 처음봄 ㅋㅋ,원딜 cs 저래 잘먹는거 처음봄 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p45
+T4091,가렌 니는 브론즈가 딱 맞는갑다,가렌 니는 브론즈가 딱 맞는갑다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,p46
+T4092,가렌 니는 탱템이 딱 맞는갑다 그거 가라,가렌 니는 탱템이 딱 맞는갑다 그거 가라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p46
+T4093,다들 정글 신고하자 끝나고,다들 정글 신고하자 끝나고,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,p47
+T4094,욕하는 애는 신고하자 끝나고 싸우지말고,욕하는 애는 신고하자 끝나고 싸우지말고,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p47
+T4095,미드 빼고 다같이 하자 쟤는 없는 사람임,미드 빼고 다같이 하자 쟤는 없는 사람임,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,p48
+T4096,미드 빼고 다 모였나? 미드 오면 시작하자,미드 빼고 다 모였나? 미드 오면 시작하자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p48
+T4097,원딜 채팅 다 차단 박아라 다들 무시하자,원딜 채팅 다 차단 박아라 다들 무시하자,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,p49
+T4098,내 채팅 다 차단 박았다 겜에만 집중할게,내 채팅 다 차단 박았다 겜에만 집중할게,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p49
+T4099,탑 버리라 아무도 탑 가지마라 혼자 죽게 놔둬,탑 버리라 아무도 탑 가지마라 혼자 죽게 놔둬,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 운영상 탑을 버리자는 콜로도 읽힐 수 있으나 '혼자 죽게 놔둬'로 따돌림,instigation,p50
+T4100,탑 타워 버리라 아무도 가지마라 용이 먼저다,탑 타워 버리라 아무도 가지마라 용이 먼저다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_trap,p50
+T4101,아 ㅅㅂ 내 플 와 썼노,아 시발 내 플 와 썼노,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p51
+T4102,아 ㅅㅂ 서폿 플 와 썼노,아 시발 서폿 플 와 썼노,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p51
+T4103,존나 아깝네 한대였는데,존나 아깝네 한대였는데,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p52
+T4104,존나 못하네 바이 한대를 못치노,존나 못하네 바이 한대를 못치노,,2,profanity|blame,존나,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p52
+T4105,ㅈㄴ 빡치네 진짜,존나 빡치네 진짜,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p53
+T4106,ㅈㄴ 빡치네 진짜 정글땜에,존나 빡치네 진짜 정글땜에,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p53
+T4107,에라이 시발 또 끊기네 렉,에라이 시발 또 끊기네 렉,,1,profanity,시발,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p54
+T4108,에라이 시발 또 끊기네 탑,에라이 시발 또 끊기네 탑,,2,profanity|blame,시발,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p54
+T4109,아 지랄맞네 이판,아 지랄맞네 이판,,1,profanity,지랄,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p55
+T4110,아 지랄맞네 이 미드,아 지랄맞네 이 미드,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p55
+T4111,tlqkf 망했다,시발 망했다,lexicon:tlqkf,1,profanity,tlqkf,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p56
+T4112,tlqkf 원딜땜에 망했다,시발 원딜땜에 망했다,lexicon:tlqkf,2,profanity|blame,tlqkf,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p56
+T4114,씨바 럭스 손이 없나,시발 럭스 손이 없나,lexicon:씨바,2,profanity|blame,씨바,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p57
+T4115,개같네 진짜 되는게 없노,개같네 진짜 되는게 없노,,1,profanity,개같네,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p58
+T4116,개같네 진짜 리신 하는게 없노,개같네 진짜 리신 하는게 없노,,2,profanity|blame,개같네,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p58
+T4117,ㅈㄹ났네 아주 겜 꼬라지,지랄났네 아주 겜 꼬라지,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p59
+T4118,ㅈㄹ났네 아주 야스오 꼬라지,지랄났네 아주 야스오 꼬라지,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p59
+T4119,좆됐다 바론 뺏김,좆됐다 바론 뺏김,,1,profanity,좆됐다,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,p60
+T4120,좆됐다 정글 니땜에 바론 뺏김,좆됐다 정글 니땜에 바론 뺏김,,2,profanity|blame,좆됐다,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,p60
+T4121,정글 용 좀 와라 3분뒤 젠,정글 용 좀 와라 3분뒤 젠,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p61
+T4122,정글 용 좀 와라 귀 먹었나 병신아,정글 용 좀 와라 귀 먹었나 병신아,,2,profanity|blame,병신,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p61
+T4123,서폿 와드 박아라 강가에,서폿 와드 박아라 강가에,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p62
+T4124,서폿 와드 좀 박아라 눈이 없나 니는,서폿 와드 좀 박아라 눈이 없나 니는,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p62
+T4125,미드 합류해라 바론 친데이,미드 합류해라 바론 친데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p63
+T4126,미드 합류 좀 해라 ㅅㅂ 혼자 겜하나,미드 합류 좀 해라 시발 혼자 겜하나,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p63
+T4127,탑 텔 타라 봇 싸움남,탑 텔 타라 봇 싸움남,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p64
+T4128,탑 텔 타라고 몇번 말하노 답답아,탑 텔 타라고 몇번 말하노 답답아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p64
+T4129,원딜 뒤로 빠져라 정글 온다,원딜 뒤로 빠져라 정글 온다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p65
+T4130,원딜 뒤로 빠지라고 ㅈㄴ 못알아듣네,원딜 뒤로 빠지라고 존나 못알아듣네,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p65
+T4131,이즈 궁 써라 저거 딸피임,이즈 궁 써라 저거 딸피임,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p66
+T4132,이즈 궁 좀 써라 아끼다 똥된다 발컨아,이즈 궁 좀 써라 아끼다 똥된다 발컨아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p66
+T4133,리신 귀환해라 피 없다,리신 귀환해라 피 없다,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p67
+T4134,리신 귀환 좀 해라 새끼야 또 죽을라고,리신 귀환 좀 해라 새끼야 또 죽을라고,,2,profanity|blame,새끼,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p67
+T4135,블츠 집 갔다온나 템 사고,블츠 집 갔다온나 템 사고,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,p68
+T4136,블츠 집 좀 갔다온나 돈 들고 죽지말고 한심하네,블츠 집 좀 갔다온나 돈 들고 죽지말고 한심하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p68
+T4137,바론 30초뒤 젠임 미리 시야 잡자,바론 30초뒤 젠임 미리 시야 잡자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4138,내 궁 없음 1분만 기다리도,내 궁 없음 1분만 기다리도,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4139,상대 미드 점멸 빠졌데이,상대 미드 점멸 빠졌데이,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4140,봇 2렙 먼저 찍힌다 조심,봇 2렙 먼저 찍힌다 조심,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4141,탑 미아 ㅇㅇ 로밍간듯,탑 미아 ㅇㅇ 로밍간듯,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4142,용 치자 지금 다 봇임,용 치자 지금 다 봇임,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4143,내 집감 템 나옴,내 집감 템 나옴,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4144,gg 수고했데이 다들,gg 수고했데이 다들,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4145,밥묵고 한판 더 할사람,밥묵고 한판 더 할사람,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4146,상대 정글 위쪽 보임 봇 편하게 해라,상대 정글 위쪽 보임 봇 편하게 해라,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4148,오늘 핑 와이라노 렉 심하네,오늘 핑 와이라노 렉 심하네,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4149,전령 먹고 미드 풀자,전령 먹고 미드 풀자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4150,쌍버프 주면 고맙겠음,쌍버프 주면 고맙겠음,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4151,ㅇㅋ 내가 이니시 걸게 따라온나,ㅇㅋ 내가 이니시 걸게 따라온나,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4152,한타 좋았다 이대로 굴리자,한타 좋았다 이대로 굴리자,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4153,상대 럭스 궁 빠짐 지금 싸워도 됨,상대 럭스 궁 빠짐 지금 싸워도 됨,,0,,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,clean_call,
+T4154,시1발 깜짝아,시발 깜짝아,noise_removed,1,profanity,시1발,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T4155,ㅁㅊ 이걸 지네 ㅅㅂ,미친 이걸 지네 시발,lexicon:ㅁㅊ|lexicon:ㅅㅂ,1,profanity,ㅁㅊ|ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T4156,아오 ㅆㅂ 핑 300임,아오 시발 핑 300임,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T4157,존나 졸리네 이거 막판임,존나 졸리네 이거 막판임,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T4158,아 썅 또 졌네 ㅋㅋ,아 썅 또 졌네 ㅋㅋ,,1,profanity,썅,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,profanity_alone,
+T4159,쓰레쉬 저 ㅄ 또 혼자 죽음,쓰레쉬 저 병신 또 혼자 죽음,lexicon:ㅄ,2,profanity|blame,ㅄ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4160,야 다리우스 시2발럼아 정신차리라,야 다리우스 시발럼아 정신차리라,noise_removed,2,profanity|blame,시2발럼,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4161,뭐하노 ㅅㄲ야 베인,뭐하노 새끼야 베인,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4162,진짜 ㅈ같이 하네 카직스,진짜 좆같이 하네 카직스,lexicon:ㅈ같이,2,profanity|blame,ㅈ같이,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4163,징크스 ㄷㅊ라 좀 시끄럽다,징크스 닥쳐라 좀 시끄럽다,lexicon:ㄷㅊ,2,profanity|blame,ㄷㅊ라,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4164,아 저 ㅁㅊㄴ 또 던지네 요네,아 저 미친놈 또 던지네 요네,lexicon:ㅁㅊㄴ,2,profanity|blame,ㅁㅊㄴ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4165,병.신같은 서폿 만나가 내 점수 다 날림,병신같은 서폿 만나가 내 점수 다 날림,noise_removed,2,profanity|blame,병.신,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4166,모르가나 쓰레기새끼 속박을 하나도 못맞추노,모르가나 쓰레기새끼 속박을 하나도 못맞추노,,2,profanity|blame,쓰레기새끼,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4167,개새끼가 말을 안듣노 미드,개새끼가 말을 안듣노 미드,,2,profanity|blame,개새끼,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4168,탑 저 등신은 답이없다 꺼지라 마,탑 저 등신은 답이없다 꺼지라 마,,2,profanity|blame,등신|꺼지라,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T4169,진짜 못한다 우리 원딜,진짜 못한다 우리 원딜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4170,이판 범인은 탑임 반박불가,이판 범인은 탑임 반박불가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4171,서폿이 저래하면 겜 못이긴다,서폿이 저래하면 겜 못이긴다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4172,뭐하는 짓이고 그게 카타리나,뭐하는 짓이고 그게 카타리나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4173,정글 차이 심하네 우리 그브가 한참 딸림,정글 차이 심하네 우리 그브가 한참 딸림,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4174,아칼리 니는 한타때 뭐했노 한게 없다,아칼리 니는 한타때 뭐했노 한게 없다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4175,하는거 보니 미드 대리받았네 실력이 아님,하는거 보니 미드 대리받았네 실력이 아님,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4176,럭스땜에 봇 터졌다 인정해라,럭스땜에 봇 터졌다 인정해라,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4177,개념이 없다 개념이 세나 니는,개념이 없다 개념이 세나 니는,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4178,말만 많고 하는건 없는게 딱 우리 탑임,말만 많고 하는건 없는게 딱 우리 탑임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4179,원딜 기본이 안돼있다 기본이,원딜 기본이 안돼있다 기본이,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4180,맨날 죽기만 하노 베인 니는 도움이 안됨,맨날 죽기만 하노 베인 니는 도움이 안됨,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4181,sup diff ㅇㅈ? 우리 서폿이 문제임,sup diff ㅇㅈ? 우리 서폿이 문제임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4182,트롤이네 저거 쉔 일부러 저라는기다,트롤이네 저거 쉔 일부러 저라는기다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4183,미드가 제일 못한다 이팀에서,미드가 제일 못한다 이팀에서,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T4184,정글님 캠프 맛있습니꺼 팀은 굶는데예,정글님 캠프 맛있습니꺼 팀은 굶는데예,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4185,우리 탑 관광왔는갑다 구경만 하네,우리 탑 관광왔는갑다 구경만 하네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4186,와 원딜 평타 치는거 까먹었나보네,와 원딜 평타 치는거 까먹었나보네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4187,서폿님 혹시 상대팀이십니꺼,서폿님 혹시 상대팀이십니꺼,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4188,야스오 0/9/1 ㅋㅋ 전화번호가,야스오 0/9/1 ㅋㅋ 전화번호가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4189,미드 딜 3천 ㅋㅋㅋ 타워가 더 넣었겠다,미드 딜 3천 ㅋㅋㅋ 타워가 더 넣었겠다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4190,리신 눈감고 하나 진심 궁금함,리신 눈감고 하나 진심 궁금함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4191,대단하데이 탑 혼자 4번을 죽어주노,대단하데이 탑 혼자 4번을 죽어주노,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4192,베인 니보다 우리집 강아지가 더 잘 구르겠다,베인 니보다 우리집 강아지가 더 잘 구르겠다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4193,케틀 사거리 긴 챔으로 그래 맞고다니는것도 재주다,케틀 사거리 긴 챔으로 그래 맞고다니는것도 재주다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4194,정글 강타는 장식으로 들었나보네,정글 강타는 장식으로 들었나보네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4195,아 예 럭스님 말씀이 다 맞습니더 0킬이시지만,아 예 럭스님 말씀이 다 맞습니더 0킬이시지만,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4196,누가 보면 티모가 상대 스파이인줄 알겠네,누가 보면 티모가 상대 스파이인줄 알겠네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4197,ㅋㅋ 쓰레쉬 그랩 적중률 0프로 달성 축하함,ㅋㅋ 쓰레쉬 그랩 적중률 0프로 달성 축하함,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4198,이기고싶은 사람 맞나 미드,이기고싶은 사람 맞나 미드,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4199,상대 탑은 저래 잘하는데 우리 탑은 참...,상대 탑은 저래 잘하는데 우리 탑은 참...,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4200,제드 하는 사람이 그림자도 못쓰노 신기하네,제드 하는 사람이 그림자도 못쓰노 신기하네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4201,원딜 죽는 속도가 리스폰보다 빠르네 ㅋㅋ,원딜 죽는 속도가 리스폰보다 빠르네 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4202,서폿 힐은 지 혼자만 쓰는 스킬인갑제,서폿 힐은 지 혼자만 쓰는 스킬인갑제,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4203,정글 동선 누가 짜줬노 초딩이가,정글 동선 누가 짜줬노 초딩이가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4204,진 4타를 그래 빗맞추는것도 능력임 ㅋㅋ,진 4타를 그래 빗맞추는것도 능력임 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4205,우와 가렌 또 죽었네 꾸준하다 꾸준해,우와 가렌 또 죽었네 꾸준하다 꾸준해,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4206,아리 매혹은 미니언 꼬실라고 쓰나,아리 매혹은 미니언 꼬실라고 쓰나,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4207,잘한다 잘해 탑 그래 계속 던져봐라,잘한다 잘해 탑 그래 계속 던져봐라,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4208,혹시 다리우스 처음 해보나? 티 많이 남,혹시 다리우스 처음 해보나? 티 많이 남,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4209,킬은 다 먹고 딜은 꼴찌네 우리 미드 ㅋㅋ,킬은 다 먹고 딜은 꼴찌네 우리 미드 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4210,나서스 스택 200이 30분에 말이 되나 ㅋㅋ,나서스 스택 200이 30분에 말이 되나 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4211,원딜님아 cs 80개로 뭘 하시겠다는거라예,원딜님아 cs 80개로 뭘 하시겠다는거라예,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4212,모르가나 쉴드는 유료결제해야 주는갑네,모르가나 쉴드는 유료결제해야 주는갑네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4213,정글 한번이라도 봤으면 소원이 없겠데이,정글 한번이라도 봤으면 소원이 없겠데이,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4214,그브 니 덕에 상대 탑 전설 떴네 박수,그브 니 덕에 상대 탑 전설 떴네 박수,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4215,봇에 사람이 한명뿐인줄 알았네 서폿 어딨노,봇에 사람이 한명뿐인줄 알았네 서폿 어딨노,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4216,유미가 낫겠다 저 레오나보다는,유미가 낫겠다 저 레오나보다는,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4217,탑 솔킬 5번 따이고 채팅은 젤 열심히 치노,탑 솔킬 5번 따이고 채팅은 젤 열심히 치노,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T4218,야 이즈 그래 쏘면 내 할매도 피한다,야 이즈 그래 쏘면 내 할매도 피한다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 화자 자신의 할머니를 비교로 든 것이라 패드립 아님,indirect_blame,
+T4219,야 케틀 덫을 깔아라 덫을 장식이가 ㅂㅅ아,야 케틀 덫을 깔아라 덫을 장식이가 병신아,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4220,바론 치는데 탑은 와 혼자 사이드고 좀 온나 생각없는놈아,바론 치는데 탑은 와 혼자 사이드고 좀 온나 생각없는놈아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4221,궁 아끼다 죽는거 몇번째고 럭스 그냥 쓰라 좀 ㅅㅂ,궁 아끼다 죽는거 몇번째고 럭스 그냥 쓰라 좀 시발,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4222,아니 와드도 없이 드가지 말라고 가렌 뇌가 없나,아니 와드도 없이 드가지 말라고 가렌 뇌가 없나,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4223,한타때 원딜부터 물어라 제드 탱커 치고있노 답답한놈,한타때 원딜부터 물어라 제드 탱커 치고있노 답답한놈,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4224,용 싸움에 강타를 와 아끼노 정글 미친놈아 강타 쓰라,용 싸움에 강타를 와 아끼노 정글 미친놈아 강타 쓰라,,2,profanity|blame,미친놈,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4225,점멸 좀 써라 죽고나서 쓸거가 한심한 이즈야,점멸 좀 써라 죽고나서 쓸거가 한심한 이즈야,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4226,서폿이면 핑와 사라 좀 돈 어따쓰노 ㅈㄴ 답없네,서폿이면 핑와 사라 좀 돈 어따쓰노 존나 답없네,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4227,라인 좀 밀고 로밍 가라 타워 다 날아갔다 미드 멍청하게 하지말고,라인 좀 밀고 로밍 가라 타워 다 날아갔다 미드 멍청하게 하지말고,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4228,야스오 혼자 드가지말고 같이 드가자고 지랄하지말고 기다리라,야스오 혼자 드가지말고 같이 드가자고 지랄하지말고 기다리라,,2,profanity|blame,지랄,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4229,귀환타이밍도 모르나 탑 집 가서 템 사온나 0/5가 뭘 버티노,귀환타이밍도 모르나 탑 집 가서 템 사온나 0/5가 뭘 버티노,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4230,티모 버섯을 길목에 깔아라 쓸데없는데 깔지말고 겜 모르나 니,티모 버섯을 길목에 깔아라 쓸데없는데 깔지말고 겜 모르나 니,,2,blame,,1,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T4231,정글 트롤임 ㅅㅂ 다같이 신고 ㄱㄱ,정글 트롤임 시발 다같이 신고 ㄱㄱ,lexicon:ㅅㅂ,2,profanity|blame|instigation,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4232,야 얘들아 원딜 좀 뭐라해라 내만 답답하나,야 얘들아 원딜 좀 뭐라해라 내만 답답하나,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4233,서폿 리폿 박자 9명 다,서폿 리폿 박자 9명 다,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4234,all 우리 미드 신고좀 부탁함 고의트롤임,all 우리 미드 신고좀 부탁함 고의트롤임,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4235,다들 야스오한테 한마디씩 해라 정신차리게,다들 야스오한테 한마디씩 해라 정신차리게,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4236,탑 저거 왕따시키자 핑도 찍어주지마라,탑 저거 왕따시키자 핑도 찍어주지마라,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4237,티모 차단들 해라 쟤 말 들을필요없음,티모 차단들 해라 쟤 말 들을필요없음,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4238,이판 지면 다 베인탓인거 알제? 다들 리폿,이판 지면 다 베인탓인거 알제? 다들 리폿,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4239,상대팀아 우리 정글 좀 신고해도 부탁한데이,상대팀아 우리 정글 좀 신고해도 부탁한데이,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4240,얘들아 럭스한테 킬 주지마라 줘봤자임 무시하자,얘들아 럭스한테 킬 주지마라 줘봤자임 무시하자,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4241,다들 리신 욕 좀 해도 내 혼자 하기 벅차다 ㅋㅋ,다들 리신 욕 좀 해도 내 혼자 하기 벅차다 ㅋㅋ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,instigation,
+T4242,느금마 안부 좀 전해도,느금마 안부 좀 전해도,,3,profanity|family_insult,느금마,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전 · 느금마를 욕설 조각으로 표시,family_or_sexual,
+T4243,엄마없는 티 내지마라 정글,엄마없는 티 내지마라 정글,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4244,니네 아빠도 니처럼 무능하나,니네 아빠도 니처럼 무능하나,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4245,가정교육을 못받았네 집에서 뭘 배웠노,가정교육을 못받았네 집에서 뭘 배웠노,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4246,애미 뒤졌나 시발 원딜,애미 뒤졌나 시발 원딜,,3,profanity|family_insult,시발,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4247,서폿 니 가슴 크나 사진 좀,서폿 니 가슴 크나 사진 좀,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4248,아리 하는 애들은 다 밝히더라 니도 그렇제,아리 하는 애들은 다 밝히더라 니도 그렇제,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4249,원딜 누나 속옷 무슨색이고 ㅋㅋ,원딜 누나 속옷 무슨색이고 ㅋㅋ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T4250,걸레같은 년이 겜은 와 하노,걸레같은 년이 겜은 와 하노,,3,profanity|sexual_harassment,걸레같은 년,0,,,train,"AI(claude, 독립 작성 T4)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5001,바론 ㄱㄱ 다 모여,바론 ㄱㄱ 다 모여,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5002,용 30초 남음 미리 자리잡자,용 30초 남음 미리 자리잡자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5003,봇 다이브각 봐줘 텔 있음,봇 다이브각 봐줘 텔 있음,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5004,gg wp 다들 수고,gg wp 다들 수고,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5005,방금 한타 ㄹㅇ 꿀잼이었다 ㅋㅋㅋ,방금 한타 ㄹㅇ 꿀잼이었다 ㅋㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5006,적 리신 점멸 없음 12분까지,적 리신 점멸 없음 12분까지,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5007,나 6렙 찍으면 봇 로밍감,나 6렙 찍으면 봇 로밍감,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5008,ff 15 치지 말고 한판만 더 해보자,ff 15 치지 말고 한판만 더 해보자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5009,전령 먹고 미드 밀자 ㄱ,전령 먹고 미드 밀자 ㄱ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5010,와드 하나만 삼거리에 박아줘요,와드 하나만 삼거리에 박아줘요,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5011,상대 트페 궁 돌았음 사이드 조심,상대 트페 궁 돌았음 사이드 조심,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5012,ㅎㅇ 이번판 즐겜합시다,ㅎㅇ 이번판 즐겜합시다,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5013,아 핑 튄다 잠만 ㅠ,아 핑 튄다 잠만 ㅠ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5014,블츠 그랩 빠지면 바로 들어가자,블츠 그랩 빠지면 바로 들어가자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5015,back back 4명 안보임,back back 4명 안보임,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5016,나 집 갔다옴 템 뽑고 합류할게,나 집 갔다옴 템 뽑고 합류할게,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5017,오 그브 스킨 이쁘다 뭐임 그거,오 그브 스킨 이쁘다 뭐임 그거,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5018,late game 가면 우리가 이김 버티자,late game 가면 우리가 이김 버티자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5019,미드 로밍 봇으로 감 핑 찍음,미드 로밍 봇으로 감 핑 찍음,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5020,wp 상대 정글 동선 깔끔했음 인정,wp 상대 정글 동선 깔끔했음 인정,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,
+T5021,smurf 인가 저쪽 카사 손 빠르네,smurf 인가 저쪽 카사 손 빠르네,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,p01
+T5022,smurf 인가 우리 카사 손 없네 ㅋㅋ,smurf 인가 우리 카사 손 없네 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p01
+T5023,탑 텔 타줄 수 있어? 용한타 각임,탑 텔 타줄 수 있어? 용한타 각임,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,p02
+T5024,탑 텔 탈 줄은 알아? 용한타 각인데,탑 텔 탈 줄은 알아? 용한타 각인데,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)","독립 작성 학습 문장 · 검수 전 · 질문 형태 조롱, 텔 지적이 섞여 has_feedback=1",indirect_blame,p02
+T5025,잘했어 야스 방금 벽 타이밍 굿,잘했어 야스 방금 벽 타이밍 굿,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,p03
+T5026,잘한다 야스 방금 벽 타이밍 예술이네 ㅋㅋ 허공에 침,잘한다 야스 방금 벽 타이밍 예술이네 ㅋㅋ 허공에 침,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p03
+T5027,미드 노플 ㅇㅇ,미드 노플 ㅇㅇ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,p04
+T5028,미드 노뇌 ㅇㅇ,미드 노뇌 ㅇㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p04
+T5029,인정 상대 이즈 잘하네 ㅇㅈ,인정 상대 이즈 잘하네 ㅇㅈ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_call,p05
+T5030,인정 상대 이즈 못하네 ㅇㅈ ㅋㅋ,인정 상대 이즈 못하네 ㅇㅈ ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p05
+T5031,게임 끝나고 니네 집 앞으로 찾아간다 진짜,게임 끝나고 니네 집 앞으로 찾아간다 진짜,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p06
+T5032,한타 끝나고 니네 정글 안으로 찾아간다 ㄱㄷ,한타 끝나고 니네 정글 안으로 찾아간다 ㄱㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p06
+T5033,야스 너 현피 뜨자 주소 불러 죽여버린다,야스 너 현피 뜨자 주소 불러 죽여버린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p07
+T5034,야스 너 1대1 뜨자 미드로 와 죽여버린다 ㅋㅋ,야스 너 1대1 뜨자 미드로 와 죽여버린다 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 게임 안 맞다이,clean_trap,p07
+T5035,니 신상 다 따서 커뮤에 올린다,니 신상 다 따서 커뮤에 올린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p08
+T5036,니 펜타 클립 따서 커뮤에 올린다 ㅋㅋ 레전드,니 펜타 클립 따서 커뮤에 올린다 ㅋㅋ 레전드,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p08
+T5037,블츠 니 학교 어딘지 안다 내일 보자,블츠 니 학교 어딘지 안다 내일 보자,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p09
+T5038,블츠 니 그랩 어디로 쏠지 안다 다음에 보자 ㅋㅋ,블츠 니 그랩 어디로 쏠지 안다 다음에 보자 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p09
+T5039,계정 바꿔도 끝까지 따라다니면서 괴롭혀줄게,계정 바꿔도 끝까지 따라다니면서 괴롭혀줄게,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p10
+T5040,라인 바꿔도 끝까지 따라다니면서 갱 가줄게 ㅋㅋ,라인 바꿔도 끝까지 따라다니면서 갱 가줄게 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p10
+T5041,럭스 실제로 만나면 얼굴 못 들고 다니게 해준다,럭스 실제로 만나면 얼굴 못 들고 다니게 해준다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p11
+T5042,럭스 라인에서 만나면 cs 못 먹게 해준다 ㅋㅋ,럭스 라인에서 만나면 cs 못 먹게 해준다 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p11
+T5043,ㅋㅋ 케틀 너 밤길 조심해라 진심임,ㅋㅋ 케틀 너 밤길 조심해라 진심임,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p12
+T5044,ㅋㅋ 케틀 너 부쉬 조심해라 렝가 있음,ㅋㅋ 케틀 너 부쉬 조심해라 렝가 있음,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p12
+T5045,니 회사에 전화해서 다 까발린다 기다려,니 회사에 전화해서 다 까발린다 기다려,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p13
+T5046,이건 라이엇에 문의해서 신고한다 기다려,이건 라이엇에 문의해서 신고한다 기다려,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 정당한 대응,clean_trap,p13
+T5047,리신 어디 사냐 칼 들고 간다,리신 어디 사냐 칼 들고 간다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p14
+T5048,리신 어디 있냐 궁 들고 간다 ㅋㅋ,리신 어디 있냐 궁 들고 간다 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p14
+T5049,니 가족 사진까지 찾아서 다 뿌려버린다,니 가족 사진까지 찾아서 다 뿌려버린다,,3,threat,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,threat,p15
+T5050,니 와드 위치까지 찾아서 다 지워버린다 ㅋㅋ,니 와드 위치까지 찾아서 다 지워버린다 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p15
+T5051,엄마가 그렇게 키웠냐 야스야,엄마가 그렇게 키웠냐 야스야,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p16
+T5052,엄마가 밥 먹으래 야스야 빨리 끝내자,엄마가 밥 먹으래 야스야 빨리 끝내자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p16
+T5053,부모님이 불쌍하다 이런 걸 낳아서,부모님이 불쌍하다 이런 걸 낳아서,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p17
+T5054,부모님이 부르신다 잠만 afk,부모님이 부르신다 잠만 afk,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p17
+T5055,니 애비 없는 티 내냐 케틀,니 애비 없는 티 내냐 케틀,,3,family_insult,애비,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p18
+T5056,나 점멸 없는 티 냈네 케틀 미안 ㅋㅋ,나 점멸 없는 티 냈네 케틀 미안 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p18
+T5057,럭스 유저 여자임? 사진 좀 보내봐 몸매 궁금하네,럭스 유저 여자임? 사진 좀 보내봐 몸매 궁금하네,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p19
+T5058,럭스 유저 장인임? 룬 좀 알려줘 빌드 궁금하네,럭스 유저 장인임? 룬 좀 알려줘 빌드 궁금하네,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p19
+T5059,아리 목소리 들어보고 싶다 디코 와서 신음 좀 내봐,아리 목소리 들어보고 싶다 디코 와서 신음 좀 내봐,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p20
+T5060,아리 목소리 들어보고 싶다 디코 와서 콜 좀 해줘,아리 목소리 들어보고 싶다 디코 와서 콜 좀 해줘,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p20
+T5061,누나 게임 말고 나랑 모텔이나 가자 ㅋㅋ,누나 게임 말고 나랑 모텔이나 가자 ㅋㅋ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,p21
+T5062,누나 솔랭 말고 나랑 듀오나 가자 ㅋㅋ,누나 솔랭 말고 나랑 듀오나 가자 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p21
+T5063,그브 1/9 실화냐 ㅋㅋ carry 한다며,그브 1/9 실화냐 ㅋㅋ carry 한다며,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p22
+T5064,나 1/9 실화냐 ㅋㅋ 미안 carry 못함,나 1/9 실화냐 ㅋㅋ 미안 carry 못함,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p22
+T5065,우와 리신님 궁으로 적 살려주시네요 대단,우와 리신님 궁으로 적 살려주시네요 대단,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p23
+T5066,우와 리신님 궁으로 바론 스틸하시네요 대단,우와 리신님 궁으로 바론 스틸하시네요 대단,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p23
+T5067,jg diff ㅋㅋ 우리 정글은 관광 왔나봄,jg diff ㅋㅋ 우리 정글은 관광 왔나봄,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p24
+T5068,jg diff ㅋㅋ 우리 정글이 다 터뜨렸네 굿,jg diff ㅋㅋ 우리 정글이 다 터뜨렸네 굿,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p24
+T5069,카사 딜량 서폿보다 낮은데 뭐함?,카사 딜량 서폿보다 낮은데 뭐함?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p25
+T5070,카사 딜량 팀에서 제일 높은데 뭐임? ㄷㄷ,카사 딜량 팀에서 제일 높은데 뭐임? ㄷㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p25
+T5071,이즈 q 맞추는거 한번도 못봄 ㅋㅋ 봇전 gap,이즈 q 맞추는거 한번도 못봄 ㅋㅋ 봇전 gap,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p26
+T5072,이즈 q 빗나가는거 한번도 못봄 ㅋㅋ 봇전 gap,이즈 q 빗나가는거 한번도 못봄 ㅋㅋ 봇전 gap,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p26
+T5073,트페 궁은 장식인가요?,트페 궁은 장식인가요?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 궁 미사용 비꼼. 직접 지시는 아니라 has_feedback=0,indirect_blame,p27
+T5074,트페 궁 쿨 얼마 남았나요?,트페 궁 쿨 얼마 남았나요?,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p27
+T5075,미드 차이 실화냐 우리 아리는 봇인듯,미드 차이 실화냐 우리 아리는 봇인듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p28
+T5076,미드 차이 실화냐 우리 아리가 다 해줌,미드 차이 실화냐 우리 아리가 다 해줌,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p28
+T5077,블츠 그랩 10번 던져서 0번 맞춤 ㅋㅋ 재능임,블츠 그랩 10번 던져서 0번 맞춤 ㅋㅋ 재능임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p29
+T5078,블츠 그랩 10번 던져서 9번 맞춤 ㅋㅋ 재능임,블츠 그랩 10번 던져서 9번 맞춤 ㅋㅋ 재능임,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p29
+T5079,ㅋㅋㅋ 그 타이밍에 들어가는 야스 처음봄 int 장인,ㅋㅋㅋ 그 타이밍에 들어가는 야스 처음봄 int 장인,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p30
+T5080,ㅋㅋㅋ 그 타이밍에 들어가는 야스 미쳤다 play 장인,ㅋㅋㅋ 그 타이밍에 들어가는 야스 미쳤다 play 장인,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p30
+T5081,서폿님 와드는 유료인가봐요,서폿님 와드는 유료인가봐요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 와드 비꼼. 직접 지시는 아니라 has_feedback=0,indirect_blame,p31
+T5082,서폿님 와드 어디 박으셨어요?,서폿님 와드 어디 박으셨어요?,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p31
+T5083,탑 gap 인정? 가렌이 티모한테 솔킬 3번 ㅋㅋ,탑 gap 인정? 가렌이 티모한테 솔킬 3번 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p32
+T5084,탑 gap 인정? 내가 티모한테 솔킬 3번 따임 ㅠ,탑 gap 인정? 내가 티모한테 솔킬 3번 따임 ㅠ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p32
+T5085,와 제드 궁 쓰고 혼자 죽네 스트리머 하세요,와 제드 궁 쓰고 혼자 죽네 스트리머 하세요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p33
+T5086,와 제드 궁 쓰고 셋 잡네 스트리머 하세요,와 제드 궁 쓰고 셋 잡네 스트리머 하세요,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p33
+T5087,원딜 cs 서폿이랑 비슷한거 맞음? ㅋㅋ,원딜 cs 서폿이랑 비슷한거 맞음? ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p34
+T5088,원딜 cs 10분에 100개 맞음? ㄷㄷ 잘먹네,원딜 cs 10분에 100개 맞음? ㄷㄷ 잘먹네,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p34
+T5089,저 티모 사람 맞냐 ai 가 더 잘하겠다,저 티모 사람 맞냐 ai 가 더 잘하겠다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p35
+T5090,저 티모 사람 맞냐 ai 처럼 잘하네 ㄷㄷ,저 티모 사람 맞냐 ai 처럼 잘하네 ㄷㄷ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p35
+T5091,럭스 q는 미니언만 묶으라고 있는건가,럭스 q는 미니언만 묶으라고 있는건가,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,p36
+T5092,럭스 q 미니언 뒤에서 쏘면 막히는건가?,럭스 q 미니언 뒤에서 쏘면 막히는건가?,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p36
+T5093,정글 너 때문에 졌다 그냥,정글 너 때문에 졌다 그냥,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p37
+T5094,정글 덕분에 이겼다 그냥 ㅋㅋ,정글 덕분에 이겼다 그냥 ㅋㅋ,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p37
+T5095,케틀 진짜 못한다 너,케틀 진짜 못한다 너,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p38
+T5096,케틀 진짜 잘한다 너,케틀 진짜 잘한다 너,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p38
+T5097,서폿 troll 이네 이거,서폿 troll 이네 이거,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p39
+T5098,서폿 troll 아님 렉 걸린거래,서폿 troll 아님 렉 걸린거래,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 말리는 말,clean_trap,p39
+T5099,야스오 또 죽었네 생각이 없음,야스오 또 죽었네 생각이 없음,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p40
+T5100,나 또 죽었네 생각이 없었음 쏘리,나 또 죽었네 생각이 없었음 쏘리,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p40
+T5101,탑 afk 냐 한심하다 진짜,탑 afk 냐 한심하다 진짜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p41
+T5102,탑 afk 냐 튕긴듯 기다려주자,탑 afk 냐 튕긴듯 기다려주자,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p41
+T5103,그브 니가 제일 문제임,그브 니가 제일 문제임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p42
+T5104,그브 니가 제일 잘함,그브 니가 제일 잘함,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p42
+T5105,트페 수준 낮다 진짜,트페 수준 낮다 진짜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p43
+T5106,트페 숙련도 높다 진짜,트페 숙련도 높다 진짜,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p43
+T5107,럭스 스킬 하나를 못맞추냐 답답하다,럭스 스킬 하나를 못맞추냐 답답하다,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,p44
+T5108,나 스킬 하나를 못맞추네 답답하다 미안,나 스킬 하나를 못맞추네 답답하다 미안,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p44
+T5109,이즈 미친놈아 왜 거길 들어가,이즈 미친놈아 왜 거길 들어가,,2,profanity|blame,미친놈,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p45
+T5110,이즈 미쳤다 거길 들어가서 살아나오네,이즈 미쳤다 거길 들어가서 살아나오네,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p45
+T5111,야 블츠 꺼져 그냥 게임 나가,야 블츠 꺼져 그냥 게임 나가,,2,profanity|blame,꺼져,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p46
+T5112,야 블츠 빠져 그냥 한타 나가 위험해,야 블츠 빠져 그냥 한타 나가 위험해,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p46
+T5113,닥쳐 좀 카사 입만 살았네,닥쳐 좀 카사 입만 살았네,,2,profanity|blame,닥쳐,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p47
+T5114,뮤트 좀 할게 카사 미안 집중하려고,뮤트 좀 할게 카사 미안 집중하려고,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 정당한 대응(차단),clean_trap,p47
+T5115,저 병신 야스 또 던지네,저 병신 야스 또 던지네,,2,profanity|blame,병신,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p48
+T5116,저 고수 야스 또 캐리하네,저 고수 야스 또 캐리하네,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p48
+T5117,리신 지랄하지 말고 겜이나 해,리신 지랄하지 말고 겜이나 해,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p49
+T5118,리신 신경쓰지 말고 겜이나 해 괜찮아,리신 신경쓰지 말고 겜이나 해 괜찮아,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 달래는 말,clean_trap,p49
+T5119,트페 ㅅㅂ 궁 좀 타라고 봇 터지잖아,트페 시발 궁 좀 타라고 봇 터지잖아,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p50
+T5120,트페 궁 좀 타줄래 봇 다이브 온다,트페 궁 좀 타줄래 봇 다이브 온다,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p50
+T5121,서폿 와드 좀 사 돈 아끼냐 거지같이 하네,서폿 와드 좀 사 돈 아끼냐 거지같이 하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p51
+T5122,서폿 와드 좀 사줘 내가 핑와 하나 살게,서폿 와드 좀 사줘 내가 핑와 하나 살게,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p51
+T5123,원딜 뒤에서 딜이나 해 앞에 나가서 죽지 말고 답답아,원딜 뒤에서 딜이나 해 앞에 나가서 죽지 말고 답답아,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,p52
+T5124,원딜 뒤에서 딜만 해 앞은 내가 설게 ㅇㅋ?,원딜 뒤에서 딜만 해 앞은 내가 설게 ㅇㅋ?,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p52
+T5125,원딜 탓 맞잖아 다들 리폿해,원딜 탓 맞잖아 다들 리폿해,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,p53
+T5126,원딜 탓 그만해 다들,원딜 탓 그만해 다들,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 말리는 말,clean_trap,p53
+T5127,끝나고 다같이 제드 report 하자 9x,끝나고 다같이 제드 report 하자 9x,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,p54
+T5128,끝나고 다같이 제드 칭찬 하자 mvp,끝나고 다같이 제드 칭찬 하자 mvp,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,clean_trap,p54
+T5129,다들 저 럭스 끝나고 신고해 같이 묻어버리자,다들 저 럭스 끝나고 신고해 같이 묻어버리자,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,p55
+T5130,저 욕하는 애 끝나고 신고할게 캡처도 해둠,저 욕하는 애 끝나고 신고할게 캡처도 해둠,,0,,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 정당한 대응(본인 신고 예고),clean_trap,p55
+T5132,아 ㅅㅂ 야스 또 죽었네,아 시발 야스 또 죽었네,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p56
+T5133,ㅈㄴ 아깝다 한끗차이,존나 아깝다 한끗차이,lexicon:ㅈㄴ,1,profanity,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p57
+T5134,ㅈㄴ 못한다 이즈 한심,존나 못한다 이즈 한심,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p57
+T5135,와 존나 빡치네 이판,와 존나 빡치네 이판,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p58
+T5136,와 존나 빡치네 저 티모 새끼,와 존나 빡치네 저 티모 새끼,,2,profanity|blame,존나|새끼,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p58
+T5137,ㅈㄹ 났네 진짜 ㅋㅋ,지랄 났네 진짜 ㅋㅋ,lexicon:ㅈㄹ,1,profanity,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p59
+T5138,ㅈㄹ 하네 럭스 진짜 ㅋㅋ,지랄 하네 럭스 진짜 ㅋㅋ,lexicon:ㅈㄹ,2,profanity|blame,ㅈㄹ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p59
+T5139,아 씨발 렉 뭐냐,아 씨발 렉 뭐냐,,1,profanity,씨발,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p60
+T5140,아 씨발 케틀 뭐냐,아 씨발 케틀 뭐냐,,2,profanity|blame,씨발,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p60
+T5142,tlqkf 그브 때문에 이걸 지네,시발 그브 때문에 이걸 지네,lexicon:tlqkf,2,profanity|blame,tlqkf,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p61
+T5143,개같네 진짜 운도 없음,개같네 진짜 운도 없음,,1,profanity,개같네,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p62
+T5144,개같네 진짜 블츠 실력도 없음,개같네 진짜 블츠 실력도 없음,,2,profanity|blame,개같네,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p62
+T5145,시1발 손이 꼬였네,시발 손이 꼬였네,noise_removed,1,profanity,시1발,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p63
+T5146,시1발 카사 손이 없네,시발 카사 손이 없네,noise_removed,2,profanity|blame,시1발,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p63
+T5147,아 좆됐다 바론 뺏김,아 좆됐다 바론 뺏김,,1,profanity,좆됐다,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p64
+T5148,아 트페 때문에 좆됐다 바론 뺏김,아 트페 때문에 좆됐다 바론 뺏김,,2,profanity|blame,좆됐다,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p64
+T5149,ㅅㅂ gg 그냥 ff 치자,시발 gg 그냥 ff 치자,lexicon:ㅅㅂ,1,profanity,ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p65
+T5150,ㅅㅂ 정글 병신이라 그냥 ff 치자,시발 정글 병신이라 그냥 ff 치자,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ|병신,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p65
+T5151,지랄맞게 안풀리네 오늘,지랄맞게 안풀리네 오늘,,1,profanity,지랄,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p66
+T5152,지랄맞게 못하네 오늘 우리 아리,지랄맞게 못하네 오늘 우리 아리,,2,profanity|blame,지랄,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p66
+T5153,ㅂㅅ같이 했네 내가,병신같이 했네 내가,lexicon:ㅂㅅ,1,profanity,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 욕설 섞인 자책,profanity_alone,p67
+T5154,ㅂㅅ같이 했네 가렌이,병신같이 했네 가렌이,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p67
+T5155,하 존나 피곤하다 막판하자,하 존나 피곤하다 막판하자,,1,profanity,존나,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p68
+T5156,하 존나 한심하다 서폿 저거,하 존나 한심하다 서폿 저거,,2,profanity|blame,존나,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p68
+T5157,씹 망했다 이건,씹 망했다 이건,,1,profanity,씹,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p69
+T5158,씹 망쳤다 이건 원딜이,씹 망쳤다 이건 원딜이,,2,profanity|blame,씹,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p69
+T5159,ㅆㅂ 궁 빗나감,씨발 궁 빗나감,lexicon:ㅆㅂ,1,profanity,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,profanity_alone,p70
+T5160,ㅆㅂ 럭스 궁 또 빗나감 눈 감고 하냐,씨발 럭스 궁 또 빗나감 눈 감고 하냐,lexicon:ㅆㅂ,2,profanity|blame,ㅆㅂ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,p70
+T5161,ㅁㅊ놈 제드 혼자 뭐하냐,미친놈 제드 혼자 뭐하냐,lexicon:ㅁㅊ,2,profanity|blame,ㅁㅊ놈,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5162,미드 ㅂㅅ임 ㄹㅇ,미드 병신임 ㄹㅇ,lexicon:ㅂㅅ,2,profanity|blame,ㅂㅅ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5163,ㄲㅈ 티모 넌 그냥,꺼져 티모 넌 그냥,lexicon:ㄲㅈ,2,profanity|blame,ㄲㅈ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5164,int 그만해 ㅅㄲ야 탑,int 그만해 새끼야 탑,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5165,병.신 같은 서폿 만나서 고생한다,병신 같은 서폿 만나서 고생한다,noise_removed,2,profanity|blame,병.신,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5166,야 그브 ㄷㅊ 니가 뭘 안다고,야 그브 닥쳐 니가 뭘 안다고,lexicon:ㄷㅊ,2,profanity|blame,ㄷㅊ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5167,지1랄하네 아리 혼자 다 죽어놓고,지랄하네 아리 혼자 다 죽어놓고,noise_removed,2,profanity|blame,지1랄,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5168,troll 새끼네 저 리신,troll 새끼네 저 리신,,2,profanity|blame,새끼,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5169,원딜 대가리 비었냐 등신아,원딜 대가리 비었냐 등신아,,2,profanity|blame,등신,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5170,케틀 너 말이야 너 개새끼야 진짜,케틀 너 말이야 너 개새끼야 진짜,,2,profanity|blame,개새끼,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,direct_abuse,
+T5171,진짜 못한다 우리 정글,진짜 못한다 우리 정글,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5172,저 판단은 뭐냐 가렌,저 판단은 뭐냐 가렌,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5173,야스 0인분 하고 있네 지금,야스 0인분 하고 있네 지금,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5174,게임 망친건 럭스 너임,게임 망친건 럭스 너임,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5175,블츠 때문에 봇 터졌다 책임져라,블츠 때문에 봇 터졌다 책임져라,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5176,카사 너 개념이 없다 ㄹㅇ,카사 너 개념이 없다 ㄹㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5177,탑 니가 다 던졌잖아,탑 니가 다 던졌잖아,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5178,생각 좀 하고 해라 제드,생각 좀 하고 해라 제드,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5179,이 판 패배 원인 = 원딜,이 판 패배 원인 = 원딜,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5180,티모 픽부터가 민폐임 너,티모 픽부터가 민폐임 너,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5181,손이 안따라주면 하지를 마 이즈,손이 안따라주면 하지를 마 이즈,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5182,아리 넌 그냥 실력이 브론즈야,아리 넌 그냥 실력이 브론즈야,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5183,서폿 하는게 아무것도 없네 버스 타냐,서폿 하는게 아무것도 없네 버스 타냐,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5184,리신 수준 보소 한심,리신 수준 보소 한심,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5185,그브 너랑은 다시는 같은 팀 안한다 못해서,그브 너랑은 다시는 같은 팀 안한다 못해서,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,plain_blame,
+T5186,정글님 캠프 맛있으세요? 우린 죽어가는데,정글님 캠프 맛있으세요? 우린 죽어가는데,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5187,역시 우리 야스 0/7 파워스파이크 왔다 ㅋㅋ,역시 우리 야스 0/7 파워스파이크 왔다 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5188,케틀 사거리 긴 챔으로 왜 근접전 하심?,케틀 사거리 긴 챔으로 왜 근접전 하심?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5189,bot diff 라기보다 그냥 이즈 diff ㅋㅋ,bot diff 라기보다 그냥 이즈 diff ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5190,와 탑님 텔 아끼시는거 보니 다음 시즌에 쓰실듯,와 탑님 텔 아끼시는거 보니 다음 시즌에 쓰실듯,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5191,블츠는 그랩보다 채팅이 더 정확하네,블츠는 그랩보다 채팅이 더 정확하네,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5192,상대 정글은 세번 왔는데 우리 리신은 관광중 ㅋㅋ,상대 정글은 세번 왔는데 우리 리신은 관광중 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5193,그브 템 보니까 딜 넣을 생각은 없으신가봐요,그브 템 보니까 딜 넣을 생각은 없으신가봐요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5194,미드 혹시 모니터 끄고 하냐,미드 혹시 모니터 끄고 하냐,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5195,ㅋㅋㅋㅋ 트페 카드 뽑기 연습은 하고 온거임?,ㅋㅋㅋㅋ 트페 카드 뽑기 연습은 하고 온거임?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5196,서폿이 원딜보다 cs 많은판 처음봄 ㄹㅇ,서폿이 원딜보다 cs 많은판 처음봄 ㄹㅇ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5197,럭스님 실드는 본인만 쓰는 스킬인가요,럭스님 실드는 본인만 쓰는 스킬인가요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5198,잘한다 잘해 카사 또 앞점멸 ㅋㅋ,잘한다 잘해 카사 또 앞점멸 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5199,저쪽 제드는 사람 잡는데 우리 제드는 미니언이랑 싸움,저쪽 제드는 사람 잡는데 우리 제드는 미니언이랑 싸움,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5200,티모야 버섯은 니 무덤에 심는거냐 ㅋㅋ,티모야 버섯은 니 무덤에 심는거냐 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5201,원딜님 혹시 오늘 처음 깔으셨어요?,원딜님 혹시 오늘 처음 깔으셨어요?,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5202,가렌 e 돌다가 어지러워서 죽은거임? ㅋㅋ,가렌 e 돌다가 어지러워서 죽은거임? ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5203,아리 매혹 적중률 0% 기록 세우는중,아리 매혹 적중률 0% 기록 세우는중,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5204,솔직히 봇 넣는게 낫지 않냐 우리 탑 대신,솔직히 봇 넣는게 낫지 않냐 우리 탑 대신,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5205,ㅇㅈ 이건 정글 gap 이 아니라 지능 gap 인듯 리신아,ㅇㅈ 이건 정글 gap 이 아니라 지능 gap 인듯 리신아,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5206,대단하다 야스오 바람장막으로 아군 스킬 막을 기세,대단하다 야스오 바람장막으로 아군 스킬 막을 기세,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5207,이즈님 그 실력에 채팅은 챌린저시네요,이즈님 그 실력에 채팅은 챌린저시네요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5208,킬은 못먹어도 데스는 잘 먹네 우리 그브,킬은 못먹어도 데스는 잘 먹네 우리 그브,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5209,캐리 한다던 미드 어디갔음? 실종신고 해야하나 ㅋㅋ,캐리 한다던 미드 어디갔음? 실종신고 해야하나 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5210,ㅎㅎ 서폿님 덕분에 상대 원딜이 편하겠어요,ㅎㅎ 서폿님 덕분에 상대 원딜이 편하겠어요,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5211,쓰레쉬 랜턴은 관상용이냐고 ㅋㅋ,쓰레쉬 랜턴은 관상용이냐고 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5212,상대팀 니네가 우리 탑 좀 데려가라 필요없음 ㅋㅋ,상대팀 니네가 우리 탑 좀 데려가라 필요없음 ㅋㅋ,,2,blame,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,indirect_blame,
+T5213,리신 ㅅㅂ 용 칠때 좀 와라 혼자 정글만 도냐,리신 시발 용 칠때 좀 와라 혼자 정글만 도냐,lexicon:ㅅㅂ,2,profanity|blame,ㅅㅂ,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5214,와드 좀 박아 서폿 눈 감고 다니냐,와드 좀 박아 서폿 눈 감고 다니냐,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5215,케틀 집 좀 가 피 없이 나대다 또 죽지 말고 답답하네,케틀 집 좀 가 피 없이 나대다 또 죽지 말고 답답하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5216,야스 병신아 한타때 합류를 해 사이드만 밀지 말고,야스 병신아 한타때 합류를 해 사이드만 밀지 말고,,2,profanity|blame,병신,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5217,궁 좀 써라 그브 아껴서 뭐하냐 무덤까지 들고가게?,궁 좀 써라 그브 아껴서 뭐하냐 무덤까지 들고가게?,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5218,탑 ㅈㄴ 못하네 텔 타라고 핑 몇번 찍음,탑 존나 못하네 텔 타라고 핑 몇번 찍음,lexicon:ㅈㄴ,2,profanity|blame,ㅈㄴ,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5219,미드 로밍 콜 좀 해 말도 없이 사라지냐 생각없네,미드 로밍 콜 좀 해 말도 없이 사라지냐 생각없네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5220,블츠 그랩 좀 그만 던지고 원딜 옆에 붙어 있어 민폐야,블츠 그랩 좀 그만 던지고 원딜 옆에 붙어 있어 민폐야,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5221,바론 먹자고 정글 귀 막았냐 빨리 와 느려터졌네,바론 먹자고 정글 귀 막았냐 빨리 와 느려터졌네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5222,이즈 ㅄ아 포탑 안에서 파밍해 왜 자꾸 나가,이즈 병신아 포탑 안에서 파밍해 왜 자꾸 나가,lexicon:ㅄ,2,profanity|blame,ㅄ,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5223,럭스 스킬 좀 아껴 한타 전에 다 쓰고 뭐함 멍청하게,럭스 스킬 좀 아껴 한타 전에 다 쓰고 뭐함 멍청하게,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5224,제드 사이드 그만 밀고 용 와 혼자 게임하냐 이기적이네,제드 사이드 그만 밀고 용 와 혼자 게임하냐 이기적이네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5225,카사 뒤로 빠져 좀 앞에서 맞아주는게 원딜이냐 한심,카사 뒤로 빠져 좀 앞에서 맞아주는게 원딜이냐 한심,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5226,아 트페 궁으로 봇 좀 와줘 제발 미드에서 썩지 말고 무능하네,아 트페 궁으로 봇 좀 와줘 제발 미드에서 썩지 말고 무능하네,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5227,핑크와드 하나를 안사네 가렌 돈 남아도 지능이 모자람,핑크와드 하나를 안사네 가렌 돈 남아도 지능이 모자람,,2,blame,,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 지시가 아니라 지적(와드 구매),feedback_mixed,
+T5228,티모 ㅅㄲ야 버섯 용 앞에 깔아 쓸데없는데 깔지 말고,티모 새끼야 버섯 용 앞에 깔아 쓸데없는데 깔지 말고,lexicon:ㅅㄲ,2,profanity|blame,ㅅㄲ,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5229,정글 씨발 탑 좀 와봐 세번째 다이브 당했다 눈 없냐,정글 씨발 탑 좀 와봐 세번째 다이브 당했다 눈 없냐,,2,profanity|blame,씨발,1,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,feedback_mixed,
+T5230,다들 리신 report 해라 troll 임,다들 리신 report 해라 troll 임,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5231,얘들아 야스 뮤트하고 무시하자 쟤랑 말섞지마,얘들아 야스 뮤트하고 무시하자 쟤랑 말섞지마,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5232,all: 우리 케틀 신고 좀 해줘 상대팀도 부탁,all: 우리 케틀 신고 좀 해줘 상대팀도 부탁,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5233,이판 범인 원딜인거 다들 ㅇㅈ? 9x ㄱ,이판 범인 원딜인거 다들 ㅇㅈ? 9x ㄱ,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5234,서폿 빼고 4명이서 하자 쟤는 없는 사람 취급 ㄱ,서폿 빼고 4명이서 하자 쟤는 없는 사람 취급 ㄱ,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5235,상대팀도 우리 탑 리폿 좀 눌러줘요 제발,상대팀도 우리 탑 리폿 좀 눌러줘요 제발,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5236,미드 탓인거 다 알지? 끝나고 다같이 신고 박자,미드 탓인거 다 알지? 끝나고 다같이 신고 박자,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5237,저 티모 정지 먹게 다들 한마디씩 신고 사유 써라,저 티모 정지 먹게 다들 한마디씩 신고 사유 써라,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5238,그브 때문에 진거니까 다같이 한소리씩 해라 ㅋㅋ,그브 때문에 진거니까 다같이 한소리씩 해라 ㅋㅋ,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5239,블츠 troll 맞지 얘들아? 리폿 4개 꽂자,블츠 troll 맞지 얘들아? 리폿 4개 꽂자,,2,blame|instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5240,제드한테 아무도 핑 찍어주지마 왕따 시켜,제드한테 아무도 핑 찍어주지마 왕따 시켜,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5241,카사 신고 안누르는 사람도 공범임 다 눌러,카사 신고 안누르는 사람도 공범임 다 눌러,,2,instigation,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,instigation,
+T5242,니 부모도 너처럼 게임만 하다 인생 망했냐 리신,니 부모도 너처럼 게임만 하다 인생 망했냐 리신,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5243,느금마 안부 좀 전해라 ㅋㅋ,느금마 안부 좀 전해라 ㅋㅋ,,3,family_insult,느금마,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전 · 패드립 은어. 가릴 조각으로 표시,family_or_sexual,
+T5244,니 애미 ㅅㅂ 뒤졌냐,니 애미 시발 뒤졌냐,lexicon:ㅅㅂ,3,profanity|family_insult,애미|ㅅㅂ,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5245,가정교육을 못받았나 집안 꼴이 보인다 케틀,가정교육을 못받았나 집안 꼴이 보인다 케틀,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5246,너같은 자식 둔 니 아빠가 제일 불쌍함 ㅋㅋ,너같은 자식 둔 니 아빠가 제일 불쌍함 ㅋㅋ,,3,family_insult,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5247,아리 유저 여자면 가슴 사이즈나 말해봐 ㅋㅋ,아리 유저 여자면 가슴 사이즈나 말해봐 ㅋㅋ,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5248,서폿 여자지? 오빠가 밤에 따로 놀아줄게 번호 줘,서폿 여자지? 오빠가 밤에 따로 놀아줄게 번호 줘,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5249,소나 하는거 보니 야한거 좋아하지 너 ㅋㅋ 벗고 겜하냐,소나 하는거 보니 야한거 좋아하지 너 ㅋㅋ 벗고 겜하냐,,3,sexual_harassment,,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
+T5250,ㅅㅂ 럭스년 몸이나 팔아라 게임 말고,시발 럭스년 몸이나 팔아라 게임 말고,lexicon:ㅅㅂ,3,profanity|sexual_harassment,ㅅㅂ|년,0,,,train,"AI(claude, 독립 작성 T5)",독립 작성 학습 문장 · 검수 전,family_or_sexual,
