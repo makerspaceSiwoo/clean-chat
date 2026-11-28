@@ -1,7 +1,9 @@
 """모델 가중치를 Hugging Face Hub 에서 받거나 올린다 (가중치는 git 에 넣지 않는다).
 
-    uv run python -m clean_chat.modules.analyze.weights download          # 두 모델을 models/ 아래에 받는다
+    uv run python -m clean_chat.modules.analyze.weights download          # 두 모델을 models/ 아래에 받는다 (학습용 가중치까지)
     uv run python -m clean_chat.modules.analyze.weights upload            # (모델을 학습한 사람) 로컬 모델을 올린다
+
+  분류 모델은 학습(train.py) → ONNX 내보내기(export_onnx.py) → 올리기 순서. 앱은 model.onnx 만 받는다.
 
   실시간 필터(impl)  models/analyze-classifier/  ←  <owner>/clean-chat-analyze-classifier
   대화 판단(judge)   models/analyze-judge/       ←  <owner>/clean-chat-analyze-judge
@@ -28,7 +30,14 @@ MODELS = {
     "classifier": ("models/analyze-classifier", "clean-chat-analyze-classifier"),
     "judge": ("models/analyze-judge", "clean-chat-analyze-judge"),
 }
-FILES = ["config.json", "meta.json", "model.safetensors", "tokenizer.json", "tokenizer_config.json"]
+BASE_FILES = ["config.json", "meta.json", "tokenizer.json", "tokenizer_config.json"]
+# 실행에 필요한 파일. 분류 모델은 ONNX 로 돈다(앱에 torch 가 없다). judge 는 시뮬레이터 전용이라 torch 가중치.
+RUN_FILES = {
+    "classifier": [*BASE_FILES, "model.onnx"],
+    "judge": [*BASE_FILES, "model.safetensors"],
+}
+ALL_FILES = [*BASE_FILES, "model.safetensors", "model.onnx"]  # 학습·내보내기까지 하는 개발 환경
+FILES = RUN_FILES["classifier"]  # 앱(core/setup.py)이 받는 파일. 앱은 분류 모델만 쓴다.
 
 
 def repo_id(name: str, owner: str | None = None) -> str:
@@ -45,17 +54,20 @@ def folder(name: str) -> Path:
 
 def missing(names: list[str] | None = None) -> list[str]:
     """아직 받지 않은 모델 이름. 파일이 하나라도 없으면 받지 않은 것으로 본다."""
-    return [name for name in names or list(MODELS) if not all((folder(name) / f).is_file() for f in FILES)]
+    return [name for name in names or list(MODELS) if not all((folder(name) / f).is_file() for f in RUN_FILES[name])]
 
 
-def download(names: list[str], owner: str | None = None, revision: str | None = None) -> list[Path]:
-    """Hub → 모델 폴더. 이미 같은 파일이 있으면 다시 받지 않는다."""
+def download(
+    names: list[str], owner: str | None = None, revision: str | None = None, everything: bool = False
+) -> list[Path]:
+    """Hub → 모델 폴더. 기본은 실행에 필요한 파일만, everything 이면 학습용 가중치까지. 이미 같은 파일은 다시 받지 않는다."""
     from huggingface_hub import snapshot_download
 
     out = []
     for name in names:
         target = folder(name)
-        snapshot_download(repo_id(name, owner), local_dir=target, allow_patterns=FILES, revision=revision)
+        patterns = ALL_FILES if everything else RUN_FILES[name]
+        snapshot_download(repo_id(name, owner), local_dir=target, allow_patterns=patterns, revision=revision)
         out.append(target)
     return out
 
@@ -69,13 +81,13 @@ def upload(names: list[str], owner: str | None = None, private: bool = True) -> 
     urls = []
     for name in names:
         folder = resolve_repo_path(MODELS[name][0])
-        missing = [f for f in FILES if not (folder / f).exists()]
+        missing = [f for f in RUN_FILES[name] if not (folder / f).exists()]
         if missing:
             raise FileNotFoundError(f"{folder} 에 파일이 없습니다: {missing}")
         version = json.loads((folder / "meta.json").read_text(encoding="utf-8")).get("version", "unknown")
         rid = repo_id(name, owner)
         api.create_repo(rid, private=private, exist_ok=True)
-        api.upload_folder(folder_path=folder, repo_id=rid, allow_patterns=FILES, commit_message=str(version))
+        api.upload_folder(folder_path=folder, repo_id=rid, allow_patterns=ALL_FILES, commit_message=str(version))
         urls.append(f"https://huggingface.co/{rid}")
     return urls
 
@@ -89,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     names = args.names or list(MODELS)
     if args.action == "download":
-        for folder in download(names, args.owner, args.revision):
+        for folder in download(names, args.owner, args.revision, everything=True):
             version = json.loads((folder / "meta.json").read_text(encoding="utf-8")).get("version")
             print(f"받음: {folder.name} ({version})")
     else:

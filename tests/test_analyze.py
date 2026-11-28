@@ -194,7 +194,24 @@ def test_train_then_load_tiny_model(tmp_path, monkeypatch):
     monkeypatch.setenv(model.ENV_VAR, str(out))
     scores = model.predict("정글 못하네")
     assert set(scores) == set(train.LABELS) and all(0.0 <= v <= 1.0 for v in scores.values())
-    assert model.version() == "tiny-0.1"
+    assert model.version() == "tiny-0.1" and model.backend() == "torch"
+
+    # ONNX 로 내보내면 같은 점수를 ONNX 로 낸다 (앱은 torch 없이 이 경로만 쓴다)
+    pytest.importorskip("onnx")
+    pytest.importorskip("onnxruntime")
+    from clean_chat.modules.analyze import export_onnx
+
+    export_onnx.export(out)
+    result = export_onnx.compare(out, ["정글 못하네", "용 먼저 치자", "미드 왜 안 와", "처음 보는 말"])
+    assert result["flips"] == 0 and result["max_diff"] < export_onnx.MAX_DIFF
+    model._load_once.cache_clear()
+    assert model.backend() == "onnx"
+    onnx_scores = model.predict("정글 못하네")
+    assert all(abs(onnx_scores[k] - scores[k]) < 1e-4 for k in scores)
+
+    # 다시 학습하면 예전 ONNX 는 지운다 (새 가중치보다 먼저 쓰이지 않게)
+    train.train(data, str(base), out, "tiny-0.2", epochs=1, batch_size=2)
+    assert not (out / "model.onnx").exists()
 
 
 def test_model_missing_falls_back_to_rules(tmp_path, monkeypatch):
@@ -671,7 +688,10 @@ def test_weights_repo_ids_and_missing_owner(monkeypatch):
     monkeypatch.setattr(weights, "DEFAULT_OWNER", "")
     with pytest.raises(ValueError):
         weights.repo_id("judge")
-    assert "model.safetensors" in weights.FILES and set(weights.MODELS) == {"classifier", "judge"}
+    assert set(weights.MODELS) == {"classifier", "judge"}
+    # 앱은 분류 모델을 ONNX 로만 돌린다 (torch 가중치는 받지 않는다). judge 는 시뮬레이터 전용 torch.
+    assert "model.onnx" in weights.FILES and "model.safetensors" not in weights.FILES
+    assert "model.safetensors" in weights.RUN_FILES["judge"]
 
 
 @pytest.mark.parametrize(

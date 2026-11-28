@@ -96,13 +96,12 @@ def _summarize(incidents: list[Incident]) -> str:
 
     # 원문과 식별 정보는 로컬 양식에만 사용한다.
     try:
-        from litellm import completion
+        from clean_chat.core import gemini
 
-        result = completion(
+        result = gemini.completion(
             model=model,
             api_key=api_key,
             timeout=10,
-            num_retries=0,
             messages=[
                 {
                     "role": "system",
@@ -116,7 +115,7 @@ def _summarize(incidents: list[Incident]) -> str:
                 {"role": "user", "content": "\n".join(facts)},
             ],
         )
-        content = result.choices[0].message.content
+        content = result["choices"][0]["message"]["content"]
         if content:
             summary = " ".join(content.split())
             reported_counts = re.findall(r"(?<![\d.,+-])([\d.,]+)\s*건", summary)

@@ -30,7 +30,7 @@
 | └ 판례 대조 | 대화 판단의 마지막 단계 | `precedents.py` `review()` | 고소 후보에 죄목별 요건 점검표(충족/불명/미충족) + 비슷한 판례 |
 
 - 신고·고소처럼 무거운 결정은 한 문장이 아니라 **대화 흐름**(반복, "ㅇㅈ" 같은 동조, 여러 명의 몰이)으로 판단합니다.
-- impl 쪽 파일: `lexicon.py`(사전), `champions.py`(챔피언 → 주 라인·줄임말), `model.py`(impl 모델 연결), `train.py`(학습), `public_data.py`(공개 데이터 → 학습 CSV), `evaluate.py`(impl 평가).
+- impl 쪽 파일: `lexicon.py`(사전), `champions.py`(챔피언 → 주 라인·줄임말), `model.py`(impl 모델 연결: ONNX 가 있으면 ONNX, 없으면 torch), `train.py`(학습), `export_onnx.py`(학습한 모델 → ONNX), `public_data.py`(공개 데이터 → 학습 CSV), `evaluate.py`(impl 평가).
 - judge 쪽 파일: `judge.py`(누적 점수·흐름 규칙), `judge_model.py`(judge 전용 모델: 입력 문서·학습·추론), `judge_evaluate.py`(게임 단위 평가), `precedents.py`(판례 대조).
 - 노트북(`notebooks/`): `demo_impl.ipynb` · `demo_judge.ipynb` — 각 과제의 데이터, 파인튜닝, 정답률·오답률, 응답 시간을 실행 결과와 함께 본다. `model_demo.ipynb` 는 인코더·분류 층·벡터 유사도 설명.
 
@@ -96,6 +96,7 @@ uv run python -m clean_chat.modules.analyze.judge_evaluate fixtures/analyze/judg
 
 ```bash
 uv run python -m clean_chat.modules.analyze.weights download      # models/analyze-classifier · models/analyze-judge 에 받는다
+uv run --extra analyze --extra ocr python -m clean_chat.modules.analyze.export_onnx   # (분류 모델을 다시 학습했으면) ONNX 로 바꾸고 torch 와 점수 비교
 uv run python -m clean_chat.modules.analyze.weights upload        # (모델을 다시 학습한 사람) 로컬 모델을 올린다. 먼저 `uv run hf auth login`
 ```
 

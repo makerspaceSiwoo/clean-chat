@@ -60,6 +60,27 @@ def test_weights_missing_follows_model_folder(tmp_path, monkeypatch):
     assert setup.downloaded_bytes() == len(weights.FILES)
 
 
+def test_installed_app_removes_old_torch_weights(tmp_path, monkeypatch):
+    """torch 로 돌던 앱이 받아 둔 model.safetensors(약 430MB)는 ONNX 를 다 받은 뒤 지운다. 개발 환경은 건드리지 않는다."""
+    from clean_chat.modules.analyze import model, weights
+
+    folder = tmp_path / "classifier"
+    folder.mkdir()
+    monkeypatch.setenv(model.ENV_VAR, str(folder))
+    monkeypatch.setattr(setup, "APP_MODELS", ("classifier",))
+    for name in [*weights.BASE_FILES, "model.safetensors"]:  # 예전 앱이 받은 파일들
+        (folder / name).write_text("x")
+
+    monkeypatch.setattr(setup.sys, "frozen", True, raising=False)
+    assert setup.remove_unused_weights() == []  # ONNX 를 아직 다 받지 못했으면 남긴다
+    (folder / "model.onnx").write_text("x")
+    monkeypatch.delattr(setup.sys, "frozen")
+    assert setup.remove_unused_weights() == []  # 개발 환경(학습에 safetensors 필요)
+    monkeypatch.setattr(setup.sys, "frozen", True, raising=False)
+    assert setup.remove_unused_weights() == [folder / "model.safetensors"]
+    assert sorted(p.name for p in folder.iterdir()) == sorted(weights.FILES)
+
+
 def _dialog(ops):
     pytest.importorskip("PySide6")
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")

@@ -190,6 +190,9 @@ def train(
     out.mkdir(parents=True, exist_ok=True)
     net.to("cpu").save_pretrained(out)
     tokenizer.save_pretrained(out)
+    if (out / "model.onnx").exists():  # 예전 가중치로 만든 ONNX 가 새 가중치보다 먼저 쓰이지 않게 지운다
+        (out / "model.onnx").unlink()
+        log("  예전 model.onnx 를 지웠습니다 → export_onnx.py 로 다시 만드세요")
     meta = {
         "version": version,
         "labels": labels,

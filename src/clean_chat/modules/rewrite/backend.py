@@ -1,4 +1,4 @@
-"""LiteLLM으로 Gemini를 호출한다. 키/모델이 없을 때 실제 생성으로 가장하지 않는다."""
+"""Gemini를 직접 호출한다(core/gemini.py). 키/모델이 없을 때 실제 생성으로 가장하지 않는다."""
 
 from __future__ import annotations
 
@@ -51,16 +51,10 @@ def options() -> dict[str, str]:
 
 @cache
 def _sdk() -> Any:
-    """첫 API 호출 때 선택 SDK를 한 번만 준비한다. import 자체는 SDK를 로드하지 않는다."""
-    os.environ.setdefault("LITELLM_LOCAL_MODEL_COST_MAP", "True")
-    import litellm
+    """Gemini 호출 모듈을 한 번만 준비한다. import 자체는 호출 모듈을 로드하지 않는다 (표준 라이브러리만 써서 빠르다)."""
+    from clean_chat.core import gemini
 
-    litellm.suppress_debug_info = True
-    litellm.set_verbose = False
-    litellm.turn_off_message_logging = True
-    for name in ("LiteLLM", "LiteLLM Proxy", "LiteLLM Router", "httpx", "httpcore"):
-        logging.getLogger(name).setLevel(logging.CRITICAL)
-    return litellm
+    return gemini
 
 
 def _completion(**kwargs: Any) -> Any:
@@ -129,7 +123,7 @@ def _has_conditions(prompt: str) -> bool:
 
 
 def _request(prompt: str, key: str, model: str, timeout: float) -> str | None:
-    """LiteLLM 공통 규격으로 Gemini JSON을 받고 엄격히 파싱한다. 재시도는 하지 않는다."""
+    """Gemini JSON을 받고 엄격히 파싱한다. 재시도는 하지 않는다."""
     if not model.startswith("gemini/") or len(model) <= len("gemini/"):
         _LOG.warning("[rewrite] Gemini 모델명이 필요합니다. .env의 LLM_MODEL을 확인하세요.")
         return None

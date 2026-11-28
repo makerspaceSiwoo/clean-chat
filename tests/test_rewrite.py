@@ -210,7 +210,7 @@ def response(content="용 먼저 치자", finish="stop"):
     }
 
 
-def test_litellm_gemini_contract(monkeypatch):
+def test_gemini_call_contract(monkeypatch):
     captured = []
 
     def completion_fake(**kwargs):
@@ -240,7 +240,7 @@ def test_litellm_gemini_contract(monkeypatch):
         {"choices": [{"finish_reason": "stop", "message": {"content": '{"rewritten": 4}'}}]},
     ],
 )
-def test_bad_litellm_response_does_not_crash(monkeypatch, body):
+def test_bad_gemini_response_does_not_crash(monkeypatch, body):
     monkeypatch.setattr(backend, "_completion", lambda **_kwargs: body)
     assert backend.generate("test", 0.2, {"LLM_API_KEY": "test", "LLM_MODEL": "gemini/test"}) is None
 
@@ -390,29 +390,49 @@ def test_rule_and_null_reasons_are_visible(monkeypatch, caplog):
     assert "피드백 조각을 그대로 사용" in caplog.text
 
 
-def test_real_litellm_mock_response_without_key(monkeypatch):
-    import importlib.util
-    import os
-    import subprocess
-    import sys
+def test_real_gemini_path_without_network(monkeypatch):
+    """실제 _sdk → core.gemini 경로. urlopen 만 가짜로 바꿔 요청 본문과 응답 해석을 함께 확인한다."""
+    from clean_chat.core import gemini
 
-    if importlib.util.find_spec("litellm") is None:
-        pytest.skip("선택 의존성: uv sync --extra rewrite")
-    env = dict(os.environ, LITELLM_LOCAL_MODEL_COST_MAP="True", PYTHONUTF8="1")
-    for key in ("GEMINI_API_KEY", "LLM_API_KEY", "GOOGLE_API_KEY"):
-        env.pop(key, None)
-    script = """
-import json, logging
-logging.basicConfig(level=logging.WARNING)
-from clean_chat.modules.rewrite import backend
-payload=json.dumps({'rewritten':'ok','checks':{key:True for key in backend._MEANING_FIELDS}})
-sdk=backend._sdk()
-original=sdk.completion
-sdk.completion=lambda **kwargs: original(**kwargs,mock_response=payload)
-assert backend._request('test','dummy-key','gemini/gemini-3.1-flash-lite',1) == 'ok'
-"""
-    result = subprocess.run([sys.executable, "-c", script], env=env, capture_output=True, text=True, timeout=120)
-    assert result.returncode == 0, result.stderr
+    REAL_SDK.cache_clear()
+    monkeypatch.setattr(backend, "_sdk", REAL_SDK)
+    monkeypatch.setattr(backend, "_completion", lambda **kwargs: REAL_SDK().completion(**kwargs))
+    sent = []
+    payload = json.dumps({"rewritten": "ok", "checks": {key: True for key in backend._MEANING_FIELDS}})
+    reply = {
+        "candidates": [
+            {
+                "content": {"parts": [{"text": "생각", "thought": True}, {"text": payload}]},
+                "finishReason": "STOP",
+            }
+        ]
+    }
+
+    class Reply:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+        def read(self, _limit):
+            return json.dumps(reply).encode()
+
+    def urlopen(req, timeout, context):
+        sent.append(req)
+        return Reply()
+
+    monkeypatch.setattr(gemini.urllib.request, "urlopen", urlopen)
+    try:
+        assert backend._request("test", "dummy-key", "gemini/gemini-3.1-flash-lite", 1) == "ok"
+    finally:
+        REAL_SDK.cache_clear()
+    (req,) = sent
+    assert req.full_url.endswith("/v1alpha/models/gemini-3.1-flash-lite:generateContent")
+    assert "dummy-key" not in req.full_url and req.get_header("X-goog-api-key") == "dummy-key"
+    body = json.loads(req.data)
+    assert body["system_instruction"] == {"parts": [{"text": backend._SYSTEM_INSTRUCTION}]}
+    assert body["generationConfig"]["thinkingConfig"] == {"thinkingLevel": "minimal", "includeThoughts": True}
 
 
 @pytest.mark.parametrize(
@@ -841,6 +861,7 @@ subprocess.Popen=forbidden
 threading.Thread.start=forbidden
 from clean_chat.modules.rewrite import impl
 assert 'litellm' not in sys.modules
+assert 'clean_chat.core.gemini' not in sys.modules
 assert not Path('.clean-chat').exists()
 """
     env = dict(
@@ -853,16 +874,13 @@ assert not Path('.clean-chat').exists()
     assert result.returncode == 0, result.stderr
 
 
-def test_sdk_is_cached_in_process_without_process_management(monkeypatch):
-    import sys
-    from types import SimpleNamespace
+def test_sdk_is_cached_in_process_without_process_management():
+    from clean_chat.core import gemini
 
-    sdk = SimpleNamespace()
-    monkeypatch.setitem(sys.modules, "litellm", sdk)
     REAL_SDK.cache_clear()
     try:
-        assert REAL_SDK() is sdk
-        assert REAL_SDK() is sdk
+        assert REAL_SDK() is gemini
+        assert REAL_SDK() is gemini
         assert REAL_SDK.cache_info().misses == 1
         assert REAL_SDK.cache_info().hits == 1
     finally:

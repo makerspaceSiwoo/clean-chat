@@ -26,18 +26,26 @@ ocr = [
     "onnxruntime>=1.20,<1.24; sys_platform == 'darwin'",
     "onnxruntime>=1.32,<2; sys_platform != 'darwin'",
 ]
+# 앱이 analyze 분류 모델을 받고 돌리는 데 필요한 것 (ONNX 추론, torch 없음). 설치 파일은 이 extra 로 만든다.
+analyze-app = [
+    "numpy>=1.26",
+    "tokenizers>=0.20",
+    "huggingface-hub>=0.30",
+    "onnxruntime>=1.20,<1.24; sys_platform == 'darwin'",
+    "onnxruntime>=1.32,<2; sys_platform != 'darwin'",
+]
+# 학습·평가·ONNX 내보내기 (개발용, 앱에는 넣지 않는다)
 analyze = [
     "torch>=2.3",
     "transformers>=4.44",
     "scikit-learn>=1.5",
+    "onnx>=1.17",
 ]
 report = [
-    "litellm>=1.110.2",
     "reportlab>=4.2",
 ]
-rewrite = [
-    "litellm>=1.110.2",
-]
+# Gemini 는 core/gemini.py 가 표준 라이브러리로 직접 부른다 (litellm 제거). 기존 명령이 깨지지 않게 extra 이름만 남긴다.
+rewrite = []
 
 [dependency-groups]
 dev = [

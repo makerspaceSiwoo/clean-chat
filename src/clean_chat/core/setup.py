@@ -3,21 +3,23 @@
 앱은 이 두 가지가 준비된 뒤에 시작한다 (화면은 ui/setup.py).
   - Gemini API 키: 순화(rewrite)·고소장 초안(report)에 쓴다. 없으면 순화 결과가 비어 피드백까지 숨겨진다.
   - analyze 모델: 실시간 필터의 분류 모델. 없으면 규칙만으로 돌아 정확도가 크게 떨어진다.
-torch · transformers · huggingface_hub 는 analyze extra 라서 함수 안에서만 import 한다.
+모델은 ONNX 로 돌린다(onnxruntime · tokenizers, torch 없음). 패키지는 함수 안에서만 import 한다.
 """
 
 from __future__ import annotations
 
 import importlib.util
 import os
+import sys
 from pathlib import Path
 
 from clean_chat.core.config import current_llm_key, settings
 
 SKIP_ENV = "CLEAN_CHAT_SKIP_SETUP"  # 값이 있으면 준비 화면을 건너뛴다 (CI 실행 확인, 자동 테스트용)
 APP_MODELS = ("classifier",)  # 앱이 쓰는 모델. 대화 판단(judge) 모델은 시뮬레이터에서만 쓴다.
-RUNTIME = ("torch", "transformers", "huggingface_hub")
-INSTALL_HINT = "uv sync --extra ui --extra ocr --extra analyze --extra rewrite --extra report"
+# 모델을 받고 돌리는 패키지 (ocr · analyze-app extra). torch·transformers 는 학습용(analyze extra)이라 앱에 없다.
+RUNTIME = ("onnxruntime", "tokenizers", "huggingface_hub")
+INSTALL_HINT = "uv sync --extra ui --extra ocr --extra analyze-app --extra rewrite --extra report"
 
 
 def key_ready() -> bool:
@@ -25,7 +27,7 @@ def key_ready() -> bool:
 
 
 def runtime_ready() -> bool:
-    """모델을 돌릴 패키지(analyze extra)가 설치돼 있는가."""
+    """모델을 받고 돌릴 패키지가 설치돼 있는가."""
     return all(importlib.util.find_spec(name) is not None for name in RUNTIME)
 
 
@@ -79,6 +81,30 @@ def download_models() -> None:
     from clean_chat.modules.analyze import weights
 
     weights.download(missing_models())
+    remove_unused_weights()
+
+
+def remove_unused_weights() -> list[Path]:
+    """앱이 더 쓰지 않는 예전 가중치를 지운다. torch 로 돌던 버전이 받아 둔 model.safetensors(약 430MB) 등.
+
+    설치한 앱에서만, ONNX 파일까지 다 받은 모델 폴더에서만 지운다 (받다가 끊긴 상태에서는 남겨 둔다).
+    개발 환경의 models/ 는 학습·내보내기에 safetensors 가 필요해서 건드리지 않는다.
+    """
+    from clean_chat.modules.analyze import weights
+
+    if not getattr(sys, "frozen", False):
+        return []
+    removed = []
+    for name in APP_MODELS:
+        folder = weights.folder(name)
+        if name in weights.missing([name]):
+            continue
+        for file in set(weights.ALL_FILES) - set(weights.RUN_FILES[name]):
+            path = folder / file
+            if path.is_file():
+                path.unlink()
+                removed.append(path)
+    return removed
 
 
 def warm_up() -> str | None:
@@ -111,14 +137,3 @@ def prepare_models() -> None:
     warm_up_ocr()
     if models_ready():
         warm_up()
-    warm_up_llm()
-
-
-def warm_up_llm() -> bool:
-    """순화에 쓰는 LLM 호출 패키지를 미리 불러온다. 처음 불러오는 데 2초쯤 걸려 첫 순화가 3초 제한을 넘겼다."""
-    try:
-        from clean_chat.modules.rewrite import backend
-
-        return backend._sdk() is not None
-    except Exception:
-        return False

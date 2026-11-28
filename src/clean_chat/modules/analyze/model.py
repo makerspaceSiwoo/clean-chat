@@ -5,8 +5,10 @@
   meta.json   {"version": "kcelectra-base-ft-0.1", "labels": ["profanity", ...], "max_length": 64}
 폴더를 바꾸려면 환경 변수 CLEAN_CHAT_ANALYZE_MODEL 에 경로를 준다.
 
-torch · transformers 는 analyze extra 라서(`uv sync --extra analyze`) 함수 안에서만 import 한다.
-불러오다 실패하면 한 번만 경고하고 규칙으로 계속 간다 (앱을 멈추지 않는다).
+실행 방식은 두 가지이고 점수는 같다 (dev_eval·labeled_parsed 판정 차이 0, export_onnx.py 참고).
+  ONNX   model.onnx + tokenizer.json → onnxruntime · tokenizers. 앱은 이것만 쓴다 (torch 없이, 더 빠르다).
+  torch  model.safetensors → torch · transformers (analyze extra). model.onnx 가 없을 때 (학습 직후 등).
+패키지는 함수 안에서만 import 한다. 불러오다 실패하면 한 번만 경고하고 규칙으로 계속 간다 (앱을 멈추지 않는다).
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ import json
 import logging
 import os
 import threading
+from collections.abc import Callable
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -38,22 +41,73 @@ def _load(path: Path) -> dict[str, Any] | None:
         return _load_once(path)
 
 
+ONNX_FILE = "model.onnx"
+
+
 @cache
 def _load_once(path: Path) -> dict[str, Any] | None:
     if not (path / "config.json").exists() or not (path / "meta.json").exists():
         return None
     try:
-        import torch
-        from transformers import AutoModelForSequenceClassification, AutoTokenizer
-
         meta = json.loads((path / "meta.json").read_text(encoding="utf-8"))
-        tokenizer = AutoTokenizer.from_pretrained(path)
-        net = AutoModelForSequenceClassification.from_pretrained(path)
-        net.eval()
-        return {"torch": torch, "tokenizer": tokenizer, "net": net, "meta": meta}
+        if (path / ONNX_FILE).exists():
+            try:
+                return {"run": _onnx_runner(path, meta), "meta": meta, "backend": "onnx"}
+            except ImportError:  # onnxruntime·tokenizers 가 없는 학습 환경(analyze extra 만)
+                if not (path / "model.safetensors").exists():
+                    raise
+                logger.info("onnxruntime 이 없어 torch 로 analyze 모델을 실행합니다")
+        return {"run": _torch_runner(path, meta), "meta": meta, "backend": "torch"}
     except Exception:
         logger.exception("analyze 모델을 불러오지 못했습니다 (%s) → 규칙만 사용", path)
         return None
+
+
+def _onnx_runner(path: Path, meta: dict[str, Any]) -> Callable[[str], list[float]]:
+    import numpy as np
+    import onnxruntime
+    from tokenizers import Tokenizer
+
+    tokenizer = Tokenizer.from_file(str(path / "tokenizer.json"))
+    tokenizer.enable_truncation(int(meta.get("max_length", 64)))
+    tokenizer.no_padding()
+    session = onnxruntime.InferenceSession(str(path / ONNX_FILE), providers=["CPUExecutionProvider"])
+    names = {i.name for i in session.get_inputs()}
+
+    def run(text: str) -> list[float]:
+        enc = tokenizer.encode(text)
+        feed = {"input_ids": np.array([enc.ids], dtype=np.int64)}
+        if "attention_mask" in names:
+            feed["attention_mask"] = np.array([enc.attention_mask], dtype=np.int64)
+        if "token_type_ids" in names:
+            feed["token_type_ids"] = np.array([enc.type_ids], dtype=np.int64)
+        logits = session.run(None, feed)[0][0].astype(np.float64)
+        return (1.0 / (1.0 + np.exp(-logits))).tolist()
+
+    return run
+
+
+def _torch_runner(path: Path, meta: dict[str, Any]) -> Callable[[str], list[float]]:
+    import torch
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(path)
+    net = AutoModelForSequenceClassification.from_pretrained(path)
+    net.eval()
+    max_length = int(meta.get("max_length", 64))
+
+    def run(text: str) -> list[float]:
+        batch = tokenizer(text, truncation=True, max_length=max_length, return_tensors="pt")
+        with torch.no_grad():
+            return torch.sigmoid(net(**batch).logits[0]).tolist()
+
+    return run
+
+
+def backend() -> str | None:
+    """불러온 모델의 실행 방식 ("onnx" · "torch"). 모델이 없으면 None."""
+    loaded = _load(model_dir())
+    return loaded["backend"] if loaded else None
 
 
 def version() -> str | None:
@@ -68,13 +122,8 @@ def predict(text_norm: str) -> dict[str, float]:
     if loaded is None:
         return {}
     try:
-        torch, meta = loaded["torch"], loaded["meta"]
-        batch = loaded["tokenizer"](
-            text_norm, truncation=True, max_length=int(meta.get("max_length", 64)), return_tensors="pt"
-        )
-        with torch.no_grad():
-            probs = torch.sigmoid(loaded["net"](**batch).logits[0]).tolist()
-        return {label: float(p) for label, p in zip(meta["labels"], probs, strict=True)}
+        probs = loaded["run"](text_norm)
+        return {label: float(p) for label, p in zip(loaded["meta"]["labels"], probs, strict=True)}
     except Exception:
         logger.exception("analyze 모델 실행 실패 → 이 문장은 규칙만 사용")
         return {}
