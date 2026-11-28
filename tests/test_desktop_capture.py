@@ -303,7 +303,8 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
     color[0] = Qt.green
     app.overlay.resize(310, 130)
     app.client.btn_lock.click()
-    tick()
+    # 다시 시작할 때 낸 캡처가 끝난 뒤 한 번만 갱신한다. 끝났는지에 따라 tick 결과가 달라지지 않게 먼저 기다린다.
+    preview.pending.result(timeout=2)
     tick()
     assert app.client.preview_count == 1
     assert app.client.preview_image.pixmap().toImage().pixelColor(0, 0) == QColor(Qt.green)
