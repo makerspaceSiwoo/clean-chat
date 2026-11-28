@@ -190,3 +190,87 @@ def test_chat_log_shows_every_chat_of_last_game_and_survives_restart(tmp_path):
     reopened = ClientWindow(history)  # 앱을 다시 열어도 직전 게임 기록이 남아 있다
     assert reopened.log_table.rowCount() == 5 and reopened.btn_copy_log.isEnabled()
     reopened.close()
+
+
+def _ready_editor(qt, tmp_path: Path):
+    complaint = drafts()[-1]
+    client = ClientWindow(tmp_path / "recent.json")
+    client.show()
+    client.show_result(PostGameResult(session_id="경기 1", complaints=[complaint]))
+    client.open_editor(complaint)
+    qt.processEvents()
+    editor = client.editor
+    editor.tag.setText("KR1")
+    editor.ack.setChecked(True)
+    return client, editor
+
+
+def test_pdf_default_location_is_writable_even_when_app_runs_from_root(tmp_path: Path, monkeypatch) -> None:
+    """설치한 앱의 작업 폴더는 "/" (읽기 전용) 다. 기본 이름만 주면 저장 창이 "/" 에서 열려 저장이 실패했다."""
+    qt = QApplication.instance() or QApplication([])
+    (tmp_path / "Downloads").mkdir()
+    monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    monkeypatch.chdir("/")
+    asked = []
+    # 사용자가 기본 위치 그대로 "저장" 을 누른 경우
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args: (asked.append(args[2]) or args[2], "PDF"))
+    client, editor = _ready_editor(qt, tmp_path)
+    editor.download.click()
+    saved = Path(asked[0])
+    assert saved.is_absolute() and saved.parent == tmp_path / "Downloads"
+    assert saved.name.startswith("고소장-초안-얼음땡-") and saved.suffix == ".pdf"
+    assert saved.read_bytes().startswith(b"%PDF") and "PDF 저장 완료" in client.toast.text()
+    client.close()
+
+
+def test_pdf_text_is_document_size(tmp_path: Path) -> None:
+    """미리보기의 px 글자 크기가 1200dpi 로 찍혀 A4 에 글자가 아주 작게 나오던 문제."""
+    pytest.importorskip("PySide6.QtPdf")
+    from PySide6.QtPdf import QPdfDocument
+
+    qt = QApplication.instance() or QApplication([])
+    client, editor = _ready_editor(qt, tmp_path)
+    path = tmp_path / "draft.pdf"
+    editor.save_pdf(path)
+    doc = QPdfDocument()
+    doc.load(str(path))
+    title = doc.getSelectionAtIndex(0, 0, 3).boundingRectangle()  # "고 소 장"
+    assert title.height() >= 12  # pt (A4 = 595 × 842 pt). 고치기 전에는 2pt 쯤이었다
+    client.close()
+
+
+@pytest.mark.parametrize(
+    ("typed", "shown"),
+    [
+        ("01012345678", "010-1234-5678"),
+        ("0101234567", "010-123-4567"),
+        ("0212345678", "02-1234-5678"),
+        ("021234567", "02-123-4567"),
+        ("15881234", "1588-1234"),
+        ("0101", "010-1"),
+        ("010-1234-5678", "010-1234-5678"),
+        ("010 abc 1234 5678 9", "010-1234-5678"),  # 숫자가 아니면 버리고 11자리까지
+        ("", ""),
+    ],
+)
+def test_phone_number_is_digits_with_hyphens(typed: str, shown: str) -> None:
+    from clean_chat.ui.complaint import format_phone
+
+    assert format_phone(typed) == shown
+
+
+def test_contact_field_accepts_digits_only_and_shows_hyphens(tmp_path: Path) -> None:
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+
+    qt = QApplication.instance() or QApplication([])
+    client, editor = _ready_editor(qt, tmp_path)
+    QTest.keyClicks(editor.contact, "010ab1234-5678")
+    assert editor.contact.text() == "010-1234-5678"
+    assert "010-1234-5678" in editor.paper.toPlainText()  # 미리보기·PDF 에도 하이픈이 들어간 번호
+    QTest.keyClick(editor.contact, Qt.Key_Backspace)
+    assert editor.contact.text() == "010-123-4567"  # 10자리는 3-3-4 로 다시 나눈다
+    editor.contact.setCursorPosition(4)  # "010-|123…" → 하이픈만 지우면 그 앞 숫자가 지워진다
+    QTest.keyClick(editor.contact, Qt.Key_Backspace)
+    assert editor.contact.text() == "011-234-567"
+    client.close()
