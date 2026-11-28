@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import logging
 import threading
 import time
 import uuid
@@ -113,6 +114,9 @@ class MessageFilters:
     def run(self, message: ChatMessage) -> tuple[Analysis, Rewrite | None]:
         analysis = self.analyze(message)
         return analysis, self.rewrite(message, analysis)
+
+
+capture_log = logging.getLogger("clean_chat.capture")  # 앱이 사용자 데이터 폴더의 파일로 연결한다 (ui/app.py)
 
 
 def _key(text: str) -> str:
@@ -252,8 +256,19 @@ class IncomingPipeline:
         return [inc for line in self.read_frame(frame) if (inc := self.process_line(line))]
 
     def read_frame(self, frame: Frame) -> list[RawLine]:
+        started = time.perf_counter()
         result: OcrResult = self.modules.run("ocr", frame)
-        return self.dedup.new_lines(result.lines)
+        fresh = self.dedup.new_lines(result.lines)
+        size = "x".join(map(str, frame.image.size)) if frame.image is not None else frame.image_path
+        capture_log.info(
+            "캡처 %s · OCR %.0fms · 읽은 줄 %d · 새 줄 %d%s",
+            size,
+            (time.perf_counter() - started) * 1000,
+            len(result.lines),
+            len(fresh),
+            "".join(f"\n    + {line.text}" for line in fresh),
+        )
+        return fresh
 
     def parse(self, line: RawLine) -> ParseResult:
         result: ParseResult = self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))

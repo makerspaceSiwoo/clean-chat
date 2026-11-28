@@ -86,3 +86,28 @@ def warm_up() -> str | None:
     from clean_chat.modules.analyze import model
 
     return model.version()
+
+
+def warm_up_ocr() -> bool:
+    """OCR 엔진을 미리 준비한다. 처음이면 OCR 모델(약 18MB)을 여기서 받는다 (게임 중 첫 판독이 늦지 않게).
+
+    작은 빈 이미지를 한 번 읽혀 엔진을 띄운다. 패키지가 없거나 실패하면 False (앱은 계속 돈다).
+    """
+    try:
+        from PIL import Image
+
+        from clean_chat.core.modules import load
+        from clean_chat.core.schemas import Frame, Region
+
+        with Image.new("RGB", (320, 64), "black") as image:
+            load("ocr")(Frame(id="warm-up", ts=0, image_path="", region=Region(x=0, y=0, w=320, h=64), image=image))
+        return True
+    except Exception:
+        return False
+
+
+def prepare_models() -> None:
+    """앱을 열자마자 백그라운드에서 부른다: OCR 엔진 → 분석 모델 순서로 준비."""
+    warm_up_ocr()
+    if models_ready():
+        warm_up()
