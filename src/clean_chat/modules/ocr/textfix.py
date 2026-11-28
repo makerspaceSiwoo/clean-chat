@@ -3,7 +3,9 @@
 1. 웃음 자모: `ㅋㅋㅋㅋㅋㅋㅋ` 를 `키키키ㅋ키키`, `카ㅋㅋ카카크키`, `ㅋㅋ브ㅋㅋㅋㅋ` 로 읽는다 → 다시 `ㅋ` 로.
 2. 채팅 머리: `[전체]닉네임(챔피언)내용` 처럼 `:` 과 띄어쓰기를 빠뜨리고 괄호를 섞어 읽는다(`[전체)`, `(가렌]`)
    → `[전체] 닉네임 (챔피언): 내용`. `:` 이 없으면 parse 가 채팅으로 보지 않아 그 줄이 통째로 사라진다.
-낱말을 추측해서 바꾸지는 않는다. 채널 표시(`[전체]`·`[팀]`)로 시작하는 줄만 채팅 머리로 본다.
+   팀 채팅은 채널 표시 없이 시간으로 시작한다: `[13:18]돌여울(가렌)정글 …` → `[13:18] 돌여울 (가렌): 정글 …`.
+낱말을 추측해서 바꾸지는 않는다. 채널 표시(`[전체]`·`[팀]`)나 시간(`[03:35]`)으로 시작하는 줄만 채팅 머리로 본다.
+`(챔피언)님이 …` 로 이어지는 시스템 알림은 채팅 머리로 바꾸지 않는다.
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ _SHARE = 0.7  # 낱말의 한글 중 이 비율 이상이 웃음 글자여야 �
 # [시간] [채널] 닉네임 (챔피언) : 내용 — 괄호 짝이 틀리거나 띄어쓰기·콜론이 빠져도 찾는다.
 _HEAD = re.compile(
     r"^\s*(?P<time>\[\d{1,2}:\d{2}\])?\s*"
-    r"\[(?P<channel>전체|팀)[\]\)]\s*"
+    r"(?:\[(?P<channel>전체|팀)[\]\)]\s*)?"
     r"(?P<name>[^\[\]\(\):]{1,24}?)\s*"
     r"[\(\[](?P<champion>[^\[\]\(\):]{1,12})[\)\]]\s*"
     r":?\s*(?P<body>.*)$"
@@ -44,12 +46,20 @@ def fix_laughs(text: str) -> str:
 
 
 def fix_chat_head(text: str) -> str:
-    """채널 표시로 시작하는 줄의 머리를 `[채널] 닉네임 (챔피언): 내용` 으로 맞춘다. 내용이 없으면 그대로 둔다."""
+    """채널 표시나 시간으로 시작하는 줄의 머리를 `[시간] [채널] 닉네임 (챔피언): 내용` 으로 맞춘다.
+
+    내용이 없거나, 채널·시간이 둘 다 없거나, `(챔피언)님이 …` 시스템 알림이면 그대로 둔다.
+    """
     match = _HEAD.match(text)
-    if not match or not match["body"].strip() or not match["name"].strip():
+    if not match or not (match["time"] or match["channel"]) or not match["name"].strip():
+        return text
+    body = match["body"].strip()
+    if not body or body.startswith("님"):
         return text
     time = f"{match['time']} " if match["time"] else ""
-    return f"{time}[{match['channel']}] {match['name'].strip()} ({match['champion'].strip()}): {match['body'].strip()}"
+    channel = f"[{match['channel']}] " if match["channel"] else ""
+    champion = match["champion"].strip(" |")  # OCR 이 괄호 앞에 세로줄을 붙여 읽는다 ("(쓰레쉬|)")
+    return f"{time}{channel}{match['name'].strip()} ({champion}): {body}"
 
 
 def tidy(text: str) -> str:

@@ -383,7 +383,9 @@ def test_other_provider_is_not_called(monkeypatch):
 def test_rule_and_null_reasons_are_visible(monkeypatch, caplog):
     with caplog.at_level("INFO"):
         assert impl.run(request()).backend == "rule"
-        assert impl.run(request("야 뭐하냐고", ["야 뭐하냐고"])).rewritten == "야 뭐하냐고"
+        assert impl.run(request("타워 다이브 조심", ["타워 다이브 조심"])).rewritten == "타워 다이브 조심"
+        # 비난("뭐하냐")이 든 조각은 다듬지 못하면 그대로 보이지 않는다 (OCR 이 "뭐하냐용" 처럼 붙여 읽어 조각에 섞임)
+        assert impl.run(request("정글 뭐하냐용 한타 합류해", ["뭐하냐용 한타 합류해"])).rewritten is None
     assert "AI 생성이 아닌" in caplog.text
     assert "피드백 조각을 그대로 사용" in caplog.text
 

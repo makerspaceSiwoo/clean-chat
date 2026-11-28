@@ -197,7 +197,7 @@ def _still_abusive(text: str, profanity: list[str] | None = None) -> bool:
         re.search(
             unicodedata.normalize(
                 "NFKC",
-                r"못하네|못함[ㅋㅎ]|트롤(?:이네|이냐|새끼|놈)|(?:너|넌|니가)트롤|^(?:너|넌|그냥)?죽어(?:라|버려)?$",
+                r"못하네|못함[ㅋㅎ]|뭐하(?:냐|노|니|는거)|뭐함|트롤(?:이네|이냐|새끼|놈)|(?:너|넌|니가)트롤|^(?:너|넌|그냥)?죽어(?:라|버려)?$",
             ),
             folded,
         )

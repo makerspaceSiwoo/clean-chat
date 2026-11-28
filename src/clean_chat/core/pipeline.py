@@ -227,9 +227,16 @@ class SpeakerBook:
     """
 
     SIMILARITY = 0.6  # 같은 챔피언일 때 같은 사람으로 볼 닉네임 유사도
+    # 깨진 머리 복구 (repair_head). 틀린 사람에게 붙으면 신고·고소장이 엉뚱한 사람에게 가므로 엄격하게 본다.
+    REPAIR_SIMILARITY = 0.75  # "닉네임+챔피언" 과 머리 끝부분의 유사도 (합성 영상의 실제 오독이 0.80)
+    REPAIR_MARGIN = 0.1  # 1등과 2등 후보의 차이. 비슷한 사람이 둘이면 복구하지 않는다
+    REPAIR_EXTRA = 8  # 머리에서 "닉네임+챔피언" 외에 허용하는 글자 수 (깨진 시간·채널 표시)
 
     def __init__(self) -> None:
         self.seen: list[tuple[str, str]] = []  # (닉네임, 챔피언)
+        self.said: deque[tuple[str, str]] = deque(
+            maxlen=15
+        )  # 최근 처리한 말 (닉네임, 내용 key) — 복구한 줄의 중복 확인용
 
     def resolve(self, message: ChatMessage, players: list[Player]) -> ChatMessage:
         if not message.speaker or not message.champion or message.is_me:
@@ -240,6 +247,52 @@ class SpeakerBook:
             self.seen.append((message.speaker, message.champion))
             return message
         return message if name == message.speaker else message.model_copy(update={"speaker": name})
+
+    def repair_head(self, text: str, players: list[Player]) -> str | None:
+        """머리가 깨져 채팅으로 읽히지 않은 줄을, 이번 게임에서 이미 본 사람(또는 명단)과 맞춰 `닉네임 (챔피언): 내용` 으로.
+
+        예) "-[06:0거돌여울아렌):리신 엄마없이자랐냐" → "돌여울 (가렌): 리신 엄마없이자랐냐"
+            (채팅창 뒤 HUD 때문에 시간의 "7]" 을 "거" 로, 챔피언 앞 "(" 를 못 읽음)
+        복구하지 않는 경우: `):` 가 없거나 내용이 비었음(줄이 쪼개진 화자 조각), 머리가 너무 김,
+        가장 비슷한 사람이 기준 미만, 비슷한 사람이 둘 이상. 처음 말하는 사람은 비교할 대상이 없어 복구되지 않는다.
+        """
+        head, sep, body = text.partition("):")
+        if not sep or not _key(body):
+            return None
+        known = list(dict.fromkeys([(p.name, p.champion) for p in players if p.champion] + self.seen))
+        head_key = _key(head)
+        scored = sorted(
+            ((self._tail_score(head_key, _key(name) + _key(champ)), name, champ) for name, champ in known),
+            reverse=True,
+        )
+        if not scored or scored[0][0] < self.REPAIR_SIMILARITY:
+            return None
+        if len(scored) > 1 and scored[0][0] - scored[1][0] < self.REPAIR_MARGIN:
+            return None
+        _, name, champion = scored[0]
+        channel = "[전체] " if "전체" in head else ""
+        return f"{channel}{name} ({champion}): {body.strip()}"
+
+    def _tail_score(self, head_key: str, want: str) -> float:
+        """머리 끝부분이 "닉네임+챔피언" 과 얼마나 같은가. 앞의 깨진 시간·채널 표시는 버리고 끝을 비교한다."""
+        if not want or len(head_key) > len(want) + self.REPAIR_EXTRA:
+            return 0.0
+        return max(
+            SequenceMatcher(None, head_key[-n:], want).ratio()
+            for n in (len(want) - 1, len(want), len(want) + 1)
+            if n > 0
+        )
+
+    def remember(self, message: ChatMessage) -> None:
+        self.said.append((message.speaker, _key(message.text)))
+
+    def said_recently(self, message: ChatMessage) -> bool:
+        """같은 사람이 최근에 같은 말을 했는가. 복구한 줄이 이미 처리한 줄을 다르게 읽은 것이면 두 번 세지 않는다."""
+        body = _key(message.text)
+        return any(
+            speaker == message.speaker and SequenceMatcher(None, said, body).ratio() >= BODY_SIMILARITY
+            for speaker, said in self.said
+        )
 
     def _match(self, speaker: str, champion: str, known: list[tuple[str, str]]) -> str | None:
         best, best_score = None, self.SIMILARITY
@@ -281,8 +334,27 @@ class IncomingPipeline:
 
     def parse(self, line: RawLine) -> ParseResult:
         result: ParseResult = self.modules.run("parse", ParseRequest(line=line, my_name=settings.my_name))
+        if result.message is None and not result.system_text:
+            result = self._repaired(line) or result
         if result.message is not None:  # 같은 사람(닉네임 + 챔피언)은 같은 닉네임 표기로 맞춘다
             result.message = self.speakers.resolve(result.message, self.roster.players)
+            self.speakers.remember(result.message)
+        return result
+
+    def _repaired(self, line: RawLine) -> ParseResult | None:
+        """머리가 깨진 줄을 이미 본 사람과 맞춰 다시 parse. 복구한 말이 최근에 이미 처리한 말이면 버린다 (중복 신고 방지)."""
+        fixed = self.speakers.repair_head(line.text, self.roster.players)
+        if fixed is None:
+            return None
+        result: ParseResult = self.modules.run(
+            "parse", ParseRequest(line=line.model_copy(update={"text": fixed}), my_name=settings.my_name)
+        )
+        if result.message is None:
+            return None
+        if self.speakers.said_recently(result.message):
+            capture_log.info("머리 복구 → 이미 처리한 말이라 버림: %s", fixed)
+            return None
+        capture_log.info("머리 복구: %s → %s", line.text, fixed)
         return result
 
     def process_line(self, line: RawLine) -> Incident | None:

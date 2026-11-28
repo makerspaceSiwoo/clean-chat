@@ -1,5 +1,7 @@
 """연결 구조 (구성): 가짜 모듈로 흐름 A/B, 게임 세션, 종료 배치가 제대로 이어지는지. 모듈 로직은 보지 않는다."""
 
+import pytest
+
 from clean_chat.core.config import FIXTURES
 from clean_chat.core.engine import Engine
 from clean_chat.core.jsonl import read_jsonl
@@ -15,6 +17,7 @@ from clean_chat.core.schemas import (
     RawLine,
     ReportKind,
     ReportRequest,
+    Source,
 )
 from clean_chat.core.sources import DemoLineSource
 from clean_chat.session.fake import FakePhaseDetector
@@ -305,3 +308,73 @@ def test_speaker_is_one_person_per_nickname_and_champion():
     roster = [Player(name="밤하늘별", champion="가렌"), Player(name="초코우유", champion="리신")]
     assert SpeakerBook().resolve(msg("밤하늘벌", "가렌"), roster).speaker == "밤하늘별"  # 명단의 표기로 맞춘다
     assert SpeakerBook().resolve(msg("밤하늘벌", "리신"), roster).speaker == "밤하늘벌"  # 챔피언이 다르면 그대로
+
+
+# ── 깨진 채팅 머리 복구 (합성 영상 점검 2026-11-28) ─────────────────────────────────
+# 채팅창 뒤로 HUD 가 겹치면 OCR 이 머리를 "-[06:0거돌여울아렌):…" 처럼 읽는다 ("7]"→"거", "(" 빠짐).
+# 복구는 이미 본 사람과만 맞춘다. 틀린 사람에게 붙으면 신고·고소장이 엉뚱한 사람에게 가므로 애매하면 하지 않는다.
+def _real_parse_pipeline():
+    from clean_chat.modules.parse.impl import run as parse_run
+
+    return Pipelines(fixture_modules(parse=parse_run)).incoming
+
+
+def _raw(i: int, text: str) -> RawLine:
+    return RawLine(id=f"R{i}", ts=float(i), text=text, source=Source.OCR)
+
+
+def test_broken_head_is_repaired_with_a_speaker_seen_before():
+    incoming = _real_parse_pipeline()
+    incoming.parse(_raw(0, "[03:25] 돌여울 (가렌): 정글 미쳤나봐"))
+    for broken in ("-[06:0거돌여울아렌):리신 엄마없이자랐냐", "[06:0거돌여울가렌): 리신 엄마없이자랐냐"):
+        incoming.speakers.said.clear()
+        msg = incoming.parse(_raw(1, broken)).message
+        assert msg is not None, broken
+        assert (msg.speaker, msg.champion, msg.text) == ("돌여울", "가렌", "리신 엄마없이자랐냐")
+
+
+def test_broken_head_of_a_first_time_speaker_is_not_guessed():
+    incoming = _real_parse_pipeline()
+    incoming.parse(_raw(0, "[03:25] 여름비 (아리): 미드 미아"))
+    assert incoming.parse(_raw(1, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message is None
+
+
+def test_broken_head_is_not_repaired_when_two_people_are_similar():
+    from clean_chat.core.pipeline import SpeakerBook
+
+    book = SpeakerBook()
+    book.seen = [("돌여울", "가렌"), ("돌여을", "가렌")]  # 블라인드 픽: 양 팀에 가렌이 둘
+    assert book.repair_head("-[06:0거돌여어가렌):리신 엄마없이자랐냐", []) is None  # 둘 다 0.8 → 고르지 않는다
+    assert (
+        book.repair_head("-[06:0거돌여울아렌):리신 엄마없이자랐냐", []) == "돌여울 (가렌): 리신 엄마없이자랐냐"
+    )  # 0.8 대 0.6
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "[전체]돌여울 (가렌):",  # 줄이 쪼개져 내용이 없는 화자 조각
+        "[04:25] 돌여울 (가렌)님이 적이 사라졌다고 알림",  # 시스템 알림 (콜론 없음)
+        "아까 한타에서 돌여울가렌이 진짜 잘했는데 다음엔 더 잘하자 (ㅋㅋ): 응",  # 머리가 너무 긴 문장
+    ],
+)
+def test_other_lines_are_not_repaired(text):
+    from clean_chat.core.pipeline import SpeakerBook
+
+    book = SpeakerBook()
+    book.seen = [("돌여울", "가렌")]
+    assert book.repair_head(text, []) is None
+
+
+def test_repaired_line_already_processed_is_not_counted_twice():
+    """같은 줄을 한 번은 바르게, 한 번은 깨지게 읽으면 신고 증거가 두 번 들어가지 않게 한다."""
+    incoming = _real_parse_pipeline()
+    assert incoming.parse(_raw(0, "[06:07] 돌여울 (가렌): 리신 엄마 없이 자랐냐")).message is not None
+    assert incoming.parse(_raw(1, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message is None
+
+
+def test_roster_is_used_for_repair_too():
+    incoming = _real_parse_pipeline()
+    incoming.roster.players = [Player(name="돌여울", champion="가렌"), Player(name="여름비", champion="아리")]
+    msg = incoming.parse(_raw(0, "-[06:0거돌여울아렌):리신 엄마없이자랐냐")).message
+    assert msg is not None and msg.speaker == "돌여울"
