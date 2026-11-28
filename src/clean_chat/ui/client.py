@@ -234,14 +234,15 @@ class ClientWindow(QMainWindow):
         home.addLayout(recent)
 
         preview, content = card("캡처 미리보기")
-        self.preview_only = QCheckBox("오버레이 아래 화면 미리보기 (OCR 끔)")
-        self.preview_only.setChecked(True)
+        self.preview_toggle = QCheckBox("읽고 있는 영역 보기")  # 표시만 켜고 끈다. 채팅 판독(OCR)과는 무관하다.
+        self.preview_toggle.setChecked(True)
+        self.preview_toggle.toggled.connect(self._preview_toggled)
         self.preview_info = label("위치 잠금 대기", "caption")
         self.preview_image = label("위치 잠금 후 첫 이미지가 표시됩니다.", "muted")
         self.preview_image.setAlignment(Qt.AlignCenter)
         self.preview_image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self.preview_image.setMinimumHeight(115)
-        content.addWidget(self.preview_only)
+        content.addWidget(self.preview_toggle)
         content.addWidget(self.preview_info)
         content.addWidget(self.preview_image)
         self.preview_card = preview
@@ -545,7 +546,16 @@ class ClientWindow(QMainWindow):
         subprocess.Popen(["/usr/bin/open", "-R", str(Path(sys.executable).parents[2])])
 
     @Slot(QImage)
+    def _preview_toggled(self, shown: bool) -> None:
+        self.preview_count = 0
+        self.preview_info.setText("캡처 미리보기" if shown else "미리보기 꺼짐 · 채팅은 계속 읽습니다")
+        self.preview_image.clear()  # 꺼면 마지막 이미지도 지운다
+        if shown:
+            self.preview_image.setText("캡처 대기 중")
+
     def show_preview(self, image: QImage) -> None:
+        if not self.preview_toggle.isChecked():
+            return
         if image.isNull():
             self.preview_count = 0
             self.preview_info.setText("캡처 미리보기")

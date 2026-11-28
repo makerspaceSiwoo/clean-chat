@@ -1,4 +1,4 @@
-"""오버레이가 가린 영역만 캡처한다. 게임 창은 찾지 않는다 (감시와 미리보기가 같은 영역 캡처를 쓴다).
+"""오버레이가 가린 영역만 캡처한다. 게임 창은 찾지 않는다. 잠근 동안은 항상 OCR 로 읽는다.
 
 위치를 잠근 순간이 게임 시작이고, 오버레이를 종료한 순간이 게임 끝이다.
 오버레이 아래에 있는 것은 무엇이든 읽으므로, 게임이 끝나면 오버레이를 종료해야 한다.
@@ -33,8 +33,7 @@ class WindowSampler(QObject):
         super().__init__()
         self.source, self.overlay = source, overlay
         self.gate = TextChangeGate()
-        self.sampling = False  # 캡처한 영역을 OCR 로 보내는 중인가 (미리보기만 볼 때는 False)
-        self.preview_only = False
+        self.sampling = False  # 캡처한 영역을 OCR 로 보내는 중인가 (위치를 잠근 동안 True)
         self.region_preview = RegionPreview(overlay)
         self.timer = self.region_preview.timer  # 영역을 가져오는 주기 타이머
         self.permission_timer = QTimer(self)
@@ -58,9 +57,8 @@ class WindowSampler(QObject):
     def _start_capture(self) -> None:
         self.permission_timer.stop()
         self.permission_needed.emit(False)
-        if not self.preview_only:
-            self.sampling = True
-            self.source.begin()  # 위치를 잠근 순간이 게임 시작이다 (게임 창을 찾지 않는다)
+        self.sampling = True  # 잠그면 항상 OCR 로 읽는다. 미리보기는 화면에 보여 줄지 말지만 정한다.
+        self.source.begin()  # 위치를 잠근 순간이 게임 시작이다 (게임 창을 찾지 않는다)
         self.region_preview.start()
 
     def pause(self) -> None:

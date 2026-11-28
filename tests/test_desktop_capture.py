@@ -18,7 +18,7 @@ from PySide6.QtGui import QColor, QImage
 from clean_chat.core.engine import Engine
 from clean_chat.core.grabber import ScreenGrabber, TextChangeGate
 from clean_chat.core.pipeline import LineDedup, Pipelines
-from clean_chat.core.schemas import OcrResult, RawLine, Region
+from clean_chat.core.schemas import GamePhase, OcrResult, RawLine, Region
 from clean_chat.modules.parse.notices import system_notice
 from clean_chat.ui.app import App
 from helpers import fixture_modules, fixture_pairs
@@ -158,7 +158,6 @@ def test_ui_start_lock_pause_stop_and_failure_preserves_cover(tmp_path, monkeypa
     monkeypatch.setattr("clean_chat.ui.capture.capture_allowed", lambda: True)
     fake_region_capture(monkeypatch)
     app = App(Pipelines(fixture_modules()), src, src)
-    app.client.preview_only.setChecked(False)
     app.show()
     assert not app.overlay.isVisible()
     app.client.btn_start.click()
@@ -248,7 +247,8 @@ def test_broad_fighting_effects_do_not_run_ocr_every_sample():
     assert any(4000 <= tick <= 6000 for tick in with_call)  # 콜이 뜨고 2초 안에 읽는다
 
 
-def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypatch):
+def test_preview_refreshes_and_toggle_only_hides_the_image(tmp_path, monkeypatch):
+    """미리보기는 표시만 켜고 끈다. 위치를 잠그면 미리보기와 상관없이 항상 OCR 로 읽는다."""
     source = ScreenGrabber()
     prefs = QSettings(str(tmp_path / "preview.ini"), QSettings.IniFormat)
     monkeypatch.setattr("clean_chat.ui.app.QSettings", lambda *args: prefs)
@@ -272,7 +272,6 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
 
     monkeypatch.setattr("clean_chat.ui.capture.capture_allowed", check_permission)
     monkeypatch.setattr(region_preview, "mac_snapshot", capture)
-    monkeypatch.setattr(source, "begin", lambda: pytest.fail("preview started OCR"))
     app = App(Pipelines(), source, source)
     app.show()
     app.client.btn_start.click()
@@ -305,6 +304,14 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
     assert app.client.preview_count == 1
     assert app.client.preview_image.pixmap().toImage().pixelColor(0, 0) == QColor(Qt.red)
     assert app.overlay.windowFlags() & Qt.WindowTransparentForInput
+    assert source.running and app.sampler.sampling  # 미리보기를 켠 채로도 OCR 로 읽는 중
+    app.client.preview_toggle.setChecked(False)  # 미리보기 끔 → 이미지만 숨기고 판독은 계속
+    tick()
+    assert app.client.preview_image.pixmap().isNull() and "꺼짐" in app.client.preview_info.text()
+    assert source.running and app.sampler.sampling and preview.timer.isActive()
+    app.client.preview_toggle.setChecked(True)  # 실행 중에도 다시 켤 수 있다
+    tick()
+    assert app.client.preview_count == 1 and not app.client.preview_image.pixmap().isNull()
     app.client.btn_lock.click()
     assert not preview.timer.isActive() and app.client.preview_image.pixmap().isNull()
     color[0] = Qt.green
@@ -318,8 +325,9 @@ def test_preview_refreshes_same_and_changed_crops_without_ocr(tmp_path, monkeypa
     assert calls[-1] == app.overlay.geometry()
     app.client.btn_start.click()
     assert app.client.preview_image.pixmap().isNull() and not preview.timer.isActive()
-    assert prefs.contains("overlay/geometry")
+    assert prefs.contains("overlay/geometry") and not source.running  # 오버레이 종료 = 게임 끝
     queries_before_restart = len(permission_queries)
+    app.on_phase(GamePhase.POST_GAME, None)  # 엔진이 게임 끝을 알림 (이 테스트는 엔진을 돌리지 않는다)
     app.client.btn_start.click()
     assert app.overlay.editing and not preview.timer.isActive()
     assert len(permission_queries) == queries_before_restart
