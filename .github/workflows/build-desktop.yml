@@ -1,5 +1,5 @@
 # Windows·macOS 독립 실행 앱(PyInstaller) 빌드. 결과는 Actions 실행 화면의 Artifacts에서 zip으로 받는다.
-# 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·rewrite·report extra)으로 빌드한다.
+# 두 OS 모두 같은 명령(scripts/build_desktop.py, ui·ocr·rewrite·report extra)으로 빌드한다.
 # macOS는 서명하지 않은 Apple Silicon(arm64) 전용 "Clean Chat Preview.app"이다.
 # test 브랜치에 push하거나, Actions 탭에서 "Run workflow"로 원하는 브랜치를 골라 직접 실행한다.
 # LLM 키는 넣지 않는다. 받는 사람이 앱 설정 화면에서 입력한다.
@@ -24,9 +24,9 @@ jobs:
         with:
           enable-cache: true
       - name: 설치 (UI + LLM)
-        run: uv sync --locked --extra ui --extra rewrite --extra report
+        run: uv sync --locked --extra ui --extra ocr --extra rewrite --extra report
       - name: 빌드
-        run: uv run --extra ui --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+        run: uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
       - name: 번들 확인 (OCR 스크립트 포함)
         shell: pwsh
         run: |
@@ -66,9 +66,9 @@ jobs:
         with:
           enable-cache: true
       - name: 설치 (UI + LLM)
-        run: uv sync --locked --extra ui --extra rewrite --extra report
+        run: uv sync --locked --extra ui --extra ocr --extra rewrite --extra report
       - name: 빌드
-        run: uv run --extra ui --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
+        run: uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py
       - name: 번들 확인 (OCR 스크립트·화면 캡처 라이브러리 포함)
         run: |
           app="dist/Clean Chat Preview.app"

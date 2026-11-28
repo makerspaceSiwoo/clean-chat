@@ -30,4 +30,4 @@ jobs:
       - name: 테스트 (구현 전 모듈은 skip, 연결 구조·정책표·서버는 가짜 함수로 검사)
         run: uv run pytest -q
       - name: 시뮬레이터 모듈 목록 (화면 API, ADR-0019)
-        run: uv run python -c "from clean_chat.sim.server import module_list; assert len(module_list()) == 5"
+        run: uv run python -c "from clean_chat.sim.server import module_list; assert len(module_list()) == 6"

@@ -19,13 +19,17 @@
 from __future__ import annotations
 
 from enum import IntEnum, StrEnum
+from typing import Any
 
-from pydantic import BaseModel, Field, computed_field, model_serializer
+from pydantic import BaseModel, Field, computed_field, model_serializer, model_validator
 
 from clean_chat.core.charges import CHARGE_CATALOG, ChargeId
 
-SCHEMA_VERSION = "1.1.0"
-# 1.1.0: 신고·고소 초안의 원문 증거와 적용된 혐의 ID 추가
+SCHEMA_VERSION = "2.1.0"
+# 2.1.0: 신고·고소 초안의 원문 증거(evidence)와 적용된 혐의 ID(applied_charge_ids), ParseResult.system_text 추가
+#        (데스크톱 클라이언트용, 기존 입력·출력과 호환)
+# 2.0.0: raw_norm・game_time_sec를 ChatMessage 내부로 이동. 1.1.0 ParseResult 입력은 읽을 때 변환한다.
+# 1.1.0: ParseResult에 raw_norm(복원 줄)과 game_time_sec(게임 경과 초) 추가. 기존 출력은 None 기본값으로 호환.
 # 1.0.0: 모듈 5개로 축소 (ADR-0017). NormalizedMessage → ChatMessage 에 합침, Classification → Analysis,
 #        parse 가 내 입력(compose)·정규화(normalize)까지, 정책(policy)은 구성으로. Mock 제거
 # 0.6.0: PostGameResult 추가 (게임 종료 배치 처리 결과)
@@ -155,12 +159,33 @@ class ChatMessage(BaseModel):
     hints: list[str] = Field(default_factory=list)  # 어떤 보정을 했나. 예: ["lexicon:ㅂㅅ", "noise_removed"]
     is_me: bool = False
     raw: str  # 원본 줄 (증거용)
+    raw_norm: str | None = None  # 헤더를 표준 형식으로 복원한 줄. 본문은 text 그대로이며 증거 원문은 아님
+    game_time_sec: int | None = Field(default=None, ge=0, strict=True)  # 게임 경과 초. 유닉스 캡처 시각 ts와 별개
 
 
 class ParseResult(BaseModel):
     system_text: str | None = None  # parse가 식별해 재구성한 시스템 문구. 판독 불명은 None.
     line_id: str
     message: ChatMessage | None  # 채팅이 아닌 줄(시스템 메시지, 핑, 잡음)은 None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_legacy_metadata(cls, data: Any) -> Any:
+        """1.1.0의 최상위 메타데이터를 읽되, 입력을 수정하거나 새 message 값을 덮어쓰지 않는다."""
+        fields = ("raw_norm", "game_time_sec")
+        if not isinstance(data, dict) or not any(field in data for field in fields):
+            return data
+        original = data.get("message")
+        if isinstance(original, ChatMessage):
+            message = original.model_dump(exclude_unset=True)
+        elif isinstance(original, dict):
+            message = dict(original)
+        else:
+            return data
+        for field in fields:
+            if field in data:
+                message.setdefault(field, data[field])
+        return {**data, "message": message}
 
     @model_serializer(mode="wrap")
     def _serialize(self, handler):
@@ -196,6 +221,7 @@ class Analysis(BaseModel):
 class RewriteRequest(BaseModel):
     message: ChatMessage
     analysis: Analysis
+    players: list[Player] = Field(default_factory=list)  # 닉네임 익명화용 경기 명단 (기존 입력과 호환)
 
 
 class Rewrite(BaseModel):

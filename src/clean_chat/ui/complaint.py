@@ -1,7 +1,8 @@
 """고소장 초안 한 건을 확인하고 화면과 같은 문서를 PDF로 저장한다 (클라이언트 목업 '고소장 PDF')."""
 
+import re
 from datetime import datetime
-from html import escape
+from html import escape, unescape
 from pathlib import Path
 
 from PySide6.QtCore import QIODevice, QSaveFile, Qt, Signal
@@ -75,6 +76,14 @@ def quote_full(msg: ChatMessage) -> str:
     """고소장 증거 한 줄은 날짜까지 남긴다."""
     stamp = datetime.fromtimestamp(msg.ts, KST).strftime("%Y-%m-%d %H:%M:%S")
     return f"[{stamp}] [{CHANNEL[msg.channel]}] {msg.speaker}: {msg.text}"
+
+
+def complaint_facts(text: str) -> str:
+    """report 모듈이 HTML 고소장을 주면 '범죄사실' 절만 평문으로 꺼낸다. 평문이면 그대로 쓴다."""
+    if not text.lstrip().startswith("<"):
+        return text
+    found = re.search(r">범죄사실</h2>\s*<p[^>]*>(.*?)</p>", text, re.S)
+    return unescape(re.sub(r"<[^>]+>", "", found.group(1) if found else text)).strip()
 
 
 def _charge_help(code: ChargeId) -> list:
@@ -298,7 +307,7 @@ class ComplaintEditor(QWidget):
         restyle(self.id_hint, "caption" if id_ok else "error")
         charges = [CHARGE_CATALOG[c].name for c in self.selected_charges()]
         evidence = self.draft.evidence if self.draft else ()
-        facts = self.draft.text if self.draft else "경기 종료 후 생성된 초안이 여기에 표시됩니다."
+        facts = complaint_facts(self.draft.text) if self.draft else "경기 종료 후 생성된 초안이 여기에 표시됩니다."
         today = datetime.now(KST)
         writer = escape(name) or "[이름]"
         lines = "".join(f"<p style='margin:2px 0'>{escape(quote_full(m))}</p>" for m in evidence)

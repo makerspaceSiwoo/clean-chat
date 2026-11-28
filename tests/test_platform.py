@@ -71,4 +71,5 @@ def test_desktop_entry_excludes_simulator():
     assert loaded.stdout.strip() == "False"
     build = (Path(__file__).resolve().parents[1] / "scripts" / "build_desktop.py").read_text(encoding="utf-8")
     assert '"clean_chat.sim"' in build and "--exclude-module" in build
+    assert '"torch"' in build and '"transformers"' in build  # 가중치 없이 용량만 키우고 앱을 멈추게 했다
     assert '"desktop.py"' in build and '"__main__.py"' not in build

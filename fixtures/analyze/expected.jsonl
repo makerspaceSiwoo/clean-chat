@@ -5,3 +5,8 @@
 {"msg_id":"L5","target":"밤하늘별","level":3,"harm_types":["profanity","family_insult"],"profanity_spans":["니애미","tlqkf"],"feedback_spans":[],"scores":{"profanity":0.9,"family_insult":0.9},"model_version":"fixture"}
 {"msg_id":"L7","target":"초코우유","level":2,"harm_types":["profanity","blame"],"profanity_spans":["ㅂㅅ"],"feedback_spans":["왜 안 와"],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
 {"msg_id":"L8","target":"초코우유","level":2,"harm_types":["profanity"],"profanity_spans":["개새끼"],"feedback_spans":[],"scores":{"profanity":0.9},"model_version":"fixture"}
+{"msg_id":"R1","target":"초코우유","level":2,"harm_types":["profanity","blame"],"profanity_spans":["ㅂㅅ"],"feedback_spans":["용 먼저 치라고"],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
+{"msg_id":"R2","target":"달빛고양이","level":2,"harm_types":["profanity","blame"],"profanity_spans":["시1발"],"feedback_spans":[],"scores":{"profanity":0.9,"blame":0.9},"model_version":"fixture"}
+{"msg_id":"R3","target":"서폿","level":2,"harm_types":["profanity"],"profanity_spans":["tlqkf"],"feedback_spans":["와드 좀 박아"],"scores":{"profanity":0.9},"model_version":"fixture"}
+{"msg_id":"R4","target":"밤하늘별","level":3,"harm_types":["profanity","family_insult"],"profanity_spans":["니애미","tlqkf"],"feedback_spans":[],"scores":{"profanity":0.9,"family_insult":0.9},"model_version":"fixture"}
+{"msg_id":"R5","target":"초코우유","level":2,"harm_types":["profanity"],"profanity_spans":["ㅅㅂ"],"feedback_spans":["리신 갱 좀 와라"],"scores":{"profanity":0.9},"model_version":"fixture"}

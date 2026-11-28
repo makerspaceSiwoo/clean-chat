@@ -10,14 +10,22 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication, QFileDialog, QPushButton  # noqa: E402
 
 from clean_chat.core.charges import ChargeId  # noqa: E402
-from clean_chat.core.config import FIXTURES  # noqa: E402
 from clean_chat.core.schemas import PostGameResult, ReportDraft  # noqa: E402
 from clean_chat.ui.client import ClientWindow  # noqa: E402
+from helpers import fixture_pairs  # noqa: E402
 
 
 def drafts() -> list[ReportDraft]:
-    lines = (FIXTURES / "report/expected.jsonl").read_bytes().splitlines()
-    return [ReportDraft.model_validate_json(line) for line in lines]
+    """report fixture 결과에 core/modules.py 처럼 원문 증거와 적용 혐의를 붙인다."""
+    return [
+        draft.model_copy(
+            update={
+                "evidence": tuple(m for m in req.evidence if m.id in draft.incident_ids),
+                "applied_charge_ids": req.applied_charge_ids,
+            }
+        )
+        for req, draft in fixture_pairs("report")
+    ]
 
 
 def test_report_page_lists_users_copies_message_and_links_complaint() -> None:

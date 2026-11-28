@@ -104,7 +104,9 @@ class MessageFilters:
     def rewrite(self, message: ChatMessage, analysis: Analysis) -> Rewrite | None:
         if analysis.level >= Level.L2_ABUSIVE and analysis.feedback_spans:
             with self._rewrite_lock:
-                return self.modules.run("rewrite", RewriteRequest(message=message, analysis=analysis))
+                return self.modules.run(
+                    "rewrite", RewriteRequest(message=message, analysis=analysis, players=self.roster.players)
+                )
         return None
 
     def run(self, message: ChatMessage) -> tuple[Analysis, Rewrite | None]:

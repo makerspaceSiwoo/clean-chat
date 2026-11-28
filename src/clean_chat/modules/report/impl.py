@@ -1,57 +1,234 @@
-"""⑤ report — 신고 문구 / 고소장 초안  (명세: docs/MODULES.md#report, 예시: fixtures/report/)
-
-게임이 끝난 뒤(POST_GAME)에만 구성이 부른다. 입력은 이번 게임 기록 전체(GameSession)다.
-- kind=report:    복사해 붙여넣을 신고 문구 (자동 신고 금지, ADR-0007)
-- kind=complaint: 고소장 초안 + 한글 PDF (ADR-0008)
-"""
+"""게임 종료 후 신고 문구와 고소장 초안을 만든다 (ADR-0007, ADR-0008)."""
 
 from __future__ import annotations
 
-from clean_chat.core.schemas import GameSession, Incident, ReportDraft, ReportRequest
+import logging
+import os
+import re
+from collections import Counter
+from datetime import datetime, timedelta, timezone
+from html import escape
+
+from clean_chat.core.schemas import Channel, HarmType, Incident, ReportDraft, ReportKind, ReportRequest
+
+logger = logging.getLogger(__name__)
+KST = timezone(timedelta(hours=9))
+# LLM_MODEL이 없을 때 쓰는 report 기본 모델 (2027-05 종료 예정). 키가 없으면 호출하지 않는다.
+DEFAULT_MODEL = "gemini/gemini-3.1-flash-lite"
+HARM_LABELS = {
+    HarmType.PROFANITY: "욕설",
+    HarmType.FAMILY_INSULT: "패드립",
+    HarmType.SEXUAL_HARASSMENT: "성희롱",
+    HarmType.BLAME: "비난",
+    HarmType.INSTIGATION: "정치질",
+    HarmType.THREAT: "협박",
+}
+COMPLAINT_DESCRIPTIONS = {
+    HarmType.PROFANITY: "비속어를 사용한 표현",
+    HarmType.FAMILY_INSULT: "가족을 언급한 비하 표현",
+    HarmType.SEXUAL_HARASSMENT: "성적 발언으로 분류된 표현",
+    HarmType.BLAME: "상대를 비난하거나 비하하는 표현",
+    HarmType.INSTIGATION: "특정 참가자에 대한 비난을 유도하는 표현",
+    HarmType.THREAT: "게임 밖에서 해악을 가하겠다고 고지하는 표현",
+}
+CHANNEL_LABELS = {Channel.ALL: "전체 채팅", Channel.TEAM: "팀 채팅", Channel.UNKNOWN: "채널 미확인 채팅"}
 
 
 def run(req: ReportRequest) -> ReportDraft:
-    """대상 화자의 기록을 모아 신고 문구 또는 고소장 초안을 만든다.
+    """대상 화자의 정책 플래그에 따라 원문과 증거 ID를 시간순으로 모은다."""
+    complaint = req.kind == ReportKind.COMPLAINT
+    incidents = sorted(
+        (
+            incident
+            for incident in req.session.incidents
+            if incident.msg.speaker == req.speaker
+            and (incident.decision.complaint_candidate if complaint else incident.decision.report)
+        ),
+        key=lambda incident: incident.msg.ts,
+    )
+    draft = ReportDraft(
+        kind=req.kind, speaker=req.speaker, text="", incident_ids=[incident.msg.id for incident in incidents]
+    )
+    if not complaint:
+        draft.text = "\n".join(
+            [f"신고 대상: {req.speaker}", f"사유: 언어 폭력 {len(incidents)}건", *map(_format_line, incidents)]
+        )
+        return draft
 
-    입력: ReportRequest(kind, session, speaker, complainant?, output_dir?) → 출력: ReportDraft
-    예) kind=report, speaker="불꽃남자" →
-        text="신고 대상: 불꽃남자\\n사유: 언어 폭력 2건\\n[2025-11-12 13:00:03] 야 정글 ㅂㅅ아 용 먼저 치라고 (욕설, 비난)\\n...",
-        incident_ids=["L3", "L4"]
-    예) kind=complaint, speaker="얼음땡" →
-        text="피고소인은 게임 중 전체 채팅으로 고소인의 가족을 모욕하는 채팅을 1회 하였다.",
-        incident_ids=["L5"], pdf_path=".clean-chat/complaints/complaint_얼음땡.pdf"
-    순서: report    → _pick_incidents(decision.report) → _format_line → 머리말(대상, 건수)
-          complaint → _pick_incidents(decision.complaint_candidate) → _summarize → _fill_template → _render_pdf
-    주의: 원문은 msg.text 를 그대로 인용(고치지 않음). 시각은 한국 시간. 자동으로 보내지 않는다.
-          고소장에는 "법률 자문이 아님" 고지 필수. '사건 경위'만 LLM, 실패하면 규칙 문장. PDF 는 git 에 올리지 않는다.
-    관련: ADR-0007, ADR-0008, OPEN-04
-    """
-    raise NotImplementedError("report 담당: run")
+    draft.text = _render_complaint(_fill_template(req, incidents, _summarize(incidents)))
+    return draft
 
 
-def _pick_incidents(session: GameSession, speaker: str, complaint: bool) -> list[Incident]:
-    """세션에서 speaker 의 decision.report(또는 complaint_candidate)=True 기록만, 시간순."""
-    raise NotImplementedError
+def _timestamp(ts: float) -> str:
+    return datetime.fromtimestamp(ts, KST).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def _format_line(incident: Incident) -> str:
-    """기록 1건 → "[2025-11-12 13:00:03] 원문 (욕설, 비난)". 유형은 한국어 이름으로."""
-    raise NotImplementedError
+    labels = ", ".join(HARM_LABELS[harm] for harm in incident.analysis.harm_types)
+    suffix = f" ({labels})" if labels else ""
+    return f"[{_timestamp(incident.msg.ts)}] {incident.msg.text}{suffix}"
 
 
 def _summarize(incidents: list[Incident]) -> str:
-    """사건 경위 한 문단 (LLM, 실패 시 규칙 문장). 사실만, 추측·과장 금지."""
-    raise NotImplementedError
+    if not incidents:
+        return "고소장 초안에 포함할 채팅 기록이 없습니다."
+
+    counts = Counter(
+        (CHANNEL_LABELS[incident.msg.channel], tuple(sorted(set(incident.analysis.harm_types))))
+        for incident in incidents
+    )
+    facts = []
+    for (channel, harms), count in counts.items():
+        labels = ", ".join(COMPLAINT_DESCRIPTIONS[harm] for harm in harms) or "구체적 분류 미확인"
+        facts.append(f"{channel}에서 {labels}에 해당하는 것으로 분류된 메시지 {count}건")
+    fallback = f"게임 중 피고소인이 작성한 기록 중 {' 및 '.join(facts)}이 확인됩니다."
+
+    model = os.getenv("LLM_MODEL", "").strip() or DEFAULT_MODEL
+    api_key = os.getenv("LLM_API_KEY", "").strip()
+    if not model.startswith("gemini/") or not api_key:
+        return fallback
+
+    # 원문과 식별 정보는 로컬 양식에만 사용한다.
+    try:
+        from litellm import completion
+
+        result = completion(
+            model=model,
+            api_key=api_key,
+            timeout=10,
+            num_retries=0,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "게임 채팅 기록의 사건 경위를 한국어 한 문단으로 작성하세요. "
+                        "제공된 채널, 표현의 성격, 건수만 사용하고, 수사기관에 제출하는 문체를 사용하세요. "
+                        "입력 순서를 유지하고 각 건수를 아라비아 숫자와 단위 건으로 한 번씩 쓰세요. "
+                        "은어, 원문 인용, 피해자 특정, 발언 목적 추정, 죄명과 범죄 성립 판단을 쓰지 마세요."
+                    ),
+                },
+                {"role": "user", "content": "\n".join(facts)},
+            ],
+        )
+        content = result.choices[0].message.content
+        if content:
+            summary = " ".join(content.split())
+            reported_counts = re.findall(r"(?<![\d.,+-])([\d.,]+)\s*건", summary)
+            if reported_counts == [str(count) for count in counts.values()] and not any(
+                label in summary for label in ("욕설", "패드립", "정치질")
+            ):
+                logger.info("Gemini 사건 경위 생성 성공")
+                return summary
+        logger.warning("Gemini 응답이 비어 있거나 사건 경위 형식에 맞지 않아 로컬 문장을 사용합니다.")
+    except Exception as error:
+        status = getattr(error, "status_code", None)
+        logger.warning(
+            "Gemini 사건 경위 생성에 실패해 로컬 문장을 사용합니다. (%s, HTTP %s)",
+            type(error).__name__,
+            status if isinstance(status, int) and 100 <= status <= 599 else "확인 불가",
+        )
+    return fallback
 
 
-def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) -> str:
-    """고정 양식에 고소인·피고소인·일시·증거 목록·사건 경위·고지 문구를 채운다."""
-    raise NotImplementedError
+def _fill_template(req: ReportRequest, incidents: list[Incident], summary: str) -> list[tuple[str, str]]:
+    my_id = next((player.name for player in req.session.players if player.is_me), "")
+    blank = "________________________________"
+    when = blank
+    if incidents:
+        start = _timestamp(incidents[0].msg.ts)
+        end = _timestamp(incidents[-1].msg.ts)
+        when = start if start == end else f"{start} ~ {end}"
+    evidence = "\n".join(
+        f"{index}. [{incident.msg.id}] {_timestamp(incident.msg.ts)} "
+        f"({CHANNEL_LABELS[incident.msg.channel]}) {incident.msg.text}"
+        for index, incident in enumerate(incidents, 1)
+    )
+    threat_ids = [incident.msg.id for incident in incidents if HarmType.THREAT in incident.analysis.harm_types]
+    threat_sections = (
+        [(f"협박 관련 기록 ({len(threat_ids)}건)", f"증거 ID: {', '.join(threat_ids)}")] if threat_ids else []
+    )
+    return [
+        (
+            "고소인",
+            f"성명: {req.complainant or blank}\n"
+            f"게임 ID(닉네임): {my_id or blank}\n"
+            f"주민등록번호: {blank}\n주소: {blank}\n연락처: {blank}",
+        ),
+        (
+            "피고소인",
+            f"성명: {blank}\n게임 ID(닉네임): {req.speaker}\n주소 또는 연락처(아는 경우): {blank}",
+        ),
+        (
+            "고소취지",
+            "고소인은 아래 채팅 발언에 관하여 고소하오니, 증거자료와 당시 대화의 전후 사정을 "
+            "조사하여 관련 법령에 따라 조치하여 주시기 바랍니다.",
+        ),
+        (
+            "범죄사실",
+            f"1. 발생 일시(한국 시간): {when}\n"
+            "2. 발생 장소: 온라인 게임 리그 오브 레전드 채팅\n"
+            f"3. 사건 경위: {summary}\n4. 발언의 일시·채널·원문은 아래 증거자료에 기재하였습니다.",
+        ),
+        (
+            "고소이유",
+            f"{_investigation_points(incidents)}\n"
+            f"당시 열람할 수 있었던 참가자 및 대상이 드러나는 정황: {blank}\n"
+            f"구체적인 피해 내용 및 추가 경위: {blank}",
+        ),
+        *threat_sections,
+        ("증거자료", f"채팅 기록 {len(incidents)}건\n{evidence}"),
+        ("작성 및 제출", f"작성일: ______년 ____월 ____일\n고소인 서명: {blank}\n제출처: {blank}"),
+        ("", "이 문서는 법률 자문이 아니며 실제 제출 전 전문가 검토가 필요합니다."),
+    ]
 
 
-def _render_pdf(document: str, output_dir: str, speaker: str) -> str:
-    """채운 문서 → 한글 폰트 PDF 파일. 저장한 경로를 돌려준다. (reportlab, uv sync --extra report)
+def _investigation_points(incidents: list[Incident]) -> str:
+    """게임 분류에 해당하는 확인 사항을 제시하고 죄명은 사실관계에 따라 검토하도록 한다."""
+    harms = {harm for incident in incidents for harm in incident.analysis.harm_types}
+    points = []
+    if harms & {HarmType.PROFANITY, HarmType.FAMILY_INSULT, HarmType.BLAME, HarmType.INSTIGATION}:
+        points.append(
+            "형법 제311조(모욕) 관련: 발언의 대상이 당시 대화에서 드러났는지, "
+            "제3자가 발언을 인식할 수 있었는지, 표현과 전후 맥락이 어떠했는지 확인하여 주시기 바랍니다."
+        )
+    if HarmType.INSTIGATION in harms:
+        points.append(
+            "비난을 유도하는 발언에 구체적인 사실의 적시가 포함되어 있는 경우, "
+            "그 내용과 전파 범위를 확인하여 형법 제307조(명예훼손) 적용 여부를 검토하여 주시기 바랍니다."
+        )
+    if HarmType.SEXUAL_HARASSMENT in harms:
+        points.append(
+            "성폭력처벌법 제13조(통신매체를 이용한 음란행위) 관련: 발언의 내용과 경위, "
+            "상대방에게 도달한 정황 및 발언 목적을 확인하여 적용 여부를 검토하여 주시기 바랍니다."
+        )
+    if HarmType.THREAT in harms:
+        points.append(
+            "형법 제283조 제1항(협박) 관련: 고지된 해악의 내용이 발언 당사자의 관계와 "
+            "당시 대화의 전후 사정을 고려할 때 일반적으로 공포심을 일으키기에 충분하였는지, "
+            "그 고지가 상대방에게 도달하여 상대방이 그 의미를 인식하였는지 확인하여 주시기 바랍니다."
+        )
+    return "\n".join(f"{index}. {point}" for index, point in enumerate(points, 1)) or (
+        "채팅 원문, 발언의 대상 및 당시 대화의 전후 사정을 확인하여 주시기 바랍니다."
+    )
 
-    주의: output_dir 은 core.config.resolve_repo_path 로 풀어서 저장. 돌려주는 경로는 입력과 같은 형식(상대면 상대).
-    """
-    raise NotImplementedError
+
+def _render_complaint(sections: list[tuple[str, str]]) -> str:
+    """미리보기와 후속 PDF 변환에서 공통으로 사용할 HTML 본문을 만든다."""
+    html = [
+        '<article lang="ko" style="font-family: Gungsuh, AppleMyungjo, Batang, '
+        "'Malgun Gothic', AppleGothic, serif; font-size: 11pt; line-height: 17pt; "
+        'overflow-wrap: anywhere">',
+        '<h1 style="font-size: 25pt; line-height: 1.2; font-weight: bold; text-align: center; margin: 0">고소장</h1>',
+        '<p style="font-size: 10pt; text-align: center; margin: 4pt 0 20pt">초안</p>',
+    ]
+    for heading, body in sections:
+        html.append('<section style="margin: 0 0 15pt">')
+        if heading:
+            html.append(
+                '<h2 style="font-size: 14pt; line-height: 1.3; font-weight: bold; margin: 0 0 5pt">'
+                f"{escape(heading)}</h2>"
+            )
+        html.append(f'<p style="white-space: pre-wrap; margin: 0">{escape(body)}</p>')
+        html.append("</section>")
+    html.append("</article>")
+    return "\n".join(html)

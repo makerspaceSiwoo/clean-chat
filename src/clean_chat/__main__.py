@@ -11,18 +11,19 @@ from __future__ import annotations
 
 import sys
 
-from clean_chat.core.modules import MODULE_NAMES
 from clean_chat.core.platform import use_utf8_console
 from clean_chat.desktop import app
 
 
 def sim() -> None:
     """`uv run sim [모듈]`"""
+    from clean_chat.sim.views import VIEW_NAMES  # 시뮬레이터는 개발용이라 앱 시작 때 불러오지 않는다
+
     use_utf8_console()
     args = sys.argv[1:]
     module = args[0] if args else None
-    if len(args) > 1 or (module is not None and module not in MODULE_NAMES):
-        print(f"사용법: uv run sim [{' | '.join(MODULE_NAMES)}]")
+    if len(args) > 1 or (module is not None and module not in VIEW_NAMES):
+        print(f"사용법: uv run sim [{' | '.join(VIEW_NAMES)}]")
         raise SystemExit(2)
     from clean_chat.sim.server import serve
 
