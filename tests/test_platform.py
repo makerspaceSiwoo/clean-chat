@@ -71,5 +71,10 @@ def test_desktop_entry_excludes_simulator():
     assert loaded.stdout.strip() == "False"
     build = (Path(__file__).resolve().parents[1] / "scripts" / "build_desktop.py").read_text(encoding="utf-8")
     assert '"clean_chat.sim"' in build and "--exclude-module" in build
-    assert '"torch"' in build and '"transformers"' in build  # 가중치 없이 용량만 키우고 앱을 멈추게 했다
+    # 분류 모델을 켜려고 torch·transformers 를 넣는다. 대신 진입점이 multiprocessing 보조 프로세스를 맨 먼저
+    # 가로채야 한다 (안 그러면 모델을 불러올 때마다 앱 창이 또 뜬다).
+    assert '"torch"' not in build and '"transformers"' not in build
+    entry = (Path(__file__).resolve().parents[1] / "src" / "clean_chat" / "desktop.py").read_text(encoding="utf-8")
+    body = entry[entry.index("def app()") :]
+    assert body.index("multiprocessing.freeze_support()") < body.index("use_utf8_console()")
     assert '"desktop.py"' in build and '"__main__.py"' not in build

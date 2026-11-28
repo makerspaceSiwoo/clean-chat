@@ -10,14 +10,24 @@
 
 ## 빠른 시작 (Mac / Windows 공통, Node 불필요)
 ```bash
-uv sync                     # 설치 (처음 한 번, 앱 화면까지: uv sync --extra ui)
+uv sync --extra ui --extra ocr --extra analyze --extra rewrite --extra report   # 앱까지 전부 설치 (처음 한 번)
+uv run app                  # 클라이언트 창 열기 (macOS·Windows). 처음에는 준비 화면이 먼저 뜹니다
+uv run app --demo           # 저장된 시나리오 재생 (게임 없이 흐름 확인)
+uv run app --check          # 설치 점검: 필요한 패키지와 분류 모델을 불러 봅니다
+
+uv sync                     # 시뮬레이터·테스트만 쓸 때 (모듈이 쓰는 패키지는 --extra <모듈> 로 추가)
 uv run sim                  # 모듈 시뮬레이터 (브라우저가 열림: 입력 | 디버깅 콘솔 | 반환값)
 uv run sim parse            # 모듈 하나만 바로 열기 (ocr · parse · analyze · rewrite · report)
-uv run app                  # 클라이언트 창 열기 (macOS·Windows)
-uv run app --demo           # 기존 시나리오 재생
-uv run pytest -q            # 테스트 (구현 전 모듈은 skip)
+uv run sim flow             # 전체 흐름: 캡처 이미지 → ocr → parse → analyze → rewrite → 정책 → report
+uv run pytest -q            # 테스트
 ```
 실행 명령은 `sim`, `app` 두 개뿐입니다. 발표 PC(Windows)는 `scripts\run_windows.bat` 더블클릭.
+
+**처음 실행 (준비 화면)** · 앱을 처음 열면 아래 두 가지가 끝나야 시작합니다. 한 번만 하면 됩니다.
+1. **Gemini API 키 입력 (필수)** — 욕설에 섞인 피드백을 순화하고 고소장 초안을 쓰는 데 씁니다. 키가 없으면 순화 결과가 비어 피드백까지 숨겨지므로 반드시 입력합니다. [Google AI Studio](https://aistudio.google.com/apikey)에서 발급하고, 나중에 설정 화면에서 바꿀 수 있습니다. 키는 이 PC에만 저장되고, 순화할 채팅 문장은 Google Gemini 로 전송됩니다.
+2. **채팅 분석 모델 내려받기 (자동, 약 440MB)** — 파인튜닝한 분류 모델(`kcelectra-base-ft-0.5`)을 공개 Hugging Face 저장소에서 받습니다. 로그인은 필요 없고, 끊기면 **다시 시도**로 이어 받습니다. 모델이 있으면 봉인 검증 세트의 등급 정답률이 89.5%, 규칙만 쓰면 56.0%입니다.
+
+저장 위치는 설치 파일이면 사용자 데이터 폴더(Windows `%LOCALAPPDATA%\Clean Chat\`, macOS `~/Library/Application Support/Clean Chat/`), 소스에서 실행하면 레포의 `.env` 와 `models/` 입니다. 소스 실행에서 `analyze` extra 를 빼고 설치하면 모델을 돌릴 수 없어 규칙만으로 판단합니다(준비 화면이 설치 명령을 알려 줍니다). 시뮬레이터에서 모델을 쓰려면 `uv run python -m clean_chat.modules.analyze.weights download` 로 받습니다.
 
 **캡처 확인** · 클라이언트의 **오버레이 아래 화면 미리보기 (OCR 끔)**가 기본으로 선택됩니다. **오버레이 실행**을 누르면 오버레이 위치를 조정할 수 있습니다. **위치 잠금**을 누르면 롤 실행 여부와 관계없이 오버레이 아래 이미지를 0.2초 간격으로 확인합니다. 채팅창 영역 카드의 **영역 다시 맞추기**를 누르면 캡처가 멈추고 미리보기가 비워집니다. 이전 위치가 저장되어 있어도 매번 잠가야 캡처를 시작합니다. macOS 14 이상에서 화면 기록 권한이 필요합니다. 오디오를 캡처하거나 저장하지 않습니다. 감지·필터 모듈을 연결해 사용할 때는 시작 전에 체크를 해제합니다.
 
@@ -25,19 +35,19 @@ macOS에서 처음 위치를 잠글 때 화면 기록을 허용한 뒤 시스템
 
 **실시간 사용** · 롤을 테두리 없는 창 모드로 실행합니다. 클라이언트 설정에서 내 소환사명을 입력하고 홈의 **오버레이 실행**을 누릅니다. 오버레이를 드래그하고 가장자리로 크기를 맞춰 채팅 5~6줄을 전부 가린 뒤 클라이언트의 **위치 잠금**을 누릅니다. 잠그면 게임에 클릭이 전달되고 다음 실행에 위치가 복원됩니다. **영역 다시 맞추기**로 보정하거나 입력칸을 사용할 수 있습니다. **오버레이 종료**로 감시를 끝냅니다. macOS에서는 첫 캡처 때 화면 기록 권한이 필요합니다.
 
-게임 창을 찾으면 200ms마다 전체 채팅 영역의 글자 후보를 비교합니다. 변화가 감지된 뒤 1초 동안은 100ms 간격으로 확인합니다. 같은 화면은 OCR을 건너뛰고 글자 후보가 있을 때 1초, 없을 때 3초마다 재확인합니다. OCR 대기열은 최근 6장의 후보를 보존하며 넘친 횟수를 클라이언트에 표시합니다. 순화 중에도 다음 콜을 표시합니다.
+게임 창을 찾으면 200ms마다 전체 채팅 영역의 글자 후보를 비교합니다. 변화가 감지된 뒤 1초 동안은 100ms 간격으로 확인합니다. 같은 화면은 OCR을 건너뛰고 글자 후보가 있을 때 1초, 없을 때 3초마다 재확인합니다. OCR 대기열은 최근 6장의 후보를 보존하며 넘친 횟수를 클라이언트에 표시합니다. 순화 중에도 다음 콜을 표시합니다. 새 채팅은 직전에 글자를 읽은 화면과 겹치는 줄을 빼서 고릅니다. OCR이 아무것도 읽지 못한 화면(채팅창 숨김, 인식 실패)은 이 비교 기준을 바꾸지 않습니다.
 
-**독립 앱 빌드** · 각 OS에서 `uv run --extra ui --extra ocr --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py`를 실행합니다(rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 씁니다). 빌드된 앱은 Gemini API 키를 환경 변수나, 설정 화면의 'AI 순화·고소장 초안'에서 입력해 저장한 사용자 데이터 폴더의 `.env`(Windows `%LOCALAPPDATA%\Clean Chat\.env`, macOS `~/Library/Application Support/Clean Chat/.env`)에서 읽습니다. 모델은 rewrite·report가 각자 기본 모델(`gemini/gemini-3.1-flash-lite`)을 쓰고, `LLM_MODEL`을 설정하면 그 값이 우선합니다. macOS 확인용 빌드는 `dist/Clean Chat Preview.app`입니다. 배포용은 `CLEAN_CHAT_CODESIGN_IDENTITY`에 사용할 코드 서명 인증서를 지정하면 `dist/Clean Chat.app`으로 생성됩니다. 업데이트 간 권한을 유지하려면 같은 서명 ID로 빌드합니다. Windows 결과는 `dist/Clean Chat/Clean Chat.exe`입니다. Windows에서는 같은 폴더의 라이브러리도 함께 배포합니다. 후속 모듈이 요구하는 모델·엔진은 해당 모듈의 배포 조건을 따릅니다.
+**독립 앱 빌드** · 각 OS에서 `uv run --extra ui --extra ocr --extra analyze --extra rewrite --extra report --with "pyinstaller>=6.16,<7" python scripts/build_desktop.py`를 실행합니다. 설치 파일에는 게임 오버레이로 모듈을 실행하는 메인 앱만 들어가고 시뮬레이터는 빠집니다. 분류 모델을 돌리는 패키지(torch·transformers)가 들어가서 macOS 앱은 약 1.6GB입니다. 모델 가중치와 Gemini API 키는 넣지 않고, 받는 사람이 첫 실행 준비 화면에서 내려받고 입력합니다. `analyze` extra를 빼고 빌드하면 규칙만 쓰는 작은 앱이 되고, rewrite·report extra를 빼면 LLM 없이 로컬 규칙만 씁니다. 모델은 rewrite·report가 각자 기본 모델(`gemini/gemini-3.1-flash-lite`)을 쓰고, `LLM_MODEL`을 설정하면 그 값이 우선합니다. macOS 확인용 빌드는 `dist/Clean Chat Preview.app`입니다. 배포용은 `CLEAN_CHAT_CODESIGN_IDENTITY`에 사용할 코드 서명 인증서를 지정하면 `dist/Clean Chat.app`으로 생성됩니다. 업데이트 간 권한을 유지하려면 같은 서명 ID로 빌드합니다. Windows 결과는 `dist/Clean Chat/Clean Chat.exe`이고, 같은 폴더의 라이브러리도 함께 배포합니다. 빌드한 앱은 `--check` 인자로 필요한 패키지가 모두 들어갔는지 점검할 수 있습니다. GitHub Actions의 `build-desktop`(Actions 탭에서 수동 실행 또는 `test` 브랜치 push)이 두 OS의 설치 파일을 만들어 Artifacts에 올립니다.
 
-> 이 스타터에는 **모듈 구현이 없습니다.** 모듈 5개(`src/clean_chat/modules/<모듈>/impl.py`)는 함수 시그니처와 설명만 있고(`NotImplementedError`), **Mock 도 없어서** 실행하면 "구현 안 됨" 오류가 납니다(ADR-0017).
-> 5명이 한 폴더씩 맡습니다: ① ocr · ② parse · ③ analyze · ④ rewrite · ⑤ report. 나머지는 구성(리드)입니다. 자세히: [docs/MODULES.md](docs/MODULES.md)
+> **모듈 5개가 모두 구현돼 있습니다.** ① ocr(RapidOCR) · ② parse · ③ analyze(규칙 + 파인튜닝 분류 모델) · ④ rewrite(Gemini + 예비 규칙) · ⑤ report(신고 문구 · 고소장 초안). Mock 은 없고(ADR-0017), 각 모듈은 `src/clean_chat/modules/<모듈>/impl.py` 의 `run()` 하나입니다.
+> 5명이 한 폴더씩 맡고, 나머지(흐름 연결·정책표·화면·시뮬레이터)는 구성(리드)입니다. 자세히: [docs/MODULES.md](docs/MODULES.md)
 
 ## 레포 구조
 | 폴더 | 무엇 |
 |---|---|
 | `src/clean_chat/modules/` | **모듈 5개** (5명이 한 폴더씩) |
 | `src/clean_chat/core/`, `ui/`, `session/` | 구성 (리드): 연결·정책표·게임 단계·화면 |
-| `src/clean_chat/sim/` | **로컬 모듈 시뮬레이터** (`uv run sim`, 파이썬 서버 + HTML 화면, ADR-0019) |
+| `src/clean_chat/sim/` | **로컬 시뮬레이터** (`uv run sim` 모듈별 · `uv run sim flow` 전체 흐름, 파이썬 서버 + HTML 화면, ADR-0019) |
 | `fixtures/` | 모듈별 입력 → 기대값 예시 (= 명세, 시뮬레이터의 예시 입력) |
 | `tests/` | 테스트 |
 

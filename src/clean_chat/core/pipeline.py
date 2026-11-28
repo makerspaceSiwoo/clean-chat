@@ -117,37 +117,24 @@ class MessageFilters:
 class LineDedup:
     """이전 화면의 끝과 현재 화면의 시작에서 겹치는 가장 긴 줄 목록을 찾아 새 줄만 돌려준다.
 
-    채팅창은 위로 밀릴 뿐 한 번에 통째로 바뀌지 않는다. 그래서 이전 화면과 한 줄도 겹치지 않는 화면은
-    OCR 오작동(빈 화면에서 잡음 인식 등)으로 보고 버린다. 같은 화면이 CONFIRM_FRAMES 번 연속 나오면
-    (예: 채팅창이 숨겨진 동안 채팅이 많이 올라온 경우) 실제 화면으로 받아들인다.
+    비교 기준(previous)은 마지막으로 **글자를 읽은** 화면이다. OCR 이 아무것도 읽지 못한 화면(채팅창 숨김,
+    OCR 실패)은 기준을 덮어쓰지 않는다. 기준이 지워지면 채팅창이 다시 보일 때 이미 처리한 줄을 새 줄로 본다.
+    이전 화면과 한 줄도 겹치지 않으면(숨김 동안 채팅이 많이 올라옴) 보이는 줄을 모두 새 줄로 본다.
     """
-
-    CONFIRM_FRAMES = 3
 
     def __init__(self) -> None:
         self.previous: list[str] = []
-        self._pending: list[str] = []
-        self._pending_count = 0
 
     def new_lines(self, lines: list[RawLine]) -> list[RawLine]:
         lines = [line for line in lines if line.text.strip()]
         if not lines:
-            return []  # 채팅창이 잠깐 숨겨짐 → 비교 기준을 바꾸지 않는다.
+            return []  # 읽은 글자가 없음 → 비교 기준을 그대로 둔다.
         current = [" ".join(line.text.split()) for line in lines]
         overlap = min(len(self.previous), len(current))
         while overlap and self.previous[-overlap:] != current[:overlap]:
             overlap -= 1
-        if self.previous and overlap == 0 and not self._confirmed(current):
-            return []  # 연속성 없음 → 오작동으로 보고 기준을 유지한다.
-        self._pending, self._pending_count = [], 0
         self.previous = current
         return lines[overlap:]
-
-    def _confirmed(self, current: list[str]) -> bool:
-        """겹치지 않는 같은 화면이 연속으로 CONFIRM_FRAMES 번 나왔는지 센다."""
-        self._pending_count = self._pending_count + 1 if current == self._pending else 1
-        self._pending = current
-        return self._pending_count >= self.CONFIRM_FRAMES
 
 
 class IncomingPipeline:

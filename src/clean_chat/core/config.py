@@ -23,6 +23,8 @@ FIXTURES = ROOT / "fixtures"
 USER_ENV_KEYS = ("LLM_BACKEND", "LLM_MODEL", "LLM_API_KEY", "GEMINI_API_KEY")
 # LLM 설정 파일: 빌드된 앱은 레포 루트가 없으므로 사용자 데이터 폴더, 개발 중에는 레포 루트의 .env
 USER_ENV = STORE / ".env" if getattr(sys, "frozen", False) else ROOT / ".env"
+# analyze 모델 가중치: 빌드된 앱은 첫 실행 때 사용자 데이터 폴더에 받는다 (개발 중에는 레포의 models/).
+MODELS_DIR = STORE / "models" if getattr(sys, "frozen", False) else ROOT / "models"
 
 
 def read_user_env(path: Path) -> dict[str, str]:
@@ -99,6 +101,9 @@ def _write_user_env(path: Path, values: dict[str, str]) -> None:
 
 if getattr(sys, "frozen", False):
     load_user_env(USER_ENV)
+    # 설치 폴더는 읽기 전용일 수 있어, analyze 가 모델을 사용자 데이터 폴더에서 찾게 한다.
+    os.environ.setdefault("CLEAN_CHAT_ANALYZE_MODEL", str(MODELS_DIR / "analyze-classifier"))
+    os.environ.setdefault("CLEAN_CHAT_JUDGE_MODEL", str(MODELS_DIR / "analyze-judge"))
 
 
 class Settings(BaseModel):

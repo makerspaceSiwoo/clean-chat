@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import sys
 
 from clean_chat.core.config import FIXTURES
@@ -14,9 +15,51 @@ from clean_chat.core.platform import use_utf8_console
 SCENARIO = FIXTURES / "scenario"
 
 
+CHECK_PACKAGES = ("PySide6", "PIL", "numpy", "rapidocr", "torch", "transformers", "huggingface_hub", "litellm")
+
+
+ARGS = ("--demo", "--check")
+
+
+def unexpected_args(args: list[str]) -> list[str]:
+    """앱이 모르는 실행 인자. macOS 가 Finder 실행 때 붙이는 -psn_… 은 허용한다."""
+    return [arg for arg in args if arg not in ARGS and not arg.startswith("-psn_")]
+
+
+def check() -> int:
+    """`--check` — 화면 없이 앱이 쓰는 패키지를 불러 보고, analyze 모델이 있으면 불러온다. 문제가 있으면 1."""
+    import importlib
+
+    from clean_chat.core import setup
+
+    failed = []
+    for name in CHECK_PACKAGES:
+        try:
+            importlib.import_module(name)
+            print(f"ok   {name}")
+        except Exception as exc:  # 설치 파일에서 빠진 패키지를 한 번에 모두 보여 준다
+            failed.append(name)
+            print(f"FAIL {name}: {type(exc).__name__}: {exc}")
+    print(f"Gemini API 키: {'있음' if setup.key_ready() else '없음 (첫 실행 준비 화면에서 입력)'}")
+    if "torch" not in failed and "transformers" not in failed and setup.models_ready():
+        print(f"analyze 모델: {setup.warm_up() or '불러오지 못함'}")
+    else:
+        print("analyze 모델: 없음 (첫 실행 준비 화면에서 내려받음)")
+    return 1 if failed else 0
+
+
 def app() -> None:
-    """`uv run app` — 클라이언트 창에서 실시간 감시를 시작한다. --demo 는 시나리오 재생."""
+    """`uv run app` — 클라이언트 창에서 실시간 감시를 시작한다. --demo 는 시나리오 재생, --check 는 설치 점검."""
+    # 반드시 맨 먼저. 설치 파일에서는 tqdm·torch 가 만드는 multiprocessing 보조 프로세스가 이 실행 파일을
+    # 다시 실행한다. 여기서 가로채지 않으면 그 프로세스가 앱 창을 또 띄우고, 그 창이 다시 모델을 불러와 끝없이 반복된다.
+    multiprocessing.freeze_support()
+    if getattr(sys, "frozen", False) and (unknown := unexpected_args(sys.argv[1:])):
+        # 설치 파일을 파이썬 인터프리터처럼 부른 경우(-c, -m 등)에는 창을 띄우지 않고 끝낸다.
+        print(f"알 수 없는 실행 인자라 시작하지 않습니다: {unknown}", file=sys.stderr)
+        raise SystemExit(2)
     use_utf8_console()
+    if "--check" in sys.argv[1:]:
+        raise SystemExit(check())
     try:
         import PySide6  # noqa: F401
     except ImportError:

@@ -1,10 +1,11 @@
 """클라이언트·오버레이·엔진을 연결한다. 화면 변경은 Qt 이벤트 루프에서 처리한다."""
 
 import sys
+import threading
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QSettings, Slot
-from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QLockFile, QObject, QSettings, Slot
+from PySide6.QtWidgets import QApplication, QDialog
 
 from clean_chat.core.config import clear_llm_settings, current_llm_key, save_llm_settings, settings
 from clean_chat.core.engine import Engine
@@ -267,7 +268,43 @@ class App(QObject):
         self.engine.stop()
 
 
+_instance_lock: QLockFile | None = None  # 앱이 끝날 때까지 잡고 있는다
+
+
+def single_instance(path: Path) -> bool:
+    """이 PC에서 앱을 하나만 실행한다. 이미 실행 중이면 False (죽은 프로세스가 남긴 잠금은 Qt 가 무시한다)."""
+    global _instance_lock
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock = QLockFile(str(path))
+    lock.setStaleLockTime(0)  # 시간으로는 풀지 않는다. 잠금을 잡은 프로세스가 살아 있는지만 본다.
+    if not lock.tryLock(0):
+        return False
+    _instance_lock = lock
+    return True
+
+
+def prepare() -> bool:
+    """중복 실행 확인 + 첫 실행 준비(Gemini API 키 입력, analyze 모델 내려받기). 시작하면 안 되면 False."""
+    from clean_chat.core import setup
+
+    QApplication.instance() or QApplication(sys.argv)
+    if not single_instance(settings.store_dir / "app.lock"):
+        print("Clean Chat 이 이미 실행 중입니다.", file=sys.stderr)
+        return False
+    if setup.needed():
+        from clean_chat.ui.setup import SetupDialog
+
+        if SetupDialog().exec() != QDialog.Accepted:
+            return False
+    if setup.models_ready():
+        # 모델을 불러오는 데 몇 초 걸린다. 첫 채팅에서 멈추지 않게 미리 불러온다.
+        threading.Thread(target=setup.warm_up, daemon=True, name="model-warm-up").start()
+    return True
+
+
 def run_app(pipelines: Pipelines, source: LineSource | FrameSource, detector: PhaseDetector) -> int:
+    if not prepare():
+        return 0
     app = App(pipelines, source, detector, history_path=settings.store_dir / "recent-results.json")
     app.show()
     app.engine.start()
