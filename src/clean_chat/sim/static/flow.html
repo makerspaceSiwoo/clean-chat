@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clean Chat 전체 흐름</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/flow.css">
+</head>
+<body class="flow">
+  <header class="top">
+    <div class="brand"><b>Clean Chat</b> 시뮬레이터 <span class="muted">· 로컬 전용</span></div>
+    <nav class="tabs" aria-label="화면">
+      <a href="/">모듈별</a>
+      <a href="/flow" aria-current="page">전체 흐름</a>
+    </nav>
+  </header>
+
+  <main class="flow-grid">
+    <!-- 입력 -->
+    <section class="panel" aria-labelledby="h-in">
+      <div class="panel-head"><h2 id="h-in">입력 · 캡처 이미지</h2></div>
+      <div class="panel-body">
+        <p class="desc small muted">실제 게임 화면 대신 저장된 채팅창 캡처를 한 장 넣고, 앱과 같은 흐름(흐름 A → 게임 종료 배치)으로 끝까지 돌립니다.</p>
+        <div id="samples" class="samples" role="radiogroup" aria-label="예시 이미지"></div>
+        <div class="field">
+          <label for="upload">또는 직접 첨부 (PNG·JPG, 10MB 이하)</label>
+          <input id="upload" type="file" accept="image/png,image/jpeg,image/webp,image/bmp">
+        </div>
+        <img id="preview" class="preview" alt="" hidden>
+
+        <div class="field">
+          <label for="ocr-text">OCR 가정 응답 — ocr 모듈이 구현 전·오류일 때 이 이미지에서 읽었다고 칠 줄 (한 줄 = 채팅 한 줄, 고쳐서 시험 가능)</label>
+          <textarea id="ocr-text" rows="9" spellcheck="false"></textarea>
+        </div>
+        <div class="field check">
+          <input id="use-fallback" type="checkbox" checked>
+          <label for="use-fallback">구현 전·오류 모듈은 가정 응답으로 대신 (끄면 실제 앱처럼 그 자리에서 멈춤)</label>
+        </div>
+        <div class="field">
+          <label for="speed">실행 속도 — 모듈은 매번 새로 실행하고, 단계 사이에만 잠깐 멈춰서 순서를 보여 줍니다</label>
+          <select id="speed">
+            <option value="500" selected>단계별 (0.5초씩)</option>
+            <option value="1200">천천히 (1.2초씩)</option>
+            <option value="0">바로 (멈춤 없음)</option>
+          </select>
+        </div>
+        <details>
+          <summary>이번 게임 명단 (fixtures/flow/players.jsonl)</summary>
+          <table class="players" id="players"></table>
+        </details>
+        <p id="input-error" class="error small" role="alert"></p>
+      </div>
+      <div class="panel-foot">
+        <button id="run" type="button" class="primary">▶ 전체 실행</button>
+        <button id="stop" type="button" hidden>■ 중지</button>
+        <span id="timer" class="muted small"></span>
+      </div>
+    </section>
+
+    <!-- 결과 -->
+    <section class="panel results" aria-labelledby="h-out">
+      <div class="panel-head">
+        <h2 id="h-out">흐름</h2>
+        <span id="badge" class="badge idle">실행 전</span>
+      </div>
+      <div class="panel-body">
+        <ol id="stages" class="stages" aria-label="모듈 상태"></ol>
+        <p id="now" class="now" aria-live="polite">▶ 전체 실행을 누르면 모듈이 순서대로 실행됩니다.</p>
+        <p id="expect-info" class="small muted"></p>
+        <p id="proc" class="small muted"></p>
+        <p id="result-error" class="error"></p>
+
+        <h3>게임 화면 <span class="muted small">— 원본 캡처 | 오버레이에 보이는 채팅 (정책 결과)</span></h3>
+        <div class="screens">
+          <figure><img id="shot" alt="원본 캡처" hidden><figcaption class="small muted">원본 (OCR 입력)</figcaption></figure>
+          <figure><div id="overlay" class="overlay" aria-live="polite"><span class="muted">실행하면 여기에 표시됩니다.</span></div><figcaption class="small muted">Clean Chat 오버레이</figcaption></figure>
+        </div>
+
+        <h3>줄마다 ① → ④ <span class="muted small">— 행을 누르면 모듈 입력·출력 JSON · 정답과 다르면 빨간색</span></h3>
+        <div class="table-wrap">
+          <table class="lines">
+            <thead><tr><th>①ocr 줄</th><th>②parse</th><th>③analyze</th><th>④rewrite</th><th>정책</th></tr></thead>
+            <tbody id="rows"><tr><td colspan="5" class="muted">실행 전</td></tr></tbody>
+          </table>
+        </div>
+
+        <h3>⑤ 게임 종료 <span class="muted small">— 신고 문구 · 고소장 초안 (report)</span></h3>
+        <div id="reports" class="reports"><span class="muted">실행 전</span></div>
+
+        <h3 id="mon">단계별 실패 모니터링 <span class="muted small">— 최근 50번 실행 · 이 PC 의 오류 로그</span>
+          <button id="logs-refresh" type="button" class="link">새로고침</button></h3>
+        <p id="log-path" class="small muted"></p>
+        <div id="run-dots" class="run-dots" aria-label="최근 실행 결과"></div>
+        <div class="table-wrap">
+          <table class="lines mon">
+            <thead><tr><th>단계</th><th>실패한 실행</th><th>호출</th><th>실제</th><th>가정 응답</th><th>오류</th><th>경고</th><th>정답률</th><th>마지막 문제</th></tr></thead>
+            <tbody id="mon-rows"><tr><td colspan="9" class="muted">불러오는 중…</td></tr></tbody>
+          </table>
+        </div>
+        <h4>최근 실패 <span class="muted small">— 행을 누르면 traceback</span></h4>
+        <div id="fail-list" class="fails"></div>
+
+        <details id="console-box">
+          <summary>디버깅 콘솔 (print · logging · 오류)</summary>
+          <pre id="console" class="console flow-console"></pre>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <script src="/flow.js"></script>
+</body>
+</html>

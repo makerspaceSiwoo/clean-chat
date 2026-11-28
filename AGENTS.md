@@ -55,6 +55,8 @@ Clean Chat은 **리그 오브 레전드 게임 중 악성 채팅을 감지하고
 uv sync                     # 설치 (처음 한 번, 앱 화면까지: uv sync --extra ui)
 uv run sim                  # 모듈 시뮬레이터 (브라우저가 열림: 입력 | 디버깅 콘솔 | 반환값)
 uv run sim parse            # 모듈 하나만 바로 열기 (ocr · parse · analyze · rewrite · report)
+uv run sim flow             # 전체 흐름: 캡처 이미지 → ocr → parse → analyze → rewrite → report (구현 전 모듈은 가정 응답)
+                            #   모듈 패키지까지: uv run --extra ocr --extra report --extra rewrite sim flow
 uv run app                  # 앱 전체 (Windows = 실제 게임 화면, Mac = 데모 재생)
 uv run pytest -q            # 테스트 (구현 전 모듈은 skip)
 uv run python -m clean_chat.session   # (리드) 게임 단계 감지기만 (가짜, --real 은 Windows)

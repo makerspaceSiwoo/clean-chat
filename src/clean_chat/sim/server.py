@@ -32,12 +32,21 @@ from urllib.parse import urlparse
 
 from clean_chat.core.config import settings
 from clean_chat.core.jsonl import read_jsonl
-from clean_chat.sim import inputs, views
+from clean_chat.sim import flow_api, inputs, views
 
 STATIC = Path(__file__).parent / "static"
-STATIC_FILES = {"/": "index.html", "/app.js": "app.js", "/style.css": "style.css"}
+STATIC_FILES = {
+    "/": "index.html",
+    "/app.js": "app.js",
+    "/style.css": "style.css",
+    "/flow": "flow.html",  # 전체 흐름 (sim/flow.py, flow_api.py)
+    "/flow.js": "flow.js",
+    "/flow.css": "flow.css",
+}
 CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css"}
 ROUTE = re.compile(r"^/api/modules/([a-z_]+)/run/?$")
+FLOW_RUN = "/api/flow/run"
+FLOW_SAMPLE = re.compile(r"^/api/flow/samples/([a-z0-9_]+)\.png$")
 MAX_BODY = 20 * 1024 * 1024  # 20MB (이미지 base64 포함)
 IMAGE_FIELD = "image_path"  # 첨부 이미지를 넣을 입력 필드 (ocr 의 Frame.image_path)
 PORT = 8765
@@ -218,13 +227,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(HTTPStatus.OK, f.read_bytes(), CONTENT_TYPES[f.suffix])
         elif path.rstrip("/") == "/api/modules":
             self._json(HTTPStatus.OK, module_list())
+        elif path.rstrip("/") == "/api/flow/samples":
+            self._json(HTTPStatus.OK, flow_api.sample_info())
+        elif path.rstrip("/") == "/api/flow/logs":
+            self._json(HTTPStatus.OK, flow_api.logs())
+        elif (m := FLOW_SAMPLE.match(path)) and (png := flow_api.sample_image(m.group(1))) is not None:
+            self._send(HTTPStatus.OK, png, "image/png")
         else:
             self._json(HTTPStatus.NOT_FOUND, {"error": "없는 주소"})
 
     def do_POST(self) -> None:  # noqa: N802
-        match = ROUTE.match(urlparse(self.path).path)
-        if match is None:
-            return self._json(HTTPStatus.NOT_FOUND, {"error": "POST /api/modules/<이름>/run 만 있습니다"})
+        path = urlparse(self.path).path
+        match = ROUTE.match(path)
+        if match is None and path.rstrip("/") != FLOW_RUN:
+            return self._json(HTTPStatus.NOT_FOUND, {"error": f"POST /api/modules/<이름>/run, {FLOW_RUN} 만 있습니다"})
         length = int(self.headers.get("Content-Length") or 0)
         if length > MAX_BODY:
             return self._json(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "본문이 너무 큽니다 (최대 20MB)"})
@@ -246,12 +262,15 @@ class Handler(BaseHTTPRequestHandler):
                 raise ClientGone from e
 
         try:
-            run_module(match.group(1), body, emit)
+            if match is None:
+                flow_api.run_flow_request(body, emit)
+            else:
+                run_module(match.group(1), body, emit)
         except ClientGone:
             print("[sim] 브라우저가 연결을 끊어 실행을 멈췄습니다", file=sys.stderr)
 
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
-        if "/api/modules/" in str(args[0] if args else ""):
+        if any(k in str(args[0] if args else "") for k in ("/api/modules/", FLOW_RUN)):
             print(f"[sim] {format % args}", file=sys.stderr)
 
 
@@ -266,8 +285,10 @@ def make_server(port: int = PORT) -> ThreadingHTTPServer:
 
 
 def serve(module: str | None = None, open_browser: bool = True) -> None:
+    """module: 모듈 이름이면 그 모듈 화면, "flow" 면 전체 흐름 화면을 연다."""
     httpd = make_server()
-    url = f"http://localhost:{httpd.server_address[1]}/" + (f"#{module}" if module else "")
+    base = f"http://localhost:{httpd.server_address[1]}/"
+    url = base + "flow" if module == "flow" else base + (f"#{module}" if module else "")
     print(f"✅ 모듈 시뮬레이터: {url}")
     print("   브라우저에서 모듈을 골라 실행하세요. 끝내려면 Ctrl+C")
     if open_browser:
