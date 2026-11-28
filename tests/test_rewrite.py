@@ -1155,3 +1155,68 @@ def test_feedback_is_shown_even_when_api_gives_nothing(monkeypatch, feedback):
     api(monkeypatch, None)
     out = impl.run(request(f"정글 병신아 {feedback}", [feedback]))
     assert out.rewritten and "병신" not in out.rewritten and out.backend == "rule"
+
+
+# ── 실측 점검 (2026-11-28): 조각에 섞인 비하어, 원문의 호칭, 담백한 말투 ──────────────
+def test_insult_inside_feedback_span_is_never_shown_raw(monkeypatch):
+    """analyze 가 비하어가 든 조각을 넘겨도("이 쓰레기 서폿아 시야 좀"), 다듬지 못하면 조각을 그대로 보이지 않는다."""
+    api(monkeypatch, None)
+    out = impl.run(request("원딜 좀 키워줘 ㅅㅂ 이 쓰레기 서폿아 시야 좀", ["이 쓰레기 서폿아 시야 좀"]))
+    assert out.rewritten is None
+
+
+def test_insult_inside_feedback_span_can_be_rewritten_by_api(monkeypatch):
+    api(monkeypatch, "서폿 시야 좀 잡아 줘")
+    out = impl.run(request("원딜 좀 키워줘 ㅅㅂ 이 쓰레기 서폿아 시야 좀", ["이 쓰레기 서폿아 시야 좀"]))
+    assert out.rewritten == "서폿 시야 좀 잡아 줘" and out.backend == "api"
+
+
+def test_api_output_that_keeps_the_insult_is_rejected(monkeypatch):
+    api(monkeypatch, "쓰레기 서폿 시야 좀 잡아 줘")
+    out = impl.run(request("원딜 좀 키워줘 ㅅㅂ 이 쓰레기 서폿아 시야 좀", ["이 쓰레기 서폿아 시야 좀"]))
+    assert out.rewritten is None
+
+
+def test_role_from_the_original_sentence_may_be_added_as_address(monkeypatch):
+    """피드백 조각 밖이라도 원문에서 부른 포지션은 호칭으로 붙일 수 있다."""
+    api(monkeypatch, "정글 와드 좀 박아 줘")
+    out = impl.run(request("정글 멍청아 와드 좀 박아", ["와드 좀 박아"]))
+    assert out.rewritten == "정글 와드 좀 박아 줘" and out.backend == "api"
+
+
+def test_target_missing_from_the_original_sentence_is_still_rejected(monkeypatch):
+    api(monkeypatch, "미드 와드 좀 박아 줘")
+    out = impl.run(request("정글 멍청아 와드 좀 박아", ["와드 좀 박아"]))
+    assert out.backend == "rule"
+
+
+def test_champion_from_the_original_sentence_may_be_added_as_address(monkeypatch):
+    from clean_chat.core.schemas import Player
+
+    api(monkeypatch, "리신 바텀 갱 와 줘, 용 타이밍이야")
+    req = request("리신 병신아 바텀 갱 좀 와 용 타이밍이잖아", ["바텀 갱 좀 와 용 타이밍이잖아"])
+    req.analysis.profanity_spans = ["병신"]
+    req.players = [Player(name="달빛고양이", champion="리신"), Player(name="밤하늘별", champion="애쉬")]
+    out = impl.run(req)
+    assert out.rewritten == "리신 바텀 갱 와 줘, 용 타이밍이야" and out.backend == "api"
+
+    api(monkeypatch, "애쉬 바텀 갱 와 줘, 용 타이밍이야")  # 원문에 없는 챔피언은 추가 금지
+    impl._CACHE.clear()
+    assert impl.run(req).backend == "rule"
+
+
+@pytest.mark.parametrize(
+    "text", ["와드 좀 박아 줘", "용 먼저 치자", "합류해 줄래?", "와드 설치 부탁해요", "텔 아끼지 마"]
+)
+def test_moderate_tone_passes(text):
+    assert ("말투", True) in [(label, ok) for label, ok, _ in impl._output_checks(text, text, [], [])]
+
+
+@pytest.mark.parametrize("text", ["와드 박아라", "왜 안 오냐", "용 치라고", "들어가지 마라"])
+def test_harsh_tone_fails(text):
+    assert ("말투", False) in [(label, ok) for label, ok, _ in impl._output_checks(text, text, [], [])]
+
+
+def test_prompt_asks_for_moderate_not_overly_polite_tone():
+    assert "지나친 존댓말" in backend._SYSTEM_INSTRUCTION
+    assert "공손한" not in backend._SYSTEM_INSTRUCTION

@@ -1,6 +1,7 @@
 """④ rewrite: 욕설을 빼고 남은 말만 보여 줄 문장으로 만든다. 불확실한 결과는 버린다.
 
-L1(대상 없는 욕설)은 욕설이 든 낱말을 지운 문장, L2 이상은 분석된 피드백만 공손하게 다듬은 문장이다.
+L1(대상 없는 욕설)은 욕설이 든 낱말을 지운 문장, L2 이상은 분석된 피드백만 팀원끼리 쓰는 담백한 말투로 다듬은 문장이다.
+지나치게 공손한 말("~님, ~부탁드립니다")은 쓰지 않는다. 원문이 반말이면 부드러운 반말("~해 줘", "~하자")로 둔다.
 """
 
 from __future__ import annotations
@@ -115,6 +116,13 @@ _EXPLICIT_ABUSE = (
     "자살",
     "멍청",
     "노답",
+    # 사람을 깎아내리는 말: 피드백 조각에 섞여 와도 화면에 그대로 내보내지 않는다 ("이 쓰레기 서폿아 시야 좀")
+    "쓰레기",
+    "등신",
+    "머저리",
+    "찐따",
+    "버러지",
+    "한심",
     "fuck",
     "bitch",
     "idiot",
@@ -294,8 +302,19 @@ def _direct_reversal(source: str, rewritten: str) -> bool:
     )
 
 
-def _output_checks(text: str, source: str, names: list[str], profanity: list[str]) -> list[tuple[str, bool, str]]:
+_TONE = re.compile(r"(?:요|죠|시다|니다|자|줘|주라|줄래|래|까|봐|야|해|지|게|지 ?마)[.!?~]?$|\?$")
+
+
+def _output_checks(
+    text: str, source: str, names: list[str], profanity: list[str], context: str = ""
+) -> list[tuple[str, bool, str]]:
+    """context = 원문 문장 (닉네임 코드로 바꾼 것). 피드백 조각 밖이어도 원문에 있던 대상은 호칭으로 붙일 수 있다.
+
+    예) "정글 ㅂㅅ아 와드 좀 박아", 조각 "와드 좀 박아" → "정글 와드 좀 박아 줘" 는 통과 (정글은 원문에 있음)
+        조각 "용 먼저 치라고" → "바론 먼저 치자" 는 거절 (바론은 원문에 없음)
+    """
     source_targets, result_targets = _targets(source), _targets(text)
+    allowed_targets = source_targets | _targets(context)
     source_numbers = Counter(re.findall(r"\d+(?:[.,]\d+)*", without_codes(source)))
     result_numbers = Counter(re.findall(r"\d+(?:[.,]\d+)*", without_codes(text)))
     source_details, result_details = _dragon_details(source), _dragon_details(text)
@@ -313,7 +332,7 @@ def _output_checks(text: str, source: str, names: list[str], profanity: list[str
             not re.search(r"[.!?。！？].*\S", text.rstrip(".!?。！？")) and not any(c in text for c in "\n`{}[]<>:："),
             "설명/복수 문장/코드 형식 확인",
         ),
-        ("공손한 표현", bool(re.search(r"(?:요|죠|시다|자|니다)[.!?。！？]?$", text)), "존댓말/청유형/질문형 확인"),
+        ("말투", bool(_TONE.search(text)), "존댓말·부드러운 반말 요청(~줘/~하자)·질문형 확인"),
         (
             "수치",
             source_numbers == result_numbers,
@@ -321,20 +340,21 @@ def _output_checks(text: str, source: str, names: list[str], profanity: list[str
         ),
         (
             "명확한 대상",
-            source_targets == result_targets,
-            f"원문={sorted(source_targets)}, 결과={sorted(result_targets)}",
+            source_targets <= result_targets <= allowed_targets,
+            f"피드백={sorted(source_targets)}, 결과={sorted(result_targets)}, 원문 문장={sorted(allowed_targets)}"
+            " — 피드백의 대상은 빠지면 안 되고, 원문에 없던 대상은 추가 금지",
         ),
         ("직접 행동 반전", not _direct_reversal(source, text), "동일 동사의 명백한 실행/금지 반전 확인"),
     ]
 
 
-def _acceptable(text: str, source: str, names: list[str], profanity: list[str]) -> bool:
-    return all(ok for _, ok, _ in _output_checks(text, source, names, profanity))
+def _acceptable(text: str, source: str, names: list[str], profanity: list[str], context: str = "") -> bool:
+    return all(ok for _, ok, _ in _output_checks(text, source, names, profanity, context))
 
 
-def _log_checks(text: str, source: str, names: list[str], profanity: list[str]) -> list[str]:
+def _log_checks(text: str, source: str, names: list[str], profanity: list[str], context: str = "") -> list[str]:
     failures = []
-    for label, ok, detail in _output_checks(text, source, names, profanity):
+    for label, ok, detail in _output_checks(text, source, names, profanity, context):
         _LOG.info("[로컬 검사/%s] %s — %s", label, "통과" if ok else "거절", detail)
         if not ok:
             failures.append(label)
@@ -349,13 +369,17 @@ def _request_checks(
     codec: NicknameCodec,
     spans: list[str],
     champions: list[str],
+    context: str = "",
 ) -> list[str]:
-    failures = _log_checks(text, source, names, profanity)
+    failures = _log_checks(text, source, names, profanity, context)
     code_ok = codec.preserves(text, spans)
     _LOG.info("[로컬 검사/닉네임 코드] %s — 선택된 코드 누락/변형/추가 검사", "통과" if code_ok else "거절")
     if not code_ok:
         failures.append("닉네임 코드")
-    champion_ok = {c for c in champions if c in source} == {c for c in champions if c in text}
+    # 피드백의 챔피언은 빠지면 안 되고, 원문 문장에 있던 챔피언은 호칭으로 붙일 수 있다 ("리신 바텀 갱 와 줘")
+    in_source, in_text = {c for c in champions if c in source}, {c for c in champions if c in text}
+    champion_ok = in_source <= in_text <= in_source | {c for c in champions if c in context}
+    _LOG.info("[로컬 검사/챔피언명] %s — 피드백=%s, 결과=%s", "통과" if champion_ok else "거절", in_source, in_text)
     if not champion_ok:
         failures.append("챔피언명")
     if len(codec.restore(text)) > 180:
@@ -364,7 +388,7 @@ def _request_checks(
 
 
 def run(req: RewriteRequest) -> Rewrite:
-    """악성 문장의 피드백 조각만 롤 용어를 살린 공손한 문장 1개로 다듬는다.
+    """악성 문장의 피드백 조각만 롤 용어를 살린 담백한 문장 1개로 다듬는다 (과한 존댓말 없이).
 
     입력: RewriteRequest(message, analysis) → 출력: Rewrite(msg_id, rewritten, backend)
     예) "야 정글 ㅂㅅ아 용 먼저 치라고", feedback_spans=["용 먼저 치라고"] → "용 먼저 치자"
@@ -415,9 +439,11 @@ def run(req: RewriteRequest) -> Rewrite:
     original = codec.encode(original)
     spans = [codec.encode(span) for span in spans]
     profanity = [codec.encode(word) for word in req.analysis.profanity_spans]
-    if any(_still_abusive(span, profanity) for span in spans):
-        _LOG.info("[최종] null — 선택된 피드백에 욕설이 포함됨")
-        return empty
+    span_abusive = any(_still_abusive(span, profanity) for span in spans)
+    if span_abusive:
+        # 피드백 조각에 깎아내리는 말이 섞여 왔다 ("이 쓰레기 서폿아 시야 좀"). Gemini 가 빼고 다듬게 하고,
+        # 결과는 아래 욕설 검사를 다시 거친다. Gemini 도 못 하면 조각을 그대로 보이지 않고 숨긴다.
+        _LOG.info("[입력 검사] 선택된 피드백에 욕설·비하어가 섞임 — 다듬은 결과만 쓰고 조각 그대로 표시는 하지 않음")
     config = backend.options()
     mode = config["LLM_BACKEND"]
     secrets = (config.get("LLM_API_KEY", ""), config.get("GEMINI_API_KEY", ""))
@@ -465,7 +491,7 @@ def run(req: RewriteRequest) -> Rewrite:
             clean = _clean_output(generated)
             _LOG.info("[초안] %s", preview(generated, secrets=secrets, names=names))
             _LOG.info("[출력 정리] %s", preview(clean, secrets=secrets, names=names))
-            failures = _request_checks(clean, source, names, profanity, codec, spans, champions)
+            failures = _request_checks(clean, source, names, profanity, codec, spans, champions, original)
             elapsed = time.monotonic() - started
             if elapsed >= 3:
                 failures.append("3초 제한")
@@ -482,7 +508,7 @@ def run(req: RewriteRequest) -> Rewrite:
     result = _rule(spans, original, champions)
     if result:
         _LOG.info("[예비 규칙 초안] %s", preview(result, secrets=secrets, names=names))
-        failures = _request_checks(result, source, names, profanity, codec, spans, champions)
+        failures = _request_checks(result, source, names, profanity, codec, spans, champions, original)
         if not failures and time.monotonic() - started < 3:
             _LOG.info("[최종] backend=rule — AI 생성이 아닌 예비 규칙, %.3f초", time.monotonic() - started)
             return Rewrite(msg_id=req.message.id, rewritten=codec.restore(result), backend="rule")
@@ -490,7 +516,7 @@ def run(req: RewriteRequest) -> Rewrite:
     # 다듬지 못했어도 피드백 조각 자체는 욕설이 없고(위에서 확인) 원문에 있던 말이다. 숨기지 않고 그대로 보여 준다.
     # 숨기면 "욕설에 섞인 게임 피드백만 남긴다"는 기능이 Gemini 응답 하나에 좌우된다.
     plain = " ".join(spans)
-    if plain.strip() and not _still_abusive(plain, profanity) and len(plain) <= 180:
+    if plain.strip() and not span_abusive and not _still_abusive(plain, profanity) and len(plain) <= 180:
         _LOG.info("[최종] backend=rule — 다듬지 못해 피드백 조각을 그대로 사용 (%.3f초)", time.monotonic() - started)
         return Rewrite(msg_id=req.message.id, rewritten=codec.restore(plain), backend="rule")
     _LOG.info("[최종] null — 규칙에 없는 표현 또는 안전한 변환 불가 (%.3f초)", time.monotonic() - started)

@@ -75,7 +75,7 @@
 |---|---|
 | 입력 → 출력 | `RewriteRequest`(메시지, Analysis) → `Rewrite`(순화 문장 또는 `None`) |
 | 언제 | 구성이 **L2 이상 & `feedback_spans` 가 있을 때만** 부릅니다 |
-| 책임 | 피드백 조각을 롤 용어를 살린 공손한 문장 1개로. 원문에 없는 내용 금지, 욕설이 남으면 `None` |
+| 책임 | 피드백 조각을 롤 용어를 살린 담백한 문장 1개로(지나친 존댓말 없이). 원문에 없는 내용 금지, 욕설이 남으면 `None` |
 | 방식 | **외부 LLM API** (`backend="api"`). 키 없음·실패·시간 초과면 규칙(`"rule"`) 또는 `None` |
 | 기준 | 3초 이내 (SPEC 8장). LLM 백엔드 `settings.llm_backend` (OPEN-04), API 키는 `.env` |
 
